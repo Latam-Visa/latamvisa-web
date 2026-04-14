@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm install:*)",
+      "Bash(npx next:*)",
+      "Bash(grep -n \"font-geist\" *.tsx)",
+      "Bash(grep -rn \"font-geist\\\\|font-dm-sans\" *.tsx)",
+      "Bash(grep -rn \"font-geist\\\\|font-dm-sans\" ../app/*.tsx)",
+      "Bash(grep -n \"fontSize: ''14px''\\\\|fontWeight: 500\\\\|fontWeight: 400\" /Users/cristianmontenegro/Desktop/web1/components/HeroScroll.tsx)",
+      "Bash(lsof -ti:8090)",
+      "Bash(xargs kill:*)",
+      "Bash(lsof -ti:3000)"
+    ]
+  }
+}

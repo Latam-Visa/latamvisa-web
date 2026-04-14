@@ -1,0 +1,304 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ── Funnel Display ── */
+@font-face {
+  font-family: 'FunnelDisplay';
+  src: url('/Funnel_Display/static/FunnelDisplay-Light.ttf') format('truetype');
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'FunnelDisplay';
+  src: url('/Funnel_Display/static/FunnelDisplay-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'FunnelDisplay';
+  src: url('/Funnel_Display/static/FunnelDisplay-Medium.ttf') format('truetype');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'FunnelDisplay';
+  src: url('/Funnel_Display/static/FunnelDisplay-SemiBold.ttf') format('truetype');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'FunnelDisplay';
+  src: url('/Funnel_Display/static/FunnelDisplay-Bold.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* ── Iceland ── */
+@font-face {
+  font-family: 'Iceland';
+  src: url('/Funnel_Display,Iceland/Iceland/Iceland-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* ── PPMonumentExtended ── */
+@font-face {
+  font-family: 'PPMonumentExtended';
+  src: url('/fonts/PPMonumentExtended-Black.otf') format('opentype');
+  font-weight: 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'PPMonumentExtended';
+  src: url('/fonts/PPMonumentExtended-Regular.otf') format('opentype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'PPMonumentExtended';
+  src: url('/fonts/PPMonumentExtended-Light.otf') format('opentype');
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'PPMonumentExtended';
+  src: url('/fonts/PPMonumentExtended-BlackItalic.otf') format('opentype');
+  font-weight: 900;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'PPMonumentExtended';
+  src: url('/fonts/PPMonumentExtended-RegularItalic.otf') format('opentype');
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'PPMonumentExtended';
+  src: url('/fonts/PPMonumentExtended-LightItalic.otf') format('opentype');
+  font-weight: 300;
+  font-style: italic;
+  font-display: swap;
+}
+
+:root {
+  --bg-primary: #FAFAFA;
+  --bg-secondary: #F5F5F5;
+  --accent-neon: #C8FF00;
+  --accent-neon-dim: #A8D900;
+  --accent-neon-glow: rgba(200, 255, 0, 0.15);
+  --text-primary: #111111;
+  --text-secondary: #777777;
+  --border-subtle: #E0E0E0;
+  --border-neon: rgba(200, 255, 0, 0.3);
+}
+
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+html,
+body {
+  max-width: 100vw;
+  overflow-x: hidden;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  cursor: none;
+  font-family: 'PPMonumentExtended', sans-serif;
+  font-weight: 300;
+}
+
+/* Custom cursor */
+.cursor-dot {
+  width: 8px;
+  height: 8px;
+  background-color: var(--accent-neon);
+  border-radius: 50%;
+  position: fixed;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  z-index: 9999;
+  transform: translate(-50%, -50%);
+  transition: width 0.1s, height 0.1s, background-color 0.25s;
+}
+
+.cursor-dot.is-light {
+  background-color: #2A3A00;
+}
+
+.cursor-ring {
+  width: 36px;
+  height: 36px;
+  border: 1.5px solid var(--accent-neon);
+  border-radius: 50%;
+  position: fixed;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  z-index: 9998;
+  transform: translate(-50%, -50%);
+  transition: width 0.15s, height 0.15s, opacity 0.15s, border-color 0.25s;
+  opacity: 0.6;
+}
+
+.cursor-ring.is-light {
+  border-color: #2A3A00;
+}
+
+body:has(a:hover) .cursor-ring,
+body:has(button:hover) .cursor-ring {
+  width: 56px;
+  height: 56px;
+  opacity: 1;
+}
+
+/* Noise texture overlay */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.4;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 4px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-primary);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--accent-neon);
+  border-radius: 2px;
+}
+
+/* Section divider */
+.divider-neon {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(200, 255, 0, 0.25), transparent);
+}
+
+/* Ticker animation */
+@keyframes ticker-left {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+@keyframes ticker-right {
+  0% { transform: translateX(-50%); }
+  100% { transform: translateX(0); }
+}
+
+.animate-ticker-left {
+  animation: ticker-left 30s linear infinite;
+}
+
+.animate-ticker-right {
+  animation: ticker-right 40s linear infinite;
+}
+
+/* Selection */
+::selection {
+  background: rgba(200, 255, 0, 0.3);
+  color: #111111;
+}
+
+/* ── Grainy gradient utility classes ─────────────────────────────────── */
+.grainy-bg {
+  position: relative;
+  background: radial-gradient(
+    ellipse at 30% 50%,
+    #E8FF7A 0%,
+    #C8FF00 35%,
+    #A8D900 65%,
+    #7DB800 100%
+  );
+  isolation: isolate;
+}
+
+.grainy-bg::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='grain'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23grain)' opacity='1'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 200px 200px;
+  opacity: 0.18;
+  mix-blend-mode: overlay;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.grainy-bg > * {
+  position: relative;
+  z-index: 2;
+}
+
+.grainy-bg-dark {
+  position: relative;
+  background: radial-gradient(
+    ellipse at 70% 50%,
+    #1A2E00 0%,
+    #0D1A00 50%,
+    #050505 100%
+  );
+  isolation: isolate;
+}
+
+.grainy-bg-dark::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='grain'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23grain)' opacity='1'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 200px 200px;
+  opacity: 0.12;
+  mix-blend-mode: screen;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.grainy-bg-dark > * {
+  position: relative;
+  z-index: 2;
+}
+
+@layer utilities {
+  .neon-text {
+    color: var(--accent-neon);
+  }
+  .neon-border {
+    border-color: rgba(200, 255, 0, 0.3);
+  }
+  .neon-glow {
+    box-shadow: 0 0 20px rgba(200, 255, 0, 0.15);
+  }
+  .bg-primary {
+    background-color: var(--bg-primary);
+  }
+  .bg-secondary {
+    background-color: var(--bg-secondary);
+  }
+}
