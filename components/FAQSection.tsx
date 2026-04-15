@@ -115,7 +115,7 @@ export default function FAQSection() {
             <span className="font-funnel text-[#5B6A00] text-xs md:text-sm tracking-[0.2em] uppercase block mb-3">
               DUDAS FRECUENTES
             </span>
-            <h2 className="font-monument font-black text-2xl md:text-3xl tracking-tight text-[#1a2a00] mb-6 leading-[1.1]">
+            <h2 className="font-monument font-black text-xl md:text-3xl tracking-tight text-[#1a2a00] mb-6 leading-[1.1]">
               RESPUESTAS <br className="hidden md:block"/>
               <span className="text-[#1a2a00]/40">RÁPIDAS</span>
             </h2>

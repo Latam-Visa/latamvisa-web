@@ -314,7 +314,7 @@ export default function ServicesSection() {
             initial={{ opacity: 0, y: 30 }}
             animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
             transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1], delay: 0.1 }}
-            className="font-monument font-black text-3xl md:text-5xl tracking-tight text-[#111111]"
+            className="font-monument font-black text-2xl md:text-5xl tracking-tight text-[#111111]"
           >
             Nuestros <span className="text-[#5B6A00] italic pr-2">Servicios</span>
           </motion.h2>

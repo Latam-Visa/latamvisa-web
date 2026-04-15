@@ -220,7 +220,7 @@ export default function HeroScroll() {
 
   const headlineBase: React.CSSProperties = {
     fontFamily: "'PPMonumentExtended', sans-serif",
-    fontSize: isMobile ? 'clamp(24px, 8vw, 40px)' : '4vw',
+    fontSize: isMobile ? 'clamp(15px, 5vw, 28px)' : '4vw',
     fontWeight: 900,
     lineHeight: 0.92,
     letterSpacing: '-0.03em',
@@ -283,18 +283,16 @@ export default function HeroScroll() {
           style={{ position: 'absolute', inset: 0, zIndex: 4, pointerEvents: 'auto' }}
         >
           {/* TOP-LEFT headline */}
-          <div style={{ position: 'absolute', top: '22vh', left: hPad }}>
+          <div style={{ position: 'absolute', top: isMobile ? '18vh' : '22vh', left: hPad }}>
             <span style={headlineBase}>No somos</span>
             <span style={headlineBase}>una agencia</span>
           </div>
 
-          {/* BOTTOM-RIGHT headline — hidden on mobile to avoid overlap */}
-          {!isMobile && (
-            <div style={{ position: 'absolute', bottom: '25vh', right: hPad, textAlign: 'right' }}>
-              <span style={headlineBase}>Somos latinos</span>
-              <span style={headlineBase}>soñando</span>
-            </div>
-          )}
+          {/* BOTTOM-RIGHT headline */}
+          <div style={{ position: 'absolute', bottom: isMobile ? '32vh' : '25vh', right: hPad, textAlign: 'right' }}>
+            <span style={headlineBase}>Somos latinos</span>
+            <span style={headlineBase}>soñando</span>
+          </div>
 
           {/* BOTTOM-LEFT: Tagline block */}
           <div style={{ position: 'absolute', bottom: '14vh', left: hPad, maxWidth: isMobile ? `calc(100vw - 48px)` : '380px' }}>

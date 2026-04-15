@@ -1,6 +1,6 @@
 export const CONTACT = {
   email: 'future@latamvisas.com.au',
-  whatsapp: '+61 426 779 731',
+  whatsapp: '+61 426 779 734',
 }
 
 export const FRAME_PREFIX  = '/Sec1/ezgif-frame-'

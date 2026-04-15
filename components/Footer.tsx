@@ -6,7 +6,7 @@ import { useRef, useEffect } from 'react'
 import { CONTACT } from '@/lib/constants'
 
 const InstagramIcon = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+  <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
     <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
     <circle cx="12" cy="12" r="4"/>
     <circle cx="17.5" cy="6.5" r="0.5" fill="currentColor" stroke="none"/>
@@ -14,7 +14,7 @@ const InstagramIcon = () => (
 )
 
 const FacebookIcon = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+  <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
     <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/>
   </svg>
 )
@@ -121,7 +121,7 @@ export default function Footer() {
 
       {/* ── Contenido encima del gradiente ── */}
       <div className="relative z-10 max-w-7xl mx-auto px-8 pt-10 pb-0">
-        <div className="flex flex-col md:flex-row md:items-start gap-4 pb-2 border-b border-black/10">
+        <div className="flex flex-col md:flex-row md:items-start gap-6 pb-2 border-b border-black/10">
 
           <motion.div ref={brandRef} className="flex flex-col gap-3 shrink-0 md:w-60"
             initial={{ opacity: 0, y: 28 }} animate={brandInView ? { opacity: 1, y: 0 } : {}}
@@ -136,21 +136,9 @@ export default function Footer() {
             <p className="font-funnel font-semibold text-sm leading-relaxed max-w-[260px]" style={{ color: '#1A2A00' }}>
               Visas de turismo para Australia, USA, Japón, UK y Canadá. Visa estudiante para Australia. Atendemos toda Latinoamérica.
             </p>
-            <div className="flex items-center gap-5 mt-1">
-              <motion.a href="https://www.instagram.com/latamvisausa/" target="_blank" rel="noopener noreferrer"
-                aria-label="Instagram" style={{ color: '#1A2A00' }} className="hover:opacity-60 transition-opacity"
-                whileHover={{ scale: 1.2, y: -2 }} transition={{ duration: 0.2 }}>
-                <InstagramIcon />
-              </motion.a>
-              <motion.a href="https://www.facebook.com/profile.php?id=61563009909169" target="_blank" rel="noopener noreferrer"
-                aria-label="Facebook" style={{ color: '#1A2A00' }} className="hover:opacity-60 transition-opacity"
-                whileHover={{ scale: 1.2, y: -2 }} transition={{ duration: 0.2 }}>
-                <FacebookIcon />
-              </motion.a>
-            </div>
           </motion.div>
 
-          <div className="flex gap-10 md:gap-16 flex-wrap md:ml-auto">
+          <div className="flex gap-8 md:gap-14 flex-wrap md:ml-auto items-start">
             <NavCol label="Servicios" delay={0.1}>
               <Link href="#servicios" className={linkClass} style={{ color: '#1A2A00' }}>Visa Turismo</Link>
               <Link href="#servicios" className={linkClass} style={{ color: '#1A2A00' }}>Visa Estudiante</Link>
@@ -165,6 +153,26 @@ export default function Footer() {
               <a href={`mailto:${CONTACT.email}`} className={linkClass} style={{ color: '#1A2A00' }}>{CONTACT.email}</a>
               <a href={`https://wa.me/${CONTACT.whatsapp.replace(/[^0-9]/g, '')}`} className={linkClass} style={{ color: '#1A2A00' }}>{CONTACT.whatsapp}</a>
             </NavCol>
+
+            {/* Social icons — right side */}
+            <motion.div
+              className="flex flex-row md:flex-col items-center md:items-end gap-4 md:gap-4 md:pt-6"
+              initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1], delay: 0.35 }}
+            >
+              <motion.a href="https://www.instagram.com/latamvisausa/" target="_blank" rel="noopener noreferrer"
+                aria-label="Instagram" style={{ color: '#1A2A00' }}
+                className="hover:opacity-60 transition-opacity p-2 border border-[#1A2A00]/20 rounded-lg hover:border-[#1A2A00]/50 transition-all duration-200"
+                whileHover={{ scale: 1.15, y: -2 }} transition={{ duration: 0.2 }}>
+                <InstagramIcon />
+              </motion.a>
+              <motion.a href="https://www.facebook.com/profile.php?id=61563009909169" target="_blank" rel="noopener noreferrer"
+                aria-label="Facebook" style={{ color: '#1A2A00' }}
+                className="hover:opacity-60 transition-opacity p-2 border border-[#1A2A00]/20 rounded-lg hover:border-[#1A2A00]/50 transition-all duration-200"
+                whileHover={{ scale: 1.15, y: -2 }} transition={{ duration: 0.2 }}>
+                <FacebookIcon />
+              </motion.a>
+            </motion.div>
           </div>
         </div>
 

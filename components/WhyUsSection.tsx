@@ -60,7 +60,7 @@ export default function WhyUsSection() {
         {/* Header — right aligned with tight transparent white background */}
         <div className="flex justify-end mb-16 px-4">
           <motion.div
-            className="p-8 md:p-10 rounded-[2rem] bg-white/40 backdrop-blur-lg border border-white/60 shadow-[0_8px_40px_rgba(0,0,0,0.04)] w-fit text-right"
+            className="p-5 md:p-10 rounded-[2rem] bg-white/40 backdrop-blur-lg border border-white/60 shadow-[0_8px_40px_rgba(0,0,0,0.04)] w-fit text-right"
             variants={buildVariants('up', 30, 0, 0.72)}
             initial="hidden"
             whileInView="visible"
@@ -69,7 +69,7 @@ export default function WhyUsSection() {
             <span className="font-funnel text-[#5B6A00] text-xs tracking-[0.3em] uppercase block mb-4">
               Por qué elegirnos
             </span>
-            <h2 className="font-monument font-black text-xl md:text-3xl tracking-tight text-[#111111]">
+            <h2 className="font-monument font-black text-lg md:text-3xl tracking-tight text-[#111111]">
               La diferencia entre
               <br />
               <span className="text-[#5B6A00] italic">aprobar o no aprobar</span>
@@ -87,7 +87,7 @@ export default function WhyUsSection() {
               initial="hidden"
               whileInView="visible"
               viewport={{ once: true, margin: '-10px' }}
-              className={`p-8 md:p-10 border transition-all duration-700 ${
+              className={`p-5 md:p-10 border transition-all duration-700 ${
                 d.isHighlight
                   ? 'border-[#C8FF00]/60 bg-white/80 backdrop-blur-md shadow-[0_20px_50px_rgba(200,255,0,0.15)] relative lg:scale-105 z-10'
                   : 'border-[#111111]/10 bg-black/5 bg-opacity-30 backdrop-blur-sm grayscale-[0.5] opacity-80'

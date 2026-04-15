@@ -86,7 +86,7 @@ export default function Navbar() {
                 key={link.href}
                 href={link.href}
                 className={`transition-colors duration-500 ${textClass}`}
-                style={{ fontFamily: "'PPMonumentExtended', sans-serif", fontSize: '8px', fontWeight: 700 }}
+                style={{ fontFamily: "'PPMonumentExtended', sans-serif", fontSize: '11px', fontWeight: 700 }}
               >
                 {link.label}
               </Link>
@@ -97,11 +97,11 @@ export default function Navbar() {
         {/* RIGHT: Contact info */}
         <div className="hidden md:flex items-center gap-10">
           <a
-            href="tel:+61426779731"
+            href="tel:+61426779734"
             className={`transition-colors duration-500 ${textClass}`}
             style={{ fontFamily: "'PPMonumentExtended', sans-serif", fontSize: '10px', fontWeight: 700 }}
           >
-            +61 426 779 731
+            +61 426 779 734
           </a>
           <a
             href="mailto:future@latamvisas.com.au"
@@ -143,8 +143,8 @@ export default function Navbar() {
             </Link>
           ))}
           <div className="mt-2 pt-4 border-t border-[#E0E0E0] flex flex-col gap-3">
-            <a href="tel:+61426779731" className="text-xs text-[#111111]/50" style={{ fontFamily: "'PPMonumentExtended', sans-serif" }}>
-              +61 426 779 731
+            <a href="tel:+61426779734" className="text-xs text-[#111111]/50" style={{ fontFamily: "'PPMonumentExtended', sans-serif" }}>
+              +61 426 779 734
             </a>
             <a href="mailto:future@latamvisas.com.au" className="text-xs text-[#111111]/50" style={{ fontFamily: "'PPMonumentExtended', sans-serif" }}>
               future@latamvisas.com.au

@@ -39,6 +39,8 @@ function SplitReveal({
             overflow: 'hidden',
             verticalAlign: 'bottom',
             marginRight: i < words.length - 1 ? '0.3em' : 0,
+            paddingBottom: '0.15em',
+            marginBottom: '-0.15em',
           }}
         >
           <motion.span
@@ -182,11 +184,11 @@ export default function AboutSection() {
           <div className="max-w-2xl">
 
             {/* "Nuestro Compromiso" — inspired by "Discover Innovation" image */}
-            <div className="flex flex-row flex-wrap items-baseline gap-x-3 md:gap-x-5 mb-4">
+            <div className="flex flex-row flex-wrap items-baseline gap-x-3 md:gap-x-5 gap-y-1 mb-4">
               <SplitReveal
                 text="Nuestro"
                 tag="h2"
-                className="font-monument font-black text-white text-4xl md:text-[3.9rem] tracking-tight leading-none"
+                className="font-monument font-black text-white text-2xl sm:text-4xl md:text-[3.9rem] tracking-tight leading-none"
                 inView={inView}
                 scrollDir={scrollDir}
                 baseDelay={0}
@@ -195,7 +197,7 @@ export default function AboutSection() {
               <SplitReveal
                 text="COMPROMISO"
                 tag="h2"
-                className="font-monument font-black text-white text-5xl md:text-[4.1rem] tracking-tight leading-none"
+                className="font-monument font-black text-white text-3xl sm:text-5xl md:text-[4.1rem] tracking-tight leading-none"
                 inView={inView}
                 scrollDir={scrollDir}
                 baseDelay={0.3}
@@ -207,7 +209,7 @@ export default function AboutSection() {
             <SplitReveal
               text="Diseñamos tu ruta migratoria con precisión y transparencia."
               tag="h2"
-              className="font-funnel font-bold text-[#111111] text-base md:text-xl leading-[1.3] mt-4 max-w-[90%]"
+              className="font-funnel font-bold text-[#111111] text-sm md:text-xl leading-[1.3] mt-4 max-w-[90%]"
               inView={inView}
               scrollDir={scrollDir}
               baseDelay={0.22}
