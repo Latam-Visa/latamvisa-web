@@ -220,7 +220,7 @@ export default function HeroScroll() {
 
   const headlineBase: React.CSSProperties = {
     fontFamily: "'PPMonumentExtended', sans-serif",
-    fontSize: isMobile ? 'clamp(15px, 5vw, 28px)' : '4vw',
+    fontSize: isMobile ? 'clamp(22px, 7vw, 32px)' : '4vw',
     fontWeight: 900,
     lineHeight: 0.92,
     letterSpacing: '-0.03em',
@@ -260,7 +260,7 @@ export default function HeroScroll() {
         {/* Canvas — crisp frame rendering */}
         <canvas
           ref={canvasRef}
-          style={{ position: 'absolute', inset: 0, display: 'block', width: '100%', height: '100%' }}
+          style={{ position: 'absolute', inset: 0, display: 'block', width: '100%', height: '100%', backgroundColor: '#050505' }}
         />
 
         {/* Fade-to-green overlay — connects hero exit to the lime sections below */}
@@ -283,46 +283,44 @@ export default function HeroScroll() {
           style={{ position: 'absolute', inset: 0, zIndex: 4, pointerEvents: 'auto' }}
         >
           {/* TOP-LEFT headline */}
-          <div style={{ position: 'absolute', top: isMobile ? '18vh' : '22vh', left: hPad }}>
+          <div style={{ position: 'absolute', top: isMobile ? '10vh' : '22vh', left: hPad }}>
             <span style={headlineBase}>No somos</span>
             <span style={headlineBase}>una agencia</span>
           </div>
 
           {/* BOTTOM-RIGHT headline */}
-          <div style={{ position: 'absolute', bottom: isMobile ? '32vh' : '25vh', right: hPad, textAlign: 'right' }}>
+          <div style={{ position: 'absolute', ...(isMobile ? { top: '37vh' } : { bottom: '25vh' }), right: hPad, textAlign: 'right' }}>
             <span style={headlineBase}>Somos latinos</span>
             <span style={headlineBase}>soñando</span>
           </div>
 
           {/* BOTTOM-LEFT: Tagline block */}
-          <div style={{ position: 'absolute', bottom: '14vh', left: hPad, maxWidth: isMobile ? `calc(100vw - 48px)` : '380px' }}>
-            <div style={{ width: '32px', height: '1px', backgroundColor: 'rgba(255,255,255,0.3)', marginBottom: '16px' }} />
+          <div style={{ position: 'absolute', bottom: isMobile ? '34vh' : '14vh', left: hPad, maxWidth: isMobile ? `calc(100vw - 48px)` : '380px' }}>
+            <div style={{ width: '32px', height: '1px', backgroundColor: 'rgba(255,255,255,0.3)', marginBottom: isMobile ? '10px' : '16px' }} />
             <div style={{
               fontFamily: "'PPMonumentExtended', sans-serif",
-              fontSize: isMobile ? '14px' : '17px',
+              fontSize: isMobile ? '13px' : '17px',
               fontWeight: 500,
               fontStyle: 'italic',
               color: 'rgba(255,255,255,0.95)',
               lineHeight: 1.45,
-              marginBottom: '16px',
+              marginBottom: isMobile ? '10px' : '16px',
               textShadow: '0 1px 8px rgba(0,0,0,0.8)',
             }}>
               Tu libertad de vivir el sueño
             </div>
-            <div style={{ width: '100%', maxWidth: '400px', height: '1px', backgroundColor: 'rgba(255,255,255,0.3)', marginBottom: '16px' }} />
-            {!isMobile && (
-              <p style={{
-                fontFamily: "'PPMonumentExtended', sans-serif",
-                fontSize: '11px',
-                fontWeight: 350,
-                color: 'rgba(255,255,255,0.55)',
-                lineHeight: 1.8,
-                margin: 0,
-                textShadow: '0 1px 6px rgba(0,0,0,0.9)',
-              }}>
-                Cada proceso está diseñado para tu perfil, tiempo y objetivos — para que te enfoques en lo que importa, mientras nosotros nos encargamos del resto.
-              </p>
-            )}
+            <div style={{ width: '100%', maxWidth: '400px', height: '1px', backgroundColor: 'rgba(255,255,255,0.3)', marginBottom: isMobile ? '10px' : '16px' }} />
+            <p style={{
+              fontFamily: "'PPMonumentExtended', sans-serif",
+              fontSize: isMobile ? '10px' : '11px',
+              fontWeight: 350,
+              color: 'rgba(255,255,255,0.55)',
+              lineHeight: 1.8,
+              margin: 0,
+              textShadow: '0 1px 6px rgba(0,0,0,0.9)',
+            }}>
+              Cada proceso está diseñado para tu perfil, tiempo y objetivos — para que te enfoques en lo que importa, mientras nosotros nos encargamos del resto.
+            </p>
           </div>
 
           {/* BOTTOM-RIGHT: Scroll indicator — hidden on mobile */}
@@ -353,7 +351,7 @@ export default function HeroScroll() {
           {/* BOTTOM-LEFT: Est. signature */}
           <div
             ref={sigRef}
-            style={{ position: 'absolute', bottom: '64px', left: hPad, zIndex: 4 }}
+            style={{ position: 'absolute', bottom: isMobile ? '20px' : '64px', left: hPad, zIndex: 4 }}
           >
             <span style={labelStyle}>Est. 2026 — LATAM VISA®</span>
           </div>
@@ -364,7 +362,7 @@ export default function HeroScroll() {
           ref={ctaRef}
           style={{
             position: 'absolute',
-            bottom: '64px',
+            bottom: isMobile ? '86px' : '64px',
             left: '50%',
             transform: 'translateX(-50%)',
             display: 'flex',
