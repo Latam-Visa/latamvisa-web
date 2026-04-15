@@ -7,6 +7,10 @@ export const metadata: Metadata = {
   description:
     'Ayudamos a latinoamericanos a cumplir el sueño de estudiar, trabajar y vivir en Australia. Asesoría experta en visas de estudiante, turismo y más.',
   keywords: ['visa australia', 'visa estudiante australia', 'migración australia latinoamérica', 'asesoría migratoria'],
+  icons: {
+    icon: '/FotoPerfil.png',
+    apple: '/FotoPerfil.png',
+  },
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
