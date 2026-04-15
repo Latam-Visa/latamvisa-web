@@ -28,6 +28,11 @@ export default function HeroScroll() {
   const currentFrameRef = useRef(0)
   const spacerOffsetRef = useRef(0)
   const framesRef = useRef<HTMLImageElement[]>([])
+  const whiteOverlayRef = useRef<HTMLDivElement>(null)
+  const isMobileRef = useRef(false)
+
+  /* ── Sync isMobile to ref so scroll handler can read it ── */
+  useEffect(() => { isMobileRef.current = isMobile }, [isMobile])
 
   /* ── Preload all frames ── */
   useEffect(() => {
@@ -136,13 +141,25 @@ export default function HeroScroll() {
       if (hintRef.current) hintRef.current.style.transform = `translateY(${convT * -14}px)`
       if (sigRef.current) sigRef.current.style.transform   = `translateY(${convT * -14}px)`
 
-      /* CTA — fades before textLayer2 exits */
+      /* CTA — hidden on mobile until 3 frames in; fades before textLayer2 exits */
       if (ctaRef.current) {
-        const ctaOp = progress > 0.70 ? Math.max(0, 1 - (progress - 0.70) / 0.06) : 1
+        const mobileStart = isMobileRef.current && progress < 0.025
+        const ctaOp = mobileStart ? 0 : (progress > 0.70 ? Math.max(0, 1 - (progress - 0.70) / 0.06) : 1)
         ctaRef.current.style.opacity       = String(ctaOp)
         ctaRef.current.style.transform     = 'translateX(-50%)'
         ctaRef.current.style.filter        = ''
         ctaRef.current.style.pointerEvents = ctaOp < 0.1 ? 'none' : 'auto'
+      }
+
+      /* White overlay — bleaches hero clean before it fades, creating a white transition to sections */
+      if (whiteOverlayRef.current) {
+        if (progress <= 0.72) {
+          whiteOverlayRef.current.style.opacity = '0'
+        } else if (progress <= 0.82) {
+          whiteOverlayRef.current.style.opacity = String((progress - 0.72) / 0.10)
+        } else {
+          whiteOverlayRef.current.style.opacity = '1'
+        }
       }
 
       /* Bottom vignette — fades out alongside textLayer2 exit */
@@ -257,16 +274,30 @@ export default function HeroScroll() {
         ref={fixedRef}
         style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', zIndex: 45, pointerEvents: 'none' }}
       >
-        {/* Canvas — crisp frame rendering */}
+        {/* Frame-001 fallback — visible while canvas hasn't drawn yet */}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/Sec1/ezgif-frame-001.png"
+          alt=""
+          style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 }}
+        />
+
+        {/* Canvas — crisp frame rendering, sits above fallback img */}
         <canvas
           ref={canvasRef}
-          style={{ position: 'absolute', inset: 0, display: 'block', width: '100%', height: '100%', backgroundColor: '#050505' }}
+          style={{ position: 'absolute', inset: 0, display: 'block', width: '100%', height: '100%', zIndex: 1 }}
         />
 
         {/* Fade-to-green overlay — connects hero exit to the lime sections below */}
         <div
           ref={overlayRef}
           style={{ position: 'absolute', inset: 0, backgroundColor: 'transparent', opacity: 0, pointerEvents: 'none', zIndex: 2 }}
+        />
+
+        {/* White overlay — bleaches hero to white before exit, creates clean transition to sections */}
+        <div
+          ref={whiteOverlayRef}
+          style={{ position: 'absolute', inset: 0, backgroundColor: '#FFFFFF', opacity: 0, pointerEvents: 'none', zIndex: 8 }}
         />
 
         {/* Top vignette */}
@@ -284,18 +315,18 @@ export default function HeroScroll() {
         >
           {/* TOP-LEFT headline */}
           <div style={{ position: 'absolute', top: isMobile ? '10vh' : '22vh', left: hPad }}>
-            <span style={headlineBase}>No somos</span>
-            <span style={headlineBase}>una agencia</span>
+            <span style={headlineBase}>Latinos</span>
+            <span style={headlineBase}>Sin fronteras</span>
           </div>
 
           {/* BOTTOM-RIGHT headline */}
-          <div style={{ position: 'absolute', ...(isMobile ? { top: '37vh' } : { bottom: '25vh' }), right: hPad, textAlign: 'right' }}>
-            <span style={headlineBase}>Somos latinos</span>
-            <span style={headlineBase}>soñando</span>
+          <div style={{ position: 'absolute', ...(isMobile ? { top: '50vh' } : { bottom: '25vh' }), right: hPad, textAlign: 'right' }}>
+            <span style={headlineBase}>El mundo</span>
+            <span style={headlineBase}>nos espera</span>
           </div>
 
           {/* BOTTOM-LEFT: Tagline block */}
-          <div style={{ position: 'absolute', bottom: isMobile ? '34vh' : '14vh', left: hPad, maxWidth: isMobile ? `calc(100vw - 48px)` : '380px' }}>
+          <div style={{ position: 'absolute', bottom: isMobile ? '22vh' : '14vh', left: hPad, maxWidth: isMobile ? `calc(100vw - 48px)` : '380px' }}>
             <div style={{ width: '32px', height: '1px', backgroundColor: 'rgba(255,255,255,0.3)', marginBottom: isMobile ? '10px' : '16px' }} />
             <div style={{
               fontFamily: "'PPMonumentExtended', sans-serif",
@@ -307,20 +338,22 @@ export default function HeroScroll() {
               marginBottom: isMobile ? '10px' : '16px',
               textShadow: '0 1px 8px rgba(0,0,0,0.8)',
             }}>
-              Tu libertad de vivir el sueño
+              Donde termina tu zona de confort, empieza tu historia
             </div>
             <div style={{ width: '100%', maxWidth: '400px', height: '1px', backgroundColor: 'rgba(255,255,255,0.3)', marginBottom: isMobile ? '10px' : '16px' }} />
-            <p style={{
-              fontFamily: "'PPMonumentExtended', sans-serif",
-              fontSize: isMobile ? '10px' : '11px',
-              fontWeight: 350,
-              color: 'rgba(255,255,255,0.55)',
-              lineHeight: 1.8,
-              margin: 0,
-              textShadow: '0 1px 6px rgba(0,0,0,0.9)',
-            }}>
-              Cada proceso está diseñado para tu perfil, tiempo y objetivos — para que te enfoques en lo que importa, mientras nosotros nos encargamos del resto.
-            </p>
+            {!isMobile && (
+              <p style={{
+                fontFamily: "'PPMonumentExtended', sans-serif",
+                fontSize: '11px',
+                fontWeight: 350,
+                color: 'rgba(255,255,255,0.55)',
+                lineHeight: 1.8,
+                margin: 0,
+                textShadow: '0 1px 6px rgba(0,0,0,0.9)',
+              }}>
+                Somos la generación que no pide permiso para soñar en grande. Conectamos culturas, abrimos caminos y demostramos que ser latino es llevar un incendio en el alma y una fiesta en los pies.
+              </p>
+            )}
           </div>
 
           {/* BOTTOM-RIGHT: Scroll indicator — hidden on mobile */}

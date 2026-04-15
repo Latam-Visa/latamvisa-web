@@ -136,17 +136,17 @@ export default function Navbar() {
               key={link.href}
               href={link.href}
               onClick={() => setMenuOpen(false)}
-              className="text-xs tracking-widest uppercase text-[#111111]/50 hover:text-[#111111] transition-colors"
-              style={{ fontFamily: "'PPMonumentExtended', sans-serif" }}
+              className="text-sm tracking-widest uppercase text-[#111111] hover:text-[#5B6A00] transition-colors"
+              style={{ fontFamily: "'PPMonumentExtended', sans-serif", fontWeight: 900 }}
             >
               {link.label}
             </Link>
           ))}
           <div className="mt-2 pt-4 border-t border-[#E0E0E0] flex flex-col gap-3">
-            <a href="tel:+61426779734" className="text-xs text-[#111111]/50" style={{ fontFamily: "'PPMonumentExtended', sans-serif" }}>
+            <a href="tel:+61426779734" className="text-xs text-[#111111] font-bold" style={{ fontFamily: "'PPMonumentExtended', sans-serif" }}>
               +61 426 779 734
             </a>
-            <a href="mailto:future@latamvisas.com.au" className="text-xs text-[#111111]/50" style={{ fontFamily: "'PPMonumentExtended', sans-serif" }}>
+            <a href="mailto:future@latamvisas.com.au" className="text-xs text-[#111111]" style={{ fontFamily: "'PPMonumentExtended', sans-serif" }}>
               future@latamvisas.com.au
             </a>
           </div>
