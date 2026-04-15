@@ -71,9 +71,9 @@ export default function Navbar() {
           <Image
             src="/logo.png"
             alt="LATAM VISA"
-            width={200}
-            height={56}
-            className="h-14 w-auto object-contain"
+            width={300}
+            height={84}
+            className="h-[70px] w-auto object-contain"
             priority
           />
         </Link>
@@ -99,14 +99,14 @@ export default function Navbar() {
           <a
             href="tel:+61426779734"
             className={`transition-colors duration-500 ${textClass}`}
-            style={{ fontFamily: "'PPMonumentExtended', sans-serif", fontSize: '10px', fontWeight: 700 }}
+            style={{ fontFamily: "'PPMonumentExtended', sans-serif", fontSize: '11px', fontWeight: 700 }}
           >
             +61 426 779 734
           </a>
           <a
             href="mailto:future@latamvisas.com.au"
             className={`transition-colors duration-500 ${textClass}`}
-            style={{ fontFamily: '"PPMonumentExtended", sans-serif', fontSize: '8px', fontWeight: 700 }}
+            style={{ fontFamily: '"PPMonumentExtended", sans-serif', fontSize: '10px', fontWeight: 700 }}
           >
             future@latamvisas.com.au
           </a>
