@@ -229,7 +229,7 @@ export default function HeroScroll() {
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
 
-  const statementText = "LATAM VISA® no es una agencia más — es el puente entre el sueño latinoamericano y una vida nueva en Australia. Asesoría real, procesos claros y resultados que hablan solos."
+  const statementText = "LATAM VISA® existe porque ningún latino debería navegar solo el camino hacia Australia. Conocemos cada paso porque lo caminamos primero. Asesoría migratoria diseñada por latinos, para latinos — sin letra pequeña, sin promesas vacías, solo resultados"
   const statementWords = statementText.split(' ')
 
   /* ── Shared styles ── */
