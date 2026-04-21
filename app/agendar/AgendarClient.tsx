@@ -95,7 +95,7 @@ const steps = [
     num: '01',
     icon: CreditCard,
     title: 'Agendas y pagas',
-    desc: 'Selecciona el horario que más te convenga en Cal.com y completa el pago de USD $50. Inmediatamente recibirás una confirmación con el enlace de la videollamada.',
+    desc: 'Selecciona el horario que más te convenga en Cal.com y completa el pago de USD $59. Inmediatamente recibirás una confirmación con el enlace de la videollamada.',
   },
   {
     num: '02',
@@ -113,8 +113,8 @@ const steps = [
 
 const faqs = [
   {
-    q: '¿Qué pasa con los USD $50 si contrato el servicio completo?',
-    a: 'Los $50 son totalmente reembolsables al contratar cualquiera de nuestros paquetes completos de asesoría. El monto se descuenta de tu factura final.',
+    q: '¿Qué pasa con los USD $59 si contrato el servicio completo?',
+    a: 'Los $59 son totalmente reembolsables al contratar cualquiera de nuestros paquetes completos de asesoría. El monto se descuenta de tu factura final.',
   },
   {
     q: '¿Necesito preparar algo antes de la llamada?',
@@ -369,17 +369,14 @@ export default function AgendarClient() {
             </p>
           </FadeUp>
 
-          <FadeUp delay={0.3}>
-            <a
-              href={CAL_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-3 bg-[#C8FF00] text-[#050505] font-black text-sm tracking-widest uppercase px-10 py-5 rounded-full hover:bg-[#d4ff40] transition-all duration-200 shadow-[0_0_40px_rgba(200,255,0,0.25)] hover:shadow-[0_0_60px_rgba(200,255,0,0.4)] hover:scale-[1.02] active:scale-[0.98]"
-              style={{ fontFamily: "'PPMonumentExtended', sans-serif" }}
-            >
-              Agendar mi consulta — USD $50
-              <ArrowRight size={16} />
-            </a>
+          <FadeUp delay={0.3} className="w-full mt-8 flex justify-center">
+            <div style={{ width: '100%', height: '100%', minHeight: '700px', backgroundColor: '#050505', display: 'flex', justifyContent: 'center' }} className="w-full min-h-[700px] rounded-2xl overflow-hidden border border-white/5">
+              <iframe
+                src={`${CAL_URL}?embed=true&theme=dark`}
+                style={{ width: '100%', maxWidth: '1000px', height: '100%', border: 'none', minHeight: '700px' }}
+                title="Agendar Consulta Latam Visa"
+              ></iframe>
+            </div>
           </FadeUp>
 
           <FadeUp delay={0.38}>
@@ -549,16 +546,15 @@ export default function AgendarClient() {
               45 minutos que pueden cambiar el rumbo de tu proceso migratorio.
               Sin vueltas, sin promesas vacías.
             </p>
-            <a
-              href={CAL_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-3 bg-[#C8FF00] text-[#050505] font-black text-sm tracking-widest uppercase px-10 py-5 rounded-full hover:bg-[#d4ff40] transition-all duration-200 shadow-[0_0_40px_rgba(200,255,0,0.3)] hover:shadow-[0_0_70px_rgba(200,255,0,0.5)] hover:scale-[1.02] active:scale-[0.98]"
-              style={{ fontFamily: "'PPMonumentExtended', sans-serif" }}
-            >
-              Agendar mi consulta — USD $50
-              <ArrowRight size={16} />
-            </a>
+            <div className="w-full mt-10 flex justify-center">
+              <div style={{ width: '100%', height: '100%', minHeight: '700px', backgroundColor: '#050505', display: 'flex', justifyContent: 'center' }} className="w-full min-h-[700px] rounded-2xl overflow-hidden border border-[#C8FF00]/10">
+                <iframe
+                  src={`${CAL_URL}?embed=true&theme=dark`}
+                  style={{ width: '100%', maxWidth: '1000px', height: '100%', border: 'none', minHeight: '700px' }}
+                  title="Agendar Consulta Latam Visa"
+                ></iframe>
+              </div>
+            </div>
             <p className="mt-5 font-iceland text-white/25 text-sm">
               Pago seguro vía Cal.com · Reembolsable al contratar el servicio completo
             </p>
