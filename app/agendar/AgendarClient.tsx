@@ -41,7 +41,7 @@ function FadeUp({
 }
 
 // ── Data ───────────────────────────────────────────────────────────────────────
-const CAL_URL = 'https://cal.com/latamvisa/consulta'
+const CAL_URL = 'https://cal.com/cristian-montenegro-tzeuce/consulta-migratoria-personalizada'
 
 const includes = [
   {
