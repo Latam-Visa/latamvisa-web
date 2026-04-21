@@ -66,7 +66,7 @@ export default function Navbar() {
       style={{}}
     >
       <div className="w-full py-5 relative flex items-center justify-between px-6 md:px-[100px]">
-        {/* CENTER: Logo absolutely centered */}
+        {/* CENTER: Logo absolutely centered — same position as before */}
         <Link href="/" className="absolute left-1/2 -translate-x-1/2 flex items-center">
           <Image
             src="/logo.png"
@@ -123,6 +123,32 @@ export default function Navbar() {
           <span className={`block h-px w-6 transition-all duration-300 ${barColor} ${menuOpen ? '-rotate-45 -translate-y-2' : ''}`} />
         </button>
       </div>
+
+      {/* Docs pill — centered below the logo row */}
+      {!menuOpen && (
+        <div className="flex justify-center pb-3 -mt-1">
+          <motion.div
+            animate={{
+              boxShadow: [
+                '0 0 0px rgba(200,255,0,0)',
+                '0 0 14px rgba(200,255,0,0.75)',
+                '0 0 0px rgba(200,255,0,0)',
+              ],
+              scale: [1, 1.05, 1],
+            }}
+            transition={{ duration: 2.2, repeat: Infinity, ease: 'easeInOut', repeatDelay: 0.4 }}
+            className="rounded-full"
+          >
+            <Link
+              href="/subir-documentos"
+              className="text-[#C8FF00] border border-[#C8FF00]/60 rounded-full px-4 py-1 hover:bg-[#C8FF00]/15 transition-colors block"
+              style={{ fontFamily:"'PPMonumentExtended', sans-serif", fontSize:'10px', fontWeight:700, letterSpacing:'0.1em' }}
+            >
+              Docs
+            </Link>
+          </motion.div>
+        </div>
+      )}
 
       {/* Mobile Menu — always dark since it's an overlay on light bg */}
       {menuOpen && (

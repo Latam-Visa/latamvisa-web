@@ -7,7 +7,7 @@ export const FRAME_PREFIX  = '/Sec1/ezgif-frame-'
 export const FRAME_EXT     = '.jpg'
 export const TOTAL_FRAMES  = 136
 
-export const N8N_WEBHOOK_URL = 'https://TU-WEBHOOK-N8N-AQUI.com/webhook/latamvisa-form'
+export const N8N_WEBHOOK_URL = 'https://n8n-production-27dbd.up.railway.app/webhook/evalua-perfil'
 
 export const LATAM_COUNTRIES = [
   { flag: '🇦🇷', name: 'Argentina' },
