@@ -1,5 +1,6 @@
 'use client'
 import { useState, useEffect } from 'react'
+import { usePathname } from 'next/navigation'
 import { motion } from 'framer-motion'
 import Link from 'next/link'
 import Image from 'next/image'
@@ -13,7 +14,8 @@ const navLinks = [
 
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false)
-  const [overLight, setOverLight] = useState(true) // true = white text (dark/sky bg), false = dark text (light bg)
+  const pathname = usePathname()
+  const [overLight, setOverLight] = useState(pathname !== '/agendar') // true = white text (dark/sky bg), false = dark text (light bg)
 
   useEffect(() => {
     // #servicios is the first opaque section — once it enters the viewport we leave the sky zone
@@ -43,13 +45,13 @@ export default function Navbar() {
       const inSkyZone = overHero ||
         (!serviciosAbove && !overHero && (!serviciosEl || serviciosEl.getBoundingClientRect().top > vh))
 
-      setOverLight(inSkyZone)
+      setOverLight(pathname === '/agendar' ? false : inSkyZone)
     }
 
     window.addEventListener('scroll', updateColor, { passive: true })
     updateColor()
     return () => window.removeEventListener('scroll', updateColor)
-  }, [])
+  }, [pathname])
 
   const textClass = overLight
     ? 'text-white/90 hover:text-white'

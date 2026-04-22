@@ -379,13 +379,14 @@ export default function AgendarClient() {
 
         <div className="relative max-w-5xl mx-auto text-center">
           <FadeUp delay={0.12}>
-            <h1
-              className="font-monument font-black text-3xl sm:text-4xl md:text-5xl leading-[1.2] tracking-tight mb-6 uppercase flex flex-col gap-1 items-center"
-              style={{ fontFamily: "'PPMonumentExtended', sans-serif" }}
-            >
-              <FlipText text="AGENDA TU SESIÓN" className="text-[#111111]" />
-              <FlipText text="DE PLANEACIÓN" className="text-[#1A2A00]" />
-            </h1>
+            <div className="w-full flex justify-center mb-10 overflow-hidden md:overflow-visible">
+              <h1
+                className="font-monument font-black text-[9.5vw] sm:text-[7vw] md:text-[5.5vw] lg:text-[4vw] leading-[1.1] md:leading-none tracking-tighter uppercase flex flex-wrap md:flex-nowrap justify-center w-full scale-y-[1.15] md:scale-x-[1.05]"
+                style={{ fontFamily: "'PPMonumentExtended', sans-serif" }}
+              >
+                <FlipText text="DISEÑA EL PROYECTO DE TU VIDA" className="text-[#111111]" />
+              </h1>
+            </div>
           </FadeUp>
 
           <FadeUp delay={0.18}>
