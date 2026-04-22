@@ -7,7 +7,6 @@ import {
   FileText,
   MessageCircle,
   ChevronDown,
-  ArrowRight,
   CheckCircle,
   CreditCard,
   Phone,
@@ -95,7 +94,7 @@ const steps = [
     num: '01',
     icon: CreditCard,
     title: 'Agendas y pagas',
-    desc: 'Selecciona el horario que más te convenga en Cal.com y completa el pago de USD $59. Inmediatamente recibirás una confirmación con el enlace de la videollamada.',
+    desc: 'Selecciona el horario que más te convenga en Cal.com y completa el pago. Inmediatamente recibirás una confirmación con el enlace de la videollamada.',
   },
   {
     num: '02',
@@ -150,18 +149,18 @@ function IncludeCard({
       initial={{ opacity: 0, y: 24 }}
       animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 24 }}
       transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1], delay }}
-      className="group bg-[#111] border border-white/[0.08] rounded-2xl p-6 hover:border-[#C8FF00]/40 transition-all duration-300 hover:bg-[#141414]"
+      className="group bg-[#E8FF7A]/40 border border-[#111111]/10 rounded-2xl p-6 hover:border-[#1A2A00]/30 transition-all duration-300 hover:bg-[#E8FF7A]/80 shadow-sm"
     >
-      <div className="w-11 h-11 rounded-xl bg-[#C8FF00]/10 flex items-center justify-center mb-5 group-hover:bg-[#C8FF00]/20 transition-colors duration-300">
-        <Icon size={20} className="text-[#C8FF00]" />
+      <div className="w-11 h-11 rounded-xl bg-white/50 flex items-center justify-center mb-5 group-hover:bg-white transition-colors duration-300">
+        <Icon size={20} className="text-[#1A2A00]" />
       </div>
       <h3
-        className="font-monument font-black text-[13px] md:text-sm tracking-tight text-white mb-2 leading-snug"
+        className="font-monument font-black text-[13px] md:text-sm tracking-tight text-[#111111] mb-2 leading-snug"
         style={{ fontFamily: "'PPMonumentExtended', sans-serif" }}
       >
         {title}
       </h3>
-      <p className="font-iceland text-white/50 text-sm leading-relaxed">{desc}</p>
+      <p className="font-iceland text-[#111111]/70 text-sm leading-relaxed">{desc}</p>
     </motion.div>
   )
 }
@@ -189,24 +188,24 @@ function TestimonialCard({
       initial={{ opacity: 0, y: 24 }}
       animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 24 }}
       transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1], delay }}
-      className="bg-[#111] border border-white/[0.08] rounded-2xl p-6 flex flex-col gap-4"
+      className="bg-[#E8FF7A]/40 border border-[#111111]/10 rounded-2xl p-6 flex flex-col gap-4 shadow-sm"
     >
       <div className="flex">
         {[...Array(rating)].map((_, j) => (
-          <span key={j} className="text-[#C8FF00] text-sm">★</span>
+          <span key={j} className="text-[#1A2A00] text-sm">★</span>
         ))}
       </div>
-      <p className="font-iceland text-white/70 text-sm md:text-base leading-relaxed flex-1">
+      <p className="font-iceland text-[#111111]/80 text-sm md:text-base leading-relaxed flex-1 font-medium">
         &ldquo;{text}&rdquo;
       </p>
       <div>
         <p
-          className="font-monument font-black text-[12px] text-white tracking-tight"
+          className="font-monument font-black text-[12px] text-[#111111] tracking-tight"
           style={{ fontFamily: "'PPMonumentExtended', sans-serif" }}
         >
           {name}
         </p>
-        <p className="font-iceland text-white/40 text-xs mt-0.5">
+        <p className="font-iceland text-[#111111]/60 text-xs mt-0.5 font-bold uppercase tracking-wider">
           {country} · {visa}
         </p>
       </div>
@@ -242,28 +241,28 @@ function StepCard({
       {!isLast && (
         <div
           aria-hidden
-          className="hidden md:block absolute top-7 left-[calc(100%_-_16px)] w-full h-px bg-gradient-to-r from-[#C8FF00]/30 to-transparent"
+          className="hidden md:block absolute top-7 left-[calc(100%_-_16px)] w-full h-px bg-gradient-to-r from-[#111111]/20 to-transparent"
         />
       )}
       <div className="flex flex-col gap-4">
         <div className="flex items-center gap-4">
           <span
-            className="font-monument font-black text-5xl md:text-6xl text-[#C8FF00]/15 leading-none select-none"
+            className="font-monument font-black text-5xl md:text-6xl text-[#1A2A00]/15 leading-none select-none"
             style={{ fontFamily: "'PPMonumentExtended', sans-serif" }}
           >
             {num}
           </span>
-          <div className="w-10 h-10 rounded-xl bg-[#C8FF00]/10 flex items-center justify-center flex-shrink-0">
-            <Icon size={18} className="text-[#C8FF00]" />
+          <div className="w-10 h-10 rounded-xl bg-white/50 border border-[#1A2A00]/10 flex items-center justify-center flex-shrink-0">
+            <Icon size={18} className="text-[#1A2A00]" />
           </div>
         </div>
         <h3
-          className="font-monument font-black text-sm md:text-base tracking-tight text-white"
+          className="font-monument font-black text-sm md:text-base tracking-tight text-[#111111]"
           style={{ fontFamily: "'PPMonumentExtended', sans-serif" }}
         >
           {title}
         </h3>
-        <p className="font-iceland text-white/50 text-sm leading-relaxed">{desc}</p>
+        <p className="font-iceland text-[#111111]/70 text-sm leading-relaxed">{desc}</p>
       </div>
     </motion.div>
   )
@@ -280,13 +279,13 @@ function FaqItem({ q, a, index }: { q: string; a: string; index: number }) {
       initial={{ opacity: 0, x: 16 }}
       animate={inView ? { opacity: 1, x: 0 } : { opacity: 0, x: 16 }}
       transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1], delay: index * 0.05 }}
-      className="border-t border-white/10"
+      className="border-t border-[#111111]/10"
     >
       <button
         onClick={() => setOpen(!open)}
         className="w-full flex items-center justify-between gap-4 py-5 text-left group"
       >
-        <span className="font-funnel font-semibold text-white/80 text-[13px] md:text-[15px] group-hover:text-white transition-colors duration-200 leading-tight">
+        <span className="font-funnel font-bold text-[#111111]/90 text-[13px] md:text-[15px] group-hover:text-[#1A2A00] transition-colors duration-200 leading-tight">
           {q}
         </span>
         <motion.div
@@ -294,8 +293,8 @@ function FaqItem({ q, a, index }: { q: string; a: string; index: number }) {
           transition={{ duration: 0.2 }}
           className={`flex-shrink-0 w-6 h-6 flex items-center justify-center border rounded-sm transition-colors duration-200 ${
             open
-              ? 'border-[#C8FF00] text-[#C8FF00]'
-              : 'border-white/20 text-white/30 group-hover:border-[#C8FF00]/50'
+              ? 'border-[#1A2A00] text-[#1A2A00] bg-white/30'
+              : 'border-[#111111]/20 text-[#111111]/40 group-hover:border-[#1A2A00]/50'
           }`}
         >
           <ChevronDown size={14} />
@@ -311,7 +310,7 @@ function FaqItem({ q, a, index }: { q: string; a: string; index: number }) {
             transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
             className="overflow-hidden"
           >
-            <p className="font-iceland text-white/50 text-[14px] md:text-[15px] leading-relaxed pb-6 pr-8">
+            <p className="font-iceland text-[#111111]/70 text-[14px] md:text-[15px] leading-relaxed pb-6 pr-8">
               {a}
             </p>
           </motion.div>
@@ -324,53 +323,54 @@ function FaqItem({ q, a, index }: { q: string; a: string; index: number }) {
 // ── Main Page Component ────────────────────────────────────────────────────────
 export default function AgendarClient() {
   return (
-    <div className="min-h-screen bg-[#050505] text-white">
+    <div className="min-h-screen bg-[#C8FF00] text-[#111111]" style={{ background: 'linear-gradient(135deg, #E8FF7A 0%, #C8FF00 100%)' }}>
+      {/* 
+        NOTA: Para asegurar que el Navbar se adapte visualmente sin romperse
+        en el fondo verde eléctrico, mantenemos el esquema original pero el contexto
+        ayudará.
+      */}
       <Navbar />
 
       {/* ═══════════════════════ HERO ═══════════════════════════════════════════ */}
       <section className="relative overflow-hidden pt-32 pb-24 px-6">
         <div
           aria-hidden
-          className="pointer-events-none absolute top-[-10%] left-1/2 -translate-x-1/2 w-[700px] h-[500px] rounded-full opacity-20"
-          style={{ background: 'radial-gradient(ellipse, #C8FF00 0%, transparent 70%)' }}
+          className="pointer-events-none absolute top-[-10%] left-1/2 -translate-x-1/2 w-[700px] h-[500px] rounded-full opacity-40 mix-blend-screen"
+          style={{ background: 'radial-gradient(ellipse, rgba(255,255,255,0.7) 0%, transparent 70%)' }}
         />
 
         <div className="relative max-w-5xl mx-auto text-center">
-          <FadeUp delay={0.05}>
-            <span className="inline-block font-funnel text-[#C8FF00] text-xs tracking-[0.25em] uppercase mb-6 border border-[#C8FF00]/30 rounded-full px-4 py-1.5">
-              Sesión de Planeación de Viaje y Estudio
-            </span>
-          </FadeUp>
-
           <FadeUp delay={0.12}>
             <h1
-              className="font-monument font-black text-4xl sm:text-5xl md:text-6xl lg:text-7xl leading-[1.0] tracking-tight mb-6"
+              className="font-monument font-black text-3xl sm:text-4xl md:text-5xl leading-[1.1] tracking-tight mb-6"
               style={{ fontFamily: "'PPMonumentExtended', sans-serif" }}
             >
               Agenda tu{' '}
-              <span className="text-[#C8FF00]">sesión</span>
+              <span className="text-[#1A2A00]">sesión</span>
               <br />
               de planeación
             </h1>
           </FadeUp>
 
           <FadeUp delay={0.18}>
-            <p className="font-funnel text-white/60 text-lg md:text-xl max-w-2xl mx-auto leading-relaxed mb-4">
+            <p className="font-funnel text-[#111111]/80 text-lg md:text-xl max-w-2xl mx-auto leading-relaxed mb-6">
               45 minutos con un experto. Analizamos tu perfil, te ayudamos a planificar tu experiencia de estudio y viaje,
               y respondes todas tus dudas — por{' '}
-              <span className="text-white font-semibold">USD $59</span>.
+              <span className="text-[#1A2A00] font-black text-2xl bg-white/40 px-2 py-0.5 rounded-md">$59 <span className="text-xs font-normal">usd</span></span>.
             </p>
           </FadeUp>
 
+          {/* GANCHO RESALTADO */}
           <FadeUp delay={0.24}>
-            <p className="font-iceland text-white/40 text-base md:text-lg max-w-xl mx-auto leading-relaxed mb-12">
-              Reembolsables al contratar el servicio completo. Sin compromiso inicial,
-              con claridad total.
-            </p>
+            <div className="inline-block border border-[#1A2A00]/20 bg-white/40 backdrop-blur-md px-6 py-4 rounded-xl mb-12 shadow-[0_8px_30px_rgba(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgba(0,0,0,0.08)] transition-all">
+              <p className="font-iceland text-[#1A2A00] font-bold text-lg md:text-xl leading-relaxed">
+                Reembolsables al contratar el servicio completo.<br className="hidden md:block"/> Sin compromiso inicial, con claridad total.
+              </p>
+            </div>
           </FadeUp>
 
-          <FadeUp delay={0.3} className="w-full mt-8 flex justify-center">
-            <div style={{ width: '100%', height: '100%', minHeight: '700px', backgroundColor: '#050505', display: 'flex', justifyContent: 'center' }} className="w-full min-h-[700px] rounded-2xl overflow-hidden border border-white/5">
+          <FadeUp delay={0.3} className="w-full flex justify-center">
+            <div style={{ width: '100%', height: '100%', minHeight: '700px', backgroundColor: '#050505', display: 'flex', justifyContent: 'center' }} className="w-full min-h-[700px] rounded-2xl overflow-hidden border border-[#111111]/20 shadow-[0_20px_60px_rgba(0,0,0,0.2)]">
               <iframe
                 src={`${CAL_URL}?embed=true&theme=dark`}
                 style={{ width: '100%', maxWidth: '1000px', height: '100%', border: 'none', minHeight: '700px' }}
@@ -378,30 +378,19 @@ export default function AgendarClient() {
               ></iframe>
             </div>
           </FadeUp>
-
-          <FadeUp delay={0.38}>
-            <div className="mt-8 flex items-center justify-center gap-2 text-white/30 text-sm font-iceland">
-              <div className="flex gap-0.5">
-                {[...Array(5)].map((_, i) => (
-                  <span key={i} className="text-[#C8FF00] text-xs">★</span>
-                ))}
-              </div>
-              <span>+200 consultas realizadas · 94% de aprobación</span>
-            </div>
-          </FadeUp>
         </div>
       </section>
 
       {/* ═══════════════════════ QUÉ INCLUYE ════════════════════════════════════ */}
-      <section className="py-20 px-6 bg-[#0a0a0a]">
+      <section className="py-20 px-6 bg-[#E8FF7A]/20 border-y border-[#1A2A00]/5">
         <div className="max-w-6xl mx-auto">
           <FadeUp>
             <div className="mb-14 text-center">
-              <span className="font-funnel text-[#C8FF00] text-xs tracking-[0.25em] uppercase block mb-3">
+              <span className="font-funnel text-[#1A2A00] text-xs tracking-[0.25em] uppercase block mb-3 font-bold">
                 Lo que obtienes
               </span>
               <h2
-                className="font-monument font-black text-3xl md:text-4xl tracking-tight"
+                className="font-monument font-black text-3xl md:text-4xl tracking-tight text-[#111111]"
                 style={{ fontFamily: "'PPMonumentExtended', sans-serif" }}
               >
                 Qué incluye la consulta
@@ -417,20 +406,20 @@ export default function AgendarClient() {
         </div>
       </section>
 
-      {/* ═══════════════════════ POR QUÉ $50 ════════════════════════════════════ */}
-      <section className="py-20 px-6">
+      {/* ═══════════════════════ POR QUÉ 59 ════════════════════════════════════ */}
+      <section className="py-20 px-6 bg-transparent">
         <div className="max-w-4xl mx-auto">
-          <div className="bg-[#0e1200] border border-[#C8FF00]/20 rounded-3xl p-8 md:p-12">
+          <div className="bg-white/40 backdrop-blur-md border border-[#1A2A00]/10 rounded-3xl p-8 md:p-12 shadow-[0_20px_60px_rgba(0,0,0,0.03)] hover:bg-white/50 transition-colors">
             <FadeUp>
-              <span className="font-funnel text-[#C8FF00] text-xs tracking-[0.25em] uppercase block mb-4">
+              <span className="font-funnel text-[#1A2A00] font-bold text-xs tracking-[0.25em] uppercase block mb-4">
                 Transparencia total
               </span>
               <h2
-                className="font-monument font-black text-2xl md:text-3xl tracking-tight text-white mb-6 leading-[1.1]"
+                className="font-monument font-black text-2xl md:text-3xl tracking-tight text-[#111111] mb-6 leading-[1.1]"
                 style={{ fontFamily: "'PPMonumentExtended', sans-serif" }}
               >
-                ¿Por qué pagar{' '}
-                <span className="text-[#C8FF00]">USD $50</span>?
+                ¿Por qué cobrar{' '}
+                <span className="text-[#1A2A00]">$59</span> <span className="text-sm font-normal text-[#1A2A00]/70 uppercase tracking-widest">usd</span>?
               </h2>
             </FadeUp>
 
@@ -438,7 +427,7 @@ export default function AgendarClient() {
               {[
                 {
                   bold: 'Son reembolsables.',
-                  body: 'Si decides continuar con nosotros para tramitar tu visa, los $50 se descuentan del costo total del servicio. No pierdes nada.',
+                  body: 'Si decides continuar con nosotros para tramitar tu visa, los $59 se descuentan del costo total del servicio. No pierdes nada.',
                 },
                 {
                   bold: 'Es un filtro de seriedad mutua.',
@@ -451,10 +440,10 @@ export default function AgendarClient() {
               ].map(({ bold, body }, i) => (
                 <FadeUp key={i} delay={i * 0.08}>
                   <div className="flex items-start gap-4">
-                    <CheckCircle size={18} className="text-[#C8FF00] flex-shrink-0 mt-0.5" />
+                    <CheckCircle size={18} className="text-[#1A2A00] flex-shrink-0 mt-0.5" />
                     <p className="font-iceland text-sm md:text-base leading-relaxed">
-                      <span className="text-white font-semibold">{bold}</span>{' '}
-                      <span className="text-white/60">{body}</span>
+                      <span className="text-[#111111] font-bold">{bold}</span>{' '}
+                      <span className="text-[#111111]/70">{body}</span>
                     </p>
                   </div>
                 </FadeUp>
@@ -465,19 +454,19 @@ export default function AgendarClient() {
       </section>
 
       {/* ═══════════════════════ TESTIMONIOS ═════════════════════════════════════ */}
-      <section className="py-20 px-6 bg-[#0a0a0a]">
+      <section className="py-20 px-6 bg-[#E8FF7A]/20 border-y border-[#1A2A00]/5">
         <div className="max-w-6xl mx-auto">
           <FadeUp>
             <div className="mb-14 text-center">
-              <span className="font-funnel text-[#C8FF00] text-xs tracking-[0.25em] uppercase block mb-3">
+              <span className="font-funnel text-[#1A2A00] font-bold text-xs tracking-[0.25em] uppercase block mb-3">
                 Clientes reales
               </span>
               <h2
-                className="font-monument font-black text-3xl md:text-4xl tracking-tight"
+                className="font-monument font-black text-3xl md:text-4xl tracking-tight text-[#111111]"
                 style={{ fontFamily: "'PPMonumentExtended', sans-serif" }}
               >
                 Lo que dicen quienes{' '}
-                <span className="text-[#C8FF00]">ya agendaron</span>
+                <span className="text-[#1A2A00]">ya agendaron</span>
               </h2>
             </div>
           </FadeUp>
@@ -491,15 +480,15 @@ export default function AgendarClient() {
       </section>
 
       {/* ═══════════════════════ PROCESO 3 PASOS ════════════════════════════════ */}
-      <section className="py-20 px-6">
+      <section className="py-20 px-6 bg-transparent">
         <div className="max-w-5xl mx-auto">
           <FadeUp>
             <div className="mb-14 text-center">
-              <span className="font-funnel text-[#C8FF00] text-xs tracking-[0.25em] uppercase block mb-3">
+              <span className="font-funnel text-[#1A2A00] font-bold text-xs tracking-[0.25em] uppercase block mb-3">
                 Así funciona
               </span>
               <h2
-                className="font-monument font-black text-3xl md:text-4xl tracking-tight"
+                className="font-monument font-black text-3xl md:text-4xl tracking-tight text-[#111111]"
                 style={{ fontFamily: "'PPMonumentExtended', sans-serif" }}
               >
                 3 pasos simples
@@ -523,77 +512,35 @@ export default function AgendarClient() {
         </div>
       </section>
 
-      {/* ═══════════════════════ CTA FINAL ══════════════════════════════════════ */}
-      <section className="py-24 px-6 relative overflow-hidden">
-        <div
-          aria-hidden
-          className="pointer-events-none absolute inset-0"
-          style={{
-            background:
-              'radial-gradient(ellipse at 50% 100%, rgba(200,255,0,0.12) 0%, transparent 65%)',
-          }}
-        />
-        <div className="relative max-w-2xl mx-auto text-center">
-          <FadeUp>
-            <h2
-              className="font-monument font-black text-3xl md:text-5xl tracking-tight leading-[1.05] mb-6"
-              style={{ fontFamily: "'PPMonumentExtended', sans-serif" }}
-            >
-              ¿Listo para tener{' '}
-              <span className="text-[#C8FF00]">claridad total</span>?
-            </h2>
-            <p className="font-iceland text-white/50 text-base md:text-lg leading-relaxed mb-10">
-              45 minutos que pueden cambiar el rumbo de tu proyecto y experiencia en el exterior.
-              Sin vueltas, sin promesas vacías.
-            </p>
-            <div className="w-full mt-10 flex justify-center">
-              <div style={{ width: '100%', height: '100%', minHeight: '700px', backgroundColor: '#050505', display: 'flex', justifyContent: 'center' }} className="w-full min-h-[700px] rounded-2xl overflow-hidden border border-[#C8FF00]/10">
-                <iframe
-                  src={`${CAL_URL}?embed=true&theme=dark`}
-                  style={{ width: '100%', maxWidth: '1000px', height: '100%', border: 'none', minHeight: '700px' }}
-                  title="Agendar Consulta Latam Visa"
-                ></iframe>
-              </div>
-            </div>
-            <p className="mt-5 font-iceland text-white/25 text-sm">
-              Pago seguro vía Cal.com · Reembolsable al contratar el servicio completo
-            </p>
-          </FadeUp>
-        </div>
-      </section>
-
       {/* ═══════════════════════ FAQ ═════════════════════════════════════════════ */}
       <section
-        className="py-20 px-6"
+        className="py-20 px-6 border-t border-[#1A2A00]/5"
         style={{
           background:
-            'linear-gradient(to bottom, #050505 0%, #080f00 40%, #0d1500 70%, #C8FF00 100%)',
+            'linear-gradient(to bottom, transparent 0%, rgba(200,255,0,0.5) 100%)',
         }}
       >
         <div className="max-w-4xl mx-auto">
           <div className="grid grid-cols-1 lg:grid-cols-[1fr_2fr] gap-10 lg:gap-16 items-start">
             <FadeUp className="lg:sticky lg:top-32">
-              <span className="font-funnel text-[#C8FF00] text-xs tracking-[0.25em] uppercase block mb-3">
+              <span className="font-funnel text-[#1A2A00] font-bold text-xs tracking-[0.25em] uppercase block mb-3">
                 Dudas frecuentes
               </span>
               <h2
-                className="font-monument font-black text-xl md:text-2xl tracking-tight text-white mb-4 leading-[1.1]"
+                className="font-monument font-black text-xl md:text-2xl tracking-tight text-[#111111] mb-4 leading-[1.1]"
                 style={{ fontFamily: "'PPMonumentExtended', sans-serif" }}
               >
                 Preguntas
                 <br />
-                <span className="text-white/30">rápidas</span>
+                <span className="text-[#1A2A00]/60">rápidas</span>
               </h2>
-              <p className="font-iceland text-white/40 text-sm md:text-base leading-relaxed">
-                ¿Tienes más preguntas? Escríbenos por WhatsApp y te respondemos enseguida.
-              </p>
             </FadeUp>
 
             <div className="pt-2 lg:pt-0">
               {faqs.map((faq, i) => (
                 <FaqItem key={i} q={faq.q} a={faq.a} index={i} />
               ))}
-              <div className="border-t border-white/10" />
+              <div className="border-t border-[#111111]/10" />
             </div>
           </div>
         </div>
