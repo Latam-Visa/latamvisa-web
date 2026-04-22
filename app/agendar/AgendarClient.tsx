@@ -377,14 +377,13 @@ export default function AgendarClient() {
           style={{ background: 'radial-gradient(ellipse, rgba(255,255,255,0.7) 0%, transparent 70%)' }}
         />
 
-        <div className="relative max-w-5xl mx-auto text-center">
+        <div className="relative w-full mx-auto text-center overflow-hidden px-4">
           <FadeUp delay={0.12}>
             <h1
-              className="font-monument font-black text-3xl sm:text-4xl md:text-5xl leading-[1.2] tracking-tight mb-6 uppercase flex flex-col gap-2 md:gap-3 items-center"
+              className="font-monument font-black text-[8vw] sm:text-[7vw] md:text-[6vw] leading-[1.1] tracking-tighter mb-8 uppercase flex justify-center whitespace-nowrap"
               style={{ fontFamily: "'PPMonumentExtended', sans-serif" }}
             >
-              <FlipText text="DISEÑA EL PROYECTO" className="text-[#111111]" />
-              <FlipText text="DE TU VIDA" className="text-[#1A2A00]" />
+              <FlipText text="AGENDA TU SUEÑO" className="text-[#111111]" />
             </h1>
           </FadeUp>
 
