@@ -379,12 +379,15 @@ export default function AgendarClient() {
 
         <div className="relative w-full mx-auto text-center overflow-hidden">
           <FadeUp delay={0.12}>
-            <div className="w-full flex justify-center px-1 md:px-4">
+            {/* Alineación forzosa con el Navbar usando los mismos px-6 md:px-[100px] */}
+            <div className="w-full flex justify-center px-6 md:px-[100px]">
               <h1
-                className="font-monument font-black text-[9vw] sm:text-[8vw] md:text-[6.5vw] lg:text-[6vw] xl:text-[5.75vw] leading-[1.1] tracking-tighter mb-8 uppercase flex justify-center whitespace-nowrap"
+                className="font-monument font-black w-full text-[11vw] sm:text-[9.5vw] md:text-[7.5vw] lg:text-[6.5vw] xl:text-[6.2vw] leading-[1.0] tracking-tighter mb-8 uppercase flex justify-between whitespace-nowrap"
                 style={{ fontFamily: "'PPMonumentExtended', sans-serif" }}
               >
-                <FlipText text="AGENDA TU SUEÑO" className="text-[#111111]" />
+                <FlipText text="AGENDA" className="text-[#111111]" />
+                <FlipText text="TU" className="text-[#111111]" />
+                <FlipText text="SUEÑO" className="text-[#111111]" />
               </h1>
             </div>
           </FadeUp>
@@ -406,12 +409,13 @@ export default function AgendarClient() {
             </div>
           </FadeUp>
 
-          <FadeUp delay={0.3} className="w-full flex justify-center px-4 md:px-8">
-            {/* Contenedor del Calendario (Ajustado para ser un poco más pequeño) */}
-            <div className="relative z-10 w-full max-w-[750px] rounded-xl shadow-[0_20px_60px_rgba(0,0,0,0.08)] overflow-hidden border border-[#D9D9D9] bg-[#C8FF00] flex flex-col items-center">
+          <FadeUp delay={0.3} className="w-full flex justify-center px-4 md:px-8 pb-10">
+            {/* Usamos un CSS Transform (scale) para encoger visualmente "la información de adentro" como si fuera un Zoom Out. 
+                El margin bottom negativo corrige el espacio blanco que deja el scale */}
+            <div className="relative z-10 w-full max-w-[900px] rounded-xl shadow-[0_20px_60px_rgba(0,0,0,0.08)] overflow-hidden border border-[#D9D9D9] bg-[#C8FF00] flex flex-col items-center transform origin-top md:scale-[0.85] md:-mb-[10%]">
               <iframe
                 src={`${CAL_URL}?embed=true&theme=light`}
-                className="w-full min-h-[500px] md:min-h-[580px] -mb-[55px] relative z-20 flex-shrink-0"
+                className="w-full min-h-[500px] md:min-h-[660px] -mb-[55px] relative z-20 flex-shrink-0"
                 style={{ border: 'none', background: 'transparent' }}
                 frameBorder="0"
                 title="Agendar Consulta Latam Visa"
