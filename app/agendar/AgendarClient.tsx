@@ -407,11 +407,11 @@ export default function AgendarClient() {
           </FadeUp>
 
           <FadeUp delay={0.3} className="w-full flex justify-center px-4 md:px-8">
-            {/* Contenedor del Calendario (Nativo y sin franjas de Cal.com via CSS Cropping) */}
-            <div className="relative z-10 w-full max-w-[950px] rounded-xl shadow-[0_20px_80px_rgba(0,0,0,0.06)] overflow-hidden border border-[#D9D9D9] bg-[#C8FF00] flex flex-col items-center">
+            {/* Contenedor del Calendario (Ajustado para ser un poco más pequeño) */}
+            <div className="relative z-10 w-full max-w-[750px] rounded-xl shadow-[0_20px_60px_rgba(0,0,0,0.08)] overflow-hidden border border-[#D9D9D9] bg-[#C8FF00] flex flex-col items-center">
               <iframe
                 src={`${CAL_URL}?embed=true&theme=light`}
-                className="w-full min-h-[600px] md:min-h-[680px] -mb-[55px] relative z-20 flex-shrink-0"
+                className="w-full min-h-[500px] md:min-h-[580px] -mb-[55px] relative z-20 flex-shrink-0"
                 style={{ border: 'none', background: 'transparent' }}
                 frameBorder="0"
                 title="Agendar Consulta Latam Visa"
