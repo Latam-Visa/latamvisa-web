@@ -13,6 +13,9 @@ import {
 } from 'lucide-react'
 import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
+import { Anton } from 'next/font/google'
+
+const anton = Anton({ weight: '400', subsets: ['latin'] })
 
 // ── Animation helpers ──────────────────────────────────────────────────────────
 function FadeUp({
@@ -377,14 +380,13 @@ export default function AgendarClient() {
           style={{ background: 'radial-gradient(ellipse, rgba(255,255,255,0.7) 0%, transparent 70%)' }}
         />
 
-        <div className="relative max-w-5xl mx-auto text-center">
+        <div className="relative w-full mx-auto text-center mt-12 mb-20 md:mt-20 md:mb-32">
           <FadeUp delay={0.12}>
-            <div className="w-full flex justify-center mb-10 overflow-hidden md:overflow-visible">
+            <div className="w-full flex justify-center px-2">
               <h1
-                className="font-monument font-black text-[9.5vw] sm:text-[7vw] md:text-[5.5vw] lg:text-[4vw] leading-[1.1] md:leading-none tracking-tighter uppercase flex flex-wrap md:flex-nowrap justify-center w-full scale-y-[1.15] md:scale-x-[1.05]"
-                style={{ fontFamily: "'PPMonumentExtended', sans-serif" }}
+                className={`${anton.className} text-[15vw] md:text-[13vw] lg:text-[11.5vw] xl:text-[10.5vw] leading-[0.8] tracking-tighter uppercase text-[#111111] transform scale-y-[1.8] scale-x-[0.95] md:scale-y-[2.1] md:scale-x-90 origin-center`}
               >
-                <FlipText text="DISEÑA EL PROYECTO DE TU VIDA" className="text-[#111111]" />
+                <FlipText text="AGENDA TU FUTURO" />
               </h1>
             </div>
           </FadeUp>
