@@ -410,17 +410,19 @@ export default function AgendarClient() {
           </FadeUp>
 
           <FadeUp delay={0.3} className="w-full flex justify-center px-4 md:px-8 pb-10">
-            {/* Usamos un CSS Transform (scale) para encoger visualmente "la información de adentro" como si fuera un Zoom Out. 
-                El margin bottom negativo corrige el espacio blanco que deja el scale */}
-            <div className="relative z-10 w-full max-w-[900px] rounded-xl shadow-[0_20px_60px_rgba(0,0,0,0.08)] overflow-hidden border border-[#D9D9D9] bg-[#C8FF00] flex flex-col items-center transform origin-top md:scale-[0.85] md:-mb-[10%]">
-              <iframe
-                src={`${CAL_URL}?embed=true&theme=light`}
-                className="w-full min-h-[500px] md:min-h-[660px] -mb-[55px] relative z-20 flex-shrink-0"
-                style={{ border: 'none', background: 'transparent' }}
-                frameBorder="0"
-                title="Agendar Consulta Latam Visa"
-              ></iframe>
-              <div className="w-full h-4 bg-[#C8FF00] relative z-10 mt-auto"></div>
+            {/* Contenedor Principal (Tarjeta con padding uniforme y borde verde) */}
+            <div className="relative z-10 w-full max-w-[900px] rounded-[32px] p-4 sm:p-6 md:p-8 shadow-[0_24px_80px_rgba(0,0,0,0.08)] bg-white border border-black/5 border-b-[12px] border-b-[#C8FF00] transform origin-top md:scale-[0.85] md:-mb-[8%] mx-auto">
+               
+              {/* Contenedor interno exclusivo para recortar el footer de Cal.com sin asfixiarlo */}
+              <div className="w-full h-[550px] md:h-[630px] overflow-hidden relative rounded-xl bg-white">
+                <iframe
+                  src={`${CAL_URL}?embed=true&theme=light`}
+                  className="w-full h-[calc(100%+65px)] absolute top-0 left-0"
+                  style={{ border: 'none', background: 'transparent' }}
+                  frameBorder="0"
+                  title="Agendar Consulta Latam Visa"
+                ></iframe>
+              </div>
             </div>
           </FadeUp>
         </div>
