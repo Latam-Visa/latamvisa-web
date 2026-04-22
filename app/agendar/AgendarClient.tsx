@@ -377,34 +377,38 @@ export default function AgendarClient() {
           style={{ background: 'radial-gradient(ellipse, rgba(255,255,255,0.7) 0%, transparent 70%)' }}
         />
 
-        <div className="relative w-full mx-auto text-center overflow-hidden px-2 md:px-0">
+        <div className="relative w-full mx-auto text-center overflow-hidden">
           <FadeUp delay={0.12}>
-            <h1
-              className="font-monument font-black text-[9vw] sm:text-[8vw] xl:text-[7.5vw] leading-[1.1] tracking-tighter mb-8 uppercase flex justify-center whitespace-nowrap"
-              style={{ fontFamily: "'PPMonumentExtended', sans-serif" }}
-            >
-              <FlipText text="AGENDA TU SUEÑO" className="text-[#111111]" />
-            </h1>
+            <div className="w-full flex justify-center px-2 md:px-4">
+              <h1
+                className="font-monument font-black text-[7.5vw] sm:text-[6vw] md:text-[5vw] lg:text-[4.5vw] leading-[1.1] tracking-tight mb-8 uppercase flex justify-center whitespace-nowrap"
+                style={{ fontFamily: "'PPMonumentExtended', sans-serif" }}
+              >
+                <FlipText text="AGENDA TU SUEÑO" className="text-[#111111]" />
+              </h1>
+            </div>
           </FadeUp>
 
           <FadeUp delay={0.18}>
-            <p className="font-funnel text-[#111111]/80 text-[10px] sm:text-[14px] md:text-base lg:text-[17px] whitespace-normal md:whitespace-nowrap max-w-[95%] lg:max-w-5xl mx-auto leading-relaxed mb-8 px-2 md:px-4">
-              45 minutos con un experto. Analizamos tu perfil, te ayudamos a planificar tu experiencia de estudio y viaje, y respondes todas tus dudas — por <span className="text-[#1A2A00] font-black text-xs sm:text-sm md:text-lg bg-white/50 px-2 py-0.5 rounded-md">$59 <span className="text-[10px] md:text-xs font-normal">usd</span></span>.
-            </p>
+            <div className="w-full flex justify-center px-2">
+              <p className="font-funnel text-[#111111]/80 text-[12px] sm:text-[14px] md:text-base lg:text-[17px] whitespace-normal md:whitespace-nowrap w-full lg:max-w-max mx-auto text-center leading-relaxed mb-8">
+                45 minutos con un experto. Analizamos tu perfil, te ayudamos a planificar tu experiencia de estudio y viaje, y respondes todas tus dudas — por <span className="text-[#1A2A00] font-black text-sm md:text-lg bg-white/50 px-2 py-0.5 rounded-md">$59 <span className="text-[10px] md:text-xs font-normal">usd</span></span>.
+              </p>
+            </div>
           </FadeUp>
 
           {/* GANCHO RESALTADO */}
           <FadeUp delay={0.24}>
             <div className="inline-block border border-[#C8FF00]/40 bg-[#1A2A00] px-6 sm:px-10 py-3 sm:py-4 rounded-xl mb-12 shadow-[0_12px_40px_rgba(26,42,0,0.15)] hover:shadow-[0_12px_40px_rgba(200,255,0,0.2)] hover:-translate-y-1 transition-all cursor-default">
-              <p className="font-iceland text-[#E8FF7A] font-bold text-xs sm:text-sm md:text-[17.5px] whitespace-normal md:whitespace-nowrap leading-relaxed tracking-wide">
+              <p className="font-iceland text-[#E8FF7A] font-bold text-xs sm:text-sm md:text-[17.5px] whitespace-normal md:whitespace-nowrap leading-relaxed tracking-wide text-center mx-auto">
                 Reembolsables al contratar el servicio completo. Sin compromiso inicial, con claridad total.
               </p>
             </div>
           </FadeUp>
 
-          <FadeUp delay={0.3} className="w-full flex justify-center">
-            {/* Contenedor del Calendario (Asegurar que esté por encima del ruido) */}
-            <div className="relative z-10 w-full max-w-[800px] h-[600px] rounded-xl shadow-2xl overflow-hidden border border-gray-100/20 bg-[#050505]">
+          <FadeUp delay={0.3} className="w-full flex justify-center px-4 md:px-8">
+            {/* Contenedor del Calendario (Asegurar que esté por encima del ruido, y ajustado) */}
+            <div className="relative z-10 w-full max-w-[900px] min-h-[600px] md:h-[650px] rounded-xl shadow-[0_20px_60px_rgba(0,0,0,0.15)] overflow-hidden border border-gray-100/20 bg-[#050505]">
               <iframe
                 src={`${CAL_URL}?embed=true&theme=dark`}
                 style={{ width: '100%', height: '100%', border: 'none' }}
