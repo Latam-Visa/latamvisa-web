@@ -49,7 +49,7 @@ function FlipText({ text, className = '' }: { text: string; className?: string }
           {/* Default Layer (Before) */}
           <span className="inline-flex before-layer" aria-hidden="true">
             {word.split('').map((char, cIdx) => (
-              <span key={`b-${cIdx}`} className="char-el">
+              <span key={`b-${cIdx}`} className={`char-el ${char === 'Ñ' ? 'text-[#9BD600] drop-shadow-[0_1px_2px_rgba(0,0,0,0.15)]' : ''}`}>
                 {char}
               </span>
             ))}
@@ -57,7 +57,7 @@ function FlipText({ text, className = '' }: { text: string; className?: string }
           {/* Hover Layer (After) */}
           <span className="inline-flex after-layer">
             {word.split('').map((char, cIdx) => (
-              <span key={`a-${cIdx}`} className="char-el font-black">
+              <span key={`a-${cIdx}`} className={`char-el font-black ${char === 'Ñ' ? 'text-[#9BD600] drop-shadow-[0_1px_2px_rgba(0,0,0,0.15)]' : ''}`}>
                 {char}
               </span>
             ))}
@@ -377,10 +377,10 @@ export default function AgendarClient() {
           style={{ background: 'radial-gradient(ellipse, rgba(255,255,255,0.7) 0%, transparent 70%)' }}
         />
 
-        <div className="relative w-full mx-auto text-center overflow-hidden px-4">
+        <div className="relative w-full mx-auto text-center overflow-hidden px-2 md:px-0">
           <FadeUp delay={0.12}>
             <h1
-              className="font-monument font-black text-[8vw] sm:text-[7vw] md:text-[6vw] leading-[1.1] tracking-tighter mb-8 uppercase flex justify-center whitespace-nowrap"
+              className="font-monument font-black text-[9vw] sm:text-[8vw] xl:text-[7.5vw] leading-[1.1] tracking-tighter mb-8 uppercase flex justify-center whitespace-nowrap"
               style={{ fontFamily: "'PPMonumentExtended', sans-serif" }}
             >
               <FlipText text="AGENDA TU SUEÑO" className="text-[#111111]" />
@@ -388,25 +388,23 @@ export default function AgendarClient() {
           </FadeUp>
 
           <FadeUp delay={0.18}>
-            <p className="font-funnel text-[#111111]/80 text-lg md:text-xl max-w-2xl mx-auto leading-relaxed mb-6">
-              45 minutos con un experto. Analizamos tu perfil, te ayudamos a planificar tu experiencia de estudio y viaje,
-              y respondes todas tus dudas — por{' '}
-              <span className="text-[#1A2A00] font-black text-2xl bg-white/40 px-2 py-0.5 rounded-md">$59 <span className="text-xs font-normal">usd</span></span>.
+            <p className="font-funnel text-[#111111]/80 text-[10px] sm:text-[14px] md:text-base lg:text-[17px] whitespace-normal md:whitespace-nowrap max-w-[95%] lg:max-w-5xl mx-auto leading-relaxed mb-8 px-2 md:px-4">
+              45 minutos con un experto. Analizamos tu perfil, te ayudamos a planificar tu experiencia de estudio y viaje, y respondes todas tus dudas — por <span className="text-[#1A2A00] font-black text-xs sm:text-sm md:text-lg bg-white/50 px-2 py-0.5 rounded-md">$59 <span className="text-[10px] md:text-xs font-normal">usd</span></span>.
             </p>
           </FadeUp>
 
           {/* GANCHO RESALTADO */}
           <FadeUp delay={0.24}>
-            <div className="inline-block border border-[#1A2A00]/20 bg-white/40 backdrop-blur-md px-6 py-4 rounded-xl mb-12 shadow-[0_8px_30px_rgba(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgba(0,0,0,0.08)] transition-all">
-              <p className="font-iceland text-[#1A2A00] font-bold text-lg md:text-xl leading-relaxed">
-                Reembolsables al contratar el servicio completo.<br className="hidden md:block"/> Sin compromiso inicial, con claridad total.
+            <div className="inline-block border border-[#C8FF00]/40 bg-[#1A2A00] px-6 sm:px-10 py-3 sm:py-4 rounded-xl mb-12 shadow-[0_12px_40px_rgba(26,42,0,0.15)] hover:shadow-[0_12px_40px_rgba(200,255,0,0.2)] hover:-translate-y-1 transition-all cursor-default">
+              <p className="font-iceland text-[#E8FF7A] font-bold text-xs sm:text-sm md:text-[17.5px] whitespace-normal md:whitespace-nowrap leading-relaxed tracking-wide">
+                Reembolsables al contratar el servicio completo. Sin compromiso inicial, con claridad total.
               </p>
             </div>
           </FadeUp>
 
           <FadeUp delay={0.3} className="w-full flex justify-center">
             {/* Contenedor del Calendario (Asegurar que esté por encima del ruido) */}
-            <div className="relative z-10 w-full max-w-[1000px] h-[700px] rounded-xl shadow-2xl overflow-hidden border border-gray-100/20">
+            <div className="relative z-10 w-full max-w-[800px] h-[600px] rounded-xl shadow-2xl overflow-hidden border border-gray-100/20 bg-[#050505]">
               <iframe
                 src={`${CAL_URL}?embed=true&theme=dark`}
                 style={{ width: '100%', height: '100%', border: 'none' }}
