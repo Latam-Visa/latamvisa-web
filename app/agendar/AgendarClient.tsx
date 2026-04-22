@@ -380,11 +380,12 @@ export default function AgendarClient() {
           style={{ background: 'radial-gradient(ellipse, rgba(255,255,255,0.7) 0%, transparent 70%)' }}
         />
 
-        <div className="relative w-full mx-auto text-center mt-12 mb-20 md:mt-20 md:mb-32">
+        {/* Contenedor del título con compensación masiva de margen inferior para evitar solapamientos debido a la escala Y */}
+        <div className="relative w-full mx-auto text-center mt-4 mb-[35vw] sm:mb-[25vw] md:mb-[18vw]">
           <FadeUp delay={0.12}>
-            <div className="w-full flex justify-center px-2">
+            <div className="w-full flex justify-center px-4 md:px-6">
               <h1
-                className={`${anton.className} text-[15vw] md:text-[13vw] lg:text-[11.5vw] xl:text-[10.5vw] leading-[0.8] tracking-tighter uppercase text-[#111111] transform scale-y-[1.8] scale-x-[0.95] md:scale-y-[2.1] md:scale-x-90 origin-center`}
+                className={`${anton.className} text-[14vw] md:text-[11vw] lg:text-[10vw] leading-[0.8] tracking-normal uppercase text-[#111111] transform scale-y-[2.4] md:scale-y-[2.8] origin-top`}
               >
                 <FlipText text="AGENDA TU FUTURO" />
               </h1>
