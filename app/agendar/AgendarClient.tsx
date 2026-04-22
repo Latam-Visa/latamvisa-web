@@ -407,13 +407,16 @@ export default function AgendarClient() {
           </FadeUp>
 
           <FadeUp delay={0.3} className="w-full flex justify-center px-4 md:px-8">
-            {/* Contenedor del Calendario (Asegurar que esté por encima del ruido, y ajustado) */}
-            <div className="relative z-10 w-full max-w-[950px] min-h-[600px] md:min-h-[680px] rounded-[24px] shadow-[0_20px_80px_rgba(0,0,0,0.06)] overflow-hidden border border-black/5 bg-white backdrop-blur-xl">
+            {/* Contenedor del Calendario (Nativo y sin franjas de Cal.com via CSS Cropping) */}
+            <div className="relative z-10 w-full max-w-[950px] rounded-xl shadow-[0_20px_80px_rgba(0,0,0,0.06)] overflow-hidden border border-[#D9D9D9] bg-[#C8FF00] flex flex-col items-center">
               <iframe
                 src={`${CAL_URL}?embed=true&theme=light`}
-                style={{ width: '100%', height: '100%', border: 'none' }}
+                className="w-full min-h-[600px] md:min-h-[680px] -mb-[55px] relative z-20 flex-shrink-0"
+                style={{ border: 'none', background: 'transparent' }}
+                frameBorder="0"
                 title="Agendar Consulta Latam Visa"
               ></iframe>
+              <div className="w-full h-4 bg-[#C8FF00] relative z-10 mt-auto"></div>
             </div>
           </FadeUp>
         </div>
@@ -431,7 +434,7 @@ export default function AgendarClient() {
                 className="font-monument font-black text-3xl md:text-4xl tracking-tight text-[#111111]"
                 style={{ fontFamily: "'PPMonumentExtended', sans-serif" }}
               >
-                Qué incluye la consulta
+                <FlipText text="QUÉ INCLUYE LA CONSULTA" />
               </h2>
             </div>
           </FadeUp>
@@ -453,11 +456,14 @@ export default function AgendarClient() {
                 Transparencia total
               </span>
               <h2
-                className="font-monument font-black text-2xl md:text-3xl tracking-tight text-[#111111] mb-6 leading-[1.1]"
+                className="font-monument font-black text-2xl md:text-3xl tracking-tight text-[#111111] mb-6 leading-[1.1] flex flex-wrap gap-x-2 items-end"
                 style={{ fontFamily: "'PPMonumentExtended', sans-serif" }}
               >
-                ¿Por qué cobrar{' '}
-                <span className="text-[#1A2A00]">$59</span> <span className="text-sm font-normal text-[#1A2A00]/70 uppercase tracking-widest">usd</span>?
+                <FlipText text="¿POR QUÉ COBRAR" />
+                <span className="text-[#1A2A00] flex items-end gap-1">
+                  <FlipText text="$59" /> 
+                  <span className="text-sm font-normal text-[#1A2A00]/70 uppercase tracking-widest mb-1">usd</span>?
+                </span>
               </h2>
             </FadeUp>
 
@@ -500,11 +506,11 @@ export default function AgendarClient() {
                 Clientes reales
               </span>
               <h2
-                className="font-monument font-black text-3xl md:text-4xl tracking-tight text-[#111111]"
+                className="font-monument font-black text-3xl md:text-4xl tracking-tight text-[#111111] flex flex-wrap justify-center gap-x-3"
                 style={{ fontFamily: "'PPMonumentExtended', sans-serif" }}
               >
-                Lo que dicen quienes{' '}
-                <span className="text-[#1A2A00]">ya agendaron</span>
+                <FlipText text="LO QUE DICEN QUIENES" />
+                <span className="text-[#1A2A00]"><FlipText text="YA AGENDARON" /></span>
               </h2>
             </div>
           </FadeUp>
@@ -529,7 +535,7 @@ export default function AgendarClient() {
                 className="font-monument font-black text-3xl md:text-4xl tracking-tight text-[#111111]"
                 style={{ fontFamily: "'PPMonumentExtended', sans-serif" }}
               >
-                3 pasos simples
+                <FlipText text="3 PASOS SIMPLES" />
               </h2>
             </div>
           </FadeUp>
@@ -559,12 +565,11 @@ export default function AgendarClient() {
                 Dudas frecuentes
               </span>
               <h2
-                className="font-monument font-black text-xl md:text-2xl tracking-tight text-[#111111] mb-4 leading-[1.1]"
+                className="font-monument font-black text-xl md:text-2xl tracking-tight text-[#111111] mb-4 leading-[1.1] flex flex-col items-start gap-1"
                 style={{ fontFamily: "'PPMonumentExtended', sans-serif" }}
               >
-                Preguntas
-                <br />
-                <span className="text-[#1A2A00]/60">rápidas</span>
+                <FlipText text="PREGUNTAS" />
+                <span className="text-[#1A2A00]/60"><FlipText text="RÁPIDAS" /></span>
               </h2>
             </FadeUp>
 
