@@ -323,13 +323,22 @@ function FaqItem({ q, a, index }: { q: string; a: string; index: number }) {
 // ── Main Page Component ────────────────────────────────────────────────────────
 export default function AgendarClient() {
   return (
-    <div className="min-h-screen bg-[#C8FF00] text-[#111111]" style={{ background: 'linear-gradient(135deg, #E8FF7A 0%, #C8FF00 100%)' }}>
-      {/* 
-        NOTA: Para asegurar que el Navbar se adapte visualmente sin romperse
-        en el fondo verde eléctrico, mantenemos el esquema original pero el contexto
-        ayudará.
-      */}
-      <Navbar />
+    <div className="relative min-h-screen w-full bg-gradient-to-br from-white via-[#FAFFEB] to-[#C8FF00]/40 text-[#111111]">
+      
+      {/* Capa de textura de ruido (Grain effect) */}
+      <div 
+        className="absolute inset-0 z-0 opacity-[0.25] mix-blend-overlay pointer-events-none"
+        style={{
+          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
+        }}
+      ></div>
+
+      <div className="relative z-10 w-full">
+        {/* 
+          NOTA: Para asegurar que el Navbar se adapte visualmente sin romperse
+          en el fondo perlado, mantenemos el esquema original.
+        */}
+        <Navbar />
 
       {/* ═══════════════════════ HERO ═══════════════════════════════════════════ */}
       <section className="relative overflow-hidden pt-32 pb-24 px-6">
@@ -370,10 +379,11 @@ export default function AgendarClient() {
           </FadeUp>
 
           <FadeUp delay={0.3} className="w-full flex justify-center">
-            <div style={{ width: '100%', height: '100%', minHeight: '700px', backgroundColor: '#050505', display: 'flex', justifyContent: 'center' }} className="w-full min-h-[700px] rounded-2xl overflow-hidden border border-[#111111]/20 shadow-[0_20px_60px_rgba(0,0,0,0.2)]">
+            {/* Contenedor del Calendario (Asegurar que esté por encima del ruido) */}
+            <div className="relative z-10 w-full max-w-[1000px] h-[700px] rounded-xl shadow-2xl overflow-hidden border border-gray-100/20">
               <iframe
                 src={`${CAL_URL}?embed=true&theme=dark`}
-                style={{ width: '100%', maxWidth: '1000px', height: '100%', border: 'none', minHeight: '700px' }}
+                style={{ width: '100%', height: '100%', border: 'none' }}
                 title="Agendar Consulta Latam Visa"
               ></iframe>
             </div>
@@ -547,6 +557,7 @@ export default function AgendarClient() {
       </section>
 
       <Footer />
+      </div>
     </div>
   )
 }
