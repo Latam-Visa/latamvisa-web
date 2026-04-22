@@ -3,11 +3,11 @@ import { useEffect, useRef } from 'react'
 import { ChevronRight } from 'lucide-react'
 
 const steps = [
-  { num: '01', title: 'Evaluación de Perfil',    body: 'Analizamos a fondo tu background académico, edad y objetivos en Australia para trazar un camino educativo y de viaje seguro, realista y viable.' },
-  { num: '02', title: 'Estrategia Personalizada', body: 'Diseñamos una hoja de ruta única, seleccionando estratégicamente el tipo de visa e institución educativa para maximizar tus probabilidades de éxito.' },
-  { num: '03', title: 'Documentos y Checklist',   body: 'Te entregamos un checklist exacto y acompañamos la recolección, traducción y validación minuciosa de cada requisito exigido por inmigración.' },
-  { num: '04', title: 'Aplicación y Envío',        body: 'Auditamos tu expediente al detalle y ejecutamos la aplicación oficial ante el Departamento de Asuntos Internos de Australia.' },
-  { num: '05', title: 'Seguimiento y Respuesta',  body: 'Monitoreamos el estatus de tu caso día a día, gestionando cualquier requerimiento adicional hasta celebrar la aprobación final.' },
+  { num: '01', title: 'Evaluación de Perfil',    body: 'Analizamos a fondo tu perfil académico, edad y presupuesto para estructurar un proyecto educativo viable hacia Australia o cualquier destino.' },
+  { num: '02', title: 'Estrategia Personalizada', body: 'Diseñamos una hoja de ruta, seleccionando la institución, el curso y el tipo de visado adecuados para tu experiencia internacional.' },
+  { num: '03', title: 'Armado Documental',        body: 'Proporcionamos un checklist preciso y guiamos la traducción, formato y revisión de documentos requeridos por los consulados y escuelas.' },
+  { num: '04', title: 'Postulación Oficial',      body: 'Auditamos tu expediente al detalle y ejecutamos la aplicación formal, proyectando un perfil sólido ante las respectivas embajadas e instituciones.' },
+  { num: '05', title: 'Soporte Continuo',         body: 'Monitoreamos el avance de tus procesos día a día, dándote respaldo logístico total hasta celebrar el inicio de tu aventura.' },
 ]
 
 export default function ProcessSection() {
@@ -171,7 +171,7 @@ export default function ProcessSection() {
         </div>
 
         <p className="mt-16 text-xs text-[#444444] font-iceland border-t border-[#111111]/15 pt-6 disclaimer-text">
-          {'* LATAM VISA no ofrece asesoría legal ni garantiza aprobaciones en procesos exclusivos de embajadas.'.split(' ').map((w, i) => (
+          {'* LATAM VISA estructura tu perfil minuciosamente para maximizar tus probabilidades de éxito frente a cualquier institución o embajada.'.split(' ').map((w, i) => (
              <span key={`d-${i}`} style={{ display: 'inline-block', overflow: 'hidden', verticalAlign: 'bottom', marginRight: '0.3em' }}>
                <span className="word" style={{ display: 'inline-block', paddingBottom: '0.1em' }}>{w}</span>
              </span>

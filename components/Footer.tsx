@@ -181,7 +181,7 @@ export default function Footer() {
             © 2026 LATAM VISA®
           </span>
           <span className="font-funnel text-xs md:text-right" style={{ color: '#2A3A00' }}>
-            LATAM VISA es una consultora de viajes y educación internacional. No ofrecemos asesoría migratoria. Para asesoría legal sobre visas, recomendamos consultar con un Registered Migration Agent (OMARA) o abogado especializado. Nuestros servicios incluyen planeación de viaje, conexión con instituciones educativas y servicios de traslado.
+            LATAM VISA es una consultoría educativa y de viajes. No prestamos representación legal ni servicios de índole migratoria oficial.
           </span>
         </div>
       </div>
