@@ -13,9 +13,6 @@ import {
 } from 'lucide-react'
 import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
-import { Anton } from 'next/font/google'
-
-const anton = Anton({ weight: '400', subsets: ['latin'] })
 
 // ── Animation helpers ──────────────────────────────────────────────────────────
 function FadeUp({
@@ -380,16 +377,15 @@ export default function AgendarClient() {
           style={{ background: 'radial-gradient(ellipse, rgba(255,255,255,0.7) 0%, transparent 70%)' }}
         />
 
-        {/* Contenedor del título con compensación masiva de margen inferior para evitar solapamientos debido a la escala Y */}
-        <div className="relative w-full mx-auto text-center mt-4 mb-[35vw] sm:mb-[25vw] md:mb-[18vw]">
+        <div className="relative max-w-5xl mx-auto text-center">
           <FadeUp delay={0.12}>
-            <div className="w-full flex justify-center px-4 md:px-6">
-              <h1
-                className={`${anton.className} text-[14vw] md:text-[11vw] lg:text-[10vw] leading-[0.8] tracking-normal uppercase text-[#111111] transform scale-y-[2.4] md:scale-y-[2.8] origin-top`}
-              >
-                <FlipText text="AGENDA TU FUTURO" />
-              </h1>
-            </div>
+            <h1
+              className="font-monument font-black text-3xl sm:text-4xl md:text-5xl leading-[1.2] tracking-tight mb-6 uppercase flex flex-col gap-2 md:gap-3 items-center"
+              style={{ fontFamily: "'PPMonumentExtended', sans-serif" }}
+            >
+              <FlipText text="DISEÑA EL PROYECTO" className="text-[#111111]" />
+              <FlipText text="DE TU VIDA" className="text-[#1A2A00]" />
+            </h1>
           </FadeUp>
 
           <FadeUp delay={0.18}>
