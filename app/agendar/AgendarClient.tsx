@@ -380,9 +380,9 @@ export default function AgendarClient() {
         <div className="relative w-full mx-auto text-center overflow-hidden">
           <FadeUp delay={0.12}>
             {/* Alineación forzosa con el Navbar usando los mismos px-6 md:px-[100px] */}
-            <div className="w-full flex justify-center px-6 md:px-[100px]">
+            <div className="w-full flex justify-center px-6 md:px-[100px] pt-6 md:pt-10 pb-8 md:pb-12">
               <h1
-                className="font-monument font-black w-full text-[11vw] sm:text-[9.5vw] md:text-[7.5vw] lg:text-[6.5vw] xl:text-[6.2vw] leading-[1.0] tracking-tighter mb-8 uppercase flex justify-between whitespace-nowrap"
+                className="font-monument font-black w-full text-[11vw] sm:text-[9.5vw] md:text-[7.5vw] lg:text-[6.5vw] xl:text-[6.2vw] leading-[1.0] tracking-tighter uppercase flex justify-between whitespace-nowrap transform scale-y-[1.3] md:scale-y-[1.6] origin-bottom"
                 style={{ fontFamily: "'PPMonumentExtended', sans-serif" }}
               >
                 <FlipText text="AGENDA" className="text-[#111111]" />
@@ -410,11 +410,11 @@ export default function AgendarClient() {
           </FadeUp>
 
           <FadeUp delay={0.3} className="w-full flex justify-center px-4 md:px-8 pb-10">
-            {/* Contenedor Principal (Tarjeta con padding uniforme y borde verde) */}
-            <div className="relative z-10 w-full max-w-[900px] rounded-[32px] p-4 sm:p-6 md:p-8 shadow-[0_24px_80px_rgba(0,0,0,0.08)] bg-white border border-black/5 border-b-[12px] border-b-[#C8FF00] transform origin-top md:scale-[0.85] md:-mb-[8%] mx-auto">
+            {/* Contenedor Principal (Tarjeta negra en sus bordes) */}
+            <div className="relative z-10 w-full max-w-[900px] rounded-[32px] p-4 sm:p-6 md:p-8 shadow-[0_24px_80px_rgba(0,0,0,0.08)] bg-white border-2 border-[#111111] border-b-[12px] transform origin-top md:scale-[0.85] md:-mb-[8%] mx-auto">
                
               {/* Contenedor interno exclusivo para recortar el footer de Cal.com sin asfixiarlo */}
-              <div className="w-full h-[550px] md:h-[630px] overflow-hidden relative rounded-xl bg-white">
+              <div className="w-full h-[550px] md:h-[630px] overflow-hidden relative rounded-xl bg-white border border-[#111111]/20">
                 <iframe
                   src={`${CAL_URL}?embed=true&theme=light`}
                   className="w-full h-[calc(100%+65px)] absolute top-0 left-0"
