@@ -49,7 +49,7 @@ function FlipText({ text, className = '' }: { text: string; className?: string }
           {/* Default Layer (Before) */}
           <span className="inline-flex before-layer" aria-hidden="true">
             {word.split('').map((char, cIdx) => (
-              <span key={`b-${cIdx}`} className={`char-el ${char === 'Ñ' ? 'text-[#9BD600] drop-shadow-[0_1px_2px_rgba(0,0,0,0.15)]' : ''}`}>
+              <span key={`b-${cIdx}`} className={`char-el ${char === 'Ñ' ? 'text-[#C8FF00] drop-shadow-[0_1px_3px_rgba(26,42,0,0.4)]' : ''}`}>
                 {char}
               </span>
             ))}
@@ -57,7 +57,7 @@ function FlipText({ text, className = '' }: { text: string; className?: string }
           {/* Hover Layer (After) */}
           <span className="inline-flex after-layer">
             {word.split('').map((char, cIdx) => (
-              <span key={`a-${cIdx}`} className={`char-el font-black ${char === 'Ñ' ? 'text-[#9BD600] drop-shadow-[0_1px_2px_rgba(0,0,0,0.15)]' : ''}`}>
+              <span key={`a-${cIdx}`} className={`char-el font-black ${char === 'Ñ' ? 'text-[#C8FF00] drop-shadow-[0_1px_3px_rgba(26,42,0,0.4)]' : ''}`}>
                 {char}
               </span>
             ))}
@@ -379,9 +379,9 @@ export default function AgendarClient() {
 
         <div className="relative w-full mx-auto text-center overflow-hidden">
           <FadeUp delay={0.12}>
-            <div className="w-full flex justify-center px-2 md:px-4">
+            <div className="w-full flex justify-center px-1 md:px-4">
               <h1
-                className="font-monument font-black text-[7.5vw] sm:text-[6vw] md:text-[5vw] lg:text-[4.5vw] leading-[1.1] tracking-tight mb-8 uppercase flex justify-center whitespace-nowrap"
+                className="font-monument font-black text-[9vw] sm:text-[8vw] md:text-[6.5vw] lg:text-[6vw] xl:text-[5.75vw] leading-[1.1] tracking-tighter mb-8 uppercase flex justify-center whitespace-nowrap"
                 style={{ fontFamily: "'PPMonumentExtended', sans-serif" }}
               >
                 <FlipText text="AGENDA TU SUEÑO" className="text-[#111111]" />
@@ -408,9 +408,9 @@ export default function AgendarClient() {
 
           <FadeUp delay={0.3} className="w-full flex justify-center px-4 md:px-8">
             {/* Contenedor del Calendario (Asegurar que esté por encima del ruido, y ajustado) */}
-            <div className="relative z-10 w-full max-w-[900px] min-h-[600px] md:h-[650px] rounded-xl shadow-[0_20px_60px_rgba(0,0,0,0.15)] overflow-hidden border border-gray-100/20 bg-[#050505]">
+            <div className="relative z-10 w-full max-w-[950px] min-h-[600px] md:min-h-[680px] rounded-[24px] shadow-[0_20px_80px_rgba(0,0,0,0.06)] overflow-hidden border border-black/5 bg-white backdrop-blur-xl">
               <iframe
-                src={`${CAL_URL}?embed=true&theme=dark`}
+                src={`${CAL_URL}?embed=true&theme=light`}
                 style={{ width: '100%', height: '100%', border: 'none' }}
                 title="Agendar Consulta Latam Visa"
               ></iframe>
