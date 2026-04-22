@@ -39,6 +39,35 @@ function FadeUp({
   )
 }
 
+// ── Flip Hover Text Helper ─────────────────────────────────────────────────────
+function FlipText({ text, className = '' }: { text: string; className?: string }) {
+  const words = text.split(' ')
+  return (
+    <span className={`inline-flex flex-wrap gap-[0.25em] justify-center flip-hover-group cursor-default ${className}`}>
+      {words.map((word, wIdx) => (
+        <span key={wIdx} className="word-group">
+          {/* Default Layer (Before) */}
+          <span className="inline-flex before-layer" aria-hidden="true">
+            {word.split('').map((char, cIdx) => (
+              <span key={`b-${cIdx}`} className="char-el">
+                {char}
+              </span>
+            ))}
+          </span>
+          {/* Hover Layer (After) */}
+          <span className="inline-flex after-layer">
+            {word.split('').map((char, cIdx) => (
+              <span key={`a-${cIdx}`} className="char-el font-black">
+                {char}
+              </span>
+            ))}
+          </span>
+        </span>
+      ))}
+    </span>
+  )
+}
+
 // ── Data ───────────────────────────────────────────────────────────────────────
 const CAL_URL = 'https://cal.com/cristian-montenegro-tzeuce/consulta-migratoria-personalizada'
 
@@ -351,13 +380,11 @@ export default function AgendarClient() {
         <div className="relative max-w-5xl mx-auto text-center">
           <FadeUp delay={0.12}>
             <h1
-              className="font-monument font-black text-3xl sm:text-4xl md:text-5xl leading-[1.1] tracking-tight mb-6"
+              className="font-monument font-black text-3xl sm:text-4xl md:text-5xl leading-[1.2] tracking-tight mb-6 uppercase flex flex-col gap-1 items-center"
               style={{ fontFamily: "'PPMonumentExtended', sans-serif" }}
             >
-              Agenda tu{' '}
-              <span className="text-[#1A2A00]">sesión</span>
-              <br />
-              de planeación
+              <FlipText text="AGENDA TU SESIÓN" className="text-[#111111]" />
+              <FlipText text="DE PLANEACIÓN" className="text-[#1A2A00]" />
             </h1>
           </FadeUp>
 
@@ -392,7 +419,7 @@ export default function AgendarClient() {
       </section>
 
       {/* ═══════════════════════ QUÉ INCLUYE ════════════════════════════════════ */}
-      <section className="py-20 px-6 bg-[#E8FF7A]/20 border-y border-[#1A2A00]/5">
+      <section className="py-20 px-6">
         <div className="max-w-6xl mx-auto">
           <FadeUp>
             <div className="mb-14 text-center">
@@ -464,7 +491,7 @@ export default function AgendarClient() {
       </section>
 
       {/* ═══════════════════════ TESTIMONIOS ═════════════════════════════════════ */}
-      <section className="py-20 px-6 bg-[#E8FF7A]/20 border-y border-[#1A2A00]/5">
+      <section className="py-20 px-6">
         <div className="max-w-6xl mx-auto">
           <FadeUp>
             <div className="mb-14 text-center">
@@ -523,13 +550,7 @@ export default function AgendarClient() {
       </section>
 
       {/* ═══════════════════════ FAQ ═════════════════════════════════════════════ */}
-      <section
-        className="py-20 px-6 border-t border-[#1A2A00]/5"
-        style={{
-          background:
-            'linear-gradient(to bottom, transparent 0%, rgba(200,255,0,0.5) 100%)',
-        }}
-      >
+      <section className="py-20 px-6">
         <div className="max-w-4xl mx-auto">
           <div className="grid grid-cols-1 lg:grid-cols-[1fr_2fr] gap-10 lg:gap-16 items-start">
             <FadeUp className="lg:sticky lg:top-32">

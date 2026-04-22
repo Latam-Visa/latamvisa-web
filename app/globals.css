@@ -302,3 +302,37 @@ body::before {
     background-color: var(--bg-secondary);
   }
 }
+
+/* ── Text Flip Hover Effect ── */
+.flip-hover-group .word-group {
+  position: relative;
+  display: inline-flex;
+  overflow: hidden;
+}
+.flip-hover-group .char-el {
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  display: inline-block;
+}
+.flip-hover-group .before-layer .char-el {
+  transform: translateY(0);
+}
+.flip-hover-group .after-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+.flip-hover-group .after-layer .char-el {
+  transform: translateY(-100%);
+}
+.flip-hover-group .after-layer .char-el:nth-child(even) {
+  transform: translateY(100%);
+}
+.flip-hover-group:hover .before-layer .char-el {
+  transform: translateY(100%);
+}
+.flip-hover-group:hover .before-layer .char-el:nth-child(even) {
+  transform: translateY(-100%);
+}
+.flip-hover-group:hover .after-layer .char-el {
+  transform: translateY(0);
+}
