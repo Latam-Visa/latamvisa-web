@@ -3,24 +3,17 @@ import { useRef } from 'react'
 import { motion, useInView } from 'framer-motion'
 
 const schools = [
-  'ILSC Brisbane',
-  'Kaplan International',
-  'TAFE Queensland',
-  'Griffith University',
-  'Brisbane Language Centre',
-  'QUEENSFORD College',
-  'BROWNS English Language School',
-  'Lexis English',
-  'CEA Languages',
-  'Australian Institute of Business',
-  'Holmes Institute',
-  'Monarch Institute',
-  'ACAP',
-  'Pacific Training Group',
-  'Swinburne Online',
+  'Lexis Training',
+  'Greenwich College',
+  'Mindroom Innovation',
+  'Imagine Education',
+  'ILSC',
+  'BROWNS English',
+  'International House',
+  'Lonsdale Institute',
 ]
 
-const doubled = [...schools, ...schools]
+const doubled = [...schools, ...schools, ...schools, ...schools, ...schools]
 
 export default function SchoolsTicker() {
   const ref = useRef(null)

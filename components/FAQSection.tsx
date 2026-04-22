@@ -26,19 +26,19 @@ const faqs = [
   },
   {
     q: '¿Desde qué países de LATAM atienden?',
-    a: 'Atendemos clientes de toda Latinoamérica: Colombia, México, Perú, Argentina, Chile, Venezuela, Ecuador, Bolivia, Paraguay, Uruguay, Brasil, Guatemala, Costa Rica, Rep. Dominicana, entre otros. También asesoramos a personas que ya están en Australia y quieren tramitar una visa para otro destino.',
+    a: 'Atendemos clientes de toda Latinoamérica: Colombia, México, Perú, Argentina, Chile, Venezuela, Ecuador, Bolivia, Paraguay, Uruguay, Brasil, Guatemala, Costa Rica, Rep. Dominicana, entre otros. También asesoramos a personas que ya están en Australia y quieren planear otros horizontes de estudio y viaje.',
   },
   {
-    q: '¿Hacen visas de turismo para Japón, Inglaterra y Canadá?',
-    a: 'Sí. Tramitamos visas de turismo para Japón 🇯🇵, Inglaterra 🇬🇧 y Canadá 🍁. Puedes iniciar el proceso desde Australia o desde cualquier país de Latinoamérica. Cada destino tiene sus propios requisitos y documentación — te acompañamos en cada paso para maximizar las chances de aprobación.',
+    q: '¿Ofrecen planeación de viajes de turismo para Japón, Inglaterra y Canadá?',
+    a: 'Sí. Estructuramos viajes de turismo para Japón 🇯🇵, Inglaterra 🇬🇧 y Canadá 🍁. Puedes iniciar el proceso desde Australia o desde cualquier país de Latinoamérica. Cada destino tiene sus propios requisitos y documentación — te acompañamos en el proceso para maximizar las chances de que aprueben tus planes.',
   },
   {
-    q: '¿LATAM VISA garantiza la aprobación de mi visa?',
-    a: 'No. Ninguna agencia legítima puede garantizar la aprobación, ya que la decisión final corresponde exclusivamente a las autoridades migratorias australianas. Lo que sí garantizamos es asesoría experta, expediente sólido y acompañamiento en cada paso.',
+    q: '¿LATAM VISA garantiza resultados en mi viaje o estudios?',
+    a: 'No. Ninguna agencia puede garantizar la aprobación final de terceros, ya que la decisión corresponde exclusivamente a las autoridades respectivas de cada país o escuela. Lo que sí garantizamos es consultoría experta en educación y viajes, preparación top y acompañamiento en cada paso.',
   },
   {
-    q: '¿Cuánto cuesta el servicio de asesoría?',
-    a: 'El costo depende del tipo de visa y la complejidad del caso. Ofrecemos una evaluación de perfil gratuita donde te explicamos el proceso y los costos antes de cualquier compromiso.',
+    q: '¿Cuánto cuesta el servicio de consultoría de educación?',
+    a: 'El costo depende del tipo de proceso y la complejidad del caso. Ofrecemos una evaluación de perfil donde te explicamos el proceso y los costos antes de cualquier compromiso.',
   },
 ]
 

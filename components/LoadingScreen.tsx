@@ -51,7 +51,7 @@ export default function LoadingScreen() {
             transition={{ delay: 0.4, duration: 0.6 }}
             className="font-monument font-light text-[10px] tracking-[0.4em] uppercase text-[#8A8A8A]"
           >
-            Asesoría Migratoria Premium
+            Consultoría Premium de Viajes y Educación
           </motion.span>
         </motion.div>
       )}

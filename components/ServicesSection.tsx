@@ -5,22 +5,22 @@ import { ArrowRight, GraduationCap, Plane, ChevronLeft, ChevronRight } from 'luc
 
 // ─── headline word data ────────────────────────────────────────────────────
 const headlineWords = [
-  { text: 'Tramitamos',  highlight: false },
-  { text: 'visas',       highlight: false },
-  { text: 'de',          highlight: false },
-  { text: 'turismo',     highlight: false },
-  { text: 'para',        highlight: false },
-  { text: '6 destinos',  highlight: true  },
+  { text: 'Preparamos', highlight: false },
+  { text: 'tu',         highlight: false },
+  { text: 'expediente', highlight: false },
+  { text: 'para',       highlight: false },
+  { text: 'visados de', highlight: false },
+  { text: 'turismo',    highlight: true  },
 ]
 
 // ─── data ──────────────────────────────────────────────────────────────────
 const tourismDestinations = [
-  { flag: '🇺🇸', country: 'Estados Unidos', visa: 'B1/B2',            hoverText: 'Times Square, los parques nacionales y el Gran Cañón — una aventura sin límites te espera.' },
-  { flag: '🇨🇦', country: 'Canadá',          visa: 'Visitor Visa',     hoverText: 'Vancouver, las Rocosas y la aurora boreal. Naturaleza y cosmopolitismo en un solo país.' },
-  { flag: '🇳🇿', country: 'Nueva Zelanda',   visa: 'Visitor Visa',     hoverText: 'Paisajes de película y aventuras en Queenstown. El paraíso del fin del mundo.' },
-  { flag: '🇦🇺', country: 'Australia',        visa: 'Subclass 600',     hoverText: 'Sydney, la Gran Barrera de Coral, el Uluru... Australia sorprende en cada rincón.' },
-  { flag: '🇯🇵', country: 'Japón',            visa: 'Turismo',          hoverText: 'Tokio de noche, Kioto en primavera, sushi en Tsukiji. Japón es un mundo que enamora.' },
-  { flag: '🇬🇧', country: 'Reino Unido',      visa: 'Standard Visitor', hoverText: 'El Big Ben, los Cotswolds, una tarde de té en Londres. La historia cobra vida aquí.' },
+  { flag: '🇺🇸', country: 'Estados Unidos', visa: 'Visa Turismo / B1-B2',     hoverText: 'Times Square, los parques nacionales y el Gran Cañón — una aventura sin límites te espera.' },
+  { flag: '🇨🇦', country: 'Canadá',          visa: 'Visa Turismo / ETA',       hoverText: 'Vancouver, las Rocosas y la aurora boreal. Naturaleza y cosmopolitismo en un solo país.' },
+  { flag: '🇳🇿', country: 'Nueva Zelanda',   visa: 'Visa Turismo / NZeTA',     hoverText: 'Paisajes de película y aventuras en Queenstown. El paraíso del fin del mundo.' },
+  { flag: '🇦🇺', country: 'Australia',        visa: 'Visa Turismo / Sc 600',    hoverText: 'Sydney, la Gran Barrera de Coral, el Uluru... Australia sorprende en cada rincón.' },
+  { flag: '🇯🇵', country: 'Japón',            visa: 'Visa de Turismo',          hoverText: 'Tokio de noche, Kioto en primavera, sushi en Tsukiji. Japón es un mundo que enamora.' },
+  { flag: '🇬🇧', country: 'Reino Unido',      visa: 'Visa Turismo / UK Visitor',hoverText: 'El Big Ben, los Cotswolds, una tarde de té en Londres. La historia cobra vida aquí.' },
 ]
 
 const studentCities = [
@@ -331,7 +331,7 @@ export default function ServicesSection() {
           <div className="flex flex-col items-center text-center gap-0 relative z-10 w-full mb-4">
             <a href="#evaluacion" className="group font-funnel font-bold text-[10px] md:text-[11px] tracking-widest uppercase text-[#111111] border border-[#C8FF00] bg-white/80 backdrop-blur-sm hover:bg-[#C8FF00] px-3 py-1 rounded-full inline-flex items-center gap-1 transition-all duration-300 shadow-sm hover:shadow-[0_4px_20px_rgba(200,255,0,0.4)] no-underline cursor-pointer">
               <Plane size={11} className="text-[#89ad00] group-hover:text-[#111111] transition-colors duration-300" />
-              Visas Turismo
+              Asistencia en Visas de Turismo
             </a>
 
             {/* Moved immediately below the button and forced single-line */}
@@ -380,7 +380,7 @@ export default function ServicesSection() {
           </div>
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 border-t border-[#E0E0E0] pt-8">
-            {['Evaluación de perfil', 'Estrategia de aplicación', 'Gestión documental', 'Asesoría en español'].map(p => (
+            {['Revisión documental cuidadosa', 'Estructuración de perfil de visitante', 'Formatos y trámites consulares', 'Planeación de itinerarios y seguros'].map(p => (
               <div key={p} className="flex items-center gap-3">
                 <span className="w-1.5 h-1.5 rounded-full bg-[#C8FF00] flex-shrink-0" />
                 <span className="font-funnel text-[13px] md:text-sm text-[#333333] font-medium">{p}</span>
@@ -410,7 +410,7 @@ export default function ServicesSection() {
                 <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-[#C8FF00]" />
               </span>
               <GraduationCap size={13} className="text-[#111111] group-hover:text-[#C8FF00] transition-colors duration-300" />
-              Visa Estudiante · 500
+              Representación Educativa
             </a>
 
             <h3
@@ -445,7 +445,7 @@ export default function ServicesSection() {
             ref={estudiantePointsRef}
             className="grid grid-cols-2 md:grid-cols-4 gap-4 border-t border-[#E0E0E0] pt-6 relative z-10"
           >
-            {['Evaluación de elegibilidad', 'Elección de escuela', 'Gestión documental completa', 'Acompañamiento hasta el arribo'].map(p => (
+            {['Selección y conexión con escuelas', 'Matrícula en cursos ELICOS / VET', 'Consultoría de viaje integral', 'Asesoría hasta el arribo a Australia'].map(p => (
               <motion.div
                 key={p}
                 data-point

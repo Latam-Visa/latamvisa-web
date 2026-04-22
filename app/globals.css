@@ -212,7 +212,7 @@ body::before {
 }
 
 .animate-ticker-left {
-  animation: ticker-left 30s linear infinite;
+  animation: ticker-left 8s linear infinite;
 }
 
 .animate-ticker-right {

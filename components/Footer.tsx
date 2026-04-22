@@ -134,14 +134,14 @@ export default function Footer() {
               />
             </motion.div>
             <p className="font-funnel font-semibold text-sm leading-relaxed max-w-[260px]" style={{ color: '#1A2A00' }}>
-              Visas de turismo para Australia, USA, Japón, UK y Canadá. Visa estudiante para Australia. Atendemos toda Latinoamérica.
+              Consultoría y planeación de viajes para Australia, USA, Japón, UK y Canadá. Representación educativa en Australia. Atendemos toda Latinoamérica.
             </p>
           </motion.div>
 
           <div className="flex gap-8 md:gap-14 flex-wrap md:ml-auto items-start">
             <NavCol label="Servicios" delay={0.1}>
-              <Link href="#servicios" className={linkClass} style={{ color: '#1A2A00' }}>Visa Turismo</Link>
-              <Link href="#servicios" className={linkClass} style={{ color: '#1A2A00' }}>Visa Estudiante</Link>
+              <Link href="#servicios" className={linkClass} style={{ color: '#1A2A00' }}>Planeación de Viajes</Link>
+              <Link href="#servicios" className={linkClass} style={{ color: '#1A2A00' }}>Representación Educativa</Link>
               <Link href="#evaluacion" className={linkClass} style={{ color: '#1A2A00' }}>Evalúa tu Perfil</Link>
             </NavCol>
             <NavCol label="Proceso" delay={0.18}>
@@ -181,7 +181,7 @@ export default function Footer() {
             © 2026 LATAM VISA®
           </span>
           <span className="font-funnel text-xs md:text-right" style={{ color: '#2A3A00' }}>
-            Asesoría profesional sujeta a decisiones migratorias. No garantizamos aprobaciones.
+            LATAM VISA es una consultora de viajes y educación internacional. No ofrecemos asesoría migratoria. Para asesoría legal sobre visas, recomendamos consultar con un Registered Migration Agent (OMARA) o abogado especializado. Nuestros servicios incluyen planeación de viaje, conexión con instituciones educativas y servicios de traslado.
           </span>
         </div>
       </div>

@@ -4,10 +4,10 @@ import './globals.css'
 import CustomCursor from '@/components/CustomCursor'
 
 export const metadata: Metadata = {
-  title: 'LATAM VISA® — Asesoría Migratoria Premium para Australia',
+  title: 'LATAM VISA® — Consultoría Premium de Viajes y Educación',
   description:
-    'Ayudamos a latinoamericanos a cumplir el sueño de estudiar, trabajar y vivir en Australia. Asesoría experta en visas de estudiante, turismo y más.',
-  keywords: ['visa australia', 'visa estudiante australia', 'migración australia latinoamérica', 'asesoría migratoria'],
+    'Ayudamos a latinoamericanos a cumplir el sueño de estudiar, trabajar y vivir en Australia. Consultoría experta en planeación de viaje, educación internacional y más.',
+  keywords: ['estudiar en australia', 'viajar a australia', 'educación internacional australia latinoamérica', 'consultoría de viajes'],
   icons: {
     icon: '/FotoPerfil.png',
     apple: '/FotoPerfil.png',

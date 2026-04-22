@@ -47,17 +47,17 @@ const includes = [
   {
     icon: Search,
     title: 'Revisión completa de tu perfil',
-    desc: 'Analizamos tu situación financiera, historial de viajes, vínculos familiares y todo lo que el oficial de visas revisará.',
+    desc: 'Analizamos tu situación financiera, historial de viajes, intereses educativos y todo lo que definirá tus mejores opciones en Australia.',
   },
   {
     icon: Map,
-    title: 'Ruta migratoria personalizada',
-    desc: 'Te decimos exactamente qué visa aplica para tu caso, cuánto cuesta, cuánto tarda y cuál es tu probabilidad real de aprobación.',
+    title: 'Ruta de estudio y viaje personalizada',
+    desc: 'Te decimos exactamente qué cursos o destinos aplican para tu caso, cuánto cuestan, cómo iniciar el traslado y cuál es tu ruta ideal.',
   },
   {
     icon: FileText,
-    title: 'Lista de documentos requeridos',
-    desc: 'Recibirás un checklist detallado con todos los documentos que necesitas presentar, priorizado por impacto.',
+    title: 'Lista de preparación requerida',
+    desc: 'Recibirás un checklist detallado con todos los recaudos o requerimientos que necesitas preparar para tu viaje y estudio.',
   },
   {
     icon: MessageCircle,
@@ -107,7 +107,7 @@ const steps = [
     num: '03',
     icon: FileText,
     title: 'Recibes tu plan detallado',
-    desc: 'Dentro de las 24 horas siguientes te enviamos por email tu plan migratorio personalizado: visa recomendada, documentos, costos y próximos pasos.',
+    desc: 'Dentro de las 24 horas siguientes te enviamos por email tu plan de educación y viaje personalizado: escuelas recomendadas, requisitos, costos y próximos pasos.',
   },
 ]
 
@@ -121,12 +121,12 @@ const faqs = [
     a: 'Solo traer tus preguntas y una idea general de tu situación. Si tienes pasaporte vigente o viajes anteriores, puedes tenerlos a mano, pero no es obligatorio.',
   },
   {
-    q: '¿La consulta es garantía de que me aprobarán la visa?',
-    a: 'No. Ninguna agencia legítima puede garantizar la aprobación. Lo que sí garantizamos es que saldrás con claridad total sobre tu caso, tu probabilidad real y el mejor camino a seguir.',
+    q: '¿La asesoría educativa es garantía de un resultado en mis procesos?',
+    a: 'No. Ninguna agencia puede garantizar aprobaciones de terceros o de instituciones. Lo que sí garantizamos es que saldrás con claridad total sobre tu caso, tus opciones educativas y el mejor camino a seguir.',
   },
   {
-    q: '¿Puedo agendar si todavía no sé qué visa quiero tramitar?',
-    a: 'Sí, de hecho es el escenario ideal. Te ayudamos a identificar cuál visa es la correcta para tu perfil y tus objetivos.',
+    q: '¿Puedo agendar si todavía no sé qué quiero estudiar o visitar?',
+    a: 'Sí, de hecho es el escenario ideal. Evaluamos tu perfil para conectarte con las mejores instituciones educativas y definir tus objetivos.',
   },
 ]
 
@@ -338,7 +338,7 @@ export default function AgendarClient() {
         <div className="relative max-w-5xl mx-auto text-center">
           <FadeUp delay={0.05}>
             <span className="inline-block font-funnel text-[#C8FF00] text-xs tracking-[0.25em] uppercase mb-6 border border-[#C8FF00]/30 rounded-full px-4 py-1.5">
-              Consulta Migratoria Personalizada
+              Sesión de Planeación de Viaje y Estudio
             </span>
           </FadeUp>
 
@@ -348,17 +348,17 @@ export default function AgendarClient() {
               style={{ fontFamily: "'PPMonumentExtended', sans-serif" }}
             >
               Agenda tu{' '}
-              <span className="text-[#C8FF00]">consulta</span>
+              <span className="text-[#C8FF00]">sesión</span>
               <br />
-              migratoria
+              de planeación
             </h1>
           </FadeUp>
 
           <FadeUp delay={0.18}>
             <p className="font-funnel text-white/60 text-lg md:text-xl max-w-2xl mx-auto leading-relaxed mb-4">
-              45 minutos con un experto. Analizamos tu perfil, te damos tu ruta exacta
+              45 minutos con un experto. Analizamos tu perfil, te ayudamos a planificar tu experiencia de estudio y viaje,
               y respondes todas tus dudas — por{' '}
-              <span className="text-white font-semibold">USD $50</span>.
+              <span className="text-white font-semibold">USD $59</span>.
             </p>
           </FadeUp>
 
@@ -446,7 +446,7 @@ export default function AgendarClient() {
                 },
                 {
                   bold: 'Cobran los mejores.',
-                  body: 'Un abogado migratorio en Australia cobra entre AUD $300 y $500 por una consulta inicial. Tú accedes al mismo nivel de expertise por $50.',
+                  body: 'Un consultor de alto nivel experto en Australia cobra entre AUD $300 y $500 por una entrevista de estructuración. Tú accedes a este nivel de análisis por $59.',
                 },
               ].map(({ bold, body }, i) => (
                 <FadeUp key={i} delay={i * 0.08}>
@@ -543,7 +543,7 @@ export default function AgendarClient() {
               <span className="text-[#C8FF00]">claridad total</span>?
             </h2>
             <p className="font-iceland text-white/50 text-base md:text-lg leading-relaxed mb-10">
-              45 minutos que pueden cambiar el rumbo de tu proceso migratorio.
+              45 minutos que pueden cambiar el rumbo de tu proyecto y experiencia en el exterior.
               Sin vueltas, sin promesas vacías.
             </p>
             <div className="w-full mt-10 flex justify-center">

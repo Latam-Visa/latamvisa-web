@@ -7,11 +7,11 @@ const reasons = [
   {
     icon: Shield,
     title: 'Expertos certificados',
-    body: 'Nuestros asesores tienen experiencia directa con el Departamento de Home Affairs de Australia. Conocemos los criterios reales de aprobación.',
+    body: 'Nuestros consultores aplican rigurosos estándares de validación y estructuración de los perfiles para que encajen con las exigencias del país destino.',
   },
   {
     icon: MessageSquare,
-    title: 'Asesoría en español',
+    title: 'Consultoría en español',
     body: 'Todo el proceso lo hacemos en tu idioma. Sin malentendidos, sin traducciones imprecisas que puedan costarle tu visa.',
   },
   {

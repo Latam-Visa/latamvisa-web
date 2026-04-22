@@ -77,23 +77,23 @@ const cardReveal = {
 const pillars = [
   {
     num: '1',
-    title: 'Acceso Directo a Expertos',
-    body: 'Trabajamos contigo desde la primera consulta hasta la aprobación.',
+    title: 'Planeación con Especialistas',
+    body: 'Trabajamos contigo desde la evaluación inicial hasta tu matrícula final.',
   },
   {
     num: '2',
-    title: 'Tu Tiempo Vale Cada Minuto',
-    body: 'Procesos ágiles y organizados para que tu aplicación avance rápido.',
+    title: 'Tu Proyecto, Nuestra Prioridad',
+    body: 'Asesoría ágil y organizada para que tu viaje se concrete.',
   },
   {
     num: '3',
-    title: 'Claridad Total en Cada Paso',
-    body: 'Sin letra pequeña. Sabes exactamente qué necesitas, cuándo y cómo.',
+    title: 'Acompañamiento en Cada Etapa',
+    body: 'Cero sorpresas. Sabes exactamente qué pasos dar, cuándo y cómo.',
   },
   {
     num: '4',
-    title: 'Red de Escuelas en Australia',
-    body: 'Convenios directos con instituciones en Brisbane, Sydney y Melbourne.',
+    title: 'Red Educativa en Australia',
+    body: 'Alianzas directas con instituciones en Brisbane, Sydney y Melbourne.',
   },
 ]
 
@@ -146,8 +146,8 @@ function Pillar({ num, title, body, index }: { num: string; title: string; body:
 
       {/* Foreground text */}
       <div className="relative z-10 mt-auto pt-16">
-        <h3 className="font-funnel font-bold text-[#111111] text-base md:text-xl mb-3 leading-tight group-hover:text-[#3e4800] transition-colors duration-300">{title}</h3>
-        <p className="font-funnel font-normal text-[#444444] text-sm leading-relaxed mb-1 group-hover:text-[#111111] transition-colors duration-300">{body}</p>
+        <h3 className="font-funnel font-bold text-[#111111] text-base md:text-xl mb-3 leading-tight group-hover:text-[#3e4800] transition-colors duration-300 min-h-[40px] md:min-h-[56px] flex items-end">{title}</h3>
+        <p className="font-funnel font-normal text-[#444444] text-sm leading-relaxed mb-1 group-hover:text-[#111111] transition-colors duration-300 min-h-[44px] md:min-h-[66px]">{body}</p>
       </div>
     </motion.div>
   )
@@ -207,7 +207,7 @@ export default function AboutSection() {
 
             {/* h2 subtitle — split word reveal */}
             <SplitReveal
-              text="Diseñamos tu ruta migratoria con precisión y transparencia."
+              text="Planeamos tu proyecto de educación y viaje con precisión y transparencia."
               tag="h2"
               className="font-funnel font-bold text-[#111111] text-sm md:text-xl leading-[1.3] mt-4 max-w-[90%]"
               inView={inView}
@@ -220,7 +220,7 @@ export default function AboutSection() {
 
           {/* Paragraph — split word reveal */}
           <SplitReveal
-            text="Desde la primera consulta hasta tu llegada a Australia, te acompañamos con un proceso organizado para que aterrices seguro y sin complicaciones."
+            text="Desde la primera sesión hasta tu llegada a Australia, te guiamos con un proceso estructurado para que inicies tu curso sin complicaciones."
             tag="span"
             className="font-funnel font-normal text-[#444444] text-[13px] md:text-[15px] leading-relaxed max-w-sm"
             inView={inView}

@@ -229,7 +229,7 @@ export default function HeroScroll() {
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
 
-  const statementText = "LATAM VISA® existe porque ningún latino debería navegar solo el camino hacia Australia. Conocemos cada paso porque lo caminamos primero. Asesoría migratoria diseñada por latinos, para latinos — sin letra pequeña, sin promesas vacías, solo resultados"
+  const statementText = "LATAM VISA® existe porque ningún latino debería planear a ciegas su gran proyecto hacia Australia. Conocemos las mejores instituciones y el camino exacto porque lo vivimos primero. Tu consultoría en educación y viajes diseñada por latinos, para latinos — desde la elección de tu programa hasta tu llegada, de principio a fin y sin letra pequeña."
   const statementWords = statementText.split(' ')
 
   /* ── Shared styles ── */
@@ -473,9 +473,9 @@ export default function HeroScroll() {
             <p style={{
               fontFamily: "'PPMonumentExtended', sans-serif",
               fontWeight: 900,
-              fontSize: 'clamp(18px, 3vw, 46px)',
-              lineHeight: 1.15,
-              letterSpacing: '-0.02em',
+              fontSize: 'clamp(15px, 2.3vw, 36px)',
+              lineHeight: 1.25,
+              letterSpacing: '-0.01em',
               margin: 0,
               textShadow: '0 2px 12px rgba(0,0,0,0.5)',
             }}>
