@@ -3,6 +3,35 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 
+const FadeUp = ({ children, delay = 0, className = "" }: { children: React.ReactNode, delay?: number, className?: string }) => (
+  <motion.div
+    initial={{ opacity: 0, y: 40 }}
+    whileInView={{ opacity: 1, y: 0 }}
+    viewport={{ once: true, margin: "-100px" }}
+    transition={{ duration: 0.8, delay, ease: [0.16, 1, 0.3, 1] }}
+    className={className}
+  >
+    {children}
+  </motion.div>
+);
+
+const FlipText = ({ text, className = "" }: { text: string, className?: string }) => {
+  return (
+    <span className={`inline-block ${className}`}>
+      {text.split('').map((char, i) => (
+        <span key={i} className="inline-block relative overflow-hidden group/char cursor-default">
+          <span className="inline-block transition-transform duration-[2.5s] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover/char:-translate-y-full">
+            {char === ' ' ? '\u00A0' : char}
+          </span>
+          <span className="absolute top-0 left-0 inline-block translate-y-full transition-transform duration-[2.5s] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover/char:translate-y-0 text-[#C8FF00]">
+            {char === ' ' ? '\u00A0' : char}
+          </span>
+        </span>
+      ))}
+    </span>
+  )
+}
+
 const faqs = [
   { 
     q: '¿Garantizan que me aprueben la visa?', 
@@ -112,38 +141,64 @@ export default function TurismoUsaPage() {
           </motion.div>
         </section>
 
-        {/* 2. PRICING CARD */}
-        <section className="py-20 px-6 relative z-10">
-          <div className="max-w-4xl mx-auto">
-            <motion.div 
-              initial={{ y: 50, opacity: 0 }}
-              whileInView={{ y: 0, opacity: 1 }}
-              viewport={{ once: true, margin: "-100px" }}
-              transition={{ duration: 0.6, ease: "easeOut" }}
-              className="bg-white/40 backdrop-blur-3xl border border-white/60 shadow-[0_40px_100px_rgba(0,0,0,0.1)] rounded-[32px] p-8 md:p-16 text-center border-b-[8px] border-b-[#C8FF00] transform transition-all duration-300 hover:-translate-y-2"
-            >
-              <div className="uppercase tracking-[0.2em] text-[#5B6A00] text-[0.7rem] font-bold mb-6">
-                Inversión Única
+        {/* 2. PRICING CARD / STRIPE IFRAME */}
+        <section id="checkout-section" className="relative py-20 px-6 z-10">
+          <div className="max-w-5xl mx-auto">
+            
+            {/* Header del pricing */}
+            <FadeUp>
+              <div className="text-center mb-10">
+                <span className="font-funnel text-[#C8FF00] font-bold text-xs tracking-[0.25em] uppercase block mb-3">
+                  Inversión única
+                </span>
+                <h2
+                  className="font-monument font-black text-4xl md:text-5xl tracking-tight text-[#FFFFFF] mb-4 uppercase"
+                  style={{ fontFamily: "'PPMonumentExtended', sans-serif" }}
+                >
+                  <FlipText text="COMPLETA TU PAGO" />
+                </h2>
+                <p className="font-iceland text-[#AAAAAA] text-base md:text-lg leading-relaxed max-w-2xl mx-auto">
+                  Pago único de <span className="text-[#C8FF00] font-black text-lg md:text-xl bg-white/10 px-2 py-0.5 rounded-md">$190 <span className="text-[10px] md:text-xs font-normal">usd</span></span> · Al completarlo recibirás acceso inmediato a tu portal personalizado.
+                </p>
               </div>
-              <h2 className="font-monument text-6xl md:text-8xl text-[#050505] tracking-tight mb-2">
-                $190 <span className="text-3xl md:text-5xl text-[#555555]">USD</span>
-              </h2>
-              <p className="font-funnel text-[#555555] text-lg mb-10">
-                Sin costos ocultos · Pago único
-              </p>
-              
-              <a 
-                href="https://buy.stripe.com/9B6aEY1cC4NF4z88yAbo400" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="inline-block w-full max-w-md bg-[#C8FF00] text-[#050505] font-monument font-black text-xs md:text-sm uppercase tracking-widest py-6 rounded-full transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-1 shadow-[0_10px_30px_rgba(200,255,0,0.3)] hover:shadow-[0_15px_40px_rgba(200,255,0,0.4)]"
-              >
-                PAGAR Y COMENZAR
-              </a>
-              <p className="font-iceland text-xs text-[#777777] mt-6 flex items-center justify-center gap-2">
-                <span className="text-[#5B6A00]">🔒</span> Pago seguro procesado por Stripe
-              </p>
-            </motion.div>
+            </FadeUp>
+
+            {/* Gancho de confianza */}
+            <FadeUp delay={0.15}>
+              <div className="flex justify-center mb-10">
+                <div className="inline-block border border-[#C8FF00]/40 bg-[#1A2A00] px-6 sm:px-10 py-3 sm:py-4 rounded-xl shadow-[0_12px_40px_rgba(26,42,0,0.15)]">
+                  <p className="font-iceland text-[#E8FF7A] font-bold text-xs sm:text-sm md:text-[17.5px] whitespace-normal md:whitespace-nowrap leading-relaxed tracking-wide text-center">
+                    🔒 Pago 100% seguro procesado por Stripe · Sin compromisos ocultos
+                  </p>
+                </div>
+              </div>
+            </FadeUp>
+
+            {/* Iframe de Stripe Payment Link embebido */}
+            <FadeUp delay={0.3} className="w-full flex justify-center px-4 md:px-8 pb-10">
+              <div className="relative z-10 w-full max-w-[900px] rounded-[32px] p-4 sm:p-6 md:p-8 shadow-[0_24px_80px_rgba(0,0,0,0.08)] bg-white border-2 border-[#111111] border-b-[12px] border-b-[#C8FF00] transform origin-top md:scale-[0.95] mx-auto">
+                <div className="w-full h-[700px] md:h-[800px] overflow-hidden relative rounded-xl bg-white border border-[#111111]/20">
+                  <iframe
+                    src="https://buy.stripe.com/9B6aEY1cC4NF4z88yAbo400"
+                    className="w-full h-full absolute top-0 left-0"
+                    style={{ border: 'none', background: 'transparent' }}
+                    frameBorder="0"
+                    title="Pago Expediente Turismo USA - LATAM VISA"
+                    allow="payment"
+                  ></iframe>
+                </div>
+              </div>
+            </FadeUp>
+
+            {/* Trust badges debajo del iframe */}
+            <FadeUp delay={0.4}>
+              <div className="flex flex-wrap gap-6 justify-center mt-4 text-sm text-[#AAAAAA] font-iceland">
+                <span className="flex items-center gap-2">🔒 SSL encriptado</span>
+                <span className="flex items-center gap-2">⚡ Acceso inmediato al portal</span>
+                <span className="flex items-center gap-2">📧 Confirmación por email</span>
+              </div>
+            </FadeUp>
+
           </div>
         </section>
 
@@ -282,14 +337,12 @@ export default function TurismoUsaPage() {
             <h2 className="font-monument font-black text-3xl md:text-5xl text-[#050505] tracking-tight mb-12 uppercase">
               ¿Listo para empezar tu viaje a USA?
             </h2>
-            <a 
-              href="https://buy.stripe.com/9B6aEY1cC4NF4z88yAbo400" 
-              target="_blank" 
-              rel="noopener noreferrer"
+            <button 
+              onClick={() => document.getElementById('checkout-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
               className="inline-flex justify-center items-center w-full max-w-md bg-[#C8FF00] text-[#050505] font-monument font-black text-xs md:text-sm uppercase tracking-widest py-6 px-4 rounded-full transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-1 shadow-[0_10px_30px_rgba(200,255,0,0.3)] hover:shadow-[0_15px_40px_rgba(200,255,0,0.4)]"
             >
               COMENZAR MI EXPEDIENTE → $190 USD
-            </a>
+            </button>
           </div>
         </section>
 
