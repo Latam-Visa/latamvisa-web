@@ -1,7 +1,27 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { loadStripe } from '@stripe/stripe-js'
+import { EmbeddedCheckoutProvider, EmbeddedCheckout } from '@stripe/react-stripe-js'
+
+const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!)
+
+function StripeEmbeddedCheckout() {
+  const fetchClientSecret = useCallback(() => {
+    return fetch('/api/checkout/turismo-usa', { method: 'POST' })
+      .then(res => res.json())
+      .then(data => data.clientSecret)
+  }, [])
+
+  return (
+    <div id="checkout" className="w-full">
+      <EmbeddedCheckoutProvider stripe={stripePromise} options={{ fetchClientSecret }}>
+        <EmbeddedCheckout />
+      </EmbeddedCheckoutProvider>
+    </div>
+  )
+}
 
 const FadeUp = ({ children, delay = 0, className = "" }: { children: React.ReactNode, delay?: number, className?: string }) => (
   <motion.div
@@ -142,60 +162,57 @@ export default function TurismoUsaPage() {
         </section>
 
         {/* 2. PRICING CARD / STRIPE IFRAME */}
-        <section id="checkout-section" className="relative py-20 px-6 z-10">
-          <div className="max-w-5xl mx-auto">
-            
-            {/* Header del pricing */}
-            <FadeUp>
-              <div className="text-center mb-10">
-                <span className="font-funnel text-[#C8FF00] font-bold text-xs tracking-[0.25em] uppercase block mb-3">
-                  Inversión única
-                </span>
+        <section id="checkout-section" className="relative overflow-hidden py-20 px-6">
+          <div
+            aria-hidden
+            className="pointer-events-none absolute top-[-10%] left-1/2 -translate-x-1/2 w-[700px] h-[500px] rounded-full opacity-40 mix-blend-screen"
+            style={{ background: 'radial-gradient(ellipse, rgba(255,255,255,0.7) 0%, transparent 70%)' }}
+          />
+
+          <div className="relative w-full mx-auto text-center overflow-hidden">
+
+            <FadeUp delay={0.12}>
+              <div className="w-full flex justify-center px-6 md:px-[100px] pt-6 md:pt-10 pb-8 md:pb-12">
                 <h2
-                  className="font-monument font-black text-4xl md:text-5xl tracking-tight text-[#FFFFFF] mb-4 uppercase"
+                  className="font-monument font-black w-full text-[11vw] sm:text-[9.5vw] md:text-[7.5vw] lg:text-[6.5vw] xl:text-[6.2vw] leading-[1.0] tracking-tighter uppercase flex justify-between whitespace-nowrap transform scale-y-[1.3] md:scale-y-[1.6] origin-bottom"
                   style={{ fontFamily: "'PPMonumentExtended', sans-serif" }}
                 >
-                  <FlipText text="COMPLETA TU PAGO" />
+                  <FlipText text="PAGA" className="text-[#111111]" />
+                  <FlipText text="Y" className="text-[#111111]" />
+                  <FlipText text="COMIENZA" className="text-[#111111]" />
                 </h2>
-                <p className="font-iceland text-[#AAAAAA] text-base md:text-lg leading-relaxed max-w-2xl mx-auto">
-                  Pago único de <span className="text-[#C8FF00] font-black text-lg md:text-xl bg-white/10 px-2 py-0.5 rounded-md">$190 <span className="text-[10px] md:text-xs font-normal">usd</span></span> · Al completarlo recibirás acceso inmediato a tu portal personalizado.
+              </div>
+            </FadeUp>
+
+            <FadeUp delay={0.18}>
+              <div className="w-full flex justify-center px-2">
+                <p className="font-funnel text-[#111111]/80 text-[12px] sm:text-[14px] md:text-base lg:text-[17px] whitespace-normal md:whitespace-nowrap w-full lg:max-w-max mx-auto text-center leading-relaxed mb-8">
+                  Pago único de <span className="text-[#1A2A00] font-black text-sm md:text-lg bg-white/50 px-2 py-0.5 rounded-md">$190 <span className="text-[10px] md:text-xs font-normal">usd</span></span>. Al completarlo recibirás acceso inmediato a tu portal personalizado.
                 </p>
               </div>
             </FadeUp>
 
-            {/* Gancho de confianza */}
-            <FadeUp delay={0.15}>
-              <div className="flex justify-center mb-10">
-                <div className="inline-block border border-[#C8FF00]/40 bg-[#1A2A00] px-6 sm:px-10 py-3 sm:py-4 rounded-xl shadow-[0_12px_40px_rgba(26,42,0,0.15)]">
-                  <p className="font-iceland text-[#E8FF7A] font-bold text-xs sm:text-sm md:text-[17.5px] whitespace-normal md:whitespace-nowrap leading-relaxed tracking-wide text-center">
-                    🔒 Pago 100% seguro procesado por Stripe · Sin compromisos ocultos
-                  </p>
-                </div>
+            <FadeUp delay={0.24}>
+              <div className="inline-block border border-[#C8FF00]/40 bg-[#1A2A00] px-6 sm:px-10 py-3 sm:py-4 rounded-xl mb-12 shadow-[0_12px_40px_rgba(26,42,0,0.15)] hover:shadow-[0_12px_40px_rgba(200,255,0,0.2)] hover:-translate-y-1 transition-all cursor-default">
+                <p className="font-iceland text-[#E8FF7A] font-bold text-xs sm:text-sm md:text-[17.5px] whitespace-normal md:whitespace-nowrap leading-relaxed tracking-wide text-center mx-auto">
+                  🔒 Pago 100% seguro procesado por Stripe · Sin compromisos ocultos
+                </p>
               </div>
             </FadeUp>
 
-            {/* Iframe de Stripe Payment Link embebido */}
             <FadeUp delay={0.3} className="w-full flex justify-center px-4 md:px-8 pb-10">
-              <div className="relative z-10 w-full max-w-[900px] rounded-[32px] p-4 sm:p-6 md:p-8 shadow-[0_24px_80px_rgba(0,0,0,0.08)] bg-white border-2 border-[#111111] border-b-[12px] border-b-[#C8FF00] transform origin-top md:scale-[0.95] mx-auto">
-                <div className="w-full h-[700px] md:h-[800px] overflow-hidden relative rounded-xl bg-white border border-[#111111]/20">
-                  <iframe
-                    src="https://buy.stripe.com/9B6aEY1cC4NF4z88yAbo400"
-                    className="w-full h-full absolute top-0 left-0"
-                    style={{ border: 'none', background: 'transparent' }}
-                    frameBorder="0"
-                    title="Pago Expediente Turismo USA - LATAM VISA"
-                    allow="payment"
-                  ></iframe>
+              <div className="relative z-10 w-full max-w-[900px] rounded-[32px] p-4 sm:p-6 md:p-8 shadow-[0_24px_80px_rgba(0,0,0,0.08)] bg-white border-2 border-[#111111] border-b-[12px] transform origin-top md:scale-[0.95] mx-auto">
+                <div className="w-full min-h-[600px] md:min-h-[700px] relative rounded-xl bg-white border border-[#111111]/20 p-4 md:p-8 overflow-auto">
+                  <StripeEmbeddedCheckout />
                 </div>
               </div>
             </FadeUp>
 
-            {/* Trust badges debajo del iframe */}
             <FadeUp delay={0.4}>
-              <div className="flex flex-wrap gap-6 justify-center mt-4 text-sm text-[#AAAAAA] font-iceland">
-                <span className="flex items-center gap-2">🔒 SSL encriptado</span>
+              <div className="flex flex-wrap gap-6 justify-center mt-4 text-sm text-[#111111]/70 font-iceland">
+                <span className="flex items-center gap-2">🔒 SSL encriptado por Stripe</span>
                 <span className="flex items-center gap-2">⚡ Acceso inmediato al portal</span>
-                <span className="flex items-center gap-2">📧 Confirmación por email</span>
+                <span className="flex items-center gap-2">📧 Confirmación automática</span>
               </div>
             </FadeUp>
 
