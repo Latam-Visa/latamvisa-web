@@ -16,7 +16,6 @@ export const LATAM_COUNTRIES = [
   { flag: '🇨🇱', name: 'Chile' },
   { flag: '🇨🇴', name: 'Colombia' },
   { flag: '🇨🇷', name: 'Costa Rica' },
-  { flag: '🇨🇺', name: 'Cuba' },
   { flag: '🇩🇴', name: 'Rep. Dominicana' },
   { flag: '🇪🇨', name: 'Ecuador' },
   { flag: '🇸🇻', name: 'El Salvador' },
