@@ -7,7 +7,7 @@ import { Mail, FolderOpen, Phone } from 'lucide-react'
 import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
 
-// Local components
+// ═══ Local components ═══
 const FadeUp = ({ children, delay = 0, className = "" }: { children: React.ReactNode, delay?: number, className?: string }) => (
   <motion.div
     initial={{ opacity: 0, y: 40 }}
@@ -39,7 +39,7 @@ const FlipText = ({ text, className = "" }: { text: string, className?: string }
 
 function AnimatedCheckmark() {
   return (
-    <svg width="120" height="120" viewBox="0 0 120 120" className="w-[80px] h-[80px] md:w-[120px] md:h-[120px] mx-auto">
+    <svg width="120" height="120" viewBox="0 0 120 120" className="w-[80px] h-[80px] md:w-[120px] md:h-[120px] mx-auto drop-shadow-[0_8px_24px_rgba(200,255,0,0.4)]">
       <motion.circle
         cx="60" cy="60" r="55"
         fill="#C8FF00"
@@ -75,15 +75,20 @@ function GraciasUsaContent() {
     <main className="min-h-screen bg-gradient-to-br from-white via-[#FAFFEB] to-[#C8FF00]/40 text-[#111111] overflow-hidden selection:bg-[#111111] selection:text-[#C8FF00] relative">
       
       {/* Texture overlay */}
-      <div className="absolute inset-0 pointer-events-none opacity-[0.03] z-0" style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg viewBox=%220 0 200 200%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22noiseFilter%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.65%22 numOctaves=%223%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23noiseFilter)%22/%3E%3C/svg%3E")' }}></div>
+      <div 
+        className="absolute inset-0 pointer-events-none opacity-[0.03] z-0" 
+        style={{ 
+          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")` 
+        }}
+      />
 
       <Navbar />
 
       <div className="relative z-10 pt-32 pb-20 px-6">
         <div className="max-w-5xl mx-auto">
           
-          {/* SECCIÓN 1: HERO DE CONFIRMACIÓN */}
-          <section className="flex flex-col flex-center items-center text-center mt-12 mb-24">
+          {/* ═══ SECCIÓN 1: HERO DE CONFIRMACIÓN ═══ */}
+          <section className="flex flex-col justify-center items-center text-center mt-12 mb-24">
             <FadeUp>
               <div className="mb-8 w-full flex justify-center">
                 <AnimatedCheckmark />
@@ -114,7 +119,7 @@ function GraciasUsaContent() {
             </FadeUp>
           </section>
 
-          {/* SECCIÓN 2: PRÓXIMOS PASOS */}
+          {/* ═══ SECCIÓN 2: PRÓXIMOS PASOS ═══ */}
           <section className="mb-24">
             <FadeUp>
               <h2 className="font-monument font-black text-2xl md:text-4xl text-center text-[#111111] mb-12 uppercase">
@@ -153,7 +158,7 @@ function GraciasUsaContent() {
             </div>
           </section>
 
-          {/* SECCIÓN 3: CONTACTO / SOPORTE */}
+          {/* ═══ SECCIÓN 3: CONTACTO / SOPORTE ═══ */}
           <section className="mb-24 flex justify-center">
             <FadeUp>
               <div className="w-full max-w-2xl bg-white/40 backdrop-blur-2xl border border-white/60 shadow-[0_20px_60px_rgba(0,0,0,0.04)] rounded-[32px] p-8 md:p-12 text-center text-[#111111]">
@@ -176,7 +181,7 @@ function GraciasUsaContent() {
             </FadeUp>
           </section>
 
-          {/* SECCIÓN 4: BOTÓN VOLVER AL INICIO */}
+          {/* ═══ SECCIÓN 4: BOTÓN VOLVER AL INICIO ═══ */}
           <section className="flex justify-center pb-10">
             <FadeUp>
               <a 
