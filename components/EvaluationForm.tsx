@@ -164,7 +164,7 @@ export default function EvaluationForm() {
   const greeting = firstName ? `, ${firstName}` : ''
 
   return (
-    <section id="evaluacion" className="py-14 lg:py-24 px-6 relative z-10 -mt-[1px]" style={{ background: 'linear-gradient(180deg, #FFFFFF 0%, #FAFAFA 50%, #FFFFFF 100%)' }}>
+    <section id="evaluacion" className="py-14 lg:py-24 px-6 relative z-10 -mt-[1px]">
       <div className="max-w-7xl mx-auto" ref={ref}>
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.3fr] gap-12 lg:gap-20 items-center">
 
