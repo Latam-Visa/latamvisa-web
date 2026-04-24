@@ -63,13 +63,13 @@ function RadioOption({ value, selected, onSelect }: { value: string; selected: b
     <button
       type="button"
       onClick={onSelect}
-      className={`relative w-full text-left px-4 py-3 border-2 transition-all duration-200 font-monument font-medium text-xs md:text-[13px] rounded-lg ${
+      className={`relative w-full text-left px-4 py-2.5 border transition-all duration-200 font-monument font-medium text-xs md:text-[12px] rounded-lg ${
         selected
-          ? 'border-[#C8FF00] bg-white text-[#111111] shadow-[0_10px_30px_rgba(200,255,0,0.2)] -translate-y-[2px]'
-          : 'border-transparent bg-white/80 text-[#555555] shadow-sm hover:shadow-md hover:-translate-y-[2px] hover:border-white'
+          ? 'border-[#C8FF00] bg-[#C8FF00]/10 text-[#111111] shadow-[0_4px_16px_rgba(200,255,0,0.2)] -translate-y-[1px]'
+          : 'border-[#C8FF00]/20 bg-white/20 text-[#444444] hover:bg-[#C8FF00]/[0.06] hover:border-[#C8FF00]/40 hover:-translate-y-[1px]'
       }`}
     >
-      <span className={`mr-3 inline-block w-3.5 h-3.5 rounded-full border-2 flex-shrink-0 relative align-middle transition-colors ${selected ? 'border-[#C8FF00] bg-[#C8FF00]' : 'border-[#CCCCCC] bg-transparent'}`}>
+      <span className={`mr-2.5 inline-block w-3 h-3 rounded-full border-2 flex-shrink-0 relative align-middle transition-colors ${selected ? 'border-[#C8FF00] bg-[#C8FF00]' : 'border-[#C8FF00]/40 bg-transparent'}`}>
         {selected && <span className="absolute inset-0 m-auto w-1.5 h-1.5 bg-[#111111] rounded-full" />}
       </span>
       {value}
@@ -82,20 +82,20 @@ function VisaCard({ label, desc, icon, selected, onSelect }: { label: string; de
     <button
       type="button"
       onClick={onSelect}
-      className={`relative w-full text-left px-5 py-4 border-2 rounded-xl transition-all duration-200 ${
+      className={`relative w-full text-left px-4 py-3.5 border rounded-xl transition-all duration-200 ${
         selected
-          ? 'border-[#C8FF00] bg-white shadow-[0_10px_30px_rgba(200,255,0,0.25)] -translate-y-[2px]'
-          : 'border-transparent bg-white/80 shadow-sm hover:shadow-md hover:-translate-y-[2px]'
+          ? 'border-[#C8FF00] bg-[#C8FF00]/10 shadow-[0_4px_20px_rgba(200,255,0,0.2)] -translate-y-[1px]'
+          : 'border-[#C8FF00]/20 bg-white/20 hover:bg-[#C8FF00]/[0.06] hover:border-[#C8FF00]/40 hover:-translate-y-[1px]'
       }`}
     >
       <div className="flex items-center gap-3">
-        {icon && <span className="text-2xl">{icon}</span>}
+        {icon && <span className="text-xl">{icon}</span>}
         <div>
           <p className="font-monument font-black text-sm text-[#111111]">{label}</p>
-          <p className="font-iceland text-xs text-[#777777] mt-0.5">{desc}</p>
+          <p className="font-iceland text-xs text-[#666666] mt-0.5">{desc}</p>
         </div>
-        <div className={`ml-auto w-4 h-4 rounded-full border-2 flex-shrink-0 transition-colors ${selected ? 'border-[#C8FF00] bg-[#C8FF00]' : 'border-[#CCCCCC]'}`}>
-          {selected && <span className="block w-2 h-2 bg-[#111111] rounded-full m-auto mt-[2px]" />}
+        <div className={`ml-auto w-3.5 h-3.5 rounded-full border-2 flex-shrink-0 transition-colors ${selected ? 'border-[#C8FF00] bg-[#C8FF00]' : 'border-[#C8FF00]/40'}`}>
+          {selected && <span className="block w-1.5 h-1.5 bg-[#111111] rounded-full m-auto mt-[1px]" />}
         </div>
       </div>
     </button>
@@ -198,14 +198,14 @@ export default function EvaluationForm() {
             </h2>
             <h2
               className="font-monument font-black italic tracking-tight mb-5 leading-[0.92]"
-              style={{ fontSize: 'clamp(1rem, 2vw, 1.6rem)', color: '#7aaa00', WebkitTextStroke: '0.3px rgba(0,0,0,0.2)' }}
+              style={{ fontSize: 'clamp(1rem, 2vw, 1.6rem)', color: '#C8FF00', WebkitTextStroke: '0.5px rgba(0,0,0,0.35)', textShadow: '0 1px 3px rgba(0,0,0,0.1)' }}
             >
               gratuitamente
             </h2>
 
             <div className="mb-5 border-l-2 border-[#C8FF00] pl-3">
               <p className="font-monument font-bold" style={{ color: '#111111', fontSize: '0.82rem', lineHeight: '1.6' }}>
-                En menos de <span style={{ color: '#3a4700', fontWeight: 900 }}>2 minutos</span> sabrás si calificas y recibirás un plan personalizado.
+                En menos de <span style={{ color: '#C8FF00', fontWeight: 900, WebkitTextStroke: '0.4px rgba(0,0,0,0.4)' }}>2 minutos</span> sabrás si calificas y recibirás un plan personalizado.
               </p>
               <p className="font-iceland" style={{ fontWeight: 400, fontSize: '0.8rem', color: '#555555', marginTop: '0.35rem' }}>
                 Confidencial · Sin compromiso
@@ -213,11 +213,11 @@ export default function EvaluationForm() {
             </div>
 
             <div className="hidden lg:block">
-              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.6rem', padding: '0.5rem 0.75rem', borderRadius: '0.65rem', background: 'rgba(200,255,0,0.12)', border: '1px solid rgba(200,255,0,0.3)' }}>
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.6rem', padding: '0.5rem 0.75rem', borderRadius: '0.65rem', background: 'rgba(200,255,0,0.1)', border: '1px solid rgba(200,255,0,0.35)' }}>
                 <span style={{ fontSize: '1rem', lineHeight: 1 }}>⚡</span>
                 <div>
                   <p className="font-monument font-black uppercase" style={{ fontSize: '0.68rem', color: '#111111', letterSpacing: '0.14em' }}>Respuesta Rápida</p>
-                  <p className="font-iceland" style={{ fontSize: '0.78rem', color: '#555555', marginTop: '0.08rem' }}>Análisis inicial en menos de <span style={{ color: '#3a4700', fontWeight: 700 }}>24h</span></p>
+                  <p className="font-iceland" style={{ fontSize: '0.78rem', color: '#555555', marginTop: '0.08rem' }}>Análisis en menos de <span style={{ color: '#C8FF00', fontWeight: 700, WebkitTextStroke: '0.3px rgba(0,0,0,0.35)' }}>24h</span></p>
                 </div>
               </div>
             </div>
@@ -228,20 +228,20 @@ export default function EvaluationForm() {
             initial={{ opacity: 0, x: 40, scale: 0.98 }}
             animate={inView ? { opacity: 1, x: 0, scale: 1 } : { opacity: 0, x: 40, scale: 0.98 }}
             transition={{ duration: 0.85, ease: [0.16, 1, 0.3, 1], delay: 0.1 }}
-            className="relative bg-white/40 backdrop-blur-3xl shadow-[0_24px_60px_rgba(0,0,0,0.08),_inset_0_0_0_1px_rgba(255,255,255,0.7)] rounded-2xl overflow-hidden flex flex-col border border-white/60"
-            style={{ minHeight: '400px' }}
+            className="relative backdrop-blur-xl rounded-2xl overflow-hidden flex flex-col border border-[#C8FF00]/30 shadow-[0_20px_50px_rgba(0,0,0,0.08),inset_0_0_0_1px_rgba(200,255,0,0.12)]"
+            style={{ minHeight: '400px', background: 'rgba(200,255,0,0.05)' }}
           >
             {/* Animated orbs */}
             <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
-              <motion.div variants={orb1Variants} animate="animate" className="absolute -top-32 -left-20 w-[400px] h-[400px] bg-[#C8FF00]/40 rounded-full mix-blend-multiply filter blur-[80px]" />
-              <motion.div variants={orb2Variants} animate="animate" className="absolute top-1/4 -right-32 w-[350px] h-[350px] bg-[#9FFF00]/30 rounded-full mix-blend-multiply filter blur-[90px]" />
-              <motion.div variants={orb3Variants} animate="animate" className="absolute -bottom-40 left-1/4 w-[500px] h-[500px] bg-[#E9FF99]/40 rounded-full mix-blend-multiply filter blur-[100px]" />
+              <motion.div variants={orb1Variants} animate="animate" className="absolute -top-24 -left-16 w-[280px] h-[280px] bg-[#C8FF00]/25 rounded-full filter blur-[70px]" />
+              <motion.div variants={orb2Variants} animate="animate" className="absolute top-1/3 -right-20 w-[240px] h-[240px] bg-[#C8FF00]/15 rounded-full filter blur-[80px]" />
+              <motion.div variants={orb3Variants} animate="animate" className="absolute -bottom-28 left-1/3 w-[320px] h-[320px] bg-[#C8FF00]/20 rounded-full filter blur-[90px]" />
             </div>
 
             <div className="relative z-10 flex flex-col h-full w-full">
               {/* Progress header */}
-              <div className="bg-white/30 border-b border-white/40 px-8 py-5 flex-shrink-0 backdrop-blur-sm">
-                <div className="flex justify-between items-center mb-3">
+              <div className="border-b border-[#C8FF00]/20 px-6 py-4 flex-shrink-0" style={{ background: 'rgba(200,255,0,0.08)' }}>
+                <div className="flex justify-between items-center mb-2.5">
                   <span className="font-funnel font-bold text-xs text-[#111111] tracking-widest uppercase">
                     Paso {step + 1}/{TOTAL_STEPS}
                   </span>
@@ -251,9 +251,9 @@ export default function EvaluationForm() {
                 </div>
                 <div className="flex gap-1 h-[2px]">
                   {Array.from({ length: TOTAL_STEPS }).map((_, i) => (
-                    <div key={i} className="flex-1 rounded-full bg-black/5 overflow-hidden">
+                    <div key={i} className="flex-1 rounded-full overflow-hidden" style={{ background: 'rgba(200,255,0,0.18)' }}>
                       <motion.div
-                        className="h-full bg-[#111111]"
+                        className="h-full bg-[#C8FF00]"
                         initial={{ width: '0%' }}
                         animate={{ width: i <= step ? '100%' : '0%' }}
                         transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
@@ -264,12 +264,12 @@ export default function EvaluationForm() {
               </div>
 
               {/* Form content */}
-              <div className="p-4 sm:p-6 flex-1 flex flex-col justify-center relative overflow-hidden" style={{ minHeight: '320px' }}>
+              <div className="p-4 sm:p-5 flex-1 flex flex-col justify-center relative overflow-hidden" style={{ minHeight: '280px' }}>
                 <AnimatePresence mode="popLayout" custom={direction}>
 
                   {status === 'loading' && (
                     <motion.div key="loading" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} className="flex flex-col items-center justify-center gap-5 absolute inset-0">
-                      <div className="w-14 h-14 border-4 border-[#111111] border-t-transparent rounded-full animate-spin" />
+                      <div className="w-12 h-12 border-4 border-[#C8FF00] border-t-transparent rounded-full animate-spin" />
                       <p className="font-iceland text-[#555555] font-bold text-sm tracking-widest uppercase">Analizando perfil...</p>
                     </motion.div>
                   )}
@@ -307,7 +307,8 @@ export default function EvaluationForm() {
                           value={data.nombre}
                           onChange={e => setData({ ...data, nombre: e.target.value })}
                           onKeyDown={e => { if (e.key === 'Enter' && canNext()) navigate(1) }}
-                          className="w-full bg-white/80 backdrop-blur-md border border-white/60 text-[#111111] px-4 py-3 font-monument font-medium text-[13px] focus:outline-none focus:border-[#C8FF00] focus:bg-white transition-all text-center rounded-lg shadow-sm placeholder-[#AAAAAA]"
+                          className="w-full backdrop-blur-md border text-[#111111] px-4 py-3 font-monument font-medium text-[13px] focus:outline-none transition-all text-center rounded-lg placeholder-[#AAAAAA]"
+                          style={{ background: 'rgba(255,255,255,0.35)', borderColor: 'rgba(200,255,0,0.35)' }}
                           autoFocus
                         />
                       )}
@@ -337,7 +338,8 @@ export default function EvaluationForm() {
                         <select
                           value={data.pais_origen}
                           onChange={e => setData({ ...data, pais_origen: e.target.value })}
-                          className="w-full bg-white/80 backdrop-blur-md border border-white/60 text-[#111111] px-5 py-4 font-monument font-medium text-sm focus:outline-none focus:border-[#C8FF00] focus:bg-white transition-all shadow-sm rounded-lg appearance-none cursor-pointer"
+                          className="w-full backdrop-blur-md text-[#111111] px-5 py-4 font-monument font-medium text-sm focus:outline-none transition-all rounded-lg appearance-none cursor-pointer border"
+                          style={{ background: 'rgba(255,255,255,0.35)', borderColor: 'rgba(200,255,0,0.35)' }}
                         >
                           <option value="" disabled>Selecciona tu país</option>
                           {LATAM_COUNTRY_NAMES.map(c => <option key={c} value={c}>{c}</option>)}
@@ -353,7 +355,8 @@ export default function EvaluationForm() {
                           value={data.edad}
                           onChange={e => setData({ ...data, edad: e.target.value })}
                           onKeyDown={e => { if (e.key === 'Enter' && canNext()) navigate(1) }}
-                          className="w-full bg-white/80 backdrop-blur-md border border-white/60 text-[#111111] px-4 py-3 font-monument font-medium text-[13px] focus:outline-none focus:border-[#C8FF00] focus:bg-white transition-all text-center rounded-lg shadow-sm placeholder-[#AAAAAA]"
+                          className="w-full backdrop-blur-md border text-[#111111] px-4 py-3 font-monument font-medium text-[13px] focus:outline-none transition-all text-center rounded-lg placeholder-[#AAAAAA]"
+                          style={{ background: 'rgba(255,255,255,0.35)', borderColor: 'rgba(200,255,0,0.35)' }}
                         />
                       )}
 
@@ -455,9 +458,10 @@ export default function EvaluationForm() {
                             placeholder="tu@correo.com"
                             value={data.email}
                             onChange={e => setData({ ...data, email: e.target.value })}
-                            className="w-full bg-white/80 backdrop-blur-md border border-white/60 text-[#111111] px-4 py-3 font-monument font-medium text-[13px] focus:outline-none focus:border-[#C8FF00] focus:bg-white transition-all rounded-lg shadow-sm placeholder-[#AAAAAA]"
+                            className="w-full backdrop-blur-md border text-[#111111] px-4 py-3 font-monument font-medium text-[13px] focus:outline-none transition-all rounded-lg placeholder-[#AAAAAA]"
+                          style={{ background: 'rgba(255,255,255,0.35)', borderColor: 'rgba(200,255,0,0.35)' }}
                           />
-                          <label className="flex items-start gap-4 cursor-pointer p-4 border border-white/60 bg-white/40 backdrop-blur-md hover:bg-white/60 transition-colors rounded-lg shadow-sm">
+                          <label className="flex items-start gap-4 cursor-pointer p-3.5 border rounded-lg transition-colors" style={{ borderColor: 'rgba(200,255,0,0.3)', background: 'rgba(200,255,0,0.05)' }}>
                             <input
                               type="checkbox"
                               checked={data.acepta}
@@ -479,11 +483,12 @@ export default function EvaluationForm() {
 
               {/* Navigation */}
               {status === 'idle' && (
-                <div className="bg-white/30 backdrop-blur-sm border-t border-white/40 p-4 flex flex-shrink-0 gap-3">
+                <div className="border-t border-[#C8FF00]/20 p-3.5 flex flex-shrink-0 gap-2.5" style={{ background: 'rgba(200,255,0,0.06)' }}>
                   {step > 0 && (
                     <button
                       onClick={() => navigate(-1)}
-                      className="px-5 py-3 border border-white/80 text-[#333333] shadow-sm font-monument font-bold text-[10px] uppercase tracking-widest hover:border-[#111111] hover:text-[#111111] transition-all bg-white/50 rounded-lg hover:-translate-y-0.5"
+                      className="px-4 py-2.5 font-monument font-bold text-[10px] uppercase tracking-widest transition-all rounded-lg hover:-translate-y-0.5 border"
+                      style={{ borderColor: 'rgba(200,255,0,0.35)', color: '#444444', background: 'rgba(200,255,0,0.07)' }}
                     >
                       Volver
                     </button>
@@ -492,7 +497,7 @@ export default function EvaluationForm() {
                     <button
                       onClick={() => { if (step < TOTAL_STEPS - 1) navigate(1); else handleSubmit() }}
                       disabled={!canNext()}
-                      className="flex-1 px-5 py-3 bg-[#111111] text-white shadow-xl font-monument font-black text-[10px] uppercase tracking-widest hover:scale-[1.02] active:scale-[0.98] hover:shadow-[0_10px_30px_rgba(200,255,0,0.3)] hover:text-[#C8FF00] transition-all rounded-lg disabled:opacity-40 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none"
+                      className="flex-1 px-5 py-2.5 bg-[#111111] text-[#C8FF00] font-monument font-black text-[10px] uppercase tracking-widest hover:scale-[1.02] active:scale-[0.98] hover:shadow-[0_8px_24px_rgba(200,255,0,0.25)] transition-all rounded-lg disabled:opacity-30 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none"
                     >
                       {step < TOTAL_STEPS - 1 ? 'Continuar' : 'Enviar'}
                     </button>
