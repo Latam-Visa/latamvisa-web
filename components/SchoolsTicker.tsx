@@ -20,7 +20,7 @@ export default function SchoolsTicker() {
   const inView = useInView(ref, { once: false, margin: '-80px' })
 
   return (
-    <section className="bg-transparent py-20 relative z-10" style={{ background: 'linear-gradient(to bottom, rgba(252,251,249,0.55) 0%, rgba(252,251,249,0.72) 25%, rgba(252,251,249,0.72) 100%)' }}>
+    <section className="bg-transparent py-20 relative z-10" style={{ background: 'linear-gradient(to bottom, rgba(252,251,249,0.72) 0%, rgba(252,251,249,0.82) 100%)' }}>
       <div className="max-w-7xl mx-auto px-6 mb-10" ref={ref}>
         <motion.p
           initial={{ opacity: 0 }}

@@ -189,6 +189,7 @@ export default function AboutSection() {
                 text="Nuestro"
                 tag="h2"
                 className="font-monument font-black text-white text-2xl sm:text-4xl md:text-[3.9rem] tracking-tight leading-none"
+                style={{ WebkitTextStroke: '0.6px rgba(0,0,0,0.55)', textShadow: '0 1px 3px rgba(0,0,0,0.18)' }}
                 inView={inView}
                 scrollDir={scrollDir}
                 baseDelay={0}
@@ -198,6 +199,7 @@ export default function AboutSection() {
                 text="COMPROMISO"
                 tag="h2"
                 className="font-monument font-black text-white text-3xl sm:text-5xl md:text-[4.1rem] tracking-tight leading-none"
+                style={{ WebkitTextStroke: '0.6px rgba(0,0,0,0.55)', textShadow: '0 1px 3px rgba(0,0,0,0.18)' }}
                 inView={inView}
                 scrollDir={scrollDir}
                 baseDelay={0.3}
