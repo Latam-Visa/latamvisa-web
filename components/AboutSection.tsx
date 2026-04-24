@@ -176,7 +176,7 @@ export default function AboutSection() {
   })
 
   return (
-    <section className="bg-transparent pt-10 pb-14 px-6 relative z-10" style={{ background: 'linear-gradient(to bottom, rgba(200,255,0,0) 0%, rgba(252,251,249,0.55) 100%)' }}>
+    <section className="bg-transparent pt-10 pb-14 px-6 relative z-10" style={{ background: 'linear-gradient(to bottom, rgba(252,251,249,0.50) 0%, rgba(252,251,249,0.72) 100%)' }}>
       <div className="max-w-7xl mx-auto">
 
         {/* Section Header */}
