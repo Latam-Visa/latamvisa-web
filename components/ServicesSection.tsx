@@ -296,7 +296,7 @@ export default function ServicesSection() {
       id="servicios"
       ref={sectionRef}
       className="bg-transparent py-14 px-6 relative z-10"
-      style={{ background: 'linear-gradient(to bottom, rgba(252,251,249,0.72) 0%, rgba(253,252,250,0.92) 100%)' }}
+      style={{ background: 'linear-gradient(to bottom, rgba(252,251,249,0.82) 0%, rgba(253,252,250,0.92) 100%)' }}
     >
       <div className="max-w-7xl mx-auto">
 

@@ -173,33 +173,60 @@ export default function EvaluationForm() {
             initial={{ opacity: 0, x: -40 }}
             animate={inView ? { opacity: 1, x: 0 } : { opacity: 0, x: -40 }}
             transition={{ duration: 0.85, ease: [0.16, 1, 0.3, 1] }}
+            className="bg-black/[0.04] backdrop-blur-sm rounded-3xl p-8 border border-white/60 shadow-[0_2px_20px_rgba(0,0,0,0.06)]"
           >
-            <span className="font-monument font-black uppercase block mb-5" style={{ color: '#5B6A00', fontSize: '0.7rem', letterSpacing: '0.2em' }}>
-              Empieza aquí
+            {/* Badge */}
+            <span
+              className="inline-flex items-center gap-2 font-monument font-black uppercase mb-7"
+              style={{
+                background: '#111111',
+                color: '#C8FF00',
+                fontSize: '0.6rem',
+                letterSpacing: '0.22em',
+                padding: '0.45rem 0.9rem',
+                borderRadius: '999px',
+              }}
+            >
+              ✦ Empieza aquí
             </span>
-            <h2 className="font-monument font-black tracking-tight text-[#111111] mb-6 leading-tight" style={{ fontSize: 'clamp(1.4rem, 3vw, 2.5rem)' }}>
-              Evalúa tu perfil
-              <br />
-              <span style={{ color: '#5B6A00' }} className="italic">gratuitamente</span>
+
+            {/* Title */}
+            <h2
+              className="font-monument font-black tracking-tight text-[#111111] mb-2 leading-[0.95]"
+              style={{ fontSize: 'clamp(2.6rem, 5vw, 4.4rem)' }}
+            >
+              Evalúa tu
             </h2>
-            <div className="mb-10" style={{ maxWidth: '28rem' }}>
-              <p className="font-monument font-bold" style={{ color: '#222222', fontSize: '1rem', lineHeight: '1.6' }}>
-                En menos de <span style={{ color: '#5B6A00' }}>2 minutos</span> sabrás si calificas y recibirás un plan personalizado en tu correo.
+            <h2
+              className="font-monument font-black tracking-tight mb-2 leading-[0.95]"
+              style={{ fontSize: 'clamp(2.6rem, 5vw, 4.4rem)', color: '#3a4700' }}
+            >
+              perfil
+            </h2>
+            <h2
+              className="font-monument font-black italic tracking-tight mb-8 leading-[0.95]"
+              style={{ fontSize: 'clamp(1.5rem, 3vw, 2.4rem)', color: '#8aab00' }}
+            >
+              gratuitamente
+            </h2>
+
+            <div className="mb-8 border-l-2 border-[#C8FF00] pl-4" style={{ maxWidth: '26rem' }}>
+              <p className="font-monument font-bold" style={{ color: '#111111', fontSize: '0.92rem', lineHeight: '1.65' }}>
+                En menos de <span style={{ color: '#3a4700', fontWeight: 900 }}>2 minutos</span> sabrás si calificas y recibirás un plan personalizado en tu correo.
               </p>
-              <p className="font-iceland" style={{ fontWeight: 400, fontSize: '0.9rem', color: '#666666', marginTop: '0.5rem', lineHeight: '1.5' }}>
-                Todo el progreso es confidencial y no te compromete en nada.
+              <p className="font-iceland" style={{ fontWeight: 400, fontSize: '0.85rem', color: '#555555', marginTop: '0.5rem', lineHeight: '1.5' }}>
+                Confidencial · Sin compromiso
               </p>
             </div>
-            <div className="hidden lg:block border-t border-[#EAEAEA] pt-6">
+
+            <div className="hidden lg:block">
               <div
-                style={{ display: 'inline-flex', alignItems: 'center', gap: '0.75rem', padding: '0.6rem 0.9rem', borderRadius: '0.75rem', cursor: 'default', transition: 'background 0.25s ease' }}
-                onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.background = 'rgba(200,255,0,0.1)' }}
-                onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.background = 'transparent' }}
+                style={{ display: 'inline-flex', alignItems: 'center', gap: '0.75rem', padding: '0.6rem 0.9rem', borderRadius: '0.75rem', cursor: 'default', background: 'rgba(200,255,0,0.12)', border: '1px solid rgba(200,255,0,0.3)' }}
               >
                 <span style={{ fontSize: '1.1rem', lineHeight: 1 }}>⚡</span>
                 <div>
-                  <p className="font-monument font-black uppercase" style={{ fontSize: '0.8rem', color: '#111111', letterSpacing: '0.15em' }}>Respuesta Rápida</p>
-                  <p className="font-iceland" style={{ fontSize: '0.85rem', color: '#777777', marginTop: '0.15rem' }}>Análisis inicial en menos de <span style={{ color: '#5B6A00', fontWeight: 700 }}>24h</span></p>
+                  <p className="font-monument font-black uppercase" style={{ fontSize: '0.75rem', color: '#111111', letterSpacing: '0.15em' }}>Respuesta Rápida</p>
+                  <p className="font-iceland" style={{ fontSize: '0.82rem', color: '#555555', marginTop: '0.1rem' }}>Análisis inicial en menos de <span style={{ color: '#3a4700', fontWeight: 700 }}>24h</span></p>
                 </div>
               </div>
             </div>
