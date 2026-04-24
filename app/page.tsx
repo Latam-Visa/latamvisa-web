@@ -8,7 +8,6 @@ import AboutSection from '@/components/AboutSection'
 import SchoolsTicker from '@/components/SchoolsTicker'
 import ServicesSection from '@/components/ServicesSection'
 import ProcessSection from '@/components/ProcessSection'
-import WhyUsSection from '@/components/WhyUsSection'
 import CountriesSection from '@/components/CountriesSection'
 import EvaluationForm from '@/components/EvaluationForm'
 import TestimonialsSection from '@/components/TestimonialsSection'
@@ -38,12 +37,12 @@ export default function Home() {
         <Navbar />
         <HeroScroll />
         <div style={{ marginTop: '-80vh' }}>
+          <EvaluationForm />
           <AboutSection />
           <SchoolsTicker />
           <ServicesSection />
           <ProcessSection />
           <CountriesSection />
-          <EvaluationForm />
           <TestimonialsSection />
           <FAQSection />
           <Footer />
