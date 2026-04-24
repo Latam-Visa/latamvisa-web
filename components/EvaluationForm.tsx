@@ -173,60 +173,51 @@ export default function EvaluationForm() {
             initial={{ opacity: 0, x: -40 }}
             animate={inView ? { opacity: 1, x: 0 } : { opacity: 0, x: -40 }}
             transition={{ duration: 0.85, ease: [0.16, 1, 0.3, 1] }}
-            className="bg-black/[0.04] backdrop-blur-sm rounded-3xl p-8 border border-white/60 shadow-[0_2px_20px_rgba(0,0,0,0.06)]"
+            className="bg-black/[0.04] backdrop-blur-sm rounded-2xl p-5 border border-white/60 shadow-[0_2px_16px_rgba(0,0,0,0.05)]"
           >
             {/* Badge */}
             <span
-              className="inline-flex items-center gap-2 font-monument font-black uppercase mb-7"
-              style={{
-                background: '#111111',
-                color: '#C8FF00',
-                fontSize: '0.6rem',
-                letterSpacing: '0.22em',
-                padding: '0.45rem 0.9rem',
-                borderRadius: '999px',
-              }}
+              className="inline-flex items-center gap-1.5 font-monument font-black uppercase mb-5"
+              style={{ background: '#111111', color: '#C8FF00', fontSize: '0.55rem', letterSpacing: '0.2em', padding: '0.35rem 0.75rem', borderRadius: '999px' }}
             >
               ✦ Empieza aquí
             </span>
 
             {/* Title */}
             <h2
-              className="font-monument font-black tracking-tight text-[#111111] mb-2 leading-[0.95]"
-              style={{ fontSize: 'clamp(2.6rem, 5vw, 4.4rem)' }}
+              className="font-monument font-black tracking-tight leading-[0.92] mb-1"
+              style={{ fontSize: 'clamp(1.8rem, 3.5vw, 3rem)', color: '#111111', WebkitTextStroke: '0.3px rgba(0,0,0,0.25)' }}
             >
               Evalúa tu
             </h2>
             <h2
-              className="font-monument font-black tracking-tight mb-2 leading-[0.95]"
-              style={{ fontSize: 'clamp(2.6rem, 5vw, 4.4rem)', color: '#3a4700' }}
+              className="font-monument font-black tracking-tight leading-[0.92] mb-1"
+              style={{ fontSize: 'clamp(1.8rem, 3.5vw, 3rem)', color: '#C8FF00', WebkitTextStroke: '0.5px rgba(0,0,0,0.35)', textShadow: '0 1px 4px rgba(0,0,0,0.12)' }}
             >
               perfil
             </h2>
             <h2
-              className="font-monument font-black italic tracking-tight mb-8 leading-[0.95]"
-              style={{ fontSize: 'clamp(1.5rem, 3vw, 2.4rem)', color: '#8aab00' }}
+              className="font-monument font-black italic tracking-tight mb-5 leading-[0.92]"
+              style={{ fontSize: 'clamp(1rem, 2vw, 1.6rem)', color: '#7aaa00', WebkitTextStroke: '0.3px rgba(0,0,0,0.2)' }}
             >
               gratuitamente
             </h2>
 
-            <div className="mb-8 border-l-2 border-[#C8FF00] pl-4" style={{ maxWidth: '26rem' }}>
-              <p className="font-monument font-bold" style={{ color: '#111111', fontSize: '0.92rem', lineHeight: '1.65' }}>
-                En menos de <span style={{ color: '#3a4700', fontWeight: 900 }}>2 minutos</span> sabrás si calificas y recibirás un plan personalizado en tu correo.
+            <div className="mb-5 border-l-2 border-[#C8FF00] pl-3">
+              <p className="font-monument font-bold" style={{ color: '#111111', fontSize: '0.82rem', lineHeight: '1.6' }}>
+                En menos de <span style={{ color: '#3a4700', fontWeight: 900 }}>2 minutos</span> sabrás si calificas y recibirás un plan personalizado.
               </p>
-              <p className="font-iceland" style={{ fontWeight: 400, fontSize: '0.85rem', color: '#555555', marginTop: '0.5rem', lineHeight: '1.5' }}>
+              <p className="font-iceland" style={{ fontWeight: 400, fontSize: '0.8rem', color: '#555555', marginTop: '0.35rem' }}>
                 Confidencial · Sin compromiso
               </p>
             </div>
 
             <div className="hidden lg:block">
-              <div
-                style={{ display: 'inline-flex', alignItems: 'center', gap: '0.75rem', padding: '0.6rem 0.9rem', borderRadius: '0.75rem', cursor: 'default', background: 'rgba(200,255,0,0.12)', border: '1px solid rgba(200,255,0,0.3)' }}
-              >
-                <span style={{ fontSize: '1.1rem', lineHeight: 1 }}>⚡</span>
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.6rem', padding: '0.5rem 0.75rem', borderRadius: '0.65rem', background: 'rgba(200,255,0,0.12)', border: '1px solid rgba(200,255,0,0.3)' }}>
+                <span style={{ fontSize: '1rem', lineHeight: 1 }}>⚡</span>
                 <div>
-                  <p className="font-monument font-black uppercase" style={{ fontSize: '0.75rem', color: '#111111', letterSpacing: '0.15em' }}>Respuesta Rápida</p>
-                  <p className="font-iceland" style={{ fontSize: '0.82rem', color: '#555555', marginTop: '0.1rem' }}>Análisis inicial en menos de <span style={{ color: '#3a4700', fontWeight: 700 }}>24h</span></p>
+                  <p className="font-monument font-black uppercase" style={{ fontSize: '0.68rem', color: '#111111', letterSpacing: '0.14em' }}>Respuesta Rápida</p>
+                  <p className="font-iceland" style={{ fontSize: '0.78rem', color: '#555555', marginTop: '0.08rem' }}>Análisis inicial en menos de <span style={{ color: '#3a4700', fontWeight: 700 }}>24h</span></p>
                 </div>
               </div>
             </div>
@@ -237,8 +228,8 @@ export default function EvaluationForm() {
             initial={{ opacity: 0, x: 40, scale: 0.98 }}
             animate={inView ? { opacity: 1, x: 0, scale: 1 } : { opacity: 0, x: 40, scale: 0.98 }}
             transition={{ duration: 0.85, ease: [0.16, 1, 0.3, 1], delay: 0.1 }}
-            className="relative bg-white/40 backdrop-blur-3xl shadow-[0_40px_100px_rgba(0,0,0,0.08),_inset_0_0_0_1px_rgba(255,255,255,0.7)] rounded-3xl overflow-hidden flex flex-col border border-white/60"
-            style={{ minHeight: '480px' }}
+            className="relative bg-white/40 backdrop-blur-3xl shadow-[0_24px_60px_rgba(0,0,0,0.08),_inset_0_0_0_1px_rgba(255,255,255,0.7)] rounded-2xl overflow-hidden flex flex-col border border-white/60"
+            style={{ minHeight: '400px' }}
           >
             {/* Animated orbs */}
             <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
