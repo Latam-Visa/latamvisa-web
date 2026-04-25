@@ -165,19 +165,20 @@ export default function EvaluationForm() {
 
   return (
     <section id="evaluacion" className="py-14 lg:py-24 px-6 relative z-10 -mt-[1px]" style={{ background: 'linear-gradient(to bottom, rgba(255,255,255,0) 0%, rgba(252,251,249,0.50) 100%)' }}>
-      <div className="max-w-7xl mx-auto" ref={ref}>
-        <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.3fr] gap-12 lg:gap-20 items-center">
+      <div className="max-w-5xl lg:max-w-6xl mx-auto px-2 sm:px-4" ref={ref}>
+        {/* Master Card Contenedor Principal (Split-Card Flotante) */}
+        <motion.div
+          initial={{ opacity: 0, y: 60 }}
+          animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 60 }}
+          transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+          className="flex flex-col lg:grid lg:grid-cols-2 rounded-[2rem] overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.15)] bg-black/[0.03] backdrop-blur-3xl border border-white/60 relative"
+        >
 
-          {/* Left Column */}
-          <motion.div
-            initial={{ opacity: 0, x: -40 }}
-            animate={inView ? { opacity: 1, x: 0 } : { opacity: 0, x: -40 }}
-            transition={{ duration: 0.85, ease: [0.16, 1, 0.3, 1] }}
-            className="bg-black/[0.04] backdrop-blur-sm rounded-2xl p-5 border border-white/60 shadow-[0_2px_16px_rgba(0,0,0,0.05)]"
-          >
+          {/* Left Column (Información) */}
+          <div className="p-8 sm:p-12 lg:p-16 flex flex-col justify-center relative z-10 w-full h-full">
             {/* Badge */}
             <span
-              className="inline-flex items-center gap-1.5 font-monument font-black uppercase mb-5"
+              className="inline-flex items-center gap-1.5 font-monument font-black uppercase mb-5 w-max"
               style={{ background: '#111111', color: '#C8FF00', fontSize: '0.55rem', letterSpacing: '0.2em', padding: '0.35rem 0.75rem', borderRadius: '999px' }}
             >
               ✦ Empieza aquí
@@ -197,39 +198,36 @@ export default function EvaluationForm() {
               perfil
             </h2>
             <h2
-              className="font-monument font-black italic tracking-tight mb-5 leading-[0.92]"
+              className="font-monument font-black italic tracking-tight mb-8 leading-[0.92]"
               style={{ fontSize: 'clamp(1rem, 2vw, 1.6rem)', color: '#C8FF00', WebkitTextStroke: '0.5px rgba(0,0,0,0.35)', textShadow: '0 1px 3px rgba(0,0,0,0.1)' }}
             >
               gratuitamente
             </h2>
 
-            <div className="mb-5 border-l-2 border-[#C8FF00] pl-3">
-              <p className="font-monument font-bold" style={{ color: '#111111', fontSize: '0.82rem', lineHeight: '1.6' }}>
+            <div className="mb-8 border-l-2 border-[#C8FF00] pl-4">
+              <p className="font-monument font-bold max-w-sm" style={{ color: '#111111', fontSize: '0.82rem', lineHeight: '1.6' }}>
                 En menos de <span style={{ color: '#C8FF00', fontWeight: 900, WebkitTextStroke: '0.4px rgba(0,0,0,0.4)' }}>2 minutos</span> sabrás si calificas y recibirás un plan personalizado.
               </p>
-              <p className="font-iceland" style={{ fontWeight: 400, fontSize: '0.8rem', color: '#555555', marginTop: '0.35rem' }}>
+              <p className="font-iceland" style={{ fontWeight: 400, fontSize: '0.8rem', color: '#555555', marginTop: '0.45rem' }}>
                 Confidencial · Sin compromiso
               </p>
             </div>
 
-            <div className="hidden lg:block">
-              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.6rem', padding: '0.5rem 0.75rem', borderRadius: '0.65rem', background: 'rgba(200,255,0,0.1)', border: '1px solid rgba(200,255,0,0.35)' }}>
-                <span style={{ fontSize: '1rem', lineHeight: 1 }}>⚡</span>
+            <div className="hidden lg:block mt-auto pt-6">
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.6rem', padding: '0.6rem 1rem', borderRadius: '0.75rem', background: 'rgba(200,255,0,0.1)', border: '1px solid rgba(200,255,0,0.35)' }}>
+                <span style={{ fontSize: '1.1rem', lineHeight: 1 }}>⚡</span>
                 <div>
                   <p className="font-monument font-black uppercase" style={{ fontSize: '0.68rem', color: '#111111', letterSpacing: '0.14em' }}>Respuesta Rápida</p>
                   <p className="font-iceland" style={{ fontSize: '0.78rem', color: '#555555', marginTop: '0.08rem' }}>Análisis en menos de <span style={{ color: '#C8FF00', fontWeight: 700, WebkitTextStroke: '0.3px rgba(0,0,0,0.35)' }}>24h</span></p>
                 </div>
               </div>
             </div>
-          </motion.div>
+          </div>
 
-          {/* Right Column — Form Card */}
-          <motion.div
-            initial={{ opacity: 0, x: 40, scale: 0.98 }}
-            animate={inView ? { opacity: 1, x: 0, scale: 1 } : { opacity: 0, x: 40, scale: 0.98 }}
-            transition={{ duration: 0.85, ease: [0.16, 1, 0.3, 1], delay: 0.1 }}
-            className="relative backdrop-blur-xl rounded-2xl overflow-hidden flex flex-col border border-[#C8FF00]/30 shadow-[0_20px_50px_rgba(0,0,0,0.08),inset_0_0_0_1px_rgba(200,255,0,0.12)]"
-            style={{ minHeight: '400px', background: 'rgba(200,255,0,0.05)' }}
+          {/* Right Column — Form Card (Integrado al Master Card) */}
+          <div
+            className="relative flex flex-col w-full h-full border-t lg:border-t-0 lg:border-l border-[#C8FF00]/30 overflow-hidden"
+            style={{ minHeight: '400px', background: 'rgba(200,255,0,0.06)' }}
           >
             {/* Animated orbs */}
             <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
@@ -505,8 +503,8 @@ export default function EvaluationForm() {
                 </div>
               )}
             </div>
-          </motion.div>
-        </div>
+          </div>
+        </motion.div>
       </div>
     </section>
   )
