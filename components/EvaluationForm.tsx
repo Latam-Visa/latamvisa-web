@@ -171,11 +171,15 @@ export default function EvaluationForm() {
           initial={{ opacity: 0, y: 60 }}
           animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 60 }}
           transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-          className="flex flex-col lg:grid lg:grid-cols-2 rounded-[2rem] overflow-hidden shadow-[0_20px_60px_rgba(0,0,0,0.5)] bg-zinc-950 border border-white/10 relative"
+          className="flex flex-col lg:grid lg:grid-cols-2 rounded-[2rem] overflow-hidden shadow-[0_32px_80px_rgba(0,40,0,0.55),0_0_0_1px_rgba(200,255,0,0.12)] border border-[#C8FF00]/15 relative"
+          style={{ background: 'linear-gradient(135deg, #071a07 0%, #0d2b10 50%, #061306 100%)' }}
         >
 
           {/* Left Column (Información) */}
-          <div className="p-8 sm:p-12 lg:p-16 flex flex-col justify-center relative z-10 w-full h-full">
+          <div className="p-8 sm:p-12 lg:p-16 flex flex-col justify-center relative z-10 w-full h-full overflow-hidden">
+            {/* Orb decorativo columna izquierda */}
+            <div className="absolute -top-20 -right-20 w-[320px] h-[320px] rounded-full pointer-events-none" style={{ background: 'radial-gradient(circle, rgba(200,255,0,0.12) 0%, transparent 70%)' }} />
+            <div className="absolute -bottom-16 -left-16 w-[240px] h-[240px] rounded-full pointer-events-none" style={{ background: 'radial-gradient(circle, rgba(200,255,0,0.08) 0%, transparent 70%)' }} />
             {/* Badge */}
             <span
               className="inline-flex items-center gap-1.5 font-monument font-black uppercase mb-5 w-max"
@@ -205,20 +209,24 @@ export default function EvaluationForm() {
             </h2>
 
             <div className="mb-8 border-l-2 border-[#C8FF00] pl-4">
-              <p className="font-monument font-bold max-w-sm" style={{ color: '#d4d4d8', fontSize: '0.82rem', lineHeight: '1.6' }}>
-                En menos de <span style={{ color: '#C8FF00', fontWeight: 900 }}>2 minutos</span> sabrás si calificas y recibirás un plan personalizado.
+              <p className="font-monument font-bold max-w-sm" style={{ color: '#ffffff', fontSize: '0.82rem', lineHeight: '1.7' }}>
+                En <span style={{ color: '#C8FF00', fontWeight: 900 }}>2 minutos</span> descubres si tienes perfil — y recibes tu hoja de ruta exacta para conseguir tu visa.
               </p>
-              <p className="font-iceland" style={{ fontWeight: 400, fontSize: '0.8rem', color: '#a1a1aa', marginTop: '0.45rem' }}>
-                Confidencial · Sin compromiso
-              </p>
+              <div className="flex items-center gap-3 mt-3">
+                <span className="font-iceland font-bold text-[0.72rem]" style={{ color: '#C8FF00', letterSpacing: '0.05em' }}>🔒 100% privado</span>
+                <span style={{ color: 'rgba(200,255,0,0.3)', fontSize: '0.6rem' }}>●</span>
+                <span className="font-iceland font-bold text-[0.72rem]" style={{ color: '#C8FF00', letterSpacing: '0.05em' }}>✓ Gratis</span>
+                <span style={{ color: 'rgba(200,255,0,0.3)', fontSize: '0.6rem' }}>●</span>
+                <span className="font-iceland font-bold text-[0.72rem]" style={{ color: '#C8FF00', letterSpacing: '0.05em' }}>Sin compromiso</span>
+              </div>
             </div>
 
             <div className="hidden lg:block mt-auto pt-6">
-              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.6rem', padding: '0.6rem 1rem', borderRadius: '0.75rem', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(200,255,0,0.30)' }}>
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.6rem', padding: '0.65rem 1.1rem', borderRadius: '0.85rem', background: 'rgba(200,255,0,0.08)', border: '1px solid rgba(200,255,0,0.25)', boxShadow: '0 0 20px rgba(200,255,0,0.06)' }}>
                 <span style={{ fontSize: '1.1rem', lineHeight: 1 }}>⚡</span>
                 <div>
-                  <p className="font-monument font-black uppercase" style={{ fontSize: '0.68rem', color: '#ffffff', letterSpacing: '0.14em' }}>Respuesta Rápida</p>
-                  <p className="font-iceland" style={{ fontSize: '0.78rem', color: '#a1a1aa', marginTop: '0.08rem' }}>Análisis en menos de <span style={{ color: '#C8FF00', fontWeight: 700 }}>24h</span></p>
+                  <p className="font-monument font-black uppercase" style={{ fontSize: '0.68rem', color: '#C8FF00', letterSpacing: '0.14em' }}>Respuesta Rápida</p>
+                  <p className="font-iceland" style={{ fontSize: '0.78rem', color: 'rgba(255,255,255,0.6)', marginTop: '0.08rem' }}>Análisis en menos de <span style={{ color: '#ffffff', fontWeight: 700 }}>24h</span></p>
                 </div>
               </div>
             </div>
@@ -226,8 +234,8 @@ export default function EvaluationForm() {
 
           {/* Right Column — Form Card (Integrado al Master Card) */}
           <div
-            className="relative flex flex-col w-full h-full border-t lg:border-t-0 lg:border-l border-white/10 overflow-hidden bg-black/40 backdrop-blur-2xl"
-            style={{ minHeight: '400px' }}
+            className="relative flex flex-col w-full h-full border-t lg:border-t-0 lg:border-l border-[#C8FF00]/15 overflow-hidden backdrop-blur-2xl"
+            style={{ background: 'rgba(10,30,10,0.55)', minHeight: '400px' }}
           >
             {/* Animated orbs */}
             <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
@@ -238,7 +246,7 @@ export default function EvaluationForm() {
 
             <div className="relative z-10 flex flex-col h-full w-full">
               {/* Progress header */}
-              <div className="border-b border-white/10 px-6 py-4 flex-shrink-0" style={{ background: 'rgba(255,255,255,0.03)' }}>
+              <div className="border-b border-[#C8FF00]/15 px-6 py-4 flex-shrink-0" style={{ background: 'rgba(200,255,0,0.04)' }}>
                 <div className="flex justify-between items-center mb-2.5">
                   <span className="font-funnel font-bold text-xs text-white tracking-widest uppercase">
                     Paso {step + 1}/{TOTAL_STEPS}
@@ -481,12 +489,12 @@ export default function EvaluationForm() {
 
               {/* Navigation */}
               {status === 'idle' && (
-                <div className="border-t border-white/10 p-3.5 flex flex-shrink-0 gap-2.5" style={{ background: 'rgba(255,255,255,0.03)' }}>
+                <div className="border-t border-[#C8FF00]/15 p-3.5 flex flex-shrink-0 gap-2.5" style={{ background: 'rgba(200,255,0,0.04)' }}>
                   {step > 0 && (
                     <button
                       onClick={() => navigate(-1)}
                       className="px-4 py-2.5 font-monument font-bold text-[10px] uppercase tracking-widest transition-all rounded-lg hover:-translate-y-0.5 border"
-                      style={{ borderColor: 'rgba(200,255,0,0.30)', color: '#ffffff', background: 'rgba(255,255,255,0.05)' }}
+                      style={{ borderColor: 'rgba(200,255,0,0.30)', color: '#C8FF00', background: 'rgba(200,255,0,0.06)' }}
                     >
                       Volver
                     </button>
