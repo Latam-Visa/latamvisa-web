@@ -37,11 +37,11 @@ export default function TurismoUsaCheckoutPage() {
       </header>
 
       {/* CONTENEDOR PRINCIPAL: flex-col-reverse en mobile (Info arriba, Form abajo), flex-row en Desktop */}
-      <main className="min-h-screen bg-white text-[#111111] flex flex-col-reverse lg:flex-row w-full font-funnel selection:bg-[#111111] selection:text-[#C8FF00]">
+      <main className="min-h-screen lg:min-h-0 lg:h-screen lg:overflow-hidden bg-white text-[#111111] flex flex-col-reverse lg:flex-row w-full font-funnel selection:bg-[#111111] selection:text-[#C8FF00]">
         
         {/* ═══ COLUMNA IZQUIERDA: PAGO (55%) ═══ */}
         {/* Ocupa 55% en desktop, todo el ancho e info abajo en mobile */}
-        <section className="w-full lg:w-[55%] flex flex-col relative px-4 sm:px-8 lg:px-12 xl:px-[10%]">
+        <section className="w-full lg:w-[55%] lg:h-screen lg:overflow-y-auto flex flex-col relative px-4 sm:px-8 lg:px-12 xl:px-[10%]">
           
           {/* Wrapper del Embedded Checkout */}
           <div className="flex-1 flex flex-col w-full max-w-[550px] mx-auto pt-10 lg:pt-16 pb-20">
@@ -78,7 +78,7 @@ export default function TurismoUsaCheckoutPage() {
         </section>
 
         {/* ═══ COLUMNA DERECHA: INFORMACIÓN (45% - STICKY) ═══ */}
-        <section className="w-full lg:w-[45%] text-[#111111] border-b lg:border-b-0 lg:border-l border-[#C8FF00]/40 px-6 py-12 sm:px-10 lg:px-16 lg:py-16 relative bg-gradient-to-br from-[#FAFFEB] to-[#E8FF7A]/80 backdrop-blur-2xl">
+        <section className="w-full lg:w-[45%] lg:h-screen lg:overflow-y-auto text-[#111111] border-b lg:border-b-0 lg:border-l border-[#C8FF00]/40 px-6 py-12 sm:px-10 lg:px-16 lg:py-16 relative bg-gradient-to-br from-[#FAFFEB] to-[#E8FF7A]/80 backdrop-blur-2xl">
           
           {/* Contenedor que hace "Sticky" en Desktop y se bloquea en top-16 */}
           <div className="lg:sticky lg:top-16 max-w-lg mx-auto lg:ml-0 lg:mr-auto">
