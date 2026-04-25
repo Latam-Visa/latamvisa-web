@@ -78,13 +78,13 @@ export default function TurismoUsaCheckoutPage() {
         </section>
 
         {/* ═══ COLUMNA DERECHA: INFORMACIÓN (45% - STICKY) ═══ */}
-        <section className="w-full lg:w-[45%] lg:h-screen lg:overflow-y-auto text-[#111111] border-b lg:border-b-0 lg:border-l border-[#C8FF00]/40 px-6 py-12 sm:px-10 lg:px-16 lg:py-16 relative bg-gradient-to-br from-[#FAFFEB] to-[#E8FF7A]/80 backdrop-blur-2xl">
+        <section className="w-full lg:w-[45%] lg:h-screen lg:overflow-y-auto text-[#111111] border-b lg:border-b-0 lg:border-l border-[#0A3161]/10 px-6 py-12 sm:px-10 lg:px-16 lg:py-16 relative bg-gradient-to-br from-[#0A3161]/5 via-[#FFFFFF]/80 to-[#E0162B]/10 backdrop-blur-2xl">
           
           {/* Contenedor que hace "Sticky" en Desktop y se bloquea en top-16 */}
           <div className="lg:sticky lg:top-16 max-w-lg mx-auto lg:ml-0 lg:mr-auto">
             
             <div className="mb-6">
-              <span className="inline-block font-iceland text-[#5B6A00] font-bold text-[10px] tracking-[0.25em] uppercase mb-3 border border-[#5B6A00]/30 bg-white/40 px-3 py-1 rounded-sm shadow-sm">
+              <span className="inline-block font-iceland text-[#0A3161] font-bold text-[10px] tracking-[0.25em] uppercase mb-3 border border-[#0A3161]/20 bg-white/50 px-3 py-1 rounded-sm shadow-sm">
                 HONORARIOS DE AGENCIA
               </span>
 
@@ -93,15 +93,15 @@ export default function TurismoUsaCheckoutPage() {
               </h1>
             </div>
 
-            <p className="font-funnel font-bold text-2xl sm:text-3xl text-[#111111] tracking-tight mb-8 flex items-center gap-3">
-              USD $190
-              <span className="font-iceland text-[10px] sm:text-xs text-[#5B6A00] tracking-widest uppercase border border-[#5B6A00]/40 bg-white/30 rounded px-2 py-0.5 transform -translate-y-1">
+            <p className="font-funnel font-bold text-2xl sm:text-3xl text-[#111111] mb-8 flex items-center justify-start gap-4">
+              AUD $290
+              <span className="font-iceland text-[10px] sm:text-xs text-[#0A3161] tracking-widest uppercase border border-[#0A3161]/20 bg-white/40 rounded px-2 py-0.5 leading-[1.2] flex items-center h-fit">
                 PAGO ÚNICO
               </span>
             </p>
 
             <div className="space-y-6 border-t border-[#111111]/10 pt-8">
-              <h2 className="font-iceland text-xs text-[#5B6A00] tracking-[0.2em] uppercase font-bold">
+              <h2 className="font-iceland text-xs text-[#0A3161] tracking-[0.2em] uppercase font-bold">
                 RESUMEN DE INCLUSIÓN
               </h2>
 
@@ -114,8 +114,8 @@ export default function TurismoUsaCheckoutPage() {
                   'Agendamiento de citas consulares',
                   'Sesión de preparación para entrevista'
                 ].map((item, idx) => (
-                  <li key={idx} className="flex items-start gap-4 group">
-                    <span className="shrink-0 mt-1.5 w-1.5 h-1.5 rounded-full bg-[#5B6A00] shadow-[0_0_4px_rgba(91,106,0,0.4)]"></span>
+                  <li key={idx} className="flex items-center gap-4 group">
+                    <span className="shrink-0 w-1.5 h-1.5 rounded-full bg-[#E0162B] shadow-[0_0_4px_rgba(224,22,43,0.3)]"></span>
                     <span className="font-funnel font-medium text-[#111111] text-sm md:text-sm leading-relaxed tracking-wide">
                       {item}
                     </span>
@@ -125,8 +125,8 @@ export default function TurismoUsaCheckoutPage() {
             </div>
 
             {/* Aviso de Confianza Elegante */}
-            <div className="mt-12 p-5 rounded-xl bg-white/50 backdrop-blur-md border border-white/60 shadow-sm flex items-center gap-4">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#5B6A00" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0">
+            <div className="mt-12 p-5 rounded-xl bg-white/60 backdrop-blur-md border border-white/80 shadow-sm flex items-center gap-4">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#0A3161" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0">
                 <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
                 <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
               </svg>
