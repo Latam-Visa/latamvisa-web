@@ -78,13 +78,13 @@ export default function TurismoUsaCheckoutPage() {
         </section>
 
         {/* ═══ COLUMNA DERECHA: INFORMACIÓN (45% - STICKY) ═══ */}
-        <section className="w-full lg:w-[45%] lg:h-screen lg:overflow-y-auto text-white border-b lg:border-b-0 lg:border-l border-[#C8FF00]/20 px-6 py-12 sm:px-10 lg:px-16 lg:py-16 relative bg-[#050505]/95 bg-gradient-to-br from-[#C8FF00]/10 to-transparent backdrop-blur-2xl">
+        <section className="w-full lg:w-[45%] lg:h-screen lg:overflow-y-auto text-white border-b lg:border-b-0 lg:border-l border-[#C8FF00]/20 px-6 py-12 sm:px-10 lg:px-16 lg:py-16 relative bg-[#050505]/95 bg-gradient-to-br from-[#C8FF00]/15 via-transparent to-[#E0162B]/15 backdrop-blur-2xl">
           
           {/* Contenedor que hace "Sticky" en Desktop y se bloquea en top-16 */}
           <div className="lg:sticky lg:top-16 max-w-lg mx-auto lg:ml-0 lg:mr-auto">
             
             <div className="mb-6">
-              <span className="inline-block font-iceland text-[#C8FF00] font-semibold text-[10px] tracking-[0.25em] uppercase mb-3 border border-[#C8FF00]/40 bg-white/5 px-3 py-1 rounded-sm shadow-[0_0_10px_rgba(200,255,0,0.1)]">
+              <span className="inline-block font-iceland text-[#C8FF00] font-bold text-xs sm:text-sm tracking-[0.2em] uppercase mb-4 border border-[#C8FF00]/40 bg-[#C8FF00]/5 px-4 py-1.5 rounded-sm shadow-[0_0_10px_rgba(200,255,0,0.1)]">
                 HONORARIOS DE AGENCIA
               </span>
 
