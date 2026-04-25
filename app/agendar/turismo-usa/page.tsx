@@ -32,7 +32,7 @@ export default function TurismoUsaCheckoutPage() {
       {/* HEADER MOBILE LOGO: Visible solo en móviles, en lo más alto */}
       <header className="lg:hidden w-full bg-white pt-8 pb-6 px-6 flex justify-center sticky top-0 z-20 border-b border-gray-100 shadow-sm relative">
         <Link href="/" className="inline-block hover:opacity-80 transition-opacity">
-          <img src='/logo.png' alt='LATAM VISA' className='h-8 w-auto object-contain' />
+          <img src='/logo.png' alt='LATAM VISA' className='h-40 md:h-[160px] w-auto object-contain' />
         </Link>
       </header>
 
@@ -46,7 +46,7 @@ export default function TurismoUsaCheckoutPage() {
           {/* HEADER DESKTOP LOGO (Oculto en celular, scroll normal arriba) */}
           <header className="hidden lg:flex w-full py-12 items-center justify-start">
             <Link href="/" className="inline-block hover:opacity-80 transition-opacity">
-              <img src='/logo.png' alt='LATAM VISA' className='h-8 w-auto object-contain' />
+              <img src='/logo.png' alt='LATAM VISA' className='h-40 md:h-[160px] w-auto object-contain' />
             </Link>
           </header>
 
