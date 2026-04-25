@@ -171,7 +171,7 @@ export default function EvaluationForm() {
           initial={{ opacity: 0, y: 60 }}
           animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 60 }}
           transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-          className="flex flex-col lg:grid lg:grid-cols-2 rounded-[2rem] overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.15)] bg-black/[0.03] backdrop-blur-3xl border border-white/60 relative"
+          className="flex flex-col lg:grid lg:grid-cols-2 rounded-[2rem] overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.15)] bg-[#C8FF00]/[0.06] backdrop-blur-3xl border border-white/60 relative"
         >
 
           {/* Left Column (Información) */}
@@ -227,7 +227,7 @@ export default function EvaluationForm() {
           {/* Right Column — Form Card (Integrado al Master Card) */}
           <div
             className="relative flex flex-col w-full h-full border-t lg:border-t-0 lg:border-l border-[#C8FF00]/30 overflow-hidden"
-            style={{ minHeight: '400px', background: 'rgba(200,255,0,0.06)' }}
+            style={{ minHeight: '400px' }}
           >
             {/* Animated orbs */}
             <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
