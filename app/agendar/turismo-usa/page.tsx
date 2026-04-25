@@ -78,30 +78,31 @@ export default function TurismoUsaCheckoutPage() {
         </section>
 
         {/* ═══ COLUMNA DERECHA: INFORMACIÓN (45% - STICKY) ═══ */}
-        <section className="w-full lg:w-[45%] lg:h-screen lg:overflow-y-auto text-white border-b lg:border-b-0 lg:border-l border-[#C8FF00]/20 px-6 py-12 sm:px-10 lg:px-16 lg:py-16 relative bg-[#050505]/95 bg-gradient-to-br from-[#C8FF00]/15 via-transparent to-[#E0162B]/15 backdrop-blur-2xl">
+        {/* ═══ COLUMNA DERECHA: INFORMACIÓN (45% - STICKY) ═══ */}
+        <section className="w-full lg:w-[45%] lg:h-screen lg:overflow-y-auto text-[#111111] border-b lg:border-b-0 lg:border-l border-[#C8FF00]/40 px-6 py-12 sm:px-10 lg:px-16 lg:py-16 relative bg-white/40 bg-gradient-to-br from-[#C8FF00]/40 to-[#E0162B]/20 backdrop-blur-2xl">
           
           {/* Contenedor que hace "Sticky" en Desktop y se bloquea en top-16 */}
           <div className="lg:sticky lg:top-16 max-w-lg mx-auto lg:ml-0 lg:mr-auto">
             
             <div className="mb-6">
-              <span className="inline-block font-iceland text-[#C8FF00] font-bold text-xs sm:text-sm tracking-[0.2em] uppercase mb-4 border border-[#C8FF00]/40 bg-[#C8FF00]/5 px-4 py-1.5 rounded-sm shadow-[0_0_10px_rgba(200,255,0,0.1)]">
+              <span className="inline-block font-iceland text-[#5B6A00] font-bold text-xs sm:text-sm tracking-[0.2em] uppercase mb-4 border border-[#5B6A00]/30 bg-[#C8FF00]/20 px-4 py-1.5 rounded-sm shadow-sm">
                 HONORARIOS DE AGENCIA
               </span>
 
-              <h1 className="font-monument font-black text-2xl sm:text-3xl lg:text-[32px] uppercase tracking-tight text-white mb-2 leading-none">
+              <h1 className="font-monument font-black text-2xl sm:text-3xl lg:text-[32px] uppercase tracking-tight text-[#111111] mb-2 leading-none">
                 Asesoría Visado USA
               </h1>
             </div>
 
-            <p className="font-funnel font-bold text-2xl sm:text-3xl text-white mb-8 flex items-center justify-start gap-4 drop-shadow-[0_0_15px_rgba(255,255,255,0.1)]">
+            <p className="font-funnel font-bold text-2xl sm:text-3xl text-[#111111] mb-8 flex items-center justify-start gap-4">
               AUD $290
-              <span className="font-iceland text-[10px] sm:text-xs text-[#C8FF00] tracking-widest uppercase border border-[#C8FF00]/50 bg-white/5 rounded px-2 py-0.5 leading-[1.2] flex items-center h-fit">
+              <span className="font-iceland text-[10px] sm:text-xs text-[#5B6A00] tracking-widest uppercase border border-[#5B6A00]/40 bg-white/40 rounded px-2 py-0.5 leading-[1.2] flex items-center h-fit">
                 PAGO ÚNICO
               </span>
             </p>
 
-            <div className="space-y-6 border-t border-[#C8FF00]/20 pt-8">
-              <h2 className="font-iceland text-xs text-[#C8FF00] tracking-[0.2em] uppercase font-semibold">
+            <div className="space-y-6 border-t border-[#111111]/10 pt-8">
+              <h2 className="font-iceland text-xs text-[#5B6A00] tracking-[0.2em] uppercase font-bold">
                 RESUMEN DE INCLUSIÓN
               </h2>
 
@@ -115,8 +116,8 @@ export default function TurismoUsaCheckoutPage() {
                   'Sesión de preparación para entrevista'
                 ].map((item, idx) => (
                   <li key={idx} className="flex items-center gap-4 group">
-                    <span className="shrink-0 w-1.5 h-1.5 rounded-full bg-[#C8FF00] shadow-[0_0_8px_rgba(200,255,0,0.6)]"></span>
-                    <span className="font-funnel font-medium text-white text-sm md:text-sm leading-relaxed tracking-wide">
+                    <span className="shrink-0 w-1.5 h-1.5 rounded-full bg-[#E0162B] shadow-[0_0_4px_rgba(224,22,43,0.3)]"></span>
+                    <span className="font-funnel font-medium text-[#111111] text-sm md:text-sm leading-relaxed tracking-wide">
                       {item}
                     </span>
                   </li>
@@ -125,12 +126,12 @@ export default function TurismoUsaCheckoutPage() {
             </div>
 
             {/* Aviso de Confianza Elegante */}
-            <div className="mt-12 p-5 rounded-xl bg-white/5 backdrop-blur-md border border-[#C8FF00]/20 shadow-sm flex items-center gap-4">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#C8FF00" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 drop-shadow-[0_0_8px_rgba(200,255,0,0.5)]">
+            <div className="mt-12 p-5 rounded-xl bg-white/50 backdrop-blur-md border border-white/60 shadow-sm flex items-center gap-4">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#5B6A00" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0">
                 <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
                 <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
               </svg>
-              <p className="font-iceland text-[10px] sm:text-[11px] text-white font-semibold uppercase tracking-widest leading-relaxed">
+              <p className="font-iceland text-[10px] sm:text-[11px] text-[#111111] font-bold uppercase tracking-widest leading-relaxed">
                 Encriptación de grado militar SSL <br/>
                 No procesamos números de tarjetas
               </p>
