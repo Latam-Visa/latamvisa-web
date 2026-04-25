@@ -43,15 +43,15 @@ export default function TurismoUsaCheckoutPage() {
         {/* Ocupa 55% en desktop, todo el ancho e info abajo en mobile */}
         <section className="w-full lg:w-[55%] flex flex-col relative px-4 sm:px-8 lg:px-12 xl:px-[10%]">
           
-          {/* HEADER DESKTOP LOGO (Oculto en celular, scroll normal arriba) */}
-          <header className="hidden lg:flex w-full py-12 items-center justify-start">
-            <Link href="/" className="inline-block hover:opacity-80 transition-opacity">
-              <img src='/logo.png' alt='LATAM VISA' className='h-[105px] md:h-[110px] w-auto object-contain' />
-            </Link>
-          </header>
-
           {/* Wrapper del Embedded Checkout */}
-          <div className="flex-1 flex flex-col w-full max-w-[550px] mx-auto lg:mx-0 pt-10 lg:pt-4 pb-20">
+          <div className="flex-1 flex flex-col w-full max-w-[550px] mx-auto pt-10 lg:pt-16 pb-20">
+            
+            {/* HEADER DESKTOP LOGO (Dentro del grid, centrado a la caja de pago y alineado top con panel derecho) */}
+            <header className="hidden lg:flex w-full mb-10 items-center justify-center">
+              <Link href="/" className="inline-block hover:opacity-80 transition-opacity">
+                <img src='/logo.png' alt='LATAM VISA' className='h-[105px] md:h-[110px] w-auto object-contain' />
+              </Link>
+            </header>
             {/* Fallback Loader oculto por detrás que sirve mientras carga Stripe */}
             <div className="relative w-full min-h-[500px]">
               <div className="absolute inset-0 flex flex-col items-center pt-24 z-0 pointer-events-none gap-4">
