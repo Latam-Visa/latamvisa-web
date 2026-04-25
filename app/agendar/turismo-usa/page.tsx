@@ -32,9 +32,7 @@ export default function TurismoUsaCheckoutPage() {
       {/* HEADER MOBILE LOGO: Visible solo en móviles, en lo más alto */}
       <header className="lg:hidden w-full bg-white pt-8 pb-6 px-6 flex justify-center sticky top-0 z-20 border-b border-gray-100 shadow-sm relative">
         <Link href="/" className="inline-block hover:opacity-80 transition-opacity">
-          <div className="font-monument font-black text-2xl tracking-tighter uppercase text-[#111111]">
-            LATAM VISA<span className="text-[#5B6A00]">®</span>
-          </div>
+          <img src='/logo.png' alt='LATAM VISA' className='h-8 w-auto object-contain' />
         </Link>
       </header>
 
@@ -48,9 +46,7 @@ export default function TurismoUsaCheckoutPage() {
           {/* HEADER DESKTOP LOGO (Oculto en celular, scroll normal arriba) */}
           <header className="hidden lg:flex w-full py-12 items-center justify-start">
             <Link href="/" className="inline-block hover:opacity-80 transition-opacity">
-              <div className="font-monument font-black text-2xl tracking-tighter uppercase text-[#111111]">
-                LATAM VISA<span className="text-[#5B6A00]">®</span>
-              </div>
+              <img src='/logo.png' alt='LATAM VISA' className='h-8 w-auto object-contain' />
             </Link>
           </header>
 
@@ -82,13 +78,13 @@ export default function TurismoUsaCheckoutPage() {
         </section>
 
         {/* ═══ COLUMNA DERECHA: INFORMACIÓN (45% - STICKY) ═══ */}
-        <section className="w-full lg:w-[45%] bg-[#0A0A0A] text-white border-b lg:border-b-0 lg:border-l border-[#1A1A1A] px-6 py-12 sm:px-10 lg:px-16 lg:py-16 relative">
+        <section className="w-full lg:w-[45%] text-white border-b lg:border-b-0 lg:border-l border-[#C8FF00]/20 px-6 py-12 sm:px-10 lg:px-16 lg:py-16 relative bg-[#050505]/95 bg-gradient-to-br from-[#C8FF00]/10 to-transparent backdrop-blur-2xl">
           
           {/* Contenedor que hace "Sticky" en Desktop y se bloquea en top-16 */}
           <div className="lg:sticky lg:top-16 max-w-lg mx-auto lg:ml-0 lg:mr-auto">
             
             <div className="mb-8">
-              <span className="inline-block font-iceland text-[#C8FF00] font-bold text-xs tracking-[0.25em] uppercase mb-4 opacity-90 border border-[#C8FF00]/20 px-3 py-1 rounded-sm">
+              <span className="inline-block font-iceland text-[#C8FF00] font-semibold text-xs tracking-[0.25em] uppercase mb-4 opacity-100 border border-[#C8FF00]/40 px-3 py-1 rounded-sm shadow-[0_0_10px_rgba(200,255,0,0.1)]">
                 HONORARIOS DE AGENCIA
               </span>
 
@@ -97,16 +93,16 @@ export default function TurismoUsaCheckoutPage() {
               </h1>
             </div>
 
-            <p className="font-funnel font-medium text-3xl sm:text-4xl text-white tracking-tight mb-10 flex items-center gap-3">
+            <p className="font-funnel font-semibold text-3xl sm:text-4xl text-white tracking-tight mb-10 flex items-center gap-3 drop-shadow-[0_0_15px_rgba(255,255,255,0.1)]">
               USD $190
-              <span className="font-iceland text-xs text-[#888888] tracking-widest uppercase border border-[#333333] rounded px-2 py-0.5 transform -translate-y-1">
+              <span className="font-iceland text-xs text-[#C8FF00] tracking-widest uppercase border border-[#C8FF00]/50 rounded px-2 py-0.5 transform -translate-y-1">
                 PAGO ÚNICO
               </span>
             </p>
 
-            <div className="space-y-6 border-t border-[#1A1A1A] pt-10">
-              <h2 className="font-iceland text-xs text-[#666666] tracking-[0.2em] uppercase font-bold">
-                Resumen de Inclusión
+            <div className="space-y-6 border-t border-[#C8FF00]/20 pt-10">
+              <h2 className="font-iceland text-sm text-[#C8FF00] tracking-[0.2em] uppercase font-semibold">
+                RESUMEN DE INCLUSIÓN
               </h2>
 
               <ul className="space-y-4">
@@ -119,8 +115,8 @@ export default function TurismoUsaCheckoutPage() {
                   'Sesión de preparación para entrevista'
                 ].map((item, idx) => (
                   <li key={idx} className="flex items-start gap-4 group">
-                    <span className="shrink-0 mt-1.5 w-1 h-1 rounded-full bg-[#C8FF00]/60 group-hover:bg-[#C8FF00] transition-colors"></span>
-                    <span className="font-funnel font-light text-[#CCCCCC] text-sm md:text-base leading-relaxed tracking-wide">
+                    <span className="shrink-0 mt-1.5 w-1.5 h-1.5 rounded-full bg-[#C8FF00] shadow-[0_0_8px_rgba(200,255,0,0.6)]"></span>
+                    <span className="font-funnel font-medium text-white text-sm md:text-base leading-relaxed tracking-wide">
                       {item}
                     </span>
                   </li>
@@ -129,12 +125,12 @@ export default function TurismoUsaCheckoutPage() {
             </div>
 
             {/* Aviso de Confianza Elegante */}
-            <div className="mt-16 p-4 rounded-xl bg-gradient-to-br from-[#111111] to-[#0A0A0A] border border-[#1A1A1A] flex items-center gap-4">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#C8FF00" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="opacity-70 shrink-0">
+            <div className="mt-16 p-4 rounded-xl bg-white/5 backdrop-blur-md border border-[#C8FF00]/20 flex items-center gap-4">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#C8FF00" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 drop-shadow-[0_0_8px_rgba(200,255,0,0.5)]">
                 <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
                 <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
               </svg>
-              <p className="font-iceland text-[11px] text-[#777777] uppercase tracking-widest leading-relaxed">
+              <p className="font-iceland text-[11px] text-white font-semibold uppercase tracking-widest leading-relaxed">
                 Encriptación de grado militar SSL <br/>
                 Latam Visa no procesa números de tarjetas
               </p>
