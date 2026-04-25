@@ -65,12 +65,12 @@ function RadioOption({ value, selected, onSelect }: { value: string; selected: b
       onClick={onSelect}
       className={`relative w-full text-left px-4 py-2.5 border transition-all duration-200 font-monument font-medium text-xs md:text-[12px] rounded-lg ${
         selected
-          ? 'border-[#C8FF00] bg-[#C8FF00]/10 text-[#111111] shadow-[0_4px_16px_rgba(200,255,0,0.2)] -translate-y-[1px]'
-          : 'border-[#C8FF00]/20 bg-white/20 text-[#444444] hover:bg-[#C8FF00]/[0.06] hover:border-[#C8FF00]/40 hover:-translate-y-[1px]'
+          ? 'border-[#C8FF00] bg-[#C8FF00]/10 text-[#C8FF00] shadow-[0_4px_16px_rgba(200,255,0,0.2)] -translate-y-[1px]'
+          : 'border-white/10 bg-white/5 text-zinc-300 hover:bg-white/10 hover:border-[#C8FF00]/30 hover:-translate-y-[1px]'
       }`}
     >
-      <span className={`mr-2.5 inline-block w-3 h-3 rounded-full border-2 flex-shrink-0 relative align-middle transition-colors ${selected ? 'border-[#C8FF00] bg-[#C8FF00]' : 'border-[#C8FF00]/40 bg-transparent'}`}>
-        {selected && <span className="absolute inset-0 m-auto w-1.5 h-1.5 bg-[#111111] rounded-full" />}
+      <span className={`mr-2.5 inline-block w-3 h-3 rounded-full border-2 flex-shrink-0 relative align-middle transition-colors ${selected ? 'border-[#C8FF00] bg-[#C8FF00]' : 'border-white/30 bg-transparent'}`}>
+        {selected && <span className="absolute inset-0 m-auto w-1.5 h-1.5 bg-black rounded-full" />}
       </span>
       {value}
     </button>
@@ -85,17 +85,17 @@ function VisaCard({ label, desc, icon, selected, onSelect }: { label: string; de
       className={`relative w-full text-left px-4 py-3.5 border rounded-xl transition-all duration-200 ${
         selected
           ? 'border-[#C8FF00] bg-[#C8FF00]/10 shadow-[0_4px_20px_rgba(200,255,0,0.2)] -translate-y-[1px]'
-          : 'border-[#C8FF00]/20 bg-white/20 hover:bg-[#C8FF00]/[0.06] hover:border-[#C8FF00]/40 hover:-translate-y-[1px]'
+          : 'border-white/10 bg-white/5 hover:bg-white/10 hover:border-[#C8FF00]/30 hover:-translate-y-[1px]'
       }`}
     >
       <div className="flex items-center gap-3">
         {icon && <span className="text-xl">{icon}</span>}
         <div>
-          <p className="font-monument font-black text-sm text-[#111111]">{label}</p>
-          <p className="font-iceland text-xs text-[#666666] mt-0.5">{desc}</p>
+          <p className={`font-monument font-black text-sm ${selected ? 'text-[#C8FF00]' : 'text-white'}`}>{label}</p>
+          <p className="font-iceland text-xs text-zinc-400 mt-0.5">{desc}</p>
         </div>
-        <div className={`ml-auto w-3.5 h-3.5 rounded-full border-2 flex-shrink-0 transition-colors ${selected ? 'border-[#C8FF00] bg-[#C8FF00]' : 'border-[#C8FF00]/40'}`}>
-          {selected && <span className="block w-1.5 h-1.5 bg-[#111111] rounded-full m-auto mt-[1px]" />}
+        <div className={`ml-auto w-3.5 h-3.5 rounded-full border-2 flex-shrink-0 transition-colors ${selected ? 'border-[#C8FF00] bg-[#C8FF00]' : 'border-white/30'}`}>
+          {selected && <span className="block w-1.5 h-1.5 bg-black rounded-full m-auto mt-[1px]" />}
         </div>
       </div>
     </button>
@@ -171,7 +171,7 @@ export default function EvaluationForm() {
           initial={{ opacity: 0, y: 60 }}
           animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 60 }}
           transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-          className="flex flex-col lg:grid lg:grid-cols-2 rounded-[2rem] overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.15)] bg-[#C8FF00]/[0.06] backdrop-blur-3xl border border-white/60 relative"
+          className="flex flex-col lg:grid lg:grid-cols-2 rounded-[2rem] overflow-hidden shadow-[0_20px_60px_rgba(0,0,0,0.5)] bg-zinc-950 border border-white/10 relative"
         >
 
           {/* Left Column (Información) */}
@@ -179,7 +179,7 @@ export default function EvaluationForm() {
             {/* Badge */}
             <span
               className="inline-flex items-center gap-1.5 font-monument font-black uppercase mb-5 w-max"
-              style={{ background: '#111111', color: '#C8FF00', fontSize: '0.55rem', letterSpacing: '0.2em', padding: '0.35rem 0.75rem', borderRadius: '999px' }}
+              style={{ background: '#C8FF00', color: '#000000', fontSize: '0.55rem', letterSpacing: '0.2em', padding: '0.35rem 0.75rem', borderRadius: '999px' }}
             >
               ✦ Empieza aquí
             </span>
@@ -187,7 +187,7 @@ export default function EvaluationForm() {
             {/* Title */}
             <h2
               className="font-monument font-black tracking-tight leading-[0.92] mb-1"
-              style={{ fontSize: 'clamp(1.8rem, 3.5vw, 3rem)', color: '#111111', WebkitTextStroke: '0.3px rgba(0,0,0,0.25)' }}
+              style={{ fontSize: 'clamp(1.8rem, 3.5vw, 3rem)', color: '#ffffff' }}
             >
               Evalúa tu
             </h2>
@@ -205,20 +205,20 @@ export default function EvaluationForm() {
             </h2>
 
             <div className="mb-8 border-l-2 border-[#C8FF00] pl-4">
-              <p className="font-monument font-bold max-w-sm" style={{ color: '#111111', fontSize: '0.82rem', lineHeight: '1.6' }}>
-                En menos de <span style={{ color: '#C8FF00', fontWeight: 900, WebkitTextStroke: '0.4px rgba(0,0,0,0.4)' }}>2 minutos</span> sabrás si calificas y recibirás un plan personalizado.
+              <p className="font-monument font-bold max-w-sm" style={{ color: '#d4d4d8', fontSize: '0.82rem', lineHeight: '1.6' }}>
+                En menos de <span style={{ color: '#C8FF00', fontWeight: 900 }}>2 minutos</span> sabrás si calificas y recibirás un plan personalizado.
               </p>
-              <p className="font-iceland" style={{ fontWeight: 400, fontSize: '0.8rem', color: '#555555', marginTop: '0.45rem' }}>
+              <p className="font-iceland" style={{ fontWeight: 400, fontSize: '0.8rem', color: '#a1a1aa', marginTop: '0.45rem' }}>
                 Confidencial · Sin compromiso
               </p>
             </div>
 
             <div className="hidden lg:block mt-auto pt-6">
-              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.6rem', padding: '0.6rem 1rem', borderRadius: '0.75rem', background: 'rgba(200,255,0,0.1)', border: '1px solid rgba(200,255,0,0.35)' }}>
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.6rem', padding: '0.6rem 1rem', borderRadius: '0.75rem', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(200,255,0,0.30)' }}>
                 <span style={{ fontSize: '1.1rem', lineHeight: 1 }}>⚡</span>
                 <div>
-                  <p className="font-monument font-black uppercase" style={{ fontSize: '0.68rem', color: '#111111', letterSpacing: '0.14em' }}>Respuesta Rápida</p>
-                  <p className="font-iceland" style={{ fontSize: '0.78rem', color: '#555555', marginTop: '0.08rem' }}>Análisis en menos de <span style={{ color: '#C8FF00', fontWeight: 700, WebkitTextStroke: '0.3px rgba(0,0,0,0.35)' }}>24h</span></p>
+                  <p className="font-monument font-black uppercase" style={{ fontSize: '0.68rem', color: '#ffffff', letterSpacing: '0.14em' }}>Respuesta Rápida</p>
+                  <p className="font-iceland" style={{ fontSize: '0.78rem', color: '#a1a1aa', marginTop: '0.08rem' }}>Análisis en menos de <span style={{ color: '#C8FF00', fontWeight: 700 }}>24h</span></p>
                 </div>
               </div>
             </div>
@@ -226,7 +226,7 @@ export default function EvaluationForm() {
 
           {/* Right Column — Form Card (Integrado al Master Card) */}
           <div
-            className="relative flex flex-col w-full h-full border-t lg:border-t-0 lg:border-l border-[#C8FF00]/30 overflow-hidden"
+            className="relative flex flex-col w-full h-full border-t lg:border-t-0 lg:border-l border-white/10 overflow-hidden bg-black/40 backdrop-blur-2xl"
             style={{ minHeight: '400px' }}
           >
             {/* Animated orbs */}
@@ -238,12 +238,12 @@ export default function EvaluationForm() {
 
             <div className="relative z-10 flex flex-col h-full w-full">
               {/* Progress header */}
-              <div className="border-b border-[#C8FF00]/20 px-6 py-4 flex-shrink-0" style={{ background: 'rgba(200,255,0,0.08)' }}>
+              <div className="border-b border-white/10 px-6 py-4 flex-shrink-0" style={{ background: 'rgba(255,255,255,0.03)' }}>
                 <div className="flex justify-between items-center mb-2.5">
-                  <span className="font-funnel font-bold text-xs text-[#111111] tracking-widest uppercase">
+                  <span className="font-funnel font-bold text-xs text-white tracking-widest uppercase">
                     Paso {step + 1}/{TOTAL_STEPS}
                   </span>
-                  <span className="font-iceland text-[#555555] text-xs uppercase tracking-widest truncate max-w-[55%] text-right">
+                  <span className="font-iceland text-zinc-400 text-xs uppercase tracking-widest truncate max-w-[55%] text-right">
                     {getLabel(step, data.tipo_visa)}
                   </span>
                 </div>
@@ -268,15 +268,15 @@ export default function EvaluationForm() {
                   {status === 'loading' && (
                     <motion.div key="loading" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} className="flex flex-col items-center justify-center gap-5 absolute inset-0">
                       <div className="w-12 h-12 border-4 border-[#C8FF00] border-t-transparent rounded-full animate-spin" />
-                      <p className="font-iceland text-[#555555] font-bold text-sm tracking-widest uppercase">Analizando perfil...</p>
+                      <p className="font-iceland text-zinc-400 font-bold text-sm tracking-widest uppercase">Analizando perfil...</p>
                     </motion.div>
                   )}
 
                   {status === 'success' && (
                     <motion.div key="success" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="flex flex-col items-center justify-center gap-5 text-center absolute inset-0 px-6">
-                      <div className="w-20 h-20 bg-white/80 backdrop-blur-md rounded-full flex items-center justify-center text-4xl shadow-[0_20px_40px_rgba(0,0,0,0.1)] border border-white">📩</div>
-                      <h3 className="font-monument font-black text-2xl md:text-3xl text-[#111111]">¡Todo listo{greeting}!</h3>
-                      <p className="font-iceland text-[#333333] font-bold text-sm leading-relaxed max-w-[280px]">
+                      <div className="w-20 h-20 bg-white/10 backdrop-blur-md rounded-full flex items-center justify-center text-4xl shadow-[0_20px_40px_rgba(0,0,0,0.3)] border border-white/20">📩</div>
+                      <h3 className="font-monument font-black text-2xl md:text-3xl text-white">¡Todo listo{greeting}!</h3>
+                      <p className="font-iceland text-zinc-300 font-bold text-sm leading-relaxed max-w-[280px]">
                         Revisa tu correo en los próximos minutos. Te enviamos un análisis preliminar de tu ruta óptima.
                       </p>
                     </motion.div>
@@ -293,7 +293,7 @@ export default function EvaluationForm() {
                       transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
                       className="w-full flex flex-col justify-center"
                     >
-                      <h3 className="font-monument font-black text-lg sm:text-xl text-[#111111] mb-5 text-center drop-shadow-sm">
+                      <h3 className="font-monument font-black text-lg sm:text-xl text-white mb-5 text-center drop-shadow-sm">
                         {getLabel(step, data.tipo_visa)}
                       </h3>
 
@@ -305,8 +305,8 @@ export default function EvaluationForm() {
                           value={data.nombre}
                           onChange={e => setData({ ...data, nombre: e.target.value })}
                           onKeyDown={e => { if (e.key === 'Enter' && canNext()) navigate(1) }}
-                          className="w-full backdrop-blur-md border text-[#111111] px-4 py-3 font-monument font-medium text-[13px] focus:outline-none transition-all text-center rounded-lg placeholder-[#AAAAAA]"
-                          style={{ background: 'rgba(255,255,255,0.35)', borderColor: 'rgba(200,255,0,0.35)' }}
+                          className="w-full backdrop-blur-md border text-white px-4 py-3 font-monument font-medium text-[13px] focus:outline-none transition-all text-center rounded-lg placeholder-zinc-600"
+                          style={{ background: 'rgba(255,255,255,0.07)', borderColor: 'rgba(200,255,0,0.35)' }}
                           autoFocus
                         />
                       )}
@@ -336,8 +336,8 @@ export default function EvaluationForm() {
                         <select
                           value={data.pais_origen}
                           onChange={e => setData({ ...data, pais_origen: e.target.value })}
-                          className="w-full backdrop-blur-md text-[#111111] px-5 py-4 font-monument font-medium text-sm focus:outline-none transition-all rounded-lg appearance-none cursor-pointer border"
-                          style={{ background: 'rgba(255,255,255,0.35)', borderColor: 'rgba(200,255,0,0.35)' }}
+                          className="w-full backdrop-blur-md text-white px-5 py-4 font-monument font-medium text-sm focus:outline-none transition-all rounded-lg appearance-none cursor-pointer border"
+                          style={{ background: 'rgba(255,255,255,0.07)', borderColor: 'rgba(200,255,0,0.35)', colorScheme: 'dark' }}
                         >
                           <option value="" disabled>Selecciona tu país</option>
                           {LATAM_COUNTRY_NAMES.map(c => <option key={c} value={c}>{c}</option>)}
@@ -353,8 +353,8 @@ export default function EvaluationForm() {
                           value={data.edad}
                           onChange={e => setData({ ...data, edad: e.target.value })}
                           onKeyDown={e => { if (e.key === 'Enter' && canNext()) navigate(1) }}
-                          className="w-full backdrop-blur-md border text-[#111111] px-4 py-3 font-monument font-medium text-[13px] focus:outline-none transition-all text-center rounded-lg placeholder-[#AAAAAA]"
-                          style={{ background: 'rgba(255,255,255,0.35)', borderColor: 'rgba(200,255,0,0.35)' }}
+                          className="w-full backdrop-blur-md border text-white px-4 py-3 font-monument font-medium text-[13px] focus:outline-none transition-all text-center rounded-lg placeholder-zinc-600"
+                          style={{ background: 'rgba(255,255,255,0.07)', borderColor: 'rgba(200,255,0,0.35)' }}
                         />
                       )}
 
@@ -456,19 +456,19 @@ export default function EvaluationForm() {
                             placeholder="tu@correo.com"
                             value={data.email}
                             onChange={e => setData({ ...data, email: e.target.value })}
-                            className="w-full backdrop-blur-md border text-[#111111] px-4 py-3 font-monument font-medium text-[13px] focus:outline-none transition-all rounded-lg placeholder-[#AAAAAA]"
-                          style={{ background: 'rgba(255,255,255,0.35)', borderColor: 'rgba(200,255,0,0.35)' }}
+                            className="w-full backdrop-blur-md border text-white px-4 py-3 font-monument font-medium text-[13px] focus:outline-none transition-all rounded-lg placeholder-zinc-600"
+                          style={{ background: 'rgba(255,255,255,0.07)', borderColor: 'rgba(200,255,0,0.35)' }}
                           />
-                          <label className="flex items-start gap-4 cursor-pointer p-3.5 border rounded-lg transition-colors" style={{ borderColor: 'rgba(200,255,0,0.3)', background: 'rgba(200,255,0,0.05)' }}>
+                          <label className="flex items-start gap-4 cursor-pointer p-3.5 border rounded-lg transition-colors" style={{ borderColor: 'rgba(200,255,0,0.3)', background: 'rgba(255,255,255,0.05)' }}>
                             <input
                               type="checkbox"
                               checked={data.acepta}
                               onChange={e => setData({ ...data, acepta: e.target.checked })}
                               className="mt-0.5 accent-[#C8FF00] w-4 h-4 flex-shrink-0"
                             />
-                            <span className="font-iceland text-xs text-[#333333] leading-relaxed font-bold">
+                            <span className="font-iceland text-xs text-zinc-300 leading-relaxed font-bold">
                               Acepto recibir información de LATAM VISA®.{' '}
-                              <span className="text-[#888888] font-normal">No garantizamos la aprobación de visas.</span>
+                              <span className="text-zinc-500 font-normal">No garantizamos la aprobación de visas.</span>
                             </span>
                           </label>
                         </div>
@@ -481,12 +481,12 @@ export default function EvaluationForm() {
 
               {/* Navigation */}
               {status === 'idle' && (
-                <div className="border-t border-[#C8FF00]/20 p-3.5 flex flex-shrink-0 gap-2.5" style={{ background: 'rgba(200,255,0,0.06)' }}>
+                <div className="border-t border-white/10 p-3.5 flex flex-shrink-0 gap-2.5" style={{ background: 'rgba(255,255,255,0.03)' }}>
                   {step > 0 && (
                     <button
                       onClick={() => navigate(-1)}
                       className="px-4 py-2.5 font-monument font-bold text-[10px] uppercase tracking-widest transition-all rounded-lg hover:-translate-y-0.5 border"
-                      style={{ borderColor: 'rgba(200,255,0,0.35)', color: '#444444', background: 'rgba(200,255,0,0.07)' }}
+                      style={{ borderColor: 'rgba(200,255,0,0.30)', color: '#ffffff', background: 'rgba(255,255,255,0.05)' }}
                     >
                       Volver
                     </button>
