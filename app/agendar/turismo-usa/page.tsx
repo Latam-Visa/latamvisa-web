@@ -200,9 +200,19 @@ export default function TurismoUsaPage() {
               </div>
             </FadeUp>
 
-            <FadeUp delay={0.3} className="w-full flex justify-center px-4 md:px-8 pb-10">
-              <div className="relative z-10 w-full max-w-[900px] rounded-[32px] p-4 sm:p-6 md:p-8 shadow-[0_24px_80px_rgba(0,0,0,0.08)] bg-white border-2 border-[#111111] border-b-[12px] transform origin-top md:scale-[0.95] mx-auto">
-                <div className="w-full min-h-[600px] md:min-h-[700px] relative rounded-xl bg-white border border-[#111111]/20 p-4 md:p-8 overflow-auto">
+            <FadeUp delay={0.3} className="w-full flex justify-center px-2 sm:px-4 md:px-8 pb-10">
+              <div className="relative z-10 w-[95%] md:w-full md:max-w-[500px] mx-auto bg-white rounded-3xl shadow-2xl overflow-hidden border border-gray-100 p-2 md:p-4">
+                
+                {/* Fallback Loading Spinner (visible mientras Stripe carga y cubre encima) */}
+                <div className="absolute inset-0 flex flex-col items-center justify-center bg-white z-0 gap-4 pointer-events-none">
+                  <div className="w-10 h-10 border-4 border-[#C8FF00]/30 border-t-[#C8FF00] rounded-full animate-spin"></div>
+                  <span className="font-iceland text-sm text-[#777777] uppercase tracking-widest animate-pulse">
+                    Conectando pasarela...
+                  </span>
+                </div>
+
+                {/* Contenedor del Iframe de Stripe */}
+                <div className="w-full relative z-10 bg-white min-h-[500px] rounded-2xl overflow-hidden">
                   <StripeEmbeddedCheckout />
                 </div>
               </div>
