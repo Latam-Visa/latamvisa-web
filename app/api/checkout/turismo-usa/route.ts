@@ -37,9 +37,7 @@ export async function POST() {
     }
 
     // Inicializar Stripe DENTRO de la función (runtime, no build time)
-    const stripe = new Stripe(secretKey, {
-      apiVersion: '2024-11-20.acacia',
-    });
+    const stripe = new Stripe(secretKey);
 
     const session = await stripe.checkout.sessions.create({
       ui_mode: 'embedded',
@@ -51,7 +49,7 @@ export async function POST() {
       ],
       mode: 'payment',
       return_url: `${siteUrl}/gracias-usa?session_id={CHECKOUT_SESSION_ID}`,
-    });
+    } as unknown as Stripe.Checkout.SessionCreateParams);
 
     return NextResponse.json({ clientSecret: session.client_secret });
   } catch (err) {

@@ -1,0 +1,230 @@
+// app/au/agendar/[destino]/page.tsx
+
+'use client'
+
+import { useCallback, useState } from 'react'
+import { notFound, useParams } from 'next/navigation'
+import Link from 'next/link'
+import { loadStripe } from '@stripe/stripe-js'
+import { EmbeddedCheckoutProvider, EmbeddedCheckout } from '@stripe/react-stripe-js'
+import { getDestino, formatPrecio } from '@/lib/destinos'
+import TraduccionToggle from '@/components/TraduccionToggle'
+
+const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!)
+
+function StripeEmbeddedCheckout({
+  destinoSlug,
+  conTraduccion,
+}: {
+  destinoSlug: string
+  conTraduccion: boolean
+}) {
+  const fetchClientSecret = useCallback(() => {
+    return fetch(`/api/checkout/${destinoSlug}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ conTraduccion }),
+    })
+      .then(res => res.json())
+      .then(data => data.clientSecret)
+  }, [destinoSlug, conTraduccion])
+
+  return (
+    <div id="checkout" className="w-full">
+      <EmbeddedCheckoutProvider
+        key={`${destinoSlug}-${conTraduccion}`}
+        stripe={stripePromise}
+        options={{ fetchClientSecret }}
+      >
+        <EmbeddedCheckout />
+      </EmbeddedCheckoutProvider>
+    </div>
+  )
+}
+
+export default function AgendarDestinoPage() {
+  const params = useParams()
+  const destinoSlug = params.destino as string
+  const destino = getDestino(destinoSlug)
+
+  const [conTraduccion, setConTraduccion] = useState(false)
+
+  if (!destino) {
+    notFound()
+  }
+
+  const precioActual = conTraduccion && destino.precios.conTraduccion
+    ? destino.precios.conTraduccion.monto
+    : destino.precios.sinTraduccion.monto
+
+  return (
+    <>
+      <title>{`${destino.visaTypeFull} | Checkout Seguro - LATAM VISA`}</title>
+      <meta name="description" content={destino.descripcionCorta} />
+
+      {/* HEADER MOBILE LOGO */}
+      <header className="lg:hidden w-full bg-white pt-8 pb-6 px-6 flex justify-center sticky top-0 z-20 border-b border-gray-100 shadow-sm relative">
+        <Link href="/" className="inline-block hover:opacity-80 transition-opacity">
+          <img src='/logo.png' alt='LATAM VISA' className='h-[105px] w-auto object-contain' />
+        </Link>
+      </header>
+
+      {/* CONTENEDOR PRINCIPAL */}
+      <main className="min-h-screen lg:min-h-0 lg:h-screen lg:overflow-hidden bg-white text-[#111111] flex flex-col-reverse lg:flex-row w-full font-funnel selection:bg-[#111111] selection:text-[#C8FF00]">
+
+        {/* ═══ COLUMNA IZQUIERDA: PAGO (55%) ═══ */}
+        <section className="w-full lg:w-[55%] lg:h-screen lg:overflow-y-auto flex flex-col relative px-4 sm:px-8 lg:px-12 xl:px-[10%]">
+
+          <div className="flex-1 flex flex-col w-full max-w-[550px] mx-auto pt-10 lg:pt-16 pb-20">
+
+            {/* HEADER DESKTOP LOGO */}
+            <header className="hidden lg:flex w-full mb-10 items-center justify-center">
+              <Link href="/" className="inline-block hover:opacity-80 transition-opacity">
+                <img src='/logo.png' alt='LATAM VISA' className='h-[105px] md:h-[110px] w-auto object-contain' />
+              </Link>
+            </header>
+
+            {/* Toggle de Traducción - SOLO si destino tiene traducción */}
+            {destino.tieneTraduccion && destino.precios.conTraduccion && (
+              <div className="mb-8 p-5 rounded-xl bg-white/60 backdrop-blur-sm border border-gray-100 shadow-sm">
+                <TraduccionToggle
+                  conTraduccion={conTraduccion}
+                  onChange={setConTraduccion}
+                  precioSin={destino.precios.sinTraduccion.monto}
+                  precioCon={destino.precios.conTraduccion.monto}
+                  currencySymbol={destino.currencySymbol}
+                />
+              </div>
+            )}
+
+            {/* Loader y Stripe Checkout */}
+            <div className="relative w-full min-h-[500px]">
+              <div className="absolute inset-0 flex flex-col items-center pt-24 z-0 pointer-events-none gap-4">
+                <div className="w-8 h-8 md:w-10 md:h-10 border-[3px] border-[#C8FF00]/30 border-t-[#C8FF00] rounded-full animate-spin"></div>
+                <span className="font-iceland text-xs md:text-sm text-[#777777] uppercase tracking-widest animate-pulse">
+                  Conectando checkout seguro...
+                </span>
+              </div>
+
+              <div className="relative z-10 w-full min-h-[500px]">
+                <StripeEmbeddedCheckout
+                  destinoSlug={destinoSlug}
+                  conTraduccion={conTraduccion}
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Footer Simple */}
+          <footer className="py-6 border-t border-gray-50 flex flex-wrap gap-4 text-[11px] uppercase font-iceland tracking-widest text-[#999999] mt-auto">
+            <span>© {new Date().getFullYear()} LATAM VISA</span>
+            <span className="hidden sm:inline">·</span>
+            <span>PROCESADO SEGURO POR STRIPE</span>
+          </footer>
+
+        </section>
+
+        {/* ═══ COLUMNA DERECHA: INFORMACIÓN (45% - STICKY) ═══ */}
+        <section
+          className={`w-full lg:w-[45%] lg:h-screen lg:overflow-y-auto text-[#111111] border-b lg:border-b-0 lg:border-l border-[#C8FF00]/40 px-6 py-12 sm:px-10 lg:px-16 lg:py-16 relative bg-white/40 bg-gradient-to-br ${destino.colores.gradientFrom} ${destino.colores.gradientTo} backdrop-blur-2xl`}
+        >
+
+          <div className="lg:sticky lg:top-16 max-w-lg mx-auto lg:ml-0 lg:mr-auto">
+
+            {/* Bandera */}
+            <div className="text-7xl mb-4 leading-none">{destino.bandera}</div>
+
+            <div className="mb-6">
+              <span className={`inline-block font-iceland text-[#5B6A00] font-bold text-xs sm:text-sm tracking-[0.2em] uppercase mb-4 border ${destino.colores.badgeBorder} ${destino.colores.badgeBg} px-4 py-1.5 rounded-sm shadow-sm`}>
+                HONORARIOS DE AGENCIA
+              </span>
+
+              <h1 className="font-monument font-black text-2xl sm:text-3xl lg:text-[32px] uppercase tracking-tight text-[#111111] mb-2 leading-none">
+                {destino.visaTypeFull}
+              </h1>
+
+              <p className="font-funnel text-sm text-[#666666] mt-3 leading-relaxed">
+                {destino.descripcionCorta}
+              </p>
+            </div>
+
+            {/* Precio dinámico */}
+            <p className="font-funnel font-bold text-2xl sm:text-3xl text-[#111111] mb-8 flex items-center justify-start gap-4">
+              {destino.currency} {formatPrecio(precioActual, '$')}
+              <span className="font-iceland text-[10px] sm:text-xs text-[#5B6A00] tracking-widest uppercase border border-[#5B6A00]/40 bg-white/40 rounded px-2 py-0.5 leading-[1.2] flex items-center h-fit">
+                PAGO ÚNICO
+              </span>
+            </p>
+
+            {/* Indicador "Con Traducción" si está activo */}
+            {conTraduccion && (
+              <div className="mb-6 inline-flex items-center gap-2 px-3 py-1.5 bg-[#C8FF00]/30 border border-[#5B6A00]/30 rounded-md">
+                <span className="text-sm">✓</span>
+                <span className="font-iceland text-xs uppercase tracking-widest text-[#5B6A00] font-bold">
+                  Incluye traducción certificada
+                </span>
+              </div>
+            )}
+
+            <div className="space-y-6 border-t border-[#111111]/10 pt-8">
+              <h2 className="font-iceland text-xs text-[#5B6A00] tracking-[0.2em] uppercase font-bold">
+                RESUMEN DE INCLUSIÓN
+              </h2>
+
+              <ul className="space-y-3">
+                {destino.incluye.map((item, idx) => (
+                  <li key={idx} className="flex items-center gap-4 group">
+                    <span
+                      className="shrink-0 w-1.5 h-1.5 rounded-full"
+                      style={{
+                        backgroundColor: destino.colores.bulletColor,
+                        boxShadow: `0 0 4px rgba(${destino.colores.primarySecondaryRgb}, 0.3)`,
+                      }}
+                    ></span>
+                    <span className="font-funnel font-medium text-[#111111] text-sm md:text-sm leading-relaxed tracking-wide">
+                      {item}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* Tiempo estimado */}
+            <div className="mt-8 pt-6 border-t border-[#111111]/10 flex items-center justify-between">
+              <span className="font-iceland text-xs text-[#5B6A00] tracking-[0.2em] uppercase font-bold">
+                TIEMPO ESTIMADO
+              </span>
+              <span className="font-funnel text-sm font-bold text-[#111111]">
+                {destino.duracionEstimada}
+              </span>
+            </div>
+
+            {/* Nota importante */}
+            {destino.notaImportante && (
+              <div className="mt-6 p-4 rounded-xl bg-[#C8FF00]/20 border border-[#5B6A00]/30">
+                <p className="font-funnel text-xs text-[#111111] leading-relaxed">
+                  💡 {destino.notaImportante}
+                </p>
+              </div>
+            )}
+
+            {/* Aviso de Confianza */}
+            <div className="mt-12 p-5 rounded-xl bg-white/50 backdrop-blur-md border border-white/60 shadow-sm flex items-center gap-4">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#5B6A00" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+              </svg>
+              <p className="font-iceland text-[10px] sm:text-[11px] text-[#111111] font-bold uppercase tracking-widest leading-relaxed">
+                Encriptación de grado militar SSL <br/>
+                No procesamos números de tarjetas
+              </p>
+            </div>
+
+          </div>
+
+        </section>
+
+      </main>
+    </>
+  )
+}
