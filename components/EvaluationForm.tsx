@@ -144,8 +144,20 @@ export default function EvaluationForm() {
     const payload = { ...data, edad: Number(data.edad), fecha: new Date().toISOString(), fuente: 'latamvisa.com' }
     try {
       await fetch(N8N_WEBHOOK_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) })
+      if (typeof window !== 'undefined' && (window as any).fbq) {
+        (window as any).fbq('track', 'Lead', {
+          content_name: 'Evaluación de Perfil',
+          content_category: 'visa_consultation',
+        });
+      }
       setStatus('success')
     } catch {
+      if (typeof window !== 'undefined' && (window as any).fbq) {
+        (window as any).fbq('track', 'Lead', {
+          content_name: 'Evaluación de Perfil',
+          content_category: 'visa_consultation',
+        });
+      }
       setStatus('success')
     }
   }

@@ -69,6 +69,15 @@ function GraciasUsaContent() {
 
   useEffect(() => {
     document.title = "¡Pago confirmado! | LATAM VISA"
+
+    if (typeof window !== 'undefined' && (window as any).fbq) {
+      (window as any).fbq('track', 'Purchase', {
+        value: 190.00,
+        currency: 'AUD',
+        content_name: 'Visa Turismo USA',
+        content_category: 'visa_turismo',
+      });
+    }
   }, [])
 
   return (
