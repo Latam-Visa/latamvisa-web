@@ -26,11 +26,11 @@ export async function POST(request: NextRequest) {
     const stripe = new Stripe(secretKey);
 
     const session = await stripe.checkout.sessions.create({
-      ui_mode: 'embedded',
+      ui_mode: 'embedded_page',
       line_items: [{ price: priceId, quantity: 1 }],
       mode: 'payment',
       return_url: `${siteUrl}/gracias-pago?session_id={CHECKOUT_SESSION_ID}&destino=turismo-nz`,
-    } as unknown as Stripe.Checkout.SessionCreateParams);
+    });
 
     return NextResponse.json({ clientSecret: session.client_secret });
   } catch (err) {

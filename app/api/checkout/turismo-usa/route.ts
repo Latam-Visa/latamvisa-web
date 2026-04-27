@@ -40,7 +40,7 @@ export async function POST() {
     const stripe = new Stripe(secretKey);
 
     const session = await stripe.checkout.sessions.create({
-      ui_mode: 'embedded',
+      ui_mode: 'embedded_page',
       line_items: [
         {
           price: priceId,
@@ -49,7 +49,7 @@ export async function POST() {
       ],
       mode: 'payment',
       return_url: `${siteUrl}/gracias-usa?session_id={CHECKOUT_SESSION_ID}`,
-    } as unknown as Stripe.Checkout.SessionCreateParams);
+    });
 
     return NextResponse.json({ clientSecret: session.client_secret });
   } catch (err) {
