@@ -77,7 +77,7 @@ export default function TraduccionToggle({
 
       <p className="font-funnel text-xs text-[#666666] mt-3 leading-relaxed">
         💡 Si tus documentos ya están en inglés, no necesitas traducción.
-        Si están en español u otro idioma, te recomendamos incluir el servicio de traducción certificada.
+        Si están en español u otro idioma, te recomendamos incluir el servicio de traducción.
       </p>
     </div>
   )

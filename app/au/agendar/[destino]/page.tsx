@@ -131,9 +131,6 @@ export default function AgendarDestinoPage() {
 
           <div className="lg:sticky lg:top-16 max-w-lg mx-auto lg:ml-0 lg:mr-auto">
 
-            {/* Bandera */}
-            <div className="text-7xl mb-4 leading-none">{destino.bandera}</div>
-
             <div className="mb-6">
               <span className={`inline-block font-iceland text-[#5B6A00] font-bold text-xs sm:text-sm tracking-[0.2em] uppercase mb-4 border ${destino.colores.badgeBorder} ${destino.colores.badgeBg} px-4 py-1.5 rounded-sm shadow-sm`}>
                 HONORARIOS DE AGENCIA
@@ -143,9 +140,6 @@ export default function AgendarDestinoPage() {
                 {destino.visaTypeFull}
               </h1>
 
-              <p className="font-funnel text-sm text-[#666666] mt-3 leading-relaxed">
-                {destino.descripcionCorta}
-              </p>
             </div>
 
             {/* Precio dinámico */}
@@ -155,16 +149,6 @@ export default function AgendarDestinoPage() {
                 PAGO ÚNICO
               </span>
             </p>
-
-            {/* Indicador "Con Traducción" si está activo */}
-            {conTraduccion && (
-              <div className="mb-6 inline-flex items-center gap-2 px-3 py-1.5 bg-[#C8FF00]/30 border border-[#5B6A00]/30 rounded-md">
-                <span className="text-sm">✓</span>
-                <span className="font-iceland text-xs uppercase tracking-widest text-[#5B6A00] font-bold">
-                  Incluye traducción certificada
-                </span>
-              </div>
-            )}
 
             <div className="space-y-6 border-t border-[#111111]/10 pt-8">
               <h2 className="font-iceland text-xs text-[#5B6A00] tracking-[0.2em] uppercase font-bold">
@@ -188,25 +172,6 @@ export default function AgendarDestinoPage() {
                 ))}
               </ul>
             </div>
-
-            {/* Tiempo estimado */}
-            <div className="mt-8 pt-6 border-t border-[#111111]/10 flex items-center justify-between">
-              <span className="font-iceland text-xs text-[#5B6A00] tracking-[0.2em] uppercase font-bold">
-                TIEMPO ESTIMADO
-              </span>
-              <span className="font-funnel text-sm font-bold text-[#111111]">
-                {destino.duracionEstimada}
-              </span>
-            </div>
-
-            {/* Nota importante */}
-            {destino.notaImportante && (
-              <div className="mt-6 p-4 rounded-xl bg-[#C8FF00]/20 border border-[#5B6A00]/30">
-                <p className="font-funnel text-xs text-[#111111] leading-relaxed">
-                  💡 {destino.notaImportante}
-                </p>
-              </div>
-            )}
 
             {/* Aviso de Confianza */}
             <div className="mt-12 p-5 rounded-xl bg-white/50 backdrop-blur-md border border-white/60 shadow-sm flex items-center gap-4">
