@@ -120,6 +120,14 @@ const CityCardInner = ({ city, i }: { city: typeof studentCities[0]; i: number }
 // ─── StudentCardGallery ───────────────────────────────────────────────────
 export function StudentCardGallery() {
   const [activeIdx, setActiveIdx] = useState(0)
+  const [isMobile, setIsMobile] = useState(false)
+
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 768)
+    check()
+    window.addEventListener('resize', check)
+    return () => window.removeEventListener('resize', check)
+  }, [])
 
   const handleNext = () => setActiveIdx((prev) => (prev + 1) % studentCities.length)
   const handlePrev = () => setActiveIdx((prev) => (prev - 1 + studentCities.length) % studentCities.length)
@@ -145,16 +153,18 @@ export function StudentCardGallery() {
         width: '460px', height: '230px',
         top: '48%', left: '50%',
         transform: 'translate(-50%, -50%)',
-        maxWidth: '90vw'
+        maxWidth: isMobile ? '86vw' : '90vw'
       }}>
         <AnimatePresence initial={false}>
           {studentCities.map((city, i) => {
             const pos = getPos(i)
-            
-            // Send pos > 2 (the 6th element) to x=0, scale=0 (center vanishing point) to avoid side sweeps
-            const xOffset = pos === 0 ? 0 : pos === 1 ? 250 : pos === -1 ? -250 : pos === 2 ? 450 : pos === -2 ? -450 : 0
-            const scaleAmt = pos === 0 ? 1 : Math.abs(pos) === 1 ? 0.8 : Math.abs(pos) === 2 ? 0.6 : 0
-            const opacityAmt = pos === 0 ? 1 : Math.abs(pos) === 1 ? 0.6 : Math.abs(pos) === 2 ? 0.25 : 0
+
+            // On mobile: only show active card, hide everything else
+            const xOffset = isMobile
+              ? 0
+              : pos === 0 ? 0 : pos === 1 ? 250 : pos === -1 ? -250 : pos === 2 ? 450 : pos === -2 ? -450 : 0
+            const scaleAmt = pos === 0 ? 1 : isMobile ? 0 : Math.abs(pos) === 1 ? 0.8 : Math.abs(pos) === 2 ? 0.6 : 0
+            const opacityAmt = pos === 0 ? 1 : isMobile ? 0 : Math.abs(pos) === 1 ? 0.6 : Math.abs(pos) === 2 ? 0.25 : 0
             const zAmt = 10 - Math.abs(pos)
 
             return (
