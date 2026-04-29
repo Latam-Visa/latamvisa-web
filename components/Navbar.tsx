@@ -29,7 +29,6 @@ export default function Navbar() {
       const overHero = scrollY < vh * 0.5
 
       const serviciosEl = document.getElementById('servicios')
-      const contactoEl  = document.getElementById('contacto')
 
       // Servicios is above the viewport (we've scrolled past it)
       if (serviciosEl) {
@@ -37,10 +36,6 @@ export default function Navbar() {
       }
 
       // Are we in the footer (clouds) zone?
-      const overFooter = contactoEl
-        ? contactoEl.getBoundingClientRect().top < vh
-        : false
-
       // Sky/clouds visible: over hero, or between hero and servicios
       const inSkyZone = overHero ||
         (!serviciosAbove && !overHero && (!serviciosEl || serviciosEl.getBoundingClientRect().top > vh))
@@ -126,33 +121,7 @@ export default function Navbar() {
         </button>
       </div>
 
-      {/* Docs pill — centered below the logo row */}
-      {!menuOpen && (
-        <div className="flex justify-center pb-3 -mt-1">
-          <motion.div
-            animate={{
-              boxShadow: [
-                '0 0 0px rgba(200,255,0,0)',
-                '0 0 14px rgba(200,255,0,0.75)',
-                '0 0 0px rgba(200,255,0,0)',
-              ],
-              scale: [1, 1.05, 1],
-            }}
-            transition={{ duration: 2.2, repeat: Infinity, ease: 'easeInOut', repeatDelay: 0.4 }}
-            className="rounded-full"
-          >
-            <Link
-              href="/subir-documentos"
-              className="text-[#C8FF00] border border-[#C8FF00]/60 rounded-full px-4 py-1 hover:bg-[#C8FF00]/15 transition-colors block"
-              style={{ fontFamily:"'PPMonumentExtended', sans-serif", fontSize:'10px', fontWeight:700, letterSpacing:'0.1em' }}
-            >
-              Docs
-            </Link>
-          </motion.div>
-        </div>
-      )}
-
-      {/* Mobile Menu — always dark since it's an overlay on light bg */}
+{/* Mobile Menu — always dark since it's an overlay on light bg */}
       {menuOpen && (
         <motion.div
           initial={{ opacity: 0, y: -10 }}
