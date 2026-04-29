@@ -326,7 +326,7 @@ export default function HeroScroll() {
           </div>
 
           {/* BOTTOM-LEFT: Tagline block */}
-          <div style={{ position: 'absolute', bottom: isMobile ? '22vh' : '14vh', left: hPad, maxWidth: isMobile ? `calc(100vw - 48px)` : '380px' }}>
+          <div style={{ position: 'absolute', bottom: isMobile ? '30vh' : '14vh', left: hPad, maxWidth: isMobile ? `calc(100vw - 48px)` : '380px' }}>
             <div style={{ width: '32px', height: '1px', backgroundColor: 'rgba(255,255,255,0.3)', marginBottom: isMobile ? '10px' : '16px' }} />
             <div style={{
               fontFamily: "'PPMonumentExtended', sans-serif",

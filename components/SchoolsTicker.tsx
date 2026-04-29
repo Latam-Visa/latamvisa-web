@@ -28,7 +28,7 @@ export default function SchoolsTicker() {
           transition={{ duration: 0.7 }}
           className="font-monument font-black text-xs text-[#111111] tracking-[0.3em] uppercase text-center"
         >
-          Escuelas e instituciones partner en Australia
+          Escuelas e instituciones en proceso de partnership · Australia
         </motion.p>
       </div>
 

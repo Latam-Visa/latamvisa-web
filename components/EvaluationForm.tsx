@@ -222,15 +222,11 @@ export default function EvaluationForm() {
 
             <div className="mb-8 border-l-2 border-[#C8FF00] pl-4">
               <p className="font-monument font-bold max-w-sm" style={{ color: '#1a3a1a', fontSize: '0.82rem', lineHeight: '1.7' }}>
-                En <span style={{ color: '#2d6a00', fontWeight: 900 }}>2 minutos</span> descubres si tienes perfil — y recibes tu hoja de ruta exacta para conseguir tu visa.
+                En <span style={{ color: '#2d6a00', fontWeight: 900 }}>2 minutos</span> analizamos tu perfil, evaluamos tu viabilidad real y te mostramos cómo potenciarlo.
               </p>
-              <div className="flex items-center gap-3 mt-3">
-                <span className="font-iceland font-bold text-[0.72rem]" style={{ color: '#2d6a00', letterSpacing: '0.05em' }}>🔒 100% privado</span>
-                <span style={{ color: 'rgba(45,106,0,0.4)', fontSize: '0.6rem' }}>●</span>
-                <span className="font-iceland font-bold text-[0.72rem]" style={{ color: '#2d6a00', letterSpacing: '0.05em' }}>✓ Gratis</span>
-                <span style={{ color: 'rgba(45,106,0,0.4)', fontSize: '0.6rem' }}>●</span>
-                <span className="font-iceland font-bold text-[0.72rem]" style={{ color: '#2d6a00', letterSpacing: '0.05em' }}>Sin compromiso</span>
-              </div>
+              <p className="font-iceland font-bold text-[0.72rem] mt-3" style={{ color: '#2d6a00', letterSpacing: '0.05em' }}>
+                🔒 100% privado · ✓ Gratis · Sin compromiso
+              </p>
             </div>
 
             <div className="hidden lg:block mt-auto pt-6">
