@@ -183,6 +183,13 @@ export default function Footer() {
           <span className="font-funnel text-xs md:text-right" style={{ color: '#2A3A00' }}>
             LATAM VISA es una consultoría educativa y de viajes. No prestamos representación legal ni servicios de índole migratoria oficial.
           </span>
+          <Link
+            href="/subir-documentos"
+            className="font-iceland text-[10px] uppercase tracking-widest opacity-30 hover:opacity-70 transition-opacity duration-300"
+            style={{ color: '#2A3A00', letterSpacing: '0.18em' }}
+          >
+            docs
+          </Link>
         </div>
       </div>
     </footer>
