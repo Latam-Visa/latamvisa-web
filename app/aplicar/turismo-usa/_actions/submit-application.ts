@@ -25,8 +25,32 @@ function decodeBase64Image(dataString: string) {
 export async function submitUsaApplication(
   formData: any,
   photos: { passport?: string; previousVisa?: string; visaPhoto: string }
-): Promise<{ success: boolean; applicationId?: string; error?: string }> {
+): Promise<{ success: boolean; applicationId?: string; error?: string; errorCode?: string; digest?: string }> {
   
+  try {
+    const timeoutPromise = new Promise((_, reject) => 
+      setTimeout(() => reject(new Error('Operation timed out')), 30000)
+    );
+    
+    return await Promise.race([
+      timeoutPromise,
+      executeSubmit(formData, photos)
+    ]) as any;
+  } catch (error: any) {
+    console.error('[GLOBAL_CATCH] Error:', error.message, error.stack, error.cause);
+    return {
+      success: false,
+      error: 'Hubo un error inesperado al procesar tu solicitud. Por favor intenta de nuevo o contáctanos.',
+      errorCode: 'UNEXPECTED_ERROR',
+      digest: process.env.NODE_ENV === 'development' ? error.message : undefined
+    }
+  }
+}
+
+async function executeSubmit(
+  formData: any,
+  photos: { passport?: string; previousVisa?: string; visaPhoto: string }
+) {
   if (
     !process.env.RESEND_API_KEY || 
     !process.env.SUPABASE_SERVICE_ROLE_KEY || 
@@ -35,8 +59,8 @@ export async function submitUsaApplication(
     !process.env.SUPABASE_STORAGE_BUCKET || 
     !process.env.NEXT_PUBLIC_SUPABASE_URL
   ) {
-    console.error('[VALIDATE] Faltan variables de entorno requeridas.')
-    return { success: false, error: 'Error de configuración del servidor. Contactanos por WhatsApp.' }
+    console.error('[ENV_CHECK] Faltan variables de entorno requeridas.')
+    return { success: false, error: 'Error de configuración del servidor. Contactanos por WhatsApp.', errorCode: 'ENV_CHECK' }
   }
 
   const ADMIN_EMAIL = process.env.RESEND_ADMIN_EMAIL
@@ -44,7 +68,38 @@ export async function submitUsaApplication(
 
   const applicationId = uuidv4()
   
-  // 1. Upload photos to Supabase Storage
+  // 1. Save to Database FIRST so data is not lost if upload fails
+  let pdfData = { path: '' }
+  try {
+    let ipAddress = 'unknown'
+    let userAgent = 'unknown'
+    
+    try {
+      const headersList = headers()
+      ipAddress = headersList.get('x-forwarded-for') || headersList.get('x-real-ip') || 'unknown'
+      userAgent = headersList.get('user-agent') || 'unknown'
+    } catch (e) {
+      // In tests, headers() throws. Ignore it.
+    }
+
+    const { error: dbError } = await supabaseAdmin
+      .from('visa_applications_usa')
+      .insert({
+        id: applicationId,
+        data: formData,
+        pdf_url: null,
+        ip_address: ipAddress,
+        user_agent: userAgent,
+        status: 'pending'
+      })
+
+    if (dbError) throw new Error(dbError.message)
+  } catch (error: any) {
+    console.error('[DB_INSERT] Error guardando en BD:', error)
+    return { success: false, error: 'No pudimos guardar tu aplicación. Intentá en unos minutos.', errorCode: 'DB_INSERT' }
+  }
+
+  // 2. Upload photos to Supabase Storage
   let passportUrl = ''
   let previousVisaUrl = ''
   let visaPhotoUrl = ''
@@ -70,62 +125,40 @@ export async function submitUsaApplication(
     }
   } catch (error: any) {
     console.error('[STORAGE_UPLOAD] Error subiendo fotos:', error)
-    return { success: false, error: 'No pudimos guardar tus fotos. Intentá de nuevo.' }
-  }
-
-  // 2. Save to Database (Moved before PDF so we at least save the data)
-  let pdfData = { path: '' }
-  try {
-    const headersList = headers()
-    const ipAddress = headersList.get('x-forwarded-for') || headersList.get('x-real-ip') || 'unknown'
-    const userAgent = headersList.get('user-agent') || 'unknown'
-
-    const { error: dbError } = await supabaseAdmin
-      .from('visa_applications_usa')
-      .insert({
-        id: applicationId,
-        data: formData,
-        pdf_url: null, // Will update later if PDF succeeds
-        ip_address: ipAddress,
-        user_agent: userAgent,
-        status: 'pending'
-      })
-
-    if (dbError) throw new Error(dbError.message)
-  } catch (error: any) {
-    console.error('[DB_INSERT] Error guardando en BD:', error)
-    return { success: false, error: 'No pudimos guardar tu aplicación. Intentá en unos minutos.' }
+    // Non-blocking: We continue even if photos fail, since DB row exists
   }
 
   // 3. Generate PDF
-  let pdfBuffer: Buffer
+  let pdfBuffer: Buffer | null = null;
   try {
     pdfBuffer = await generateApplicationPdf(formData, photoUrlsForPdf)
   } catch (error: any) {
     console.error('[PDF_GEN] Error generando PDF:', error)
-    return { success: false, error: 'Tu aplicación se guardó pero hubo un problema generando el PDF. Te contactaremos por WhatsApp.' }
+    // Non-blocking
   }
 
   // 4. Upload PDF to Storage & Update DB
-  try {
-    const pdfPath = `${applicationId}/application.pdf`
-    const { data: uploadData, error: pdfError } = await supabaseAdmin.storage
-      .from(process.env.SUPABASE_STORAGE_BUCKET)
-      .upload(pdfPath, pdfBuffer, {
-        contentType: 'application/pdf',
-        upsert: true
-      })
+  if (pdfBuffer) {
+    try {
+      const pdfPath = `${applicationId}/application.pdf`
+      const { data: uploadData, error: pdfError } = await supabaseAdmin.storage
+        .from(process.env.SUPABASE_STORAGE_BUCKET)
+        .upload(pdfPath, pdfBuffer, {
+          contentType: 'application/pdf',
+          upsert: true
+        })
+        
+      if (pdfError) throw new Error(pdfError.message)
+      pdfData = uploadData
       
-    if (pdfError) throw new Error(pdfError.message)
-    pdfData = uploadData
-    
-    await supabaseAdmin
-      .from('visa_applications_usa')
-      .update({ pdf_url: pdfData.path })
-      .eq('id', applicationId)
-  } catch (error: any) {
-    console.error('[STORAGE_PDF] Error subiendo PDF:', error)
-    return { success: false, error: 'Tu aplicación se guardó pero hubo un problema generando el PDF. Te contactaremos por WhatsApp.' }
+      await supabaseAdmin
+        .from('visa_applications_usa')
+        .update({ pdf_url: pdfData.path })
+        .eq('id', applicationId)
+    } catch (error: any) {
+      console.error('[STORAGE_PDF] Error subiendo PDF:', error)
+      // Non-blocking
+    }
   }
 
   // 5. Send Emails
@@ -137,10 +170,10 @@ export async function submitUsaApplication(
       formData.step4Travel.usaVisaType
     )
 
-    const attachments = [{
+    const attachments = pdfBuffer ? [{
       filename: `Aplicacion_Visa_USA_${formData.step1Contact.fullName.replace(/\s+/g, '_')}.pdf`,
       content: pdfBuffer
-    }]
+    }] : []
 
     // Client Email
     resend.emails.send({
@@ -162,7 +195,7 @@ export async function submitUsaApplication(
 
   } catch (error: any) {
     console.error('[EMAIL_GENERAL] Error orquestando emails:', error)
-    // Don't fail the whole request if emails fail
+    // Non-blocking
   }
 
   return { success: true, applicationId }

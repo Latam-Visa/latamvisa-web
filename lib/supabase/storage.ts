@@ -12,11 +12,13 @@ export async function uploadVisaPhoto(
   const timestamp = Date.now()
   const path = `${applicationId}/${photoType}_${timestamp}.${ext}`
 
+  const mimeType = ext === 'png' ? 'image/png' : ext === 'webp' ? 'image/webp' : 'image/jpeg'
+
   const { data, error } = await supabaseAdmin.storage
     .from(BUCKET_NAME)
     .upload(path, file, {
       upsert: true,
-      contentType: 'application/octet-stream',
+      contentType: mimeType,
     })
 
   if (error) {
