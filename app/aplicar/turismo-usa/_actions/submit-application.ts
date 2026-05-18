@@ -105,19 +105,19 @@ async function executeSubmit(
     if (photos.passport) {
       const { buffer, ext } = decodeBase64Image(photos.passport)
       passportUrl = await uploadVisaPhoto(buffer, `passport.${ext}`, applicationId, 'passport')
-      photoUrlsForPdf.passport = await getSignedUrl(passportUrl, 3600)
+      photoUrlsForPdf.passport = photos.passport // Use base64 directly to avoid PDF network hang
     }
 
     if (photos.previousVisa) {
       const { buffer, ext } = decodeBase64Image(photos.previousVisa)
       previousVisaUrl = await uploadVisaPhoto(buffer, `previous_visa.${ext}`, applicationId, 'previous_visa')
-      photoUrlsForPdf.previousVisa = await getSignedUrl(previousVisaUrl, 3600)
+      photoUrlsForPdf.previousVisa = photos.previousVisa
     }
 
     if (photos.visaPhoto) {
       const { buffer, ext } = decodeBase64Image(photos.visaPhoto)
       visaPhotoUrl = await uploadVisaPhoto(buffer, `visa_photo.${ext}`, applicationId, 'visa_photo')
-      photoUrlsForPdf.visaPhoto = await getSignedUrl(visaPhotoUrl, 3600)
+      photoUrlsForPdf.visaPhoto = photos.visaPhoto
     }
   } catch (error: any) {
     console.error('[STORAGE_UPLOAD] Error subiendo fotos:', error)
@@ -127,8 +127,7 @@ async function executeSubmit(
   // 3. Generate PDF
   let pdfBuffer: Buffer | null = null;
   try {
-    // pdfBuffer = await generateApplicationPdf(formData, photoUrlsForPdf)
-    console.log('[PDF_GEN] Skipping PDF generation for debugging')
+    pdfBuffer = await generateApplicationPdf(formData, photoUrlsForPdf)
   } catch (error: any) {
     console.error('[PDF_GEN] Error generando PDF:', error)
     // Non-blocking
