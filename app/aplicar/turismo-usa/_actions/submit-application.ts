@@ -131,7 +131,8 @@ async function executeSubmit(
   // 3. Generate PDF
   let pdfBuffer: Buffer | null = null;
   try {
-    pdfBuffer = await generateApplicationPdf(formData, photoUrlsForPdf)
+    // pdfBuffer = await generateApplicationPdf(formData, photoUrlsForPdf)
+    console.log('[PDF_GEN] Skipping PDF generation for debugging')
   } catch (error: any) {
     console.error('[PDF_GEN] Error generando PDF:', error)
     // Non-blocking
