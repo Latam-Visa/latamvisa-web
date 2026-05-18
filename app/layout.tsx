@@ -4,10 +4,26 @@ import './globals.css'
 import CustomCursor from '@/components/CustomCursor'
 
 export const metadata: Metadata = {
-  title: 'LATAM VISA® — Consultoría Premium de Viajes y Educación',
-  description:
-    'Ayudamos a latinoamericanos a cumplir el sueño de estudiar, trabajar y vivir en Australia. Consultoría experta en planeación de viaje, educación internacional y más.',
-  keywords: ['estudiar en australia', 'viajar a australia', 'educación internacional australia latinoamérica', 'consultoría de viajes'],
+  title: 'LATAM VISA — Asesoría Migratoria Premium para Latinoamericanos',
+  description: 'Agencia de asesoría migratoria premium en Brisbane, Australia. Visas de estudio y turismo para Australia, Japón, Inglaterra, Canadá y USA. Atendemos clientes en toda Latinoamérica.',
+  keywords: 'visa australia latinoamericanos, visa estudiante australia, visa turismo australia, agencia visas brisbane, latam visa, asesoría migratoria colombia perú méxico',
+  openGraph: {
+    title: 'LATAM VISA — Tu puerta de entrada a Australia',
+    description: 'Asesoría migratoria premium para latinoamericanos. Visas de estudio, turismo y más.',
+    url: 'https://www.latamvisatravel.com',
+    siteName: 'LATAM VISA',
+    images: [{ url: '/logo.png', width: 800, height: 400, alt: 'LATAM VISA Logo' }],
+    locale: 'es_LA',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'LATAM VISA — Asesoría Migratoria Premium',
+    description: 'Tu puerta de entrada a Australia.',
+    images: ['/logo.png'],
+  },
+  robots: { index: true, follow: true },
+  alternates: { canonical: 'https://www.latamvisatravel.com' },
   icons: {
     icon: '/FotoPerfil.png',
     apple: '/FotoPerfil.png',
@@ -17,6 +33,56 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
+      <head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "Organization",
+              "name": "LATAM VISA",
+              "alternateName": "Latam Visa Travel",
+              "url": "https://www.latamvisatravel.com",
+              "logo": "https://www.latamvisatravel.com/logo.png",
+              "image": "https://www.latamvisatravel.com/logo.png",
+              "description": "Agencia de asesoría migratoria premium para latinoamericanos. Especializada en visas de estudio y turismo para Australia, Japón, Inglaterra, Canadá y Estados Unidos.",
+              "address": {
+                "@type": "PostalAddress",
+                "addressLocality": "Brisbane",
+                "addressRegion": "Queensland",
+                "addressCountry": "AU"
+              },
+              "contactPoint": {
+                "@type": "ContactPoint",
+                "telephone": "+61-426-779-731",
+                "contactType": "customer service",
+                "email": "future@latamvisas.com.au",
+                "availableLanguage": ["Spanish", "English"]
+              },
+              "areaServed": [
+                "Colombia", "México", "Perú", "Bolivia", 
+                "Argentina", "Ecuador", "Venezuela", "Chile",
+                "Paraguay", "Uruguay", "Brasil"
+              ],
+              "serviceType": [
+                "Visa de Estudiante Australia",
+                "Visa de Turismo Australia", 
+                "Visa USA desde Australia",
+                "Asesoría Migratoria"
+              ],
+              "sameAs": [
+                "https://www.instagram.com/latamvisa",
+                "https://www.facebook.com/latamvisa"
+              ],
+              "foundingDate": "2026",
+              "founder": {
+                "@type": "Person",
+                "name": "Cristian Montenegro"
+              }
+            })
+          }}
+        />
+      </head>
       <body>
         <Script
           id="fb-pixel"

@@ -107,6 +107,19 @@
   --text-secondary: #777777;
   --border-subtle: #E0E0E0;
   --border-neon: rgba(200, 255, 0, 0.3);
+
+  /* New Light Mode System for Forms/Admin */
+  --bg-page: #FAFAF7;
+  --bg-card: #FFFFFF;
+  --bg-subtle: #F5F5F0;
+  --border-strong: #1A1A1A;
+  --text-muted: #A3A3A3;
+  --accent: #C8FF00;
+  --accent-hover: #B5E600;
+  --accent-soft: #F4FFC4;
+  --error: #DC2626;
+  --error-bg: #FEF2F2;
+  --success: #16A34A;
 }
 
 * {

@@ -225,7 +225,7 @@ export default function ServicesSection() {
   const wordRefs             = useRef<(HTMLSpanElement | null)[]>([])
   const cardRefs             = useRef<(HTMLDivElement | null)[]>([])
   const gridRef              = useRef<HTMLDivElement>(null)
-  const estudianteBadgeRef   = useRef<HTMLDivElement>(null)
+  const estudianteBadgeRef   = useRef<HTMLAnchorElement>(null)
   const estudianteTitleRef   = useRef<HTMLHeadingElement>(null)
   const estudianteSubRef     = useRef<HTMLParagraphElement>(null)
   const estudiantePointsRef  = useRef<HTMLDivElement>(null)
