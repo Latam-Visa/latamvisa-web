@@ -171,6 +171,20 @@ async function executeSubmit(
       content: pdfBuffer
     }] : []
 
+    const adminAttachments = [...attachments]
+    if (photos.visaPhoto) {
+      const { buffer, ext } = decodeBase64Image(photos.visaPhoto)
+      adminAttachments.push({ filename: `Foto_Visa.${ext}`, content: buffer })
+    }
+    if (photos.passport) {
+      const { buffer, ext } = decodeBase64Image(photos.passport)
+      adminAttachments.push({ filename: `Pasaporte.${ext}`, content: buffer })
+    }
+    if (photos.previousVisa) {
+      const { buffer, ext } = decodeBase64Image(photos.previousVisa)
+      adminAttachments.push({ filename: `Visa_Anterior.${ext}`, content: buffer })
+    }
+
     // Client Email
     resend.emails.send({
       from: FROM_EMAIL,
@@ -186,7 +200,7 @@ async function executeSubmit(
       to: ADMIN_EMAIL,
       subject: `Nueva Solicitud Visa USA: ${formData.step1Contact.fullName}`,
       html: adminEmailHtml,
-      attachments
+      attachments: adminAttachments
     }).catch(err => console.error('[EMAIL_ADMIN] Error enviando email a admin:', err))
 
   } catch (error: any) {

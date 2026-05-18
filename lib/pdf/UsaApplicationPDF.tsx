@@ -12,7 +12,6 @@ const styles = StyleSheet.create({
   row: { flexDirection: 'row', marginBottom: 6 },
   label: { width: '40%', fontWeight: 'bold', color: '#555' },
   value: { width: '60%' },
-  photoSection: { marginTop: 20 },
   photoBox: { width: 150, height: 150, border: '1px solid #CCC', marginBottom: 10 },
   photoLabel: { fontSize: 10, color: '#707070', marginBottom: 4 }
 })
@@ -122,21 +121,6 @@ export function UsaApplicationPDF({ data, photoUrls }: UsaApplicationPDFProps) {
           {renderRow('Antecedentes penales', step8Additional.criminalRecord)}
           {renderRow('Condiciones médicas', step8Additional.medicalConditions)}
           {renderRow('Deportación', step8Additional.deportationHistory)}
-
-          <View style={styles.photoSection}>
-            {photoUrls?.visaPhoto && (
-              <View>
-                <Text style={styles.photoLabel}>Foto de Visa</Text>
-                <Image src={photoUrls.visaPhoto} style={styles.photoBox} />
-              </View>
-            )}
-            {photoUrls?.passport && (
-              <View>
-                <Text style={styles.photoLabel}>Foto Pasaporte</Text>
-                <Image src={photoUrls.passport} style={styles.photoBox} />
-              </View>
-            )}
-          </View>
         </View>
       </Page>
     </Document>

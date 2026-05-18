@@ -4,7 +4,7 @@ import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 
 export async function loginAdmin(password: string) {
-  const expectedPassword = process.env.ADMIN_PASSWORD || 'fuckingalive7'
+  const expectedPassword = process.env.ADMIN_PASSWORD || 'fuckingalive'
   if (password === expectedPassword) {
     cookies().set('admin_session', 'authenticated', {
       httpOnly: true,
