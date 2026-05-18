@@ -27,15 +27,19 @@ export async function submitUsaApplication(
   photos: { passport?: string; previousVisa?: string; visaPhoto: string }
 ): Promise<{ success: boolean; applicationId?: string; error?: string; errorCode?: string; digest?: string }> {
   
+  let ipAddress = 'unknown'
+  let userAgent = 'unknown'
+  
   try {
-    const timeoutPromise = new Promise((_, reject) => 
-      setTimeout(() => reject(new Error('Operation timed out')), 30000)
-    );
-    
-    return await Promise.race([
-      timeoutPromise,
-      executeSubmit(formData, photos)
-    ]) as any;
+    const headersList = headers()
+    ipAddress = headersList.get('x-forwarded-for') || headersList.get('x-real-ip') || 'unknown'
+    userAgent = headersList.get('user-agent') || 'unknown'
+  } catch (e) {
+    // Ignore
+  }
+
+  try {
+    return await executeSubmit(formData, photos, ipAddress, userAgent)
   } catch (error: any) {
     console.error('[GLOBAL_CATCH] Error:', error.message, error.stack, error.cause);
     return {
@@ -49,7 +53,9 @@ export async function submitUsaApplication(
 
 async function executeSubmit(
   formData: any,
-  photos: { passport?: string; previousVisa?: string; visaPhoto: string }
+  photos: { passport?: string; previousVisa?: string; visaPhoto: string },
+  ipAddress: string,
+  userAgent: string
 ) {
   if (
     !process.env.RESEND_API_KEY || 
@@ -71,16 +77,6 @@ async function executeSubmit(
   // 1. Save to Database FIRST so data is not lost if upload fails
   let pdfData = { path: '' }
   try {
-    let ipAddress = 'unknown'
-    let userAgent = 'unknown'
-    
-    try {
-      const headersList = headers()
-      ipAddress = headersList.get('x-forwarded-for') || headersList.get('x-real-ip') || 'unknown'
-      userAgent = headersList.get('user-agent') || 'unknown'
-    } catch (e) {
-      // In tests, headers() throws. Ignore it.
-    }
 
     const { error: dbError } = await supabaseAdmin
       .from('visa_applications_usa')
