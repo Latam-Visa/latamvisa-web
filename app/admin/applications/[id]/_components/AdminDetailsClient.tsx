@@ -1,7 +1,8 @@
 "use client"
 
 import { useState } from 'react'
-import { updateApplicationStatus, updateApplicationNotes, deleteApplication, getPdfDownloadUrl } from '../../../_actions/admin-actions'
+import { updateApplicationStatus, updateApplicationNotes, deleteApplication } from '../../../_actions/admin-actions'
+import { generateApplicationPdfAction } from '../_actions/generate-pdf'
 import { useRouter } from 'next/navigation'
 import { FileText, Save, Trash2, Loader2 } from 'lucide-react'
 import { format } from 'date-fns'
@@ -53,20 +54,20 @@ export function AdminDetailsClient({ application }: { application: any }) {
     }
   }
 
-  const handleDownloadPDF = async () => {
-    if (!application.pdf_url) {
-      alert('No hay PDF disponible para esta solicitud')
-      return
-    }
-    
+  const handlePdfClick = async () => {
     setIsDownloading(true)
     try {
-      const url = await getPdfDownloadUrl(application.pdf_url)
-      window.open(url, '_blank')
-    } catch (error) {
-      alert('Error al obtener el PDF')
+      const result = await generateApplicationPdfAction(application.id)
+      if (result.success && result.url) {
+        window.open(result.url, '_blank')
+      } else {
+        alert(result.error || 'No pudimos generar el PDF')
+      }
+    } catch (err) {
+      alert('Error inesperado al generar PDF')
+    } finally {
+      setIsDownloading(false)
     }
-    setIsDownloading(false)
   }
 
   return (
@@ -144,12 +145,12 @@ export function AdminDetailsClient({ application }: { application: any }) {
           </div>
 
           <button
-            onClick={handleDownloadPDF}
-            disabled={isDownloading || !application.pdf_url}
-            className="w-full flex items-center justify-center gap-2 bg-[#0A0A0A] text-white py-2 rounded-lg text-sm font-medium hover:bg-[#1A1A1A] transition-colors disabled:opacity-50"
+            onClick={handlePdfClick}
+            disabled={isDownloading}
+            className="w-full flex items-center justify-center gap-2 bg-[#C8FF00] text-black py-2 rounded-lg text-sm font-bold hover:bg-[#b8ef00] transition-colors disabled:opacity-50"
           >
             {isDownloading ? <Loader2 className="w-4 h-4 animate-spin" /> : <FileText className="w-4 h-4" />}
-            Descargar PDF Oficial
+            {isDownloading ? 'Generando...' : application.pdf_url ? 'Descargar PDF' : 'Generar PDF'}
           </button>
         </div>
 

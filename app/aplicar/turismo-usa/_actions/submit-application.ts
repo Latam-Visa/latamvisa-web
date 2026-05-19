@@ -3,32 +3,18 @@
 import { headers } from 'next/headers'
 import { v4 as uuidv4 } from 'uuid'
 import { supabaseAdmin } from '@/lib/supabase/admin'
-import { uploadVisaPhoto, getSignedUrl } from '@/lib/supabase/storage'
-import { UsaApplicationFormData } from '@/lib/types/application'
-import { generateApplicationPdf } from '@/lib/pdf/generate-pdf'
+import { uploadVisaPhoto } from '@/lib/supabase/storage'
 import { resend } from '@/lib/resend'
 import { getClientConfirmationEmail } from '@/lib/emails/client-confirmation'
 import { getAdminNotificationEmail } from '@/lib/emails/admin-notification'
 
-const ADMIN_EMAIL = process.env.RESEND_ADMIN_EMAIL || 'admin@latamvisatravel.com'
-const FROM_EMAIL = 'LATAM VISA <no-reply@latamvisatravel.com>' // Make sure this domain is verified in Resend
-
-function decodeBase64Image(dataString: string) {
-  const matches = dataString.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/)
-  if (!matches || matches.length !== 3) {
-    throw new Error('Formato base64 inválido')
-  }
-  const ext = matches[1].split('/')[1] || 'jpg'
-  return { buffer: Buffer.from(matches[2], 'base64'), ext }
-}
-
 export async function submitUsaApplication(
   formDataInput: FormData
 ): Promise<{ success: boolean; applicationId?: string; error?: string; errorCode?: string; digest?: string }> {
-  
+
   let ipAddress = 'unknown'
   let userAgent = 'unknown'
-  
+
   try {
     const headersList = headers()
     ipAddress = headersList.get('x-forwarded-for') || headersList.get('x-real-ip') || 'unknown'
@@ -57,18 +43,30 @@ export async function submitUsaApplication(
   }
 }
 
+function decodeBase64Image(dataString: string) {
+  const matches = dataString.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/)
+  if (!matches || matches.length !== 3) {
+    throw new Error('Formato base64 inválido')
+  }
+  const ext = matches[1].split('/')[1] || 'jpg'
+  return { buffer: Buffer.from(matches[2], 'base64'), ext }
+}
+
 async function executeSubmit(
   formData: any,
-  photos: { passport?: string; previousVisa?: string; visaPhoto: string },
+  photos: { passport?: string; previousVisa?: string; visaPhoto?: string },
   ipAddress: string,
   userAgent: string
 ) {
+  const t0 = Date.now()
+  console.log('[SUBMIT] Start', new Date().toISOString())
+
   if (
-    !process.env.RESEND_API_KEY || 
-    !process.env.SUPABASE_SERVICE_ROLE_KEY || 
-    !process.env.RESEND_FROM_EMAIL || 
-    !process.env.RESEND_ADMIN_EMAIL || 
-    !process.env.SUPABASE_STORAGE_BUCKET || 
+    !process.env.RESEND_API_KEY ||
+    !process.env.SUPABASE_SERVICE_ROLE_KEY ||
+    !process.env.RESEND_FROM_EMAIL ||
+    !process.env.RESEND_ADMIN_EMAIL ||
+    !process.env.SUPABASE_STORAGE_BUCKET ||
     !process.env.NEXT_PUBLIC_SUPABASE_URL
   ) {
     console.error('[ENV_CHECK] Faltan variables de entorno requeridas.')
@@ -79,11 +77,11 @@ async function executeSubmit(
   const FROM_EMAIL = process.env.RESEND_FROM_EMAIL
 
   const applicationId = uuidv4()
-  
-  // 1. Save to Database FIRST so data is not lost if upload fails
-  let pdfData = { path: '' }
-  try {
+  const submittedAt = new Date().toISOString()
 
+  // 1. Save to Database FIRST so data is not lost if anything else fails
+  console.log('[SUBMIT] Step 1: DB insert', Date.now() - t0, 'ms')
+  try {
     const { error: dbError } = await supabaseAdmin
       .from('visa_applications_usa')
       .insert({
@@ -96,123 +94,89 @@ async function executeSubmit(
       })
 
     if (dbError) throw new Error(dbError.message)
+    console.log('[SUBMIT] DB insert OK', Date.now() - t0, 'ms')
   } catch (error: any) {
     console.error('[DB_INSERT] Error guardando en BD:', error)
     return { success: false, error: 'No pudimos guardar tu aplicación. Intentá en unos minutos.', errorCode: 'DB_INSERT' }
   }
 
   // 2. Upload photos to Supabase Storage
-  let passportUrl = ''
-  let previousVisaUrl = ''
-  let visaPhotoUrl = ''
-  const photoUrlsForPdf: { passport?: string; previousVisa?: string; visaPhoto?: string } = {}
+  console.log('[SUBMIT] Step 2: Photo upload', Date.now() - t0, 'ms')
+  let passportStoragePath = ''
+  let previousVisaStoragePath = ''
+  let visaPhotoStoragePath = ''
 
   try {
     if (photos.passport) {
       const { buffer, ext } = decodeBase64Image(photos.passport)
-      passportUrl = await uploadVisaPhoto(buffer, `passport.${ext}`, applicationId, 'passport')
-      photoUrlsForPdf.passport = photos.passport // Use base64 directly to avoid PDF network hang
+      passportStoragePath = await uploadVisaPhoto(buffer, `passport.${ext}`, applicationId, 'passport')
     }
 
     if (photos.previousVisa) {
       const { buffer, ext } = decodeBase64Image(photos.previousVisa)
-      previousVisaUrl = await uploadVisaPhoto(buffer, `previous_visa.${ext}`, applicationId, 'previous_visa')
-      photoUrlsForPdf.previousVisa = photos.previousVisa
+      previousVisaStoragePath = await uploadVisaPhoto(buffer, `previous_visa.${ext}`, applicationId, 'previous_visa')
     }
 
     if (photos.visaPhoto) {
       const { buffer, ext } = decodeBase64Image(photos.visaPhoto)
-      visaPhotoUrl = await uploadVisaPhoto(buffer, `visa_photo.${ext}`, applicationId, 'visa_photo')
-      photoUrlsForPdf.visaPhoto = photos.visaPhoto
+      visaPhotoStoragePath = await uploadVisaPhoto(buffer, `visa_photo.${ext}`, applicationId, 'visa_photo')
     }
+    console.log('[SUBMIT] Photo upload OK', Date.now() - t0, 'ms')
   } catch (error: any) {
     console.error('[STORAGE_UPLOAD] Error subiendo fotos:', error)
-    // Non-blocking: We continue even if photos fail, since DB row exists
+    // Non-blocking: continue even if photos fail — DB row already exists
   }
 
-  // 3. Generate PDF
-  let pdfBuffer: Buffer | null = null;
+  // 3. Generate 1-hour signed URLs for admin email photo links
+  console.log('[SUBMIT] Step 3: Signed URLs', Date.now() - t0, 'ms')
+  const signedPhotoUrls: { passport?: string; previousVisa?: string; visaPhoto?: string } = {}
+  const bucket = process.env.SUPABASE_STORAGE_BUCKET
+
   try {
-    pdfBuffer = await generateApplicationPdf(formData, photoUrlsForPdf)
+    if (passportStoragePath) {
+      const { data } = await supabaseAdmin.storage.from(bucket).createSignedUrl(passportStoragePath, 3600)
+      if (data) signedPhotoUrls.passport = data.signedUrl
+    }
+    if (previousVisaStoragePath) {
+      const { data } = await supabaseAdmin.storage.from(bucket).createSignedUrl(previousVisaStoragePath, 3600)
+      if (data) signedPhotoUrls.previousVisa = data.signedUrl
+    }
+    if (visaPhotoStoragePath) {
+      const { data } = await supabaseAdmin.storage.from(bucket).createSignedUrl(visaPhotoStoragePath, 3600)
+      if (data) signedPhotoUrls.visaPhoto = data.signedUrl
+    }
+    console.log('[SUBMIT] Signed URLs OK', Date.now() - t0, 'ms')
   } catch (error: any) {
-    console.error('[PDF_GEN] Error generando PDF:', error)
+    console.error('[SIGNED_URLS] Error:', error)
     // Non-blocking
   }
 
-  // 4. Upload PDF to Storage & Update DB
-  if (pdfBuffer) {
-    try {
-      const pdfPath = `${applicationId}/application.pdf`
-      const { data: uploadData, error: pdfError } = await supabaseAdmin.storage
-        .from(process.env.SUPABASE_STORAGE_BUCKET)
-        .upload(pdfPath, pdfBuffer, {
-          contentType: 'application/pdf',
-          upsert: true
-        })
-        
-      if (pdfError) throw new Error(pdfError.message)
-      pdfData = uploadData
-      
-      await supabaseAdmin
-        .from('visa_applications_usa')
-        .update({ pdf_url: pdfData.path })
-        .eq('id', applicationId)
-    } catch (error: any) {
-      console.error('[STORAGE_PDF] Error subiendo PDF:', error)
-      // Non-blocking
-    }
-  }
-
-  // 5. Send Emails
+  // 4. Send Emails (fire-and-forget — do not await, do not block submission)
+  console.log('[SUBMIT] Step 4: Sending emails', Date.now() - t0, 'ms')
   try {
-    const clientEmailHtml = getClientConfirmationEmail(formData.step1Contact.fullName)
-    const adminEmailHtml = getAdminNotificationEmail(
-      formData.step1Contact.fullName,
-      formData.step1Contact.email,
-      formData.step4Travel.usaVisaType
-    )
+    const clientEmailHtml = getClientConfirmationEmail(formData)
+    const adminEmailHtml = getAdminNotificationEmail(formData, applicationId, signedPhotoUrls, submittedAt, ipAddress)
 
-    const attachments = pdfBuffer ? [{
-      filename: `Aplicacion_Visa_USA_${formData.step1Contact.fullName.replace(/\s+/g, '_')}.pdf`,
-      content: pdfBuffer
-    }] : []
-
-    const adminAttachments = [...attachments]
-    if (photos.visaPhoto) {
-      const { buffer, ext } = decodeBase64Image(photos.visaPhoto)
-      adminAttachments.push({ filename: `Foto_Visa.${ext}`, content: buffer })
-    }
-    if (photos.passport) {
-      const { buffer, ext } = decodeBase64Image(photos.passport)
-      adminAttachments.push({ filename: `Pasaporte.${ext}`, content: buffer })
-    }
-    if (photos.previousVisa) {
-      const { buffer, ext } = decodeBase64Image(photos.previousVisa)
-      adminAttachments.push({ filename: `Visa_Anterior.${ext}`, content: buffer })
-    }
-
-    // Client Email
     resend.emails.send({
       from: FROM_EMAIL,
       to: formData.step1Contact.email,
-      subject: 'LATAM VISA - Confirmación de tu solicitud',
+      subject: '✅ Recibimos tu aplicación de visa USA — LATAM VISA',
       html: clientEmailHtml,
-      attachments
-    }).catch(err => console.error('[EMAIL_CLIENT] Error enviando email a cliente:', err))
+    }).catch(err => console.error('[EMAIL_CLIENT] Error:', err))
 
-    // Admin Email
     resend.emails.send({
       from: FROM_EMAIL,
       to: ADMIN_EMAIL,
-      subject: `Nueva Solicitud Visa USA: ${formData.step1Contact.fullName}`,
+      subject: `🚨 Nueva solicitud Visa USA: ${formData.step1Contact.fullName}`,
       html: adminEmailHtml,
-      attachments: adminAttachments
-    }).catch(err => console.error('[EMAIL_ADMIN] Error enviando email a admin:', err))
+    }).catch(err => console.error('[EMAIL_ADMIN] Error:', err))
 
+    console.log('[SUBMIT] Emails fired', Date.now() - t0, 'ms')
   } catch (error: any) {
-    console.error('[EMAIL_GENERAL] Error orquestando emails:', error)
+    console.error('[EMAIL_GENERAL] Error:', error)
     // Non-blocking
   }
 
+  console.log('[SUBMIT] Done', Date.now() - t0, 'ms')
   return { success: true, applicationId }
 }
