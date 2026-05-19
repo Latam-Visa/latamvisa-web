@@ -36,6 +36,17 @@ export async function submitUsaApplication(
   }
 }
 
+async function getSignedUrl(bucket: string, path: string | null): Promise<string | undefined> {
+  if (!path) return undefined
+  try {
+    const { data, error } = await supabaseAdmin.storage.from(bucket).createSignedUrl(path, 3600)
+    if (error || !data) return undefined
+    return data.signedUrl
+  } catch {
+    return undefined
+  }
+}
+
 async function executeSubmit(formData: any, ipAddress: string, userAgent: string) {
   const t0 = Date.now()
   console.log('[SUBMIT] Start', new Date().toISOString())
@@ -53,9 +64,15 @@ async function executeSubmit(formData: any, ipAddress: string, userAgent: string
 
   const ADMIN_EMAIL = process.env.RESEND_ADMIN_EMAIL
   const FROM_EMAIL = process.env.RESEND_FROM_EMAIL
+  const bucket = process.env.SUPABASE_STORAGE_BUCKET || 'visa-documents'
 
   const applicationId = uuidv4()
   const submittedAt = new Date().toISOString()
+
+  // Extract photo paths from formData
+  const passportPhotoPath = formData.step3Passport?.passportPhotoPath || null
+  const visaPhotoPath = formData.step8Additional?.visaPhotoPath || null
+  const previousVisaPhotoPath = formData.step5VisaHistory?.previousVisaPhotoPath || null
 
   // 1. Save to Database
   console.log('[SUBMIT] Step 1: DB insert', Date.now() - t0, 'ms')
@@ -66,9 +83,9 @@ async function executeSubmit(formData: any, ipAddress: string, userAgent: string
         id: applicationId,
         data: formData,
         pdf_url: null,
-        passport_photo_url: null,
-        visa_photo_url: null,
-        previous_visa_photo_url: null,
+        passport_photo_url: passportPhotoPath,
+        visa_photo_url: visaPhotoPath,
+        previous_visa_photo_url: previousVisaPhotoPath,
         ip_address: ipAddress,
         user_agent: userAgent,
         status: 'pending'
@@ -81,30 +98,45 @@ async function executeSubmit(formData: any, ipAddress: string, userAgent: string
     return { success: false, error: 'No pudimos guardar tu aplicación. Intentá en unos minutos.', errorCode: 'DB_INSERT' }
   }
 
-  // 2. Send Emails (fire-and-forget)
-  console.log('[SUBMIT] Step 2: Sending emails', Date.now() - t0, 'ms')
+  // 2. Generate signed photo URLs for admin email (1 hour validity)
+  const [passportSignedUrl, visaSignedUrl, previousVisaSignedUrl] = await Promise.all([
+    getSignedUrl(bucket, passportPhotoPath),
+    getSignedUrl(bucket, visaPhotoPath),
+    getSignedUrl(bucket, previousVisaPhotoPath),
+  ])
+
+  const signedPhotoUrls = {
+    passport: passportSignedUrl,
+    visaPhoto: visaSignedUrl,
+    previousVisa: previousVisaSignedUrl,
+  }
+
+  // 3. Send admin email
   try {
-    const clientEmailHtml = getClientConfirmationEmail(formData)
-    const adminEmailHtml = getAdminNotificationEmail(formData, applicationId, {}, submittedAt, ipAddress)
-
-    resend.emails.send({
-      from: FROM_EMAIL,
-      to: formData.step1Contact.email,
-      subject: '✅ Recibimos tu aplicación de visa USA — LATAM VISA',
-      html: clientEmailHtml,
-    }).catch(err => console.error('[EMAIL_CLIENT] Error:', err))
-
-    resend.emails.send({
+    const adminEmailHtml = getAdminNotificationEmail(formData, applicationId, signedPhotoUrls, submittedAt, ipAddress)
+    await resend.emails.send({
       from: FROM_EMAIL,
       to: ADMIN_EMAIL,
-      subject: `🚨 Nueva solicitud Visa USA: ${formData.step1Contact.fullName}`,
+      subject: `🚨 Nueva aplicación recibida — ${formData.step1Contact?.fullName || 'Aplicante'}`,
       html: adminEmailHtml,
-    }).catch(err => console.error('[EMAIL_ADMIN] Error:', err))
-
-    console.log('[SUBMIT] Emails fired', Date.now() - t0, 'ms')
+    })
+    console.log('[EMAIL_ADMIN] sent')
   } catch (error: any) {
-    console.error('[EMAIL_GENERAL] Error:', error)
-    // Non-blocking
+    console.error('[EMAIL_ADMIN] failed:', error)
+  }
+
+  // 4. Send client email
+  try {
+    const clientEmailHtml = getClientConfirmationEmail(formData)
+    await resend.emails.send({
+      from: FROM_EMAIL,
+      to: formData.step1Contact?.email,
+      subject: '✅ Recibimos tu aplicación — LATAM VISA',
+      html: clientEmailHtml,
+    })
+    console.log('[EMAIL_CLIENT] sent')
+  } catch (error: any) {
+    console.error('[EMAIL_CLIENT] failed:', error)
   }
 
   console.log('[SUBMIT] Done', Date.now() - t0, 'ms')

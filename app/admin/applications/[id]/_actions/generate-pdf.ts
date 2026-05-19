@@ -3,6 +3,30 @@
 import { supabaseAdmin } from '@/lib/supabase/admin'
 import { generateApplicationPdf } from '@/lib/pdf/generate-pdf'
 
+async function getSignedUrl(bucket: string, path: string | null | undefined): Promise<string | undefined> {
+  if (!path) return undefined
+  try {
+    const { data, error } = await supabaseAdmin.storage.from(bucket).createSignedUrl(path, 300)
+    if (error || !data) return undefined
+    return data.signedUrl
+  } catch {
+    return undefined
+  }
+}
+
+async function fetchPhotoAsDataUri(url: string | undefined): Promise<string | undefined> {
+  if (!url) return undefined
+  try {
+    const res = await fetch(url)
+    if (!res.ok) return undefined
+    const buf = await res.arrayBuffer()
+    const base64 = Buffer.from(buf).toString('base64')
+    return `data:image/jpeg;base64,${base64}`
+  } catch {
+    return undefined
+  }
+}
+
 export async function generateApplicationPdfAction(applicationId: string): Promise<{
   success: boolean
   url?: string
@@ -25,8 +49,10 @@ export async function generateApplicationPdfAction(applicationId: string): Promi
       return { success: false, error: 'Aplicación no encontrada' }
     }
 
-    // If PDF already exists, return a fresh 5-minute signed URL
-    if (application.pdf_url) {
+    // If PDF already exists AND the application has no photos, return cached
+    // (if photos exist we always regenerate so they're embedded)
+    const hasPhotos = !!(application.passport_photo_url || application.visa_photo_url)
+    if (application.pdf_url && !hasPhotos) {
       console.log('[PDF_GEN] PDF already exists, returning cached signed URL')
       const { data: signedData, error: signedError } = await supabaseAdmin
         .storage
@@ -40,11 +66,29 @@ export async function generateApplicationPdfAction(applicationId: string): Promi
       return { success: true, url: signedData.signedUrl, cached: true }
     }
 
-    // Render PDF (no photos — they are requested via WhatsApp)
+    // Fetch signed photo URLs and download as data URIs for embedding in PDF
+    console.log('[PDF_GEN] Fetching photo data URIs...')
+    const [passportSignedUrl, visaSignedUrl, prevVisaSignedUrl] = await Promise.all([
+      getSignedUrl(bucket, application.passport_photo_url),
+      getSignedUrl(bucket, application.visa_photo_url),
+      getSignedUrl(bucket, application.previous_visa_photo_url),
+    ])
+    const [passportDataUri, visaDataUri, prevVisaDataUri] = await Promise.all([
+      fetchPhotoAsDataUri(passportSignedUrl),
+      fetchPhotoAsDataUri(visaSignedUrl),
+      fetchPhotoAsDataUri(prevVisaSignedUrl),
+    ])
+    const photoUrls = {
+      passport: passportDataUri,
+      visaPhoto: visaDataUri,
+      previousVisa: prevVisaDataUri,
+    }
+
+    // Render PDF
     console.log('[PDF_GEN] Rendering PDF...')
     let pdfBuffer: Buffer
     try {
-      pdfBuffer = await generateApplicationPdf(application.data, {})
+      pdfBuffer = await generateApplicationPdf(application.data, photoUrls)
       console.log('[PDF_GEN] PDF generated, size:', pdfBuffer.length, 'bytes')
     } catch (pdfErr: any) {
       console.error('[PDF_GEN] PDF rendering failed:', pdfErr)

@@ -1,6 +1,7 @@
 import { useFormContext } from 'react-hook-form'
 import { FormField } from './FormField'
 import { ALL_COUNTRIES } from '@/lib/constants/countries'
+import { PhotoUploader } from './PhotoUploader'
 
 export function Step3Passport() {
   const { register, watch, formState } = useFormContext()
@@ -119,11 +120,17 @@ export function Step3Passport() {
         </div>
       )}
 
-      <div className="mt-2 bg-[#F0FFF0] border border-[#C8FF00]/40 rounded-xl px-5 py-4 flex gap-3">
-        <span className="text-xl shrink-0">📸</span>
-        <p className="text-sm text-[#525252] leading-relaxed">
-          <strong className="text-[#0A0A0A]">Sobre las fotos:</strong> Después de enviar este formulario, te contactaremos por WhatsApp para pedirte las fotos que necesitamos (pasaporte, foto tipo visa). Es más rápido y seguro mandarlas por ese medio.
-        </p>
+      <div className="pt-6 border-t border-[#E5E5E5]">
+        <PhotoUploader
+          name="step3Passport.passportPhotoPath"
+          label="Sube una foto de la página principal de tu pasaporte"
+          required
+          specsList={[
+            'Debe verse claramente tu foto, nombres, número y código de barras inferior',
+            'Sin reflejos de luz que tapen la información',
+            'Formato JPEG, PNG o WEBP (máximo 5MB)'
+          ]}
+        />
       </div>
     </div>
   )

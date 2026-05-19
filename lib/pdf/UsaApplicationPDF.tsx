@@ -1,5 +1,5 @@
 import React from 'react'
-import { Document, Page, Text, View, StyleSheet } from '@react-pdf/renderer'
+import { Document, Page, Text, View, StyleSheet, Image } from '@react-pdf/renderer'
 
 const styles = StyleSheet.create({
   page: { padding: 40, fontFamily: 'Helvetica', fontSize: 11, color: '#333' },
@@ -12,14 +12,16 @@ const styles = StyleSheet.create({
   label: { width: '40%', fontWeight: 'bold', color: '#555' },
   value: { width: '60%' },
   photoNote: { fontSize: 10, color: '#888', fontStyle: 'italic', marginTop: 4 },
+  photoLabel: { fontSize: 10, fontWeight: 'bold', color: '#555', marginTop: 12, marginBottom: 4 },
+  photo: { width: 200, height: 140, marginTop: 4, borderWidth: 1, borderColor: '#E0E0E0', borderRadius: 4 },
 })
 
 interface UsaApplicationPDFProps {
   data: any
-  photoUrls?: Record<string, string>
+  photoUrls?: { passport?: string; visaPhoto?: string; previousVisa?: string }
 }
 
-export function UsaApplicationPDF({ data }: UsaApplicationPDFProps) {
+export function UsaApplicationPDF({ data, photoUrls }: UsaApplicationPDFProps) {
   const { step1Contact, step2Personal, step3Passport, step4Travel, step5VisaHistory, step6Family, step7Work, step8Additional } = data
 
   const renderRow = (label: string, value: string | boolean | undefined) => {
@@ -28,6 +30,16 @@ export function UsaApplicationPDF({ data }: UsaApplicationPDFProps) {
       <View style={styles.row}>
         <Text style={styles.label}>{label}:</Text>
         <Text style={styles.value}>{typeof value === 'boolean' ? (value ? 'Sí' : 'No') : value}</Text>
+      </View>
+    )
+  }
+
+  const renderPhoto = (label: string, dataUri: string | undefined) => {
+    if (!dataUri) return <Text style={styles.photoNote}>📸 {label}: no disponible</Text>
+    return (
+      <View>
+        <Text style={styles.photoLabel}>📸 {label}</Text>
+        <Image src={dataUri} style={styles.photo} />
       </View>
     )
   }
@@ -68,7 +80,7 @@ export function UsaApplicationPDF({ data }: UsaApplicationPDFProps) {
           {renderRow('Expiración', step3Passport?.passportExpiryDate)}
           {renderRow('País de emisión', step3Passport?.passportIssueCountry)}
           {renderRow('¿Perdido/Robado?', step3Passport?.passportLostStolen)}
-          <Text style={styles.photoNote}>📸 Foto del pasaporte: solicitada por WhatsApp</Text>
+          {renderPhoto('Foto del pasaporte', photoUrls?.passport)}
         </View>
 
         <View style={styles.section}>
@@ -90,6 +102,7 @@ export function UsaApplicationPDF({ data }: UsaApplicationPDFProps) {
               {renderRow('Detalles visa previa', step5VisaHistory?.previousVisaDetails)}
               {renderRow('Número visa previa', step5VisaHistory?.previousVisaNumber)}
               {renderRow('Emisión visa previa', step5VisaHistory?.previousVisaIssueDate)}
+              {photoUrls?.previousVisa && renderPhoto('Foto de visa anterior', photoUrls.previousVisa)}
             </>
           )}
         </View>
@@ -117,7 +130,7 @@ export function UsaApplicationPDF({ data }: UsaApplicationPDFProps) {
           {renderRow('Antecedentes penales', step8Additional?.criminalRecord)}
           {renderRow('Condiciones médicas', step8Additional?.medicalConditions)}
           {renderRow('Deportación', step8Additional?.deportationHistory)}
-          <Text style={styles.photoNote}>📸 Foto tipo visa: solicitada por WhatsApp</Text>
+          {renderPhoto('Foto tipo visa', photoUrls?.visaPhoto)}
         </View>
       </Page>
     </Document>

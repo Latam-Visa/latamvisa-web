@@ -4,12 +4,19 @@ import { useState } from 'react'
 import { updateApplicationStatus, updateApplicationNotes, deleteApplication } from '../../../_actions/admin-actions'
 import { generateApplicationPdfAction } from '../_actions/generate-pdf'
 import { useRouter } from 'next/navigation'
-import { FileText, Save, Trash2, Loader2, MessageCircle } from 'lucide-react'
+import { FileText, Save, Trash2, Loader2, ExternalLink } from 'lucide-react'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
 
+interface SignedPhotoUrls {
+  passport?: string
+  visaPhoto?: string
+  previousVisa?: string
+}
+
 interface Props {
   application: any
+  signedPhotoUrls: SignedPhotoUrls
 }
 
 function val(v: any): string {
@@ -50,29 +57,34 @@ function SectionCard({ title, children }: { title: string; children: React.React
   )
 }
 
-function WhatsAppNotice({ whatsapp, name }: { whatsapp: string; name: string }) {
-  const number = (whatsapp || '').replace(/[\s\+\-\(\)]/g, '')
-  const firstName = (name || '').split(' ')[0]
-  const msg = encodeURIComponent(`Hola ${firstName}! Recibimos tu aplicación de visa USA. Para continuar necesito que me mandes 2 fotos: 1) Foto de la página de datos de tu pasaporte y 2) Foto tipo visa con fondo blanco. ¡Gracias!`)
+function PhotoThumbnail({ url, label }: { url: string; label: string }) {
   return (
-    <div className="mt-4 bg-[#FFF9E6] border border-[#FFD600]/40 rounded-xl px-4 py-3 flex items-center justify-between gap-3">
-      <p className="text-sm text-[#525252]">
-        <strong className="text-[#0A0A0A]">⚠️ Fotos por WhatsApp</strong> — Pedirle al cliente las fotos de pasaporte y tipo visa.
-      </p>
-      <a
-        href={`https://wa.me/${number}?text=${msg}`}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="shrink-0 flex items-center gap-2 bg-[#25D366] text-white text-xs font-bold px-3 py-2 rounded-lg hover:bg-[#1DA851] transition-colors"
-      >
-        <MessageCircle className="w-3.5 h-3.5" />
-        Escribir
-      </a>
+    <div className="mt-4 bg-[#F5F5F0] border border-[#E5E5E5] rounded-xl p-4">
+      <p className="text-xs font-semibold text-[#525252] mb-3 uppercase tracking-wide">📸 {label}</p>
+      <div className="flex items-start gap-4">
+        <a href={url} target="_blank" rel="noopener noreferrer" className="block shrink-0">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={url}
+            alt={label}
+            className="w-28 h-28 object-cover rounded-lg border border-[#E5E5E5] hover:opacity-80 transition-opacity cursor-pointer"
+          />
+        </a>
+        <a
+          href={url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center gap-2 text-sm text-[#0A0A0A] hover:text-[#C8FF00] transition-colors font-medium mt-1"
+        >
+          <ExternalLink className="w-4 h-4" />
+          Abrir en tamaño completo
+        </a>
+      </div>
     </div>
   )
 }
 
-export function AdminDetailsClient({ application }: Props) {
+export function AdminDetailsClient({ application, signedPhotoUrls }: Props) {
   const router = useRouter()
   const d = application.data || {}
   const c = d.step1Contact || {}
@@ -185,7 +197,10 @@ export function AdminDetailsClient({ application }: Props) {
           {(pas.passportLostStolen === true || pas.passportLostStolen === 'true') && (
             <Row label="Detalles pérdida/robo" value={val(pas.passportLostDetails)} />
           )}
-          <WhatsAppNotice whatsapp={c.whatsapp} name={c.fullName} />
+          {signedPhotoUrls.passport
+            ? <PhotoThumbnail url={signedPhotoUrls.passport} label="Foto del pasaporte" />
+            : <p className="mt-4 text-sm text-[#DC2626] bg-[#FFF0F0] rounded-lg px-4 py-3">⚠️ Foto de pasaporte no subida</p>
+          }
         </SectionCard>
 
         {/* Paso 4 */}
@@ -241,6 +256,9 @@ export function AdminDetailsClient({ application }: Props) {
               <Row label="Expiración visa previa" value={fmtDate(v.previousVisaExpiryDate)} />
               <Row label="¿Licencia USA?" value={bool(v.hadUsDriversLicense)} />
               <Row label="¿Huellas registradas?" value={bool(v.fingerprintedBefore)} />
+              {signedPhotoUrls.previousVisa && (
+                <PhotoThumbnail url={signedPhotoUrls.previousVisa} label="Foto de visa anterior" />
+              )}
             </>
           )}
         </SectionCard>
@@ -319,7 +337,10 @@ export function AdminDetailsClient({ application }: Props) {
           <Row label="¿Antecedentes penales?" value={val(a.criminalRecord)} />
           <Row label="¿Condiciones médicas?" value={val(a.medicalConditions)} />
           <Row label="¿Historial deportación?" value={val(a.deportationHistory)} />
-          <WhatsAppNotice whatsapp={c.whatsapp} name={c.fullName} />
+          {signedPhotoUrls.visaPhoto
+            ? <PhotoThumbnail url={signedPhotoUrls.visaPhoto} label="Foto tipo visa" />
+            : <p className="mt-4 text-sm text-[#DC2626] bg-[#FFF0F0] rounded-lg px-4 py-3">⚠️ Foto tipo visa no subida</p>
+          }
         </SectionCard>
 
       </div>

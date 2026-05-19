@@ -6,6 +6,17 @@ import { ArrowLeft } from 'lucide-react'
 
 export const dynamic = 'force-dynamic'
 
+async function getSignedPhotoUrl(bucket: string, path: string | null | undefined): Promise<string | undefined> {
+  if (!path) return undefined
+  try {
+    const { data, error } = await supabaseAdmin.storage.from(bucket).createSignedUrl(path, 3600)
+    if (error || !data) return undefined
+    return data.signedUrl
+  } catch {
+    return undefined
+  }
+}
+
 export default async function ApplicationDetailsPage({ params }: { params: { id: string } }) {
   const { data: app, error } = await supabaseAdmin
     .from('visa_applications_usa')
@@ -15,6 +26,20 @@ export default async function ApplicationDetailsPage({ params }: { params: { id:
 
   if (error || !app) {
     notFound()
+  }
+
+  const bucket = process.env.SUPABASE_STORAGE_BUCKET || 'visa-documents'
+
+  const [passportPhotoUrl, visaPhotoUrl, previousVisaPhotoUrl] = await Promise.all([
+    getSignedPhotoUrl(bucket, app.passport_photo_url),
+    getSignedPhotoUrl(bucket, app.visa_photo_url),
+    getSignedPhotoUrl(bucket, app.previous_visa_photo_url),
+  ])
+
+  const signedPhotoUrls = {
+    passport: passportPhotoUrl,
+    visaPhoto: visaPhotoUrl,
+    previousVisa: previousVisaPhotoUrl,
   }
 
   return (
@@ -32,7 +57,7 @@ export default async function ApplicationDetailsPage({ params }: { params: { id:
         </div>
       </div>
 
-      <AdminDetailsClient application={app} />
+      <AdminDetailsClient application={app} signedPhotoUrls={signedPhotoUrls} />
     </div>
   )
 }

@@ -1,8 +1,9 @@
-import { useState, useCallback, useRef } from 'react'
+import { useState, useCallback, useRef, useEffect } from 'react'
 import { useController, useFormContext } from 'react-hook-form'
 import imageCompression from 'browser-image-compression'
 import { UploadCloud, Image as ImageIcon, Trash2, RefreshCw, AlertCircle, ChevronDown, ChevronUp } from 'lucide-react'
 import { FormField } from './FormField'
+import { getUploadUrl } from '../_actions/upload-url'
 
 interface PhotoUploaderProps {
   name: string
@@ -22,8 +23,16 @@ export function PhotoUploader({ name, label, hint, required, specsList }: PhotoU
   const [showSpecs, setShowSpecs] = useState(false)
   const [fileName, setFileName] = useState('')
   const [fileSize, setFileSize] = useState(0)
+  const [localPreview, setLocalPreview] = useState<string | null>(null)
   
   const fileInputRef = useRef<HTMLInputElement>(null)
+
+  // Cleanup local preview URLs to avoid memory leaks
+  useEffect(() => {
+    return () => {
+      if (localPreview) URL.revokeObjectURL(localPreview)
+    }
+  }, [localPreview])
 
   const processFile = async (file: File) => {
     setErrorMsg('')
@@ -39,24 +48,44 @@ export function PhotoUploader({ name, label, hint, required, specsList }: PhotoU
     setIsCompressing(true)
     try {
       const options = {
-        maxSizeMB: 0.5,
-        maxWidthOrHeight: 1280,
+        maxSizeMB: 1,
+        maxWidthOrHeight: 2400,
         useWebWorker: true,
         fileType: 'image/jpeg'
       }
       const compressedFile = await imageCompression(file, options)
       
-      const reader = new FileReader()
-      reader.readAsDataURL(compressedFile)
-      reader.onloadend = () => {
-        field.onChange(reader.result as string)
-        setFileName(file.name)
-        setFileSize(compressedFile.size)
-        setIsCompressing(false)
+      // Get signed URL
+      const { success, url, path, error } = await getUploadUrl(compressedFile.type)
+      if (!success || !url || !path) {
+        throw new Error(error || 'Error al obtener URL de subida')
       }
-    } catch (error) {
+
+      // Upload file directly to Supabase via PUT
+      const uploadRes = await fetch(url, {
+        method: 'PUT',
+        body: compressedFile,
+        headers: {
+          'Content-Type': compressedFile.type
+        }
+      })
+
+      if (!uploadRes.ok) {
+        throw new Error('Error al subir el archivo')
+      }
+
+      // Success
+      const objectUrl = URL.createObjectURL(compressedFile)
+      if (localPreview) URL.revokeObjectURL(localPreview)
+      setLocalPreview(objectUrl)
+      
+      field.onChange(path)
+      setFileName(file.name)
+      setFileSize(compressedFile.size)
+    } catch (error: any) {
       console.error(error)
-      setErrorMsg('Error comprimiendo la imagen.')
+      setErrorMsg(error.message || 'Error procesando la imagen.')
+    } finally {
       setIsCompressing(false)
     }
   }
@@ -92,6 +121,10 @@ export function PhotoUploader({ name, label, hint, required, specsList }: PhotoU
     field.onChange('')
     setFileName('')
     setFileSize(0)
+    if (localPreview) {
+      URL.revokeObjectURL(localPreview)
+      setLocalPreview(null)
+    }
     if (fileInputRef.current) fileInputRef.current.value = ''
   }
 
@@ -141,7 +174,7 @@ export function PhotoUploader({ name, label, hint, required, specsList }: PhotoU
           {isCompressing ? (
             <div className="text-center text-[#C8FF00]">
               <RefreshCw className="w-8 h-8 mx-auto animate-spin mb-3" />
-              <p className="font-medium">Optimizando imagen...</p>
+              <p className="font-medium">Subiendo imagen...</p>
             </div>
           ) : (
             <div className="text-center">
@@ -155,14 +188,18 @@ export function PhotoUploader({ name, label, hint, required, specsList }: PhotoU
         </div>
       ) : (
         <div className="bg-[#F5F5F0] p-4 rounded-xl border border-[#E5E5E5] flex flex-col sm:flex-row items-center gap-6">
-          <div className="w-32 h-32 rounded-lg overflow-hidden border border-[#E5E5E5] shrink-0 bg-black">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={field.value} alt="Preview" className="w-full h-full object-cover" />
+          <div className="w-32 h-32 rounded-lg overflow-hidden border border-[#E5E5E5] shrink-0 bg-black flex items-center justify-center">
+            {localPreview ? (
+              /* eslint-disable-next-line @next/next/no-img-element */
+              <img src={localPreview} alt="Preview" className="w-full h-full object-cover" />
+            ) : (
+              <ImageIcon className="w-8 h-8 text-[#525252]" />
+            )}
           </div>
           <div className="flex-1 text-center sm:text-left">
             <div className="flex items-center justify-center sm:justify-start gap-2 text-[#0A0A0A] font-medium mb-1">
               <ImageIcon className="w-4 h-4 text-[#C8FF00]" />
-              <span className="truncate max-w-[200px]">{fileName || 'Imagen cargada'}</span>
+              <span className="truncate max-w-[200px]">{fileName || 'Imagen cargada exitosamente'}</span>
             </div>
             {fileSize > 0 && <p className="text-[#A3A3A3] text-sm mb-4">{(fileSize / 1024).toFixed(1)} KB (Optimizada)</p>}
             

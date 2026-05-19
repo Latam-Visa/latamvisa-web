@@ -1,5 +1,6 @@
 import { useFormContext } from 'react-hook-form'
 import { FormField } from './FormField'
+import { PhotoUploader } from './PhotoUploader'
 
 export function Step5VisaHistory() {
   const { register, watch, formState, setValue, clearErrors } = useFormContext()
@@ -143,6 +144,18 @@ export function Step5VisaHistory() {
                 <label className="flex items-center gap-2 cursor-pointer group"><input type="radio" value="false" {...register('step5VisaHistory.fingerprintedBefore')} className="w-5 h-5 accent-[#C8FF00] bg-[#F5F5F0] border-[#E5E5E5]" /><span className="text-[#525252] group-hover:text-[#0A0A0A]">No</span></label>
               </div>
             </FormField>
+          </div>
+
+          <div className="pt-4 mt-2 border-t border-[#E5E5E5]">
+            <PhotoUploader
+              name="step5VisaHistory.previousVisaPhotoPath"
+              label="Sube una foto de tu visa anterior (Opcional)"
+              specsList={[
+                'No es obligatorio si no tienes la foto a la mano, pero ayuda a tu proceso.',
+                'Asegúrate de que el número de visa se vea claramente.',
+                'Formato JPEG, PNG o WEBP (máximo 5MB)'
+              ]}
+            />
           </div>
         </div>
       )}
