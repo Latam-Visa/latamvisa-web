@@ -165,13 +165,13 @@ export function getAdminNotificationEmail(
       <div style="font-size:14px;font-weight:bold;color:#C8FF00;margin-bottom:12px;">📷 Fotos del aplicante</div>
       ${signedPhotoUrls.passport
         ? `<p style="margin:0 0 8px 0;font-size:13px;">🛂 <strong>Foto del pasaporte:</strong> <a href="${signedPhotoUrls.passport}" style="color:#C8FF00;">Ver foto</a></p>`
-        : `<p style="margin:0 0 8px 0;font-size:13px;color:#555;">🛂 Foto del pasaporte: no adjuntada</p>`}
+        : `<p style="margin:0 0 8px 0;font-size:13px;color:#FF6B6B;">⚠️ Foto del pasaporte: No adjuntada (revisar)</p>`}
       ${signedPhotoUrls.visaPhoto
         ? `<p style="margin:0 0 8px 0;font-size:13px;">🖼️ <strong>Foto tipo visa:</strong> <a href="${signedPhotoUrls.visaPhoto}" style="color:#C8FF00;">Ver foto</a></p>`
-        : `<p style="margin:0 0 8px 0;font-size:13px;color:#555;">🖼️ Foto tipo visa: no adjuntada</p>`}
+        : `<p style="margin:0 0 8px 0;font-size:13px;color:#FF6B6B;">⚠️ Foto tipo visa: No adjuntada (revisar)</p>`}
       ${signedPhotoUrls.previousVisa
         ? `<p style="margin:0 0 8px 0;font-size:13px;">📋 <strong>Foto visa anterior:</strong> <a href="${signedPhotoUrls.previousVisa}" style="color:#C8FF00;">Ver foto</a></p>`
-        : ''}
+        : `<p style="margin:0 0 8px 0;font-size:13px;color:#666;">📋 Foto visa anterior: No aplica (sin visa previa)</p>`}
       <p style="margin:12px 0 0 0;font-size:11px;color:#444;">Los enlaces expiran en 1 hora. Si necesitás verlas después, abrí la aplicación en el dashboard.</p>
     </div>
 

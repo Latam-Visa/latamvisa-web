@@ -17,10 +17,31 @@ export default async function ApplicationDetailsPage({ params }: { params: { id:
     notFound()
   }
 
+  // Generate 1-hour signed URLs for the three photo slots
+  const bucket = process.env.SUPABASE_STORAGE_BUCKET || 'visa-applications'
+  const signedPhotoUrls: { passport?: string; previousVisa?: string; visaPhoto?: string } = {}
+
+  try {
+    if (app.passport_photo_url) {
+      const { data } = await supabaseAdmin.storage.from(bucket).createSignedUrl(app.passport_photo_url, 3600)
+      if (data) signedPhotoUrls.passport = data.signedUrl
+    }
+    if (app.previous_visa_photo_url) {
+      const { data } = await supabaseAdmin.storage.from(bucket).createSignedUrl(app.previous_visa_photo_url, 3600)
+      if (data) signedPhotoUrls.previousVisa = data.signedUrl
+    }
+    if (app.visa_photo_url) {
+      const { data } = await supabaseAdmin.storage.from(bucket).createSignedUrl(app.visa_photo_url, 3600)
+      if (data) signedPhotoUrls.visaPhoto = data.signedUrl
+    }
+  } catch (e) {
+    console.error('[ADMIN_DETAIL] Error generating signed URLs:', e)
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-4">
-        <Link 
+        <Link
           href="/admin"
           className="flex items-center justify-center bg-white border border-[#E5E5E5] text-[#0A0A0A] p-2 rounded-lg hover:border-[#0A0A0A] transition-colors"
         >
@@ -32,7 +53,7 @@ export default async function ApplicationDetailsPage({ params }: { params: { id:
         </div>
       </div>
 
-      <AdminDetailsClient application={app} />
+      <AdminDetailsClient application={app} signedPhotoUrls={signedPhotoUrls} />
     </div>
   )
 }

@@ -53,7 +53,7 @@ export const step3Schema = z.object({
   passportIssueCountry: requiredString,
   passportLostStolen: z.enum(['true', 'false'], { error: 'Debes responder esta pregunta' }),
   passportLostDetails: z.string().optional(),
-  passportPhotoFile: z.string().optional() // We'll validate strictly when uploading, but form needs it
+  passportPhotoFile: z.string().min(1, 'Subí la foto del pasaporte antes de continuar'),
 }).superRefine((data, ctx) => {
   if (data.passportLostStolen === 'true' && !data.passportLostDetails?.trim()) {
     ctx.addIssue({

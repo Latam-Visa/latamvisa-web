@@ -13,6 +13,8 @@ export async function generateApplicationPdfAction(applicationId: string): Promi
     const bucket = process.env.SUPABASE_STORAGE_BUCKET
     if (!bucket) return { success: false, error: 'SUPABASE_STORAGE_BUCKET no configurado' }
 
+    console.log('[PDF_GEN] Starting for application:', applicationId)
+
     const { data: application, error } = await supabaseAdmin
       .from('visa_applications_usa')
       .select('*')
@@ -23,8 +25,9 @@ export async function generateApplicationPdfAction(applicationId: string): Promi
       return { success: false, error: 'Aplicación no encontrada' }
     }
 
-    // If PDF already exists, return a fresh signed URL
+    // If PDF already exists, return a fresh 5-minute signed URL
     if (application.pdf_url) {
+      console.log('[PDF_GEN] PDF already exists, returning cached signed URL')
       const { data: signedData, error: signedError } = await supabaseAdmin
         .storage
         .from(bucket)
@@ -37,44 +40,60 @@ export async function generateApplicationPdfAction(applicationId: string): Promi
       return { success: true, url: signedData.signedUrl, cached: true }
     }
 
-    // Generate signed URLs for photos so the PDF renderer can fetch them
-    console.log('[ADMIN_PDF_GEN] Generating PDF for:', applicationId)
+    // Build photo signed URLs for PDF rendering (1-hour expiry)
+    const photoAvailability = {
+      passport: !!application.passport_photo_url,
+      previousVisa: !!application.previous_visa_photo_url,
+      visaPhoto: !!application.visa_photo_url,
+    }
+    console.log('[PDF_GEN] Photos available:', photoAvailability)
+
     const photoUrls: { passport?: string; previousVisa?: string; visaPhoto?: string } = {}
 
-    const photoFields: Array<[keyof typeof photoUrls, string]> = [
+    const photoFields: Array<[keyof typeof photoUrls, string | null]> = [
       ['passport', application.passport_photo_url],
       ['previousVisa', application.previous_visa_photo_url],
       ['visaPhoto', application.visa_photo_url],
     ]
 
     for (const [key, storagePath] of photoFields) {
-      if (storagePath) {
+      if (!storagePath) continue
+      try {
         const { data } = await supabaseAdmin.storage.from(bucket).createSignedUrl(storagePath, 3600)
-        if (data) photoUrls[key] = data.signedUrl
+        if (data) {
+          photoUrls[key] = data.signedUrl
+          console.log('[PDF_GEN] Signed URL OK for:', key)
+        }
+      } catch (e) {
+        console.error('[PDF_GEN] Could not get signed URL for:', key, e)
+        // Non-blocking — PDF renders without this photo
       }
     }
 
     // Render PDF
+    console.log('[PDF_GEN] Rendering PDF...')
     let pdfBuffer: Buffer
     try {
       pdfBuffer = await generateApplicationPdf(application.data, photoUrls)
+      console.log('[PDF_GEN] PDF generated, size:', pdfBuffer.length, 'bytes')
     } catch (pdfErr: any) {
-      console.error('[ADMIN_PDF_GEN] PDF rendering failed:', pdfErr)
+      console.error('[PDF_GEN] PDF rendering failed:', pdfErr)
       return {
         success: false,
-        error: 'La generación del PDF falló. Esto puede pasar con fotos muy grandes o caracteres especiales. Probá descargar los datos en JSON desde el botón de acciones.',
+        error: 'Error renderizando PDF. Puede ocurrir con caracteres especiales o imágenes corruptas. Intenta de nuevo o contacta soporte.',
       }
     }
 
     // Upload to Storage
+    console.log('[PDF_GEN] Uploading to storage...')
     const pdfPath = `${applicationId}/application.pdf`
     const { error: uploadError } = await supabaseAdmin.storage
       .from(bucket)
       .upload(pdfPath, pdfBuffer, { contentType: 'application/pdf', upsert: true })
 
     if (uploadError) {
-      console.error('[ADMIN_PDF_GEN] PDF upload failed:', uploadError)
-      return { success: false, error: 'No pudimos guardar el PDF generado' }
+      console.error('[PDF_GEN] Upload failed:', uploadError)
+      return { success: false, error: 'Error subiendo PDF a almacenamiento' }
     }
 
     // Update DB row with pdf_url
@@ -89,10 +108,11 @@ export async function generateApplicationPdfAction(applicationId: string): Promi
       .from(bucket)
       .createSignedUrl(pdfPath, 300)
 
+    console.log('[PDF_GEN] Done. PDF URL ready.')
     return { success: true, url: signedData?.signedUrl, cached: false }
 
   } catch (err: any) {
-    console.error('[ADMIN_PDF_GEN_CATCH]', err)
+    console.error('[PDF_GEN_CATCH]', err)
     return {
       success: false,
       error: err instanceof Error ? err.message : 'Error generando el PDF',

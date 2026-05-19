@@ -75,11 +75,12 @@ async function executeSubmit(
 
   const ADMIN_EMAIL = process.env.RESEND_ADMIN_EMAIL
   const FROM_EMAIL = process.env.RESEND_FROM_EMAIL
+  const bucket = process.env.SUPABASE_STORAGE_BUCKET
 
   const applicationId = uuidv4()
   const submittedAt = new Date().toISOString()
 
-  // 1. Save to Database FIRST so data is not lost if anything else fails
+  // 1. Save to Database FIRST — insert without photo paths (they come in step 2)
   console.log('[SUBMIT] Step 1: DB insert', Date.now() - t0, 'ms')
   try {
     const { error: dbError } = await supabaseAdmin
@@ -88,6 +89,9 @@ async function executeSubmit(
         id: applicationId,
         data: formData,
         pdf_url: null,
+        passport_photo_url: null,
+        visa_photo_url: null,
+        previous_visa_photo_url: null,
         ip_address: ipAddress,
         user_agent: userAgent,
         status: 'pending'
@@ -109,28 +113,63 @@ async function executeSubmit(
   try {
     if (photos.passport) {
       const { buffer, ext } = decodeBase64Image(photos.passport)
+      console.log('[PHOTO_COMPRESS] passport buffer size:', (buffer.length / 1024).toFixed(1), 'KB')
       passportStoragePath = await uploadVisaPhoto(buffer, `passport.${ext}`, applicationId, 'passport')
+      console.log('[PHOTO_UPLOAD] passport path:', passportStoragePath)
+    } else {
+      console.warn('[PHOTO_UPLOAD] No passport photo provided')
     }
 
     if (photos.previousVisa) {
       const { buffer, ext } = decodeBase64Image(photos.previousVisa)
+      console.log('[PHOTO_COMPRESS] previousVisa buffer size:', (buffer.length / 1024).toFixed(1), 'KB')
       previousVisaStoragePath = await uploadVisaPhoto(buffer, `previous_visa.${ext}`, applicationId, 'previous_visa')
+      console.log('[PHOTO_UPLOAD] previousVisa path:', previousVisaStoragePath)
+    } else {
+      console.log('[PHOTO_UPLOAD] No previous visa photo (optional — ok)')
     }
 
     if (photos.visaPhoto) {
       const { buffer, ext } = decodeBase64Image(photos.visaPhoto)
+      console.log('[PHOTO_COMPRESS] visaPhoto buffer size:', (buffer.length / 1024).toFixed(1), 'KB')
       visaPhotoStoragePath = await uploadVisaPhoto(buffer, `visa_photo.${ext}`, applicationId, 'visa_photo')
+      console.log('[PHOTO_UPLOAD] visaPhoto path:', visaPhotoStoragePath)
+    } else {
+      console.warn('[PHOTO_UPLOAD] No visa photo provided')
     }
+
     console.log('[SUBMIT] Photo upload OK', Date.now() - t0, 'ms')
   } catch (error: any) {
     console.error('[STORAGE_UPLOAD] Error subiendo fotos:', error)
-    // Non-blocking: continue even if photos fail — DB row already exists
+    // Non-blocking: DB row exists; continue without photos rather than fail the whole submission
   }
 
-  // 3. Generate 1-hour signed URLs for admin email photo links
-  console.log('[SUBMIT] Step 3: Signed URLs', Date.now() - t0, 'ms')
+  // 3. Update DB row with photo storage paths (critical fix — this was missing)
+  console.log('[SUBMIT] Step 3: Update DB with photo paths', Date.now() - t0, 'ms')
+  console.log('[PHOTO_PATHS]', {
+    passport: passportStoragePath || null,
+    previousVisa: previousVisaStoragePath || null,
+    visaPhoto: visaPhotoStoragePath || null,
+  })
+
+  try {
+    await supabaseAdmin
+      .from('visa_applications_usa')
+      .update({
+        passport_photo_url: passportStoragePath || null,
+        visa_photo_url: visaPhotoStoragePath || null,
+        previous_visa_photo_url: previousVisaStoragePath || null,
+      })
+      .eq('id', applicationId)
+    console.log('[SUBMIT] DB photo paths update OK', Date.now() - t0, 'ms')
+  } catch (error: any) {
+    console.error('[DB_PHOTO_UPDATE] Error actualizando rutas de fotos:', error)
+    // Non-blocking
+  }
+
+  // 4. Generate 1-hour signed URLs for admin email photo links
+  console.log('[SUBMIT] Step 4: Signed URLs', Date.now() - t0, 'ms')
   const signedPhotoUrls: { passport?: string; previousVisa?: string; visaPhoto?: string } = {}
-  const bucket = process.env.SUPABASE_STORAGE_BUCKET
 
   try {
     if (passportStoragePath) {
@@ -151,8 +190,8 @@ async function executeSubmit(
     // Non-blocking
   }
 
-  // 4. Send Emails (fire-and-forget — do not await, do not block submission)
-  console.log('[SUBMIT] Step 4: Sending emails', Date.now() - t0, 'ms')
+  // 5. Send Emails (fire-and-forget — do not await, do not block submission)
+  console.log('[SUBMIT] Step 5: Sending emails', Date.now() - t0, 'ms')
   try {
     const clientEmailHtml = getClientConfirmationEmail(formData)
     const adminEmailHtml = getAdminNotificationEmail(formData, applicationId, signedPhotoUrls, submittedAt, ipAddress)
