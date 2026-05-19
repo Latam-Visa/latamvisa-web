@@ -31,8 +31,8 @@ export function PhotoUploader({ name, label, hint, required, specsList }: PhotoU
       setErrorMsg('Formato inválido. Solo JPG, PNG, o WEBP.')
       return
     }
-    if (file.size > 10 * 1024 * 1024) {
-      setErrorMsg('El archivo original supera los 10MB.')
+    if (file.size > 50 * 1024 * 1024) {
+      setErrorMsg('El archivo original supera los 50MB.')
       return
     }
 
@@ -149,7 +149,7 @@ export function PhotoUploader({ name, label, hint, required, specsList }: PhotoU
                 <UploadCloud className="w-8 h-8" />
               </div>
               <p className="text-[#0A0A0A] font-medium text-lg mb-1">Haz clic o arrastra tu foto aquí</p>
-              <p className="text-[#A3A3A3] text-sm">JPEG, PNG, WEBP hasta 10MB</p>
+              <p className="text-[#A3A3A3] text-sm">JPEG, PNG, WEBP hasta 50MB</p>
             </div>
           )}
         </div>
