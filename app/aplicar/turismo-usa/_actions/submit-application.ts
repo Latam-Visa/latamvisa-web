@@ -23,8 +23,7 @@ function decodeBase64Image(dataString: string) {
 }
 
 export async function submitUsaApplication(
-  formData: any,
-  photos: { passport?: string; previousVisa?: string; visaPhoto: string }
+  formDataInput: FormData
 ): Promise<{ success: boolean; applicationId?: string; error?: string; errorCode?: string; digest?: string }> {
   
   let ipAddress = 'unknown'
@@ -39,6 +38,13 @@ export async function submitUsaApplication(
   }
 
   try {
+    const formData = JSON.parse(formDataInput.get('data') as string)
+    const photos = {
+      passport: formDataInput.get('passport') as string | undefined,
+      previousVisa: formDataInput.get('previousVisa') as string | undefined,
+      visaPhoto: formDataInput.get('visaPhoto') as string | undefined,
+    }
+
     return await executeSubmit(formData, photos, ipAddress, userAgent)
   } catch (error: any) {
     console.error('[GLOBAL_CATCH] Error:', error.message, error.stack, error.cause);

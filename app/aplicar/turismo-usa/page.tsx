@@ -168,13 +168,27 @@ export default function TurismoUsaApplication() {
     setIsSubmitting(true)
     
     try {
-      const photos = {
-        passport: data.step3Passport.passportPhotoFile,
-        previousVisa: data.step5VisaHistory?.previousVisaPhotoFile,
-        visaPhoto: data.step8Additional.visaPhotoFile
+      const formDataToSend = new FormData()
+      
+      // Remove large base64 strings from data before stringifying to avoid overhead
+      const dataWithoutPhotos = { ...data }
+      if (dataWithoutPhotos.step3Passport) delete dataWithoutPhotos.step3Passport.passportPhotoFile
+      if (dataWithoutPhotos.step5VisaHistory) delete dataWithoutPhotos.step5VisaHistory.previousVisaPhotoFile
+      if (dataWithoutPhotos.step8Additional) delete dataWithoutPhotos.step8Additional.visaPhotoFile
+      
+      formDataToSend.append('data', JSON.stringify(dataWithoutPhotos))
+      
+      if (data.step3Passport.passportPhotoFile) {
+        formDataToSend.append('passport', data.step3Passport.passportPhotoFile)
+      }
+      if (data.step5VisaHistory?.previousVisaPhotoFile) {
+        formDataToSend.append('previousVisa', data.step5VisaHistory.previousVisaPhotoFile)
+      }
+      if (data.step8Additional.visaPhotoFile) {
+        formDataToSend.append('visaPhoto', data.step8Additional.visaPhotoFile)
       }
 
-      const response = await submitUsaApplication(data, photos)
+      const response = await submitUsaApplication(formDataToSend)
 
       if (!response.success) {
         alert(response.error || 'Hubo un error al enviar la aplicación. Por favor, intenta de nuevo.')
