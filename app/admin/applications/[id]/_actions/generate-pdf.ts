@@ -84,17 +84,23 @@ export async function generateApplicationPdfAction(applicationId: string): Promi
       previousVisa: prevVisaDataUri,
     }
 
-    // Render PDF
-    console.log('[PDF_GEN] Rendering PDF...')
+    // Render PDF — try with photos first, fall back to text-only if image embedding fails
+    console.log('[PDF_GEN] Rendering PDF (with photos)...')
     let pdfBuffer: Buffer
     try {
       pdfBuffer = await generateApplicationPdf(application.data, photoUrls)
-      console.log('[PDF_GEN] PDF generated, size:', pdfBuffer.length, 'bytes')
-    } catch (pdfErr: any) {
-      console.error('[PDF_GEN] PDF rendering failed:', pdfErr)
-      return {
-        success: false,
-        error: 'Error renderizando PDF. Puede ocurrir con caracteres especiales. Intenta de nuevo o contacta soporte.',
+      console.log('[PDF_GEN] PDF with photos generated, size:', pdfBuffer.length, 'bytes')
+    } catch (pdfErrWithPhotos: any) {
+      console.error('[PDF_GEN] PDF with photos failed:', pdfErrWithPhotos.message, '— retrying without photos')
+      try {
+        pdfBuffer = await generateApplicationPdf(application.data, {})
+        console.log('[PDF_GEN] PDF text-only generated, size:', pdfBuffer.length, 'bytes')
+      } catch (pdfErrNoPhotos: any) {
+        console.error('[PDF_GEN] PDF text-only also failed:', pdfErrNoPhotos.message)
+        return {
+          success: false,
+          error: `Error al generar PDF: ${pdfErrNoPhotos.message}`,
+        }
       }
     }
 

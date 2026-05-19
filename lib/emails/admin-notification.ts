@@ -29,7 +29,6 @@ function formatDate(dateStr: string | undefined): string {
 export function getAdminNotificationEmail(
   formData: any,
   applicationId: string,
-  signedPhotoUrls: { passport?: string; previousVisa?: string; visaPhoto?: string },
   submittedAt: string,
   ipAddress: string
 ): string {
@@ -45,19 +44,6 @@ export function getAdminNotificationEmail(
   const waMsg = encodeURIComponent(
     `Hola ${firstName}! Recibimos tu aplicación de visa USA. Para continuar necesito 2 fotos: 1) Pasaporte (página de datos) 2) Foto tipo visa con fondo blanco. ¡Gracias!`
   )
-
-  const photoRow = (label: string, url: string | undefined) => {
-    if (!url) return ''
-    return `
-      <tr>
-        <td style="padding:8px 12px 8px 0;color:#888;font-size:13px;width:160px;vertical-align:top;">${label}</td>
-        <td style="padding:8px 0;font-size:13px;">
-          <a href="${url}" target="_blank" style="color:#C8FF00;text-decoration:none;">🔗 Ver foto (válida 1h)</a>
-        </td>
-      </tr>`
-  }
-
-  const hasAnyPhoto = signedPhotoUrls.passport || signedPhotoUrls.visaPhoto || signedPhotoUrls.previousVisa
 
   return `
 <!DOCTYPE html>
@@ -148,16 +134,6 @@ export function getAdminNotificationEmail(
       </table>
     </div>
 
-    ${hasAnyPhoto ? `
-    <!-- Photos -->
-    <div style="background:#0A0A0A;border:1px solid #222;border-radius:10px;padding:20px 24px;margin-bottom:28px;">
-      <div style="font-size:13px;font-weight:bold;color:#C8FF00;margin-bottom:12px;text-transform:uppercase;letter-spacing:1px;">📸 Fotos del cliente</div>
-      <table style="width:100%;border-collapse:collapse;">
-        ${photoRow('Foto de pasaporte', signedPhotoUrls.passport)}
-        ${photoRow('Foto tipo visa', signedPhotoUrls.visaPhoto)}
-        ${photoRow('Visa anterior', signedPhotoUrls.previousVisa)}
-      </table>
-    </div>` : ''}
 
   </div>
 

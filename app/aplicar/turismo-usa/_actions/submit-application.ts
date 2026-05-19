@@ -36,17 +36,6 @@ export async function submitUsaApplication(
   }
 }
 
-async function getSignedUrl(bucket: string, path: string | null): Promise<string | undefined> {
-  if (!path) return undefined
-  try {
-    const { data, error } = await supabaseAdmin.storage.from(bucket).createSignedUrl(path, 3600)
-    if (error || !data) return undefined
-    return data.signedUrl
-  } catch {
-    return undefined
-  }
-}
-
 async function executeSubmit(formData: any, ipAddress: string, userAgent: string) {
   const t0 = Date.now()
   console.log('[SUBMIT] Start', new Date().toISOString())
@@ -64,7 +53,6 @@ async function executeSubmit(formData: any, ipAddress: string, userAgent: string
 
   const ADMIN_EMAIL = process.env.RESEND_ADMIN_EMAIL
   const FROM_EMAIL = process.env.RESEND_FROM_EMAIL
-  const bucket = process.env.SUPABASE_STORAGE_BUCKET || 'visa-documents'
 
   const applicationId = uuidv4()
   const submittedAt = new Date().toISOString()
@@ -98,22 +86,9 @@ async function executeSubmit(formData: any, ipAddress: string, userAgent: string
     return { success: false, error: 'No pudimos guardar tu aplicación. Intentá en unos minutos.', errorCode: 'DB_INSERT' }
   }
 
-  // 2. Generate signed photo URLs for admin email (1 hour validity)
-  const [passportSignedUrl, visaSignedUrl, previousVisaSignedUrl] = await Promise.all([
-    getSignedUrl(bucket, passportPhotoPath),
-    getSignedUrl(bucket, visaPhotoPath),
-    getSignedUrl(bucket, previousVisaPhotoPath),
-  ])
-
-  const signedPhotoUrls = {
-    passport: passportSignedUrl,
-    visaPhoto: visaSignedUrl,
-    previousVisa: previousVisaSignedUrl,
-  }
-
-  // 3. Send admin email
+  // 2. Send admin email
   try {
-    const adminEmailHtml = getAdminNotificationEmail(formData, applicationId, signedPhotoUrls, submittedAt, ipAddress)
+    const adminEmailHtml = getAdminNotificationEmail(formData, applicationId, submittedAt, ipAddress)
     await resend.emails.send({
       from: FROM_EMAIL,
       to: ADMIN_EMAIL,
