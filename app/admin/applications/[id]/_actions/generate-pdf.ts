@@ -40,47 +40,17 @@ export async function generateApplicationPdfAction(applicationId: string): Promi
       return { success: true, url: signedData.signedUrl, cached: true }
     }
 
-    // Build photo signed URLs for PDF rendering (1-hour expiry)
-    const photoAvailability = {
-      passport: !!application.passport_photo_url,
-      previousVisa: !!application.previous_visa_photo_url,
-      visaPhoto: !!application.visa_photo_url,
-    }
-    console.log('[PDF_GEN] Photos available:', photoAvailability)
-
-    const photoUrls: { passport?: string; previousVisa?: string; visaPhoto?: string } = {}
-
-    const photoFields: Array<[keyof typeof photoUrls, string | null]> = [
-      ['passport', application.passport_photo_url],
-      ['previousVisa', application.previous_visa_photo_url],
-      ['visaPhoto', application.visa_photo_url],
-    ]
-
-    for (const [key, storagePath] of photoFields) {
-      if (!storagePath) continue
-      try {
-        const { data } = await supabaseAdmin.storage.from(bucket).createSignedUrl(storagePath, 3600)
-        if (data) {
-          photoUrls[key] = data.signedUrl
-          console.log('[PDF_GEN] Signed URL OK for:', key)
-        }
-      } catch (e) {
-        console.error('[PDF_GEN] Could not get signed URL for:', key, e)
-        // Non-blocking — PDF renders without this photo
-      }
-    }
-
-    // Render PDF
+    // Render PDF (no photos — they are requested via WhatsApp)
     console.log('[PDF_GEN] Rendering PDF...')
     let pdfBuffer: Buffer
     try {
-      pdfBuffer = await generateApplicationPdf(application.data, photoUrls)
+      pdfBuffer = await generateApplicationPdf(application.data, {})
       console.log('[PDF_GEN] PDF generated, size:', pdfBuffer.length, 'bytes')
     } catch (pdfErr: any) {
       console.error('[PDF_GEN] PDF rendering failed:', pdfErr)
       return {
         success: false,
-        error: 'Error renderizando PDF. Puede ocurrir con caracteres especiales o imágenes corruptas. Intenta de nuevo o contacta soporte.',
+        error: 'Error renderizando PDF. Puede ocurrir con caracteres especiales. Intenta de nuevo o contacta soporte.',
       }
     }
 
@@ -108,7 +78,7 @@ export async function generateApplicationPdfAction(applicationId: string): Promi
       .from(bucket)
       .createSignedUrl(pdfPath, 300)
 
-    console.log('[PDF_GEN] Done. PDF URL ready.')
+    console.log('[PDF_GEN] Done.')
     return { success: true, url: signedData?.signedUrl, cached: false }
 
   } catch (err: any) {

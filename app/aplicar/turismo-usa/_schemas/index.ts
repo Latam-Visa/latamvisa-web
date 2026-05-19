@@ -53,7 +53,6 @@ export const step3Schema = z.object({
   passportIssueCountry: requiredString,
   passportLostStolen: z.enum(['true', 'false'], { error: 'Debes responder esta pregunta' }),
   passportLostDetails: z.string().optional(),
-  passportPhotoFile: z.string().min(1, 'Subí la foto del pasaporte antes de continuar'),
 }).superRefine((data, ctx) => {
   if (data.passportLostStolen === 'true' && !data.passportLostDetails?.trim()) {
     ctx.addIssue({
@@ -127,7 +126,6 @@ export const step5Schema = z.object({
   previousVisaExpiryDate: z.string().optional(),
   hadUsDriversLicense: z.enum(['true', 'false']).optional(),
   fingerprintedBefore: z.enum(['true', 'false']).optional(),
-  previousVisaPhotoFile: z.string().optional(),
 }).superRefine((data, ctx) => {
   if (data.visaDeniedBefore === 'true' && (!data.visaDeniedDetails || data.visaDeniedDetails.length < 10)) {
     ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Explica con más detalle (min 10 caracteres)', path: ['visaDeniedDetails'] })
@@ -212,7 +210,6 @@ export const step8Schema = z.object({
   criminalRecord: requiredString,
   medicalConditions: requiredString,
   deportationHistory: requiredString,
-  visaPhotoFile: requiredString,
 }).superRefine((data, ctx) => {
   if (data.militaryService === 'true') {
     if (!data.militaryCity?.trim()) ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Campo requerido', path: ['militaryCity'] })

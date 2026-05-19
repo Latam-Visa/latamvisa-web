@@ -1,20 +1,31 @@
 import { useFormContext } from 'react-hook-form'
 import { FormField } from './FormField'
-import { PhotoUploader } from './PhotoUploader'
 
 export function Step5VisaHistory() {
-  const { register, watch, formState } = useFormContext()
+  const { register, watch, formState, setValue, clearErrors } = useFormContext()
   const errors = formState.errors as any
-  
+
   const visaDeniedBefore = watch('step5VisaHistory.visaDeniedBefore')
   const hadPreviousUsaVisa = watch('step5VisaHistory.hadPreviousUsaVisa')
 
+  const handleHadPreviousVisaChange = (val: string) => {
+    if (val === 'false') {
+      setValue('step5VisaHistory.previousVisaDetails', '')
+      setValue('step5VisaHistory.previousVisaNumber', '')
+      setValue('step5VisaHistory.previousVisaIssueDate', '')
+      setValue('step5VisaHistory.previousVisaExpiryDate', '')
+      setValue('step5VisaHistory.hadUsDriversLicense', undefined as any)
+      setValue('step5VisaHistory.fingerprintedBefore', undefined as any)
+      clearErrors('step5VisaHistory')
+    }
+  }
+
   return (
     <div className="space-y-6">
-      <FormField 
-        label="¿Te han negado una visa USA, denegado entrada al país, o retirado tu solicitud en un puerto de entrada?" 
-        name="step5VisaHistory.visaDeniedBefore" 
-        required 
+      <FormField
+        label="¿Te han negado una visa USA, denegado entrada al país, o retirado tu solicitud en un puerto de entrada?"
+        name="step5VisaHistory.visaDeniedBefore"
+        required
         error={errors.step5VisaHistory?.visaDeniedBefore?.message as string}
       >
         <div className="flex gap-6 mt-2">
@@ -31,10 +42,10 @@ export function Step5VisaHistory() {
 
       {visaDeniedBefore === 'true' && (
         <div className="bg-[#F5F5F0] p-6 rounded-xl border border-[#E5E5E5] space-y-4">
-          <FormField 
-            label="Explica cuántas veces y qué pasó" 
-            name="step5VisaHistory.visaDeniedDetails" 
-            required 
+          <FormField
+            label="Explica cuántas veces y qué pasó"
+            name="step5VisaHistory.visaDeniedDetails"
+            required
             hint="Sé honesto, esto es importante y quedará en tu registro."
             error={errors.step5VisaHistory?.visaDeniedDetails?.message as string}
           >
@@ -48,19 +59,31 @@ export function Step5VisaHistory() {
       )}
 
       <div className="pt-4 border-t border-[#E5E5E5]">
-        <FormField 
-          label="¿Has tenido visa USA antes?" 
-          name="step5VisaHistory.hadPreviousUsaVisa" 
-          required 
+        <FormField
+          label="¿Has tenido visa USA antes?"
+          name="step5VisaHistory.hadPreviousUsaVisa"
+          required
           error={errors.step5VisaHistory?.hadPreviousUsaVisa?.message as string}
         >
           <div className="flex gap-6 mt-2">
             <label className="flex items-center gap-3 cursor-pointer group">
-              <input type="radio" value="true" {...register('step5VisaHistory.hadPreviousUsaVisa')} className="w-5 h-5 accent-[#C8FF00] bg-[#F5F5F0] border-[#E5E5E5] focus:ring-[#C8FF00]" />
+              <input
+                type="radio"
+                value="true"
+                {...register('step5VisaHistory.hadPreviousUsaVisa')}
+                className="w-5 h-5 accent-[#C8FF00] bg-[#F5F5F0] border-[#E5E5E5] focus:ring-[#C8FF00]"
+              />
               <span className="text-[#525252] group-hover:text-[#0A0A0A] transition-colors">Sí</span>
             </label>
             <label className="flex items-center gap-3 cursor-pointer group">
-              <input type="radio" value="false" {...register('step5VisaHistory.hadPreviousUsaVisa')} className="w-5 h-5 accent-[#C8FF00] bg-[#F5F5F0] border-[#E5E5E5] focus:ring-[#C8FF00]" />
+              <input
+                type="radio"
+                value="false"
+                {...register('step5VisaHistory.hadPreviousUsaVisa', {
+                  onChange: (e) => handleHadPreviousVisaChange(e.target.value)
+                })}
+                className="w-5 h-5 accent-[#C8FF00] bg-[#F5F5F0] border-[#E5E5E5] focus:ring-[#C8FF00]"
+              />
               <span className="text-[#525252] group-hover:text-[#0A0A0A] transition-colors">No</span>
             </label>
           </div>
@@ -70,11 +93,11 @@ export function Step5VisaHistory() {
       {hadPreviousUsaVisa === 'true' && (
         <div className="bg-[#F5F5F0] p-6 rounded-xl border border-[#E5E5E5] space-y-6">
           <h3 className="text-[#C8FF00] font-medium text-sm uppercase tracking-wider mb-2">Detalles de tu visa anterior</h3>
-          
-          <FormField 
-            label="Fechas de entrada y salida a USA" 
-            name="step5VisaHistory.previousVisaDetails" 
-            required 
+
+          <FormField
+            label="Fechas de entrada y salida a USA"
+            name="step5VisaHistory.previousVisaDetails"
+            required
             hint="Ej: 03/2019 entrada - 09/2019 salida; 12/2021 entrada - 01/2022 salida"
             error={errors.step5VisaHistory?.previousVisaDetails?.message as string}
           >
@@ -84,10 +107,10 @@ export function Step5VisaHistory() {
             />
           </FormField>
 
-          <FormField 
-            label="Número de visa anterior" 
-            name="step5VisaHistory.previousVisaNumber" 
-            required 
+          <FormField
+            label="Número de visa anterior"
+            name="step5VisaHistory.previousVisaNumber"
+            required
             hint="Letras y números en rojo en la esquina inferior derecha de la visa"
             error={errors.step5VisaHistory?.previousVisaNumber?.message as string}
           >
@@ -113,21 +136,13 @@ export function Step5VisaHistory() {
                 <label className="flex items-center gap-2 cursor-pointer group"><input type="radio" value="false" {...register('step5VisaHistory.hadUsDriversLicense')} className="w-5 h-5 accent-[#C8FF00] bg-[#F5F5F0] border-[#E5E5E5]" /><span className="text-[#525252] group-hover:text-[#0A0A0A]">No</span></label>
               </div>
             </FormField>
-            
+
             <FormField label="¿Te tomaron huellas dactilares?" name="step5VisaHistory.fingerprintedBefore" required error={errors.step5VisaHistory?.fingerprintedBefore?.message as string}>
               <div className="flex gap-4 mt-2">
                 <label className="flex items-center gap-2 cursor-pointer group"><input type="radio" value="true" {...register('step5VisaHistory.fingerprintedBefore')} className="w-5 h-5 accent-[#C8FF00] bg-[#F5F5F0] border-[#E5E5E5]" /><span className="text-[#525252] group-hover:text-[#0A0A0A]">Sí</span></label>
                 <label className="flex items-center gap-2 cursor-pointer group"><input type="radio" value="false" {...register('step5VisaHistory.fingerprintedBefore')} className="w-5 h-5 accent-[#C8FF00] bg-[#F5F5F0] border-[#E5E5E5]" /><span className="text-[#525252] group-hover:text-[#0A0A0A]">No</span></label>
               </div>
             </FormField>
-          </div>
-
-          <div className="pt-2">
-            <PhotoUploader 
-              name="step5VisaHistory.previousVisaPhotoFile" 
-              label="Foto de la visa anterior (Opcional)" 
-              hint="Sube una foto clara de tu visa anterior si la tienes."
-            />
           </div>
         </div>
       )}

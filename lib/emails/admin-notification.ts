@@ -160,19 +160,19 @@ export function getAdminNotificationEmail(
       </table>
     </div>
 
-    <!-- Photo Links -->
-    <div style="background:#0A0A0A;border:1px solid #222;border-radius:10px;padding:20px 24px;margin-bottom:28px;">
-      <div style="font-size:14px;font-weight:bold;color:#C8FF00;margin-bottom:12px;">📷 Fotos del aplicante</div>
-      ${signedPhotoUrls.passport
-        ? `<p style="margin:0 0 8px 0;font-size:13px;">🛂 <strong>Foto del pasaporte:</strong> <a href="${signedPhotoUrls.passport}" style="color:#C8FF00;">Ver foto</a></p>`
-        : `<p style="margin:0 0 8px 0;font-size:13px;color:#FF6B6B;">⚠️ Foto del pasaporte: No adjuntada (revisar)</p>`}
-      ${signedPhotoUrls.visaPhoto
-        ? `<p style="margin:0 0 8px 0;font-size:13px;">🖼️ <strong>Foto tipo visa:</strong> <a href="${signedPhotoUrls.visaPhoto}" style="color:#C8FF00;">Ver foto</a></p>`
-        : `<p style="margin:0 0 8px 0;font-size:13px;color:#FF6B6B;">⚠️ Foto tipo visa: No adjuntada (revisar)</p>`}
-      ${signedPhotoUrls.previousVisa
-        ? `<p style="margin:0 0 8px 0;font-size:13px;">📋 <strong>Foto visa anterior:</strong> <a href="${signedPhotoUrls.previousVisa}" style="color:#C8FF00;">Ver foto</a></p>`
-        : `<p style="margin:0 0 8px 0;font-size:13px;color:#666;">📋 Foto visa anterior: No aplica (sin visa previa)</p>`}
-      <p style="margin:12px 0 0 0;font-size:11px;color:#444;">Los enlaces expiran en 1 hora. Si necesitás verlas después, abrí la aplicación en el dashboard.</p>
+    <!-- Photo Request Card -->
+    <div style="background:#0A0A0A;border:1px solid #333;border-radius:10px;padding:20px 24px;margin-bottom:28px;">
+      <div style="font-size:14px;font-weight:bold;color:#C8FF00;margin-bottom:10px;">📸 Fotos del cliente</div>
+      <p style="margin:0 0 12px 0;font-size:13px;color:#FF6B6B;">⚠️ Las fotos NO se solicitan en el formulario. Tenés que pedírselas al cliente por WhatsApp:</p>
+      <ul style="margin:0 0 16px 0;padding-left:18px;color:#CCC;font-size:13px;line-height:1.8;">
+        <li>Foto del pasaporte (página de datos, sin reflejos)</li>
+        <li>Foto tipo visa (fondo blanco, frente, sin lentes ni sombrero)</li>
+        <li>Foto de visa USA anterior (si aplica)</li>
+      </ul>
+      <a href="https://wa.me/${waNumber}?text=${encodeURIComponent(`Hola ${(c.fullName || '').split(' ')[0]}! Recibimos tu aplicación de visa USA. Para continuar necesito que me mandes 2 fotos por acá: 1) Foto de la página de datos de tu pasaporte y 2) Foto tipo visa con fondo blanco. ¡Gracias!`)}"
+         style="display:inline-block;background:#25D366;color:#FFF;padding:10px 20px;border-radius:8px;font-weight:bold;font-size:13px;text-decoration:none;">
+        💬 Escribir al cliente por WhatsApp
+      </a>
     </div>
 
     <!-- Full Data Sections -->

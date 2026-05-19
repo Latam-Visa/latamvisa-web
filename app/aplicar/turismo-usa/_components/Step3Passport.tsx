@@ -1,21 +1,20 @@
 import { useFormContext } from 'react-hook-form'
 import { FormField } from './FormField'
-import { PhotoUploader } from './PhotoUploader'
 import { ALL_COUNTRIES } from '@/lib/constants/countries'
 
 export function Step3Passport() {
   const { register, watch, formState } = useFormContext()
   const errors = formState.errors as any
-  
+
   const passportLostStolen = watch('step3Passport.passportLostStolen')
 
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <FormField 
-          label="Número de pasaporte" 
-          name="step3Passport.passportNumber" 
-          required 
+        <FormField
+          label="Número de pasaporte"
+          name="step3Passport.passportNumber"
+          required
           error={errors.step3Passport?.passportNumber?.message as string}
         >
           <input
@@ -25,10 +24,10 @@ export function Step3Passport() {
           />
         </FormField>
 
-        <FormField 
-          label="País de emisión" 
-          name="step3Passport.passportIssueCountry" 
-          required 
+        <FormField
+          label="País de emisión"
+          name="step3Passport.passportIssueCountry"
+          required
           error={errors.step3Passport?.passportIssueCountry?.message as string}
         >
           <select
@@ -46,10 +45,10 @@ export function Step3Passport() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <FormField 
-          label="Fecha de emisión" 
-          name="step3Passport.passportIssueDate" 
-          required 
+        <FormField
+          label="Fecha de emisión"
+          name="step3Passport.passportIssueDate"
+          required
           error={errors.step3Passport?.passportIssueDate?.message as string}
         >
           <input
@@ -59,10 +58,10 @@ export function Step3Passport() {
           />
         </FormField>
 
-        <FormField 
-          label="Fecha de expiración" 
-          name="step3Passport.passportExpiryDate" 
-          required 
+        <FormField
+          label="Fecha de expiración"
+          name="step3Passport.passportExpiryDate"
+          required
           error={errors.step3Passport?.passportExpiryDate?.message as string}
         >
           <input
@@ -74,10 +73,10 @@ export function Step3Passport() {
       </div>
 
       <div className="pt-4 border-t border-[#E5E5E5]">
-        <FormField 
-          label="¿Has perdido o te han robado un pasaporte alguna vez?" 
-          name="step3Passport.passportLostStolen" 
-          required 
+        <FormField
+          label="¿Has perdido o te han robado un pasaporte alguna vez?"
+          name="step3Passport.passportLostStolen"
+          required
           error={errors.step3Passport?.passportLostStolen?.message as string}
         >
           <div className="flex gap-6 mt-2">
@@ -105,10 +104,10 @@ export function Step3Passport() {
 
       {passportLostStolen === 'true' && (
         <div className="bg-[#F5F5F0] p-6 rounded-xl border border-[#E5E5E5] space-y-6">
-          <FormField 
-            label="Breve explicación de lo ocurrido" 
-            name="step3Passport.passportLostDetails" 
-            required 
+          <FormField
+            label="Breve explicación de lo ocurrido"
+            name="step3Passport.passportLostDetails"
+            required
             error={errors.step3Passport?.passportLostDetails?.message as string}
           >
             <textarea
@@ -120,13 +119,11 @@ export function Step3Passport() {
         </div>
       )}
 
-      <div className="pt-4 border-t border-[#E5E5E5]">
-        <PhotoUploader 
-          name="step3Passport.passportPhotoFile" 
-          label="Foto del pasaporte (Página de datos)" 
-          required 
-          hint="Sube una foto clara, sin reflejos, donde todos los datos sean legibles. (Max 10MB)"
-        />
+      <div className="mt-2 bg-[#F0FFF0] border border-[#C8FF00]/40 rounded-xl px-5 py-4 flex gap-3">
+        <span className="text-xl shrink-0">📸</span>
+        <p className="text-sm text-[#525252] leading-relaxed">
+          <strong className="text-[#0A0A0A]">Sobre las fotos:</strong> Después de enviar este formulario, te contactaremos por WhatsApp para pedirte las fotos que necesitamos (pasaporte, foto tipo visa). Es más rápido y seguro mandarlas por ese medio.
+        </p>
       </div>
     </div>
   )

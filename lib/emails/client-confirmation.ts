@@ -91,6 +91,17 @@ export function getClientConfirmationEmail(formData: any): string {
       </div>
     </div>
 
+    <!-- Photo notice -->
+    <div style="background:#0F1A0F;border:1px solid #1E3A1E;border-radius:8px;padding:16px 20px;margin-bottom:20px;">
+      <div style="font-size:14px;font-weight:bold;color:#C8FF00;margin-bottom:10px;">📸 Sobre las fotos</div>
+      <p style="margin:0 0 10px 0;font-size:13px;color:#CCC;line-height:1.5;">En las próximas horas te vamos a escribir por WhatsApp pidiéndote 2 fotos importantes:</p>
+      <ol style="margin:0 0 8px 0;padding-left:18px;color:#CCC;font-size:13px;line-height:1.9;">
+        <li>Foto de la página de datos de tu pasaporte</li>
+        <li>Foto tipo visa (fondo blanco, frente, sin lentes ni sombrero)</li>
+      </ol>
+      <p style="margin:0;font-size:12px;color:#666;">Tenelas listas en tu celular para que el proceso sea más rápido.</p>
+    </div>
+
     <!-- Error correction note -->
     <div style="background:#0F0F0F;border:1px solid #1E1E1E;border-radius:8px;padding:16px 20px;margin-bottom:28px;">
       <p style="margin:0;font-size:13px;color:#888;line-height:1.5;">Si encontraste algún error en lo que llenaste, no te preocupes — respondé este email y lo corregimos al toque.</p>

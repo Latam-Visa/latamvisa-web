@@ -1,11 +1,10 @@
 import { useFormContext } from 'react-hook-form'
 import { FormField } from './FormField'
-import { PhotoUploader } from './PhotoUploader'
 
 export function Step8Additional() {
   const { register, watch, formState } = useFormContext()
   const errors = formState.errors as any
-  
+
   const militaryService = watch('step8Additional.militaryService')
 
   return (
@@ -54,21 +53,11 @@ export function Step8Additional() {
         </FormField>
       </div>
 
-      <div className="pt-4 border-t border-[#E5E5E5]">
-        <PhotoUploader 
-          name="step8Additional.visaPhotoFile" 
-          label="Foto tipo visa del solicitante" 
-          required 
-          specsList={[
-            "Foto a color con resolución de 600 dpi o más",
-            "Fondo blanco o color claro uniforme, sin sombras ni objetos",
-            "Mirando directamente a la cámara, expresión neutral",
-            "Cabeza centrada, ocupa entre 50-69% del área de la imagen",
-            "Ambos ojos visibles, sin cabello cubriendo, sin gafas",
-            "Sin sombrero, gorra, bufanda ni accesorios que cubran cabeza/cara",
-            "Formato JPEG, PNG o WEBP con alta calidad"
-          ]}
-        />
+      <div className="mt-2 bg-[#F0FFF0] border border-[#C8FF00]/40 rounded-xl px-5 py-4 flex gap-3">
+        <span className="text-xl shrink-0">📸</span>
+        <p className="text-sm text-[#525252] leading-relaxed">
+          <strong className="text-[#0A0A0A]">Fotos requeridas:</strong> Las fotos (pasaporte y foto tipo visa) te las pediremos por WhatsApp luego de que envíes este formulario. No necesitás adjuntar nada aquí.
+        </p>
       </div>
     </div>
   )
