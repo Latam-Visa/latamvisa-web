@@ -17,7 +17,7 @@ export function Step6Family() {
   return (
     <div className="space-y-8">
       <div className="space-y-6">
-        <h3 className="text-[#C8FF00] font-medium text-sm uppercase tracking-wider border-b border-[#E5E5E5] pb-2">Datos del Padre</h3>
+        <h3 className="text-lg font-medium text-[#0A0A0A] border-b border-[#E5E5E5] pb-2">Datos del Padre</h3>
         <FormField label="Nombre completo del padre" name="step6Family.fatherFullName" required error={errors.step6Family?.fatherFullName?.message as string}>
           <input {...register('step6Family.fatherFullName')} className="w-full bg-[#F5F5F0] border border-[#E5E5E5] rounded-lg px-4 py-3 text-[#0A0A0A] focus:outline-none focus:border-[#C8FF00] focus:ring-2 focus:ring-[#C8FF00] focus:bg-white transition-colors" />
         </FormField>
@@ -37,7 +37,7 @@ export function Step6Family() {
       </div>
 
       <div className="space-y-6 pt-4">
-        <h3 className="text-[#C8FF00] font-medium text-sm uppercase tracking-wider border-b border-[#E5E5E5] pb-2">Datos de la Madre</h3>
+        <h3 className="text-lg font-medium text-[#0A0A0A] border-b border-[#E5E5E5] pb-2">Datos de la Madre</h3>
         <FormField label="Nombre completo de la madre" name="step6Family.motherFullName" error={errors.step6Family?.motherFullName?.message as string}>
           <input {...register('step6Family.motherFullName')} className="w-full bg-[#F5F5F0] border border-[#E5E5E5] rounded-lg px-4 py-3 text-[#0A0A0A] focus:outline-none focus:border-[#C8FF00] focus:ring-2 focus:ring-[#C8FF00] focus:bg-white transition-colors" />
         </FormField>
@@ -78,7 +78,7 @@ export function Step6Family() {
               <button type="button" onClick={() => remove(index)} className="absolute top-4 right-4 text-[#A3A3A3] hover:text-[#DC2626] transition-colors">
                 <Trash2 className="w-5 h-5" />
               </button>
-              <h3 className="text-[#C8FF00] font-medium text-sm uppercase tracking-wider mb-2">Familiar en USA {index + 1}</h3>
+              <h3 className="text-lg font-medium text-[#0A0A0A] mb-2">Familiar en USA {index + 1}</h3>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <FormField label="Nombre completo" name={`step6Family.familyInUsaDetails.${index}.fullName`} required error={errors.step6Family?.familyInUsaDetails?.[index]?.fullName?.message as string}>

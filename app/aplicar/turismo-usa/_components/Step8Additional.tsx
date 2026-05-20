@@ -19,7 +19,7 @@ export function Step8Additional() {
 
       {militaryService === 'true' && (
         <div className="bg-[#F5F5F0] p-6 rounded-xl border border-[#E5E5E5] space-y-4">
-          <h3 className="text-[#C8FF00] font-medium text-sm uppercase tracking-wider mb-2">Detalles del servicio militar</h3>
+          <h3 className="text-lg font-medium text-[#0A0A0A] mb-2">Detalles del servicio militar</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <FormField label="Ciudad donde serviste" name="step8Additional.militaryCity" required error={errors.step8Additional?.militaryCity?.message as string}>
               <input {...register('step8Additional.militaryCity')} className="w-full bg-[#F5F5F0] border border-[#E5E5E5] rounded-lg px-4 py-3 text-[#0A0A0A] focus:outline-none focus:border-[#C8FF00]" />

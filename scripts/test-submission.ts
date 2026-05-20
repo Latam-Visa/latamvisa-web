@@ -87,7 +87,9 @@ async function runTest() {
     visaPhoto: dummyBase64Jpeg
   }
   
-  const result = await submitUsaApplication(dummyFormData, photos)
+  const formData = new FormData()
+  formData.append('data', JSON.stringify(dummyFormData))
+  const result = await submitUsaApplication(formData)
   console.log('--- Test Submission Result ---')
   console.log(result)
 }

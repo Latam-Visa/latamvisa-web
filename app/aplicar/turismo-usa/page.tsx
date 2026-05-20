@@ -46,6 +46,7 @@ export default function TurismoUsaApplication() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isValidating, setIsValidating] = useState(false)
   const [showErrorToast, setShowErrorToast] = useState(false)
+  const [showSuccess, setShowSuccess] = useState(false)
 
   const methods = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -53,7 +54,8 @@ export default function TurismoUsaApplication() {
     defaultValues: {
       step4Travel: {
         accommodation: [{ type: '', address: '' }],
-        travelCompanions: []
+        travelCompanions: [],
+        touristPlaces: [{ place: '' }],
       },
       step6Family: {
         familyInUsaDetails: []
@@ -181,7 +183,10 @@ export default function TurismoUsaApplication() {
 
       // Clear local storage on final submit success
       localStorage.removeItem(STORAGE_KEY)
-      router.push('/gracias-usa')
+      setShowSuccess(true)
+      setTimeout(() => {
+        window.location.href = 'https://latamvisatravel.com'
+      }, 2500)
     } catch (error) {
       console.error(error)
       alert('Ocurrió un error inesperado al contactar con el servidor.')
@@ -242,12 +247,24 @@ export default function TurismoUsaApplication() {
         </div>
       )}
 
-      {isSubmitting && (
+      {isSubmitting && !showSuccess && (
         <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-white/95 backdrop-blur-sm px-4">
           <Loader2 className="w-12 h-12 text-[#C8FF00] animate-spin mb-6" />
           <h2 className="text-[#0A0A0A] text-2xl font-bold mb-2 text-center">Enviando tu aplicación...</h2>
           <p className="text-[#525252] font-medium mb-1 text-center">Esto puede tomar unos segundos</p>
           <p className="text-[#A3A3A3] text-sm text-center">No cierres esta ventana</p>
+        </div>
+      )}
+
+      {showSuccess && (
+        <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-[#FAFAF7] px-4 animate-in fade-in duration-500">
+          <div className="w-16 h-16 bg-[#C8FF00] rounded-full flex items-center justify-center mb-6 shadow-[0_0_40px_rgba(200,255,0,0.4)]">
+            <svg className="w-8 h-8 text-black" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+            </svg>
+          </div>
+          <h2 className="text-[#0A0A0A] text-2xl font-bold mb-2 text-center">¡Tu aplicación fue enviada con éxito!</h2>
+          <p className="text-[#525252] font-medium text-center">Te contactaremos pronto por WhatsApp.</p>
         </div>
       )}
 
@@ -273,6 +290,10 @@ export default function TurismoUsaApplication() {
       )}
 
       <div className="container mx-auto px-4 max-w-3xl">
+        <div className="flex justify-center mb-8">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/logo.png" alt="LATAM VISA Logo" className="h-10 sm:h-12 object-contain" />
+        </div>
         <FormProvider {...methods}>
           <form onSubmit={(e) => { e.preventDefault(); handleNext(); }} className="space-y-8">
             <ProgressBar 

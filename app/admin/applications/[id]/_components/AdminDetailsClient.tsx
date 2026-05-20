@@ -185,6 +185,17 @@ export function AdminDetailsClient({ application, signedPhotoUrls }: Props) {
           <Row label="Estado/Provincia nac." value={val(p.stateOfBirth)} />
           <Row label="Nacionalidad" value={val(p.nationality)} />
           <Row label="N° identificación" value={val(p.identificationNumber)} />
+          {(p.maritalStatus === 'Casado(a)' || p.maritalStatus === 'Unión libre') && (
+            <div className="mt-4 pt-4 border-t border-[#F0F0F0]">
+              <p className="text-xs font-semibold text-[#525252] mb-2 uppercase tracking-wide">Datos del Cónyuge</p>
+              <Row label="Apellidos" value={val(p.spouseSurnames)} />
+              <Row label="Nombres" value={val(p.spouseGivenNames)} />
+              <Row label="Fecha Nacimiento" value={fmtDate(p.spouseDateOfBirth)} />
+              <Row label="Nacionalidad" value={val(p.spouseNationality)} />
+              <Row label="Ciudad Nac." value={val(p.spouseBirthCity)} />
+              <Row label="País Nac." value={val(p.spouseBirthCountry)} />
+            </div>
+          )}
         </SectionCard>
 
         {/* Paso 3 */}
@@ -225,6 +236,21 @@ export function AdminDetailsClient({ application, signedPhotoUrls }: Props) {
               </div>
             </div>
           )}
+          {Array.isArray(t.touristPlaces) && t.touristPlaces.length > 0 && (
+            <div className="mt-3">
+              <p className="text-xs font-semibold text-[#525252] mb-2 uppercase tracking-wide">Lugares a visitar</p>
+              <div className="space-y-2">
+                {t.touristPlaces.map((tp: any, i: number) => (
+                  <div key={i} className="bg-[#F8F8F5] rounded-lg px-3 py-2 text-sm">
+                    <span className="font-medium">{val(tp.place)}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+          <div className="mt-3">
+            <Row label="¿Viaja con alguien?" value={bool(t.travelsWithOthers)} />
+          </div>
           {Array.isArray(t.travelCompanions) && t.travelCompanions.length > 0 && (
             <div className="mt-3">
               <p className="text-xs font-semibold text-[#525252] mb-2 uppercase tracking-wide">Acompañantes</p>
@@ -237,6 +263,15 @@ export function AdminDetailsClient({ application, signedPhotoUrls }: Props) {
                   </div>
                 ))}
               </div>
+            </div>
+          )}
+          {(t.usaContactGivenNames || t.usaContactSurnames || t.usaContactOrganization) && (
+            <div className="mt-4 pt-4 border-t border-[#F0F0F0]">
+              <p className="text-xs font-semibold text-[#525252] mb-2 uppercase tracking-wide">Contacto en USA</p>
+              <Row label="Nombres" value={val(t.usaContactGivenNames)} />
+              <Row label="Apellidos" value={val(t.usaContactSurnames)} />
+              <Row label="Organización" value={val(t.usaContactOrganization)} />
+              <Row label="Relación" value={val(t.usaContactRelationship)} />
             </div>
           )}
         </SectionCard>

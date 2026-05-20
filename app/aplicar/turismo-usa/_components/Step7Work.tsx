@@ -14,7 +14,7 @@ export function Step7Work() {
       </FormField>
 
       <div className="bg-[#F5F5F0] p-6 rounded-xl border border-[#E5E5E5] space-y-4">
-        <h3 className="text-[#C8FF00] font-medium text-sm uppercase tracking-wider mb-2">Trabajo o institución educativa actual</h3>
+        <h3 className="text-lg font-medium text-[#0A0A0A] mb-2">Trabajo o institución educativa actual</h3>
         <FormField label="Nombre de la empresa o institución" name="step7Work.currentEmployer" required error={errors.step7Work?.currentEmployer?.message as string}>
           <input {...register('step7Work.currentEmployer')} className="w-full bg-[#F5F5F0] border border-[#E5E5E5] rounded-lg px-4 py-3 text-[#0A0A0A] focus:outline-none focus:border-[#C8FF00]" />
         </FormField>
@@ -55,7 +55,7 @@ export function Step7Work() {
 
       {hadPreviousJob === 'true' && (
         <div className="bg-[#F5F5F0] p-6 rounded-xl border border-[#E5E5E5] space-y-4">
-          <h3 className="text-[#C8FF00] font-medium text-sm uppercase tracking-wider mb-2">Detalles del trabajo anterior</h3>
+          <h3 className="text-lg font-medium text-[#0A0A0A] mb-2">Detalles del trabajo anterior</h3>
           <FormField label="Nombre de la empresa" name="step7Work.previousEmployer" required error={errors.step7Work?.previousEmployer?.message as string}>
             <input {...register('step7Work.previousEmployer')} className="w-full bg-[#F5F5F0] border border-[#E5E5E5] rounded-lg px-4 py-3 text-[#0A0A0A] focus:outline-none focus:border-[#C8FF00]" />
           </FormField>
@@ -103,7 +103,7 @@ export function Step7Work() {
         </FormField>
 
         <div className="bg-[#F5F5F0] p-6 rounded-xl border border-[#E5E5E5] space-y-4">
-          <h3 className="text-[#C8FF00] font-medium text-sm uppercase tracking-wider mb-2">Detalles de la institución educativa</h3>
+          <h3 className="text-lg font-medium text-[#0A0A0A] mb-2">Detalles de la institución educativa</h3>
           <FormField label="Nombre de la institución" name="step7Work.educationInstitution" required error={errors.step7Work?.educationInstitution?.message as string}>
             <input {...register('step7Work.educationInstitution')} className="w-full bg-[#F5F5F0] border border-[#E5E5E5] rounded-lg px-4 py-3 text-[#0A0A0A] focus:outline-none focus:border-[#C8FF00]" />
           </FormField>

@@ -32,7 +32,13 @@ export const step2Schema = z.object({
   cityOfBirth: requiredString,
   stateOfBirth: requiredString,
   nationality: requiredString,
-  identificationNumber: z.string().optional()
+  identificationNumber: z.string().optional(),
+  spouseSurnames: z.string().optional(),
+  spouseGivenNames: z.string().optional(),
+  spouseDateOfBirth: z.string().optional(),
+  spouseNationality: z.string().optional(),
+  spouseBirthCity: z.string().optional(),
+  spouseBirthCountry: z.string().optional(),
 }).superRefine((data, ctx) => {
   if (data.dateOfBirth) {
     const age = differenceInYears(new Date(), parseISO(data.dateOfBirth))
@@ -43,6 +49,14 @@ export const step2Schema = z.object({
         path: ['dateOfBirth']
       })
     }
+  }
+  if (data.maritalStatus === 'Casado(a)' || data.maritalStatus === 'Unión libre') {
+    if (!data.spouseSurnames?.trim()) ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Campo requerido', path: ['spouseSurnames'] })
+    if (!data.spouseGivenNames?.trim()) ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Campo requerido', path: ['spouseGivenNames'] })
+    if (!data.spouseDateOfBirth?.trim()) ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Campo requerido', path: ['spouseDateOfBirth'] })
+    if (!data.spouseNationality?.trim()) ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Campo requerido', path: ['spouseNationality'] })
+    if (!data.spouseBirthCity?.trim()) ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Campo requerido', path: ['spouseBirthCity'] })
+    if (!data.spouseBirthCountry?.trim()) ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Campo requerido', path: ['spouseBirthCountry'] })
   }
 })
 
@@ -94,10 +108,16 @@ export const step4Schema = z.object({
   arrivalDate: requiredDate,
   departureDate: requiredDate,
   citiesToVisit: z.array(z.string()).min(1, 'Debes ingresar al menos una ciudad').or(z.string().min(10, 'Por favor especifica con más detalle (min 10 caracteres)')),
+  touristPlaces: z.array(z.object({ place: requiredString })).min(1, 'Debes ingresar al menos un lugar'),
   accommodation: z.array(accommodationSchema).min(1, 'Debe haber al menos un lugar de alojamiento').or(z.any()), // Simplified for now since prompt asks for 3 fields in a group
   tripPaidBy: requiredString,
   tripPayerDetails: z.string().optional(),
-  travelCompanions: z.array(travelCompanionSchema)
+  travelsWithOthers: z.enum(['true', 'false'], { error: 'Debes responder esta pregunta' }),
+  travelCompanions: z.array(travelCompanionSchema).optional(),
+  usaContactSurnames: z.string().optional(),
+  usaContactGivenNames: z.string().optional(),
+  usaContactOrganization: z.string().optional(),
+  usaContactRelationship: z.string().optional(),
 }).superRefine((data, ctx) => {
   if (data.arrivalDate && data.departureDate) {
     if (parseISO(data.departureDate) <= parseISO(data.arrivalDate)) {
@@ -113,6 +133,13 @@ export const step4Schema = z.object({
       code: z.ZodIssueCode.custom,
       message: 'Debes proporcionar los detalles de quién paga',
       path: ['tripPayerDetails']
+    })
+  }
+  if (data.travelsWithOthers === 'true' && (!data.travelCompanions || data.travelCompanions.length === 0)) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: 'Debes agregar al menos un acompañante',
+      path: ['travelCompanions']
     })
   }
 })

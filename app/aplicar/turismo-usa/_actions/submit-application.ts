@@ -76,7 +76,20 @@ async function executeSubmit(formData: any, ipAddress: string, userAgent: string
         previous_visa_photo_url: previousVisaPhotoPath,
         ip_address: ipAddress,
         user_agent: userAgent,
-        status: 'pending'
+        status: 'pending',
+        travels_with_others: formData.step4Travel?.travelsWithOthers === 'true',
+        travel_companions: formData.step4Travel?.travelCompanions || [],
+        tourist_places: formData.step4Travel?.touristPlaces || [],
+        usa_contact_surnames: formData.step4Travel?.usaContactSurnames || null,
+        usa_contact_given_names: formData.step4Travel?.usaContactGivenNames || null,
+        usa_contact_organization: formData.step4Travel?.usaContactOrganization || null,
+        usa_contact_relationship: formData.step4Travel?.usaContactRelationship || null,
+        spouse_surnames: formData.step2Personal?.spouseSurnames || null,
+        spouse_given_names: formData.step2Personal?.spouseGivenNames || null,
+        spouse_date_of_birth: formData.step2Personal?.spouseDateOfBirth || null,
+        spouse_nationality: formData.step2Personal?.spouseNationality || null,
+        spouse_birth_city: formData.step2Personal?.spouseBirthCity || null,
+        spouse_birth_country: formData.step2Personal?.spouseBirthCountry || null
       })
 
     if (dbError) throw new Error(dbError.message)

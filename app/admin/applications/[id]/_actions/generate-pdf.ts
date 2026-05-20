@@ -78,11 +78,10 @@ export async function generateApplicationPdfAction(applicationId: string): Promi
       fetchPhotoAsDataUri(visaSignedUrl),
       fetchPhotoAsDataUri(prevVisaSignedUrl),
     ])
-    const photoUrls = {
-      passport: passportDataUri,
-      visaPhoto: visaDataUri,
-      previousVisa: prevVisaDataUri,
-    }
+    const photoUrls: Record<string, string> = {}
+    if (passportDataUri) photoUrls.passport = passportDataUri
+    if (visaDataUri) photoUrls.visaPhoto = visaDataUri
+    if (prevVisaDataUri) photoUrls.previousVisa = prevVisaDataUri
 
     // Render PDF — try with photos first, fall back to text-only if image embedding fails
     console.log('[PDF_GEN] Rendering PDF (with photos)...')

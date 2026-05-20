@@ -93,7 +93,7 @@ export function Step5VisaHistory() {
 
       {hadPreviousUsaVisa === 'true' && (
         <div className="bg-[#F5F5F0] p-6 rounded-xl border border-[#E5E5E5] space-y-6">
-          <h3 className="text-[#C8FF00] font-medium text-sm uppercase tracking-wider mb-2">Detalles de tu visa anterior</h3>
+          <h3 className="text-lg font-medium text-[#0A0A0A] mb-2">Detalles de tu visa anterior</h3>
 
           <FormField
             label="Fechas de entrada y salida a USA"

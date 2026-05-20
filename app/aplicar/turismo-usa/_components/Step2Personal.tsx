@@ -1,10 +1,23 @@
+import { useEffect } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { FormField } from './FormField'
 import { ALL_COUNTRIES } from '@/lib/constants/countries'
 
 export function Step2Personal() {
-  const { register, formState } = useFormContext()
+  const { register, formState, watch, setValue } = useFormContext()
   const errors = formState.errors as any
+  const maritalStatus = watch('step2Personal.maritalStatus')
+
+  useEffect(() => {
+    if (maritalStatus && maritalStatus !== 'Casado(a)' && maritalStatus !== 'Unión libre') {
+      setValue('step2Personal.spouseSurnames', '')
+      setValue('step2Personal.spouseGivenNames', '')
+      setValue('step2Personal.spouseDateOfBirth', '')
+      setValue('step2Personal.spouseNationality', '')
+      setValue('step2Personal.spouseBirthCity', '')
+      setValue('step2Personal.spouseBirthCountry', '')
+    }
+  }, [maritalStatus, setValue])
 
   return (
     <div className="space-y-6">

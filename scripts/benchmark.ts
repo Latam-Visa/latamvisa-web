@@ -17,7 +17,9 @@ const dummyPhotos = {
 
 async function run() {
   console.log('[1] Start:', Date.now())
-  const res = await submitUsaApplication(dummyForm, dummyPhotos)
+  const formData = new FormData()
+  formData.append('data', JSON.stringify(dummyForm))
+  const res = await submitUsaApplication(formData)
   console.log('[2] End:', Date.now(), res)
 }
 
