@@ -237,7 +237,7 @@ export default function TurismoUsaApplication() {
   }
 
   return (
-    <div className="min-h-screen bg-[#FAFAF7] text-[#0A0A0A] pt-32 pb-20 selection:bg-[#C8FF00]/30 overflow-x-hidden">
+    <div className="min-h-screen bg-[#FAFAF7] text-[#0A0A0A] pt-12 md:pt-20 pb-20 selection:bg-[#C8FF00]/30 overflow-x-hidden">
       
       {/* Toast Notification */}
       {showErrorToast && (
@@ -290,9 +290,9 @@ export default function TurismoUsaApplication() {
       )}
 
       <div className="container mx-auto px-4 max-w-3xl">
-        <div className="flex justify-center mb-8">
+        <div className="flex justify-center mb-10">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/logo.png" alt="LATAM VISA Logo" className="h-10 sm:h-12 object-contain" />
+          <img src="/logo.png" alt="LATAM VISA Logo" className="h-16 sm:h-20 object-contain" />
         </div>
         <FormProvider {...methods}>
           <form onSubmit={(e) => { e.preventDefault(); handleNext(); }} className="space-y-8">
