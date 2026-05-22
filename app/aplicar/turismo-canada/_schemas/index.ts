@@ -136,7 +136,7 @@ export const step5Schema = z.object({
     street: requiredString,
     city: requiredString,
     from: requiredDate,
-    to: requiredDate,
+    to: optionalString,
     ongoing: z.boolean().optional()
   })).min(1, 'Debes añadir al menos un registro')
 }).superRefine((data, ctx) => {
@@ -149,6 +149,9 @@ export const step5Schema = z.object({
       if (!work.job_title?.trim()) ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Campo requerido', path: ['work_history', idx, 'job_title'] })
       if (!work.employer?.trim()) ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Campo requerido', path: ['work_history', idx, 'employer'] })
       if (!work.duties?.trim()) ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Campo requerido', path: ['work_history', idx, 'duties'] })
+    }
+    if (!work.ongoing && !work.to?.trim()) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'La fecha es requerida', path: ['work_history', idx, 'to'] })
     }
   })
 })

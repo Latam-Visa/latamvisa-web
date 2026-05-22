@@ -32,10 +32,10 @@ export function RepeatableTable({ name, title, description, defaultItem, renderI
               <button
                 type="button"
                 onClick={() => remove(index)}
-                className="absolute top-4 right-4 text-[#A3A3A3] hover:text-[#DC2626] transition-colors"
-                title="Eliminar"
+                className="absolute top-4 right-4 flex items-center gap-1.5 text-xs font-medium text-[#DC2626]/80 hover:text-[#DC2626] bg-[#FEF2F2] hover:bg-[#FEE2E2] px-2.5 py-1.5 rounded-md transition-colors z-10"
+                title="Eliminar este registro"
               >
-                <Trash2 className="w-5 h-5" />
+                <Trash2 className="w-4 h-4" /> Eliminar
               </button>
             )}
             {renderItem(index, () => remove(index))}

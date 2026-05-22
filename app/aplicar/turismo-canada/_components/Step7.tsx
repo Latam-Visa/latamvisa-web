@@ -1,13 +1,14 @@
 import { useFormContext } from 'react-hook-form'
 import { FormField } from '../../turismo-usa/_components/FormField'
 
-export function Step7() {
+const RadioYesNo = ({ name, label }: { name: string, label: string }) => {
   const { register, formState } = useFormContext()
   const errors = formState.errors as any
+  const errorMsg = errors.step7?.[name.split('.')[1]]?.message as string
 
-  const RadioYesNo = ({ name, label }: { name: string, label: string }) => (
+  return (
     <div className="pt-4 border-t border-[#E5E5E5] first:pt-0 first:border-0">
-      <FormField label={label} name={name} required error={errors.step7?.[name.split('.')[1]]?.message as string}>
+      <FormField label={label} name={name} required error={errorMsg}>
         <div className="flex gap-6 mt-2">
           <label className="flex items-center gap-3 cursor-pointer group">
             <input type="radio" value="true" {...register(name)} className="w-5 h-5 accent-[#C8FF00] bg-white border-[#E5E5E5] focus:ring-[#C8FF00]" />
@@ -21,6 +22,9 @@ export function Step7() {
       </FormField>
     </div>
   )
+}
+
+export function Step7() {
 
   return (
     <div className="space-y-8">

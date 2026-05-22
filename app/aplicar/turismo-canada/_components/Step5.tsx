@@ -187,9 +187,9 @@ export function Step5() {
       </div>
 
       <div className="bg-[#F5F5F0] p-6 rounded-xl border border-[#E5E5E5] space-y-6">
-        <h3 className="text-lg font-medium text-[#0A0A0A] mb-2">Servicio Militar o Paramilitar</h3>
+        <h3 className="text-lg font-medium text-[#0A0A0A] mb-2">Servicio Militar</h3>
 
-        <FormField label="¿Has servido alguna vez en las fuerzas armadas, milicia, o grupos similares?" name="step5.military_service" required error={errors.step5?.military_service?.message as string}>
+        <FormField label="¿Has prestado servicio militar alguna vez?" name="step5.military_service" required error={errors.step5?.military_service?.message as string}>
           <div className="flex gap-6 mt-2">
             <label className="flex items-center gap-3 cursor-pointer group">
               <input type="radio" value="true" {...register('step5.military_service')} className="w-5 h-5 accent-[#C8FF00] bg-white border-[#E5E5E5] focus:ring-[#C8FF00]" />

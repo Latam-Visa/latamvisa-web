@@ -92,7 +92,12 @@ export default function TurismoCanadaApplication() {
     if (saved) {
       try {
         const parsed = JSON.parse(saved)
-        setDraftData(parsed)
+        // Check if it's the new format {step, data} or the old raw data format
+        if (parsed.step && parsed.data) {
+          setDraftData(parsed)
+        } else if (parsed.step1) {
+          setDraftData({ step: 1, data: parsed })
+        }
         setShowDraftModal(true)
       } catch (e) {
         console.error('Failed to parse draft', e)
@@ -105,15 +110,19 @@ export default function TurismoCanadaApplication() {
   useEffect(() => {
     const timeout = setTimeout(() => {
       if (Object.keys(formValues).length > 0) {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(formValues))
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({
+          step: currentStep,
+          data: formValues
+        }))
       }
     }, 500)
     return () => clearTimeout(timeout)
-  }, [formValues])
+  }, [formValues, currentStep])
 
   const handleLoadDraft = () => {
-    if (draftData) {
-      methods.reset(draftData)
+    if (draftData && draftData.data) {
+      methods.reset(draftData.data)
+      setCurrentStep(draftData.step || 1)
     }
     setShowDraftModal(false)
   }
