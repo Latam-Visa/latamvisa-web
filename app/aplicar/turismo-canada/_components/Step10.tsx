@@ -35,13 +35,6 @@ export function Step10() {
           </FormField>
         </div>
 
-        <FormField label="¿En qué idioma prefieres que te contactemos?" name="step10.contact_language" required error={errors.step10?.contact_language?.message as string}>
-          <select {...register('step10.contact_language')} className="w-full bg-white border border-[#E5E5E5] rounded-lg px-4 py-3 text-[#0A0A0A] focus:outline-none focus:border-[#C8FF00] focus:ring-2 focus:ring-[#C8FF00] transition-colors appearance-none">
-            <option value="">Seleccionar</option>
-            <option value="English">Inglés</option>
-            <option value="French">Francés</option>
-          </select>
-        </FormField>
       </div>
 
       <div className="bg-[#F5F5F0] p-6 rounded-xl border border-[#E5E5E5] space-y-6">

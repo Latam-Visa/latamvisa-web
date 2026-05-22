@@ -257,7 +257,6 @@ export const step9Schema = z.object({
 export const step10Schema = z.object({
   native_language: requiredString,
   communicate_language: requiredString, // English/French/Both/Neither
-  contact_language: requiredString, // English/French
   email: z.string().email('Email inválido'),
   email_confirm: z.string().email('Email inválido'),
   phones: z.array(z.object({

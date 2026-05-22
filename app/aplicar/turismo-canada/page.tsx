@@ -169,6 +169,9 @@ export default function TurismoCanadaApplication() {
             const element = document.querySelector(`[name="${firstErrorPath}"]`) || document.querySelector(`[name^="${firstErrorPath}"]`)
             if (element) {
               element.scrollIntoView({ behavior: 'smooth', block: 'center' })
+              if (typeof (element as any).focus === 'function') {
+                (element as any).focus({ preventScroll: true })
+              }
               element.parentElement?.classList.add('animate-[shake_0.5s_ease-in-out]')
               setTimeout(() => {
                 element.parentElement?.classList.remove('animate-[shake_0.5s_ease-in-out]')
@@ -271,7 +274,7 @@ export default function TurismoCanadaApplication() {
 
       {isSubmitting && !showSuccess && (
         <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-white/95 backdrop-blur-sm px-4">
-          <Loader2 className="w-12 h-12 text-[#C8FF00] animate-spin mb-6" />
+          <Loader2 className="w-12 h-12 text-[#3D5A00] animate-spin mb-6" />
           <h2 className="text-[#0A0A0A] text-2xl font-bold mb-2 text-center">Enviando tu aplicación...</h2>
           <p className="text-[#525252] font-medium mb-1 text-center">Esto puede tomar unos segundos</p>
           <p className="text-[#A3A3A3] text-sm text-center">No cierres esta ventana</p>
@@ -312,6 +315,14 @@ export default function TurismoCanadaApplication() {
       )}
 
       <div className="container mx-auto px-4 max-w-3xl">
+        <style jsx global>{`
+          .flex.flex-col.gap-1\\.5.w-full:has(p.text-xs.text-\\[\\#DC2626\\]) input, 
+          .flex.flex-col.gap-1\\.5.w-full:has(p.text-xs.text-\\[\\#DC2626\\]) select, 
+          .flex.flex-col.gap-1\\.5.w-full:has(p.text-xs.text-\\[\\#DC2626\\]) textarea {
+            border-color: #DC2626 !important;
+            background-color: #FEF2F2 !important;
+          }
+        `}</style>
         <div className="flex justify-center mb-10">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/logo.png" alt="LATAM VISA Logo" className="h-16 sm:h-20 object-contain" />

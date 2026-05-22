@@ -27,7 +27,6 @@ export function DocumentUploader({ name, label, hint, required, specsList }: Doc
   const [isDragging, setIsDragging] = useState(false)
   const [isUploading, setIsUploading] = useState(false)
   const [errorMsg, setErrorMsg] = useState('')
-  const [showSpecs, setShowSpecs] = useState(false)
   const [fileName, setFileName] = useState('')
   const [fileSize, setFileSize] = useState(0)
   
@@ -132,21 +131,11 @@ export function DocumentUploader({ name, label, hint, required, specsList }: Doc
     <FormField label={label} name={name} required={required} hint={hint} error={fieldState.error?.message || errorMsg}>
       {specsList && specsList.length > 0 && (
         <div className="mb-3">
-          <button
-            type="button"
-            onClick={() => setShowSpecs(!showSpecs)}
-            className="flex items-center gap-2 text-sm text-[#C8FF00] hover:text-[#A8D900] transition-colors"
-          >
-            {showSpecs ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-            Ver instrucciones del documento
-          </button>
-          {showSpecs && (
-            <ul className="mt-2 pl-5 list-disc text-sm text-[#525252] space-y-1 bg-[#F5F5F0] p-4 rounded-lg border border-[#E5E5E5]">
-              {specsList.map((spec, idx) => (
-                <li key={idx}>{spec}</li>
-              ))}
-            </ul>
-          )}
+          <ul className="pl-5 list-disc text-sm text-[#0A0A0A] space-y-1 bg-[#F5F5F0] p-4 rounded-lg border border-[#3D5A00]/20">
+            {specsList.map((spec, idx) => (
+              <li key={idx}>{spec}</li>
+            ))}
+          </ul>
         </div>
       )}
 
@@ -168,7 +157,7 @@ export function DocumentUploader({ name, label, hint, required, specsList }: Doc
           />
           
           {isUploading ? (
-            <div className="text-center text-[#C8FF00]">
+            <div className="text-center text-[#3D5A00]">
               <RefreshCw className="w-8 h-8 mx-auto animate-spin mb-3" />
               <p className="font-medium">Subiendo archivo...</p>
             </div>
@@ -185,7 +174,7 @@ export function DocumentUploader({ name, label, hint, required, specsList }: Doc
       ) : (
         <div className="bg-[#F5F5F0] p-4 rounded-xl border border-[#E5E5E5] flex items-center gap-4">
           <div className="w-16 h-16 rounded-lg bg-white border border-[#E5E5E5] shrink-0 flex items-center justify-center">
-            <FileIcon className="w-8 h-8 text-[#C8FF00]" />
+            <FileIcon className="w-8 h-8 text-[#3D5A00]" />
           </div>
           <div className="flex-1">
             <div className="text-[#0A0A0A] font-medium mb-1 truncate max-w-[200px] sm:max-w-[400px]">

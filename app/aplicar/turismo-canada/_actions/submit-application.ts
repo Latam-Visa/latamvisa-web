@@ -185,7 +185,6 @@ async function executeSubmit(formData: any, ipAddress: string, userAgent: string
         // Step 10
         native_language: step10.native_language,
         communicate_language: step10.communicate_language,
-        contact_language: step10.contact_language,
         email: step10.email,
         phones: step10.phones || [],
         
