@@ -55,6 +55,9 @@ async function executeSubmit(formData: any, ipAddress: string, userAgent: string
 
   // Mapeo seguro de booleanos (de string "true" / "false" a boolean real)
   const toBool = (val: any) => val === 'true' || val === true
+  
+  // Convert empty strings to null
+  const nullify = (val: any) => val === '' ? null : val
 
   const step1 = formData.step1 || {}
   const step2 = formData.step2 || {}
@@ -73,69 +76,68 @@ async function executeSubmit(formData: any, ipAddress: string, userAgent: string
       .from('visa_applications_canada')
       .insert({
         id: applicationId,
-        data: formData, // the full raw JSON
-        ip_address: ipAddress,
-        user_agent: userAgent,
+        ip_address: ip_address,
+        user_agent: user_agent,
         status: 'pending',
         
         // Step 1
-        apply_for: step1.apply_for,
-        visa_reason: step1.visa_reason,
-        activities_in_canada: step1.activities_in_canada,
-        entry_date: step1.entry_date,
-        leave_date: step1.leave_date,
-        uci: step1.uci || null,
+        apply_for: nullify(step1.apply_for),
+        visa_reason: nullify(step1.visa_reason),
+        activities_in_canada: nullify(step1.activities_in_canada),
+        entry_date: nullify(step1.entry_date),
+        leave_date: nullify(step1.leave_date),
+        uci: nullify(step1.uci),
         applying_on_behalf: toBool(step1.applying_on_behalf),
 
         // Step 2
-        surname: step2.surname,
-        given_name: step2.given_name || null,
-        date_of_birth: step2.date_of_birth,
-        gender: step2.gender,
-        document_type: step2.document_type,
-        passport_kind: step2.passport_kind,
-        passport_country_code: step2.passport_country_code,
-        passport_nationality: step2.passport_nationality,
-        passport_number: step2.passport_number,
-        passport_issue_date: step2.passport_issue_date,
-        passport_expiry_date: step2.passport_expiry_date,
+        surname: nullify(step2.surname),
+        given_name: nullify(step2.given_name),
+        date_of_birth: nullify(step2.date_of_birth),
+        gender: nullify(step2.gender),
+        document_type: nullify(step2.document_type),
+        passport_kind: nullify(step2.passport_kind),
+        passport_country_code: nullify(step2.passport_country_code),
+        passport_nationality: nullify(step2.passport_nationality),
+        passport_number: nullify(step2.passport_number),
+        passport_issue_date: nullify(step2.passport_issue_date),
+        passport_expiry_date: nullify(step2.passport_expiry_date),
         us_green_card: toBool(step2.us_green_card),
         held_canadian_visa_10y: toBool(step2.held_canadian_visa_10y),
         holds_us_nonimmigrant_visa: toBool(step2.holds_us_nonimmigrant_visa),
-        us_visa_number: step2.us_visa_number || null,
-        us_visa_expiry: step2.us_visa_expiry || null,
+        us_visa_number: nullify(step2.us_visa_number),
+        us_visa_expiry: nullify(step2.us_visa_expiry),
         different_passport_us_visa: step2.different_passport_us_visa ? toBool(step2.different_passport_us_visa) : null,
         travelling_by_air: toBool(step2.travelling_by_air),
 
         // Step 3
-        birth_country: step3.birth_country,
-        birth_city: step3.birth_city,
+        birth_country: nullify(step3.birth_country),
+        birth_city: nullify(step3.birth_city),
         multiple_citizenship: toBool(step3.multiple_citizenship),
-        citizenship_country: step3.citizenship_country,
+        citizenship_country: nullify(step3.citizenship_country),
         citizen_since_birth: toBool(step3.citizen_since_birth),
-        citizen_since_date: step3.citizen_since_date || null,
+        citizen_since_date: nullify(step3.citizen_since_date),
         has_national_id: toBool(step3.has_national_id),
-        national_id_number: step3.national_id_number || null,
-        national_id_issue_date: step3.national_id_issue_date || null,
-        national_id_country: step3.national_id_country || null,
+        national_id_number: nullify(step3.national_id_number),
+        national_id_issue_date: nullify(step3.national_id_issue_date),
+        national_id_country: nullify(step3.national_id_country),
         used_other_name: toBool(step3.used_other_name),
         other_names: step3.other_names || [],
 
         // Step 4
-        residential_country: step4.residential_country,
-        residential_street: step4.residential_street,
-        residential_city: step4.residential_city,
-        residential_postal_code: step4.residential_postal_code || null,
+        residential_country: nullify(step4.residential_country),
+        residential_street: nullify(step4.residential_street),
+        residential_city: nullify(step4.residential_city),
+        residential_postal_code: nullify(step4.residential_postal_code),
         mailing_same: toBool(step4.mailing_same),
-        mailing_country: step4.mailing_country || null,
-        mailing_street: step4.mailing_street || null,
-        mailing_city: step4.mailing_city || null,
-        mailing_postal_code: step4.mailing_postal_code || null,
+        mailing_country: nullify(step4.mailing_country),
+        mailing_street: nullify(step4.mailing_street),
+        mailing_city: nullify(step4.mailing_city),
+        mailing_postal_code: nullify(step4.mailing_postal_code),
         residence_history: step4.residence_history || [],
         provided_biometrics_10y: toBool(step4.provided_biometrics_10y),
 
         // Step 5
-        funds_cad: step5.funds_cad,
+        funds_cad: step5.funds_cad === '' ? null : (step5.funds_cad ? Number(step5.funds_cad) : null),
         someone_else_funding: toBool(step5.someone_else_funding),
         studied_postsecondary: toBool(step5.studied_postsecondary),
         education_history: step5.education_history || [],
@@ -148,7 +150,7 @@ async function executeSubmit(formData: any, ipAddress: string, userAgent: string
         travel_history: step6.travel_history || [],
         stayed_illegally_canada: toBool(step6.stayed_illegally_canada),
         refused_visa: toBool(step6.refused_visa),
-        refusal_details: step6.refusal_details || null,
+        refusal_details: nullify(step6.refusal_details),
 
         // Step 7
         committed_crime: toBool(step7.committed_crime),
@@ -169,13 +171,13 @@ async function executeSubmit(formData: any, ipAddress: string, userAgent: string
         syphilis: toBool(step8.syphilis),
 
         // Step 9
-        marital_status: step9.marital_status,
-        marriage_date: step9.marriage_date || null,
-        spouse_surname: step9.spouse_surname || null,
-        spouse_given_name: step9.spouse_given_name || null,
-        spouse_date_of_birth: step9.spouse_date_of_birth || null,
-        spouse_birth_country: step9.spouse_birth_country || null,
-        spouse_occupation: step9.spouse_occupation || null,
+        marital_status: nullify(step9.marital_status),
+        marriage_date: nullify(step9.marriage_date),
+        spouse_surname: nullify(step9.spouse_surname),
+        spouse_given_name: nullify(step9.spouse_given_name),
+        spouse_date_of_birth: nullify(step9.spouse_date_of_birth),
+        spouse_birth_country: nullify(step9.spouse_birth_country),
+        spouse_occupation: nullify(step9.spouse_occupation),
         spouse_address_same: step9.spouse_address_same ? toBool(step9.spouse_address_same) : null,
         spouse_accompany: step9.spouse_accompany ? toBool(step9.spouse_accompany) : null,
         has_children: toBool(step9.has_children),
@@ -183,17 +185,17 @@ async function executeSubmit(formData: any, ipAddress: string, userAgent: string
         parents: step9.parents || [],
 
         // Step 10
-        native_language: step10.native_language,
-        communicate_language: step10.communicate_language,
-        email: step10.email,
+        native_language: nullify(step10.native_language),
+        communicate_language: nullify(step10.communicate_language),
+        email: nullify(step10.email),
         phones: step10.phones || [],
         
         // Documents
-        doc_id_passport: step10.doc_id_passport || null,
-        doc_ties: step10.doc_ties || null,
-        doc_bank_statements: step10.doc_bank_statements || null,
-        doc_travel_itinerary: step10.doc_travel_itinerary || null,
-        doc_forms_letters: step10.doc_forms_letters || null,
+        doc_id_passport: nullify(step10.doc_id_passport),
+        doc_ties: nullify(step10.doc_ties),
+        doc_bank_statements: nullify(step10.doc_bank_statements),
+        doc_travel_itinerary: nullify(step10.doc_travel_itinerary),
+        doc_forms_letters: nullify(step10.doc_forms_letters),
       })
 
     if (dbError) throw new Error(dbError.message)
