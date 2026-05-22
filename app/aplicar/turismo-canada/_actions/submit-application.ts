@@ -76,8 +76,6 @@ async function executeSubmit(formData: any, ipAddress: string, userAgent: string
       .from('visa_applications_canada')
       .insert({
         id: applicationId,
-        ip_address: ipAddress,
-        user_agent: userAgent,
         status: 'pending',
         
         // Step 1
