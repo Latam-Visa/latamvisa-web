@@ -24,16 +24,38 @@ export default function AdminDashboard() {
 }
 
 async function ApplicationsTable() {
-  const { data: applications, error } = await supabaseAdmin
-    .from('visa_applications_usa')
-    .select('id, created_at, status, data')
-    .order('created_at', { ascending: false })
+  const [usaRes, canRes] = await Promise.all([
+    supabaseAdmin.from('visa_applications_usa').select('id, created_at, status, data').order('created_at', { ascending: false }),
+    supabaseAdmin.from('visa_applications_canada').select('id, created_at, status, data').order('created_at', { ascending: false })
+  ])
 
-  if (error) {
-    return <div className="p-8 text-center text-[#DC2626]">Error cargando datos: {error.message}</div>
+  if (usaRes.error && canRes.error) {
+    return <div className="p-8 text-center text-[#DC2626]">Error cargando datos.</div>
   }
 
-  if (!applications || applications.length === 0) {
+  const usaApps = (usaRes.data || []).map(app => ({
+    id: app.id,
+    created_at: app.created_at,
+    status: app.status,
+    destination: 'USA',
+    fullName: app.data?.step1Contact?.fullName || '—',
+    email: app.data?.step1Contact?.email || '—',
+    visaType: app.data?.step4Travel?.usaVisaType === 'B1/B2 Turismo y Negocios' ? 'B1/B2' : (app.data?.step4Travel?.usaVisaType || '—')
+  }))
+
+  const canApps = (canRes.data || []).map(app => ({
+    id: app.id,
+    created_at: app.created_at,
+    status: app.status || 'nuevo',
+    destination: 'Canadá',
+    fullName: `${app.data?.step2?.given_name || ''} ${app.data?.step2?.surname || ''}`.trim() || '—',
+    email: app.data?.step10?.email || '—',
+    visaType: app.data?.step1?.apply_for || '—'
+  }))
+
+  const applications = [...usaApps, ...canApps].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+
+  if (applications.length === 0) {
     return <div className="p-8 text-center text-[#525252]">No hay solicitudes todavía.</div>
   }
 
@@ -44,7 +66,7 @@ async function ApplicationsTable() {
           <th className="px-6 py-4 font-medium uppercase tracking-wider text-xs">Fecha</th>
           <th className="px-6 py-4 font-medium uppercase tracking-wider text-xs">Nombre Completo</th>
           <th className="px-6 py-4 font-medium uppercase tracking-wider text-xs">Email</th>
-          <th className="px-6 py-4 font-medium uppercase tracking-wider text-xs">Tipo de Visa</th>
+          <th className="px-6 py-4 font-medium uppercase tracking-wider text-xs">Destino</th>
           <th className="px-6 py-4 font-medium uppercase tracking-wider text-xs">Estado</th>
           <th className="px-6 py-4 font-medium uppercase tracking-wider text-xs text-right">Acciones</th>
         </tr>
@@ -56,13 +78,16 @@ async function ApplicationsTable() {
               {format(new Date(app.created_at), "d 'de' MMM, yyyy", { locale: es })}
             </td>
             <td className="px-6 py-4 font-medium text-[#0A0A0A]">
-              {app.data.step1Contact.fullName}
+              {app.fullName}
             </td>
             <td className="px-6 py-4 text-[#525252]">
-              {app.data.step1Contact.email}
+              {app.email}
             </td>
             <td className="px-6 py-4 text-[#525252]">
-              {app.data.step4Travel.usaVisaType === 'B1/B2 Turismo y Negocios' ? 'B1/B2' : app.data.step4Travel.usaVisaType}
+              <div className="flex items-center gap-2">
+                <span className="font-semibold text-xs border border-[#E5E5E5] px-2 py-1 rounded bg-white text-black">{app.destination}</span>
+                <span className="text-xs truncate max-w-[150px]" title={app.visaType}>{app.visaType}</span>
+              </div>
             </td>
             <td className="px-6 py-4">
               <StatusBadge status={app.status} />
@@ -86,9 +111,10 @@ async function ApplicationsTable() {
 function StatusBadge({ status }: { status: string }) {
   switch (status) {
     case 'pending':
+    case 'nuevo':
       return (
         <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-[#FFFBEB] text-[#D97706] border border-[#FDE68A]">
-          <Clock className="w-3.5 h-3.5" /> Pendiente
+          <Clock className="w-3.5 h-3.5" /> {status === 'nuevo' ? 'Nuevo' : 'Pendiente'}
         </span>
       )
     case 'in-progress':

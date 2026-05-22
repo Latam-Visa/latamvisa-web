@@ -3,9 +3,10 @@
 import { supabaseAdmin } from '@/lib/supabase/admin'
 import { revalidatePath } from 'next/cache'
 
-export async function updateApplicationStatus(id: string, status: string) {
+export async function updateApplicationStatus(id: string, status: string, destination: 'usa' | 'canada' = 'usa') {
+  const table = destination === 'usa' ? 'visa_applications_usa' : 'visa_applications_canada'
   const { error } = await supabaseAdmin
-    .from('visa_applications_usa')
+    .from(table)
     .update({ status })
     .eq('id', id)
     
@@ -15,9 +16,10 @@ export async function updateApplicationStatus(id: string, status: string) {
   revalidatePath(`/admin/applications/${id}`)
 }
 
-export async function updateApplicationNotes(id: string, admin_notes: string) {
+export async function updateApplicationNotes(id: string, admin_notes: string, destination: 'usa' | 'canada' = 'usa') {
+  const table = destination === 'usa' ? 'visa_applications_usa' : 'visa_applications_canada'
   const { error } = await supabaseAdmin
-    .from('visa_applications_usa')
+    .from(table)
     .update({ admin_notes })
     .eq('id', id)
     
@@ -27,9 +29,10 @@ export async function updateApplicationNotes(id: string, admin_notes: string) {
   revalidatePath(`/admin/applications/${id}`)
 }
 
-export async function deleteApplication(id: string) {
+export async function deleteApplication(id: string, destination: 'usa' | 'canada' = 'usa') {
+  const table = destination === 'usa' ? 'visa_applications_usa' : 'visa_applications_canada'
   const { error } = await supabaseAdmin
-    .from('visa_applications_usa')
+    .from(table)
     .delete()
     .eq('id', id)
     
