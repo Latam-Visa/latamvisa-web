@@ -146,7 +146,7 @@ export function DocumentUploader({ name, label, hint, required, specsList }: Doc
           onDrop={handleDrop}
           onClick={triggerSelect}
           className={`relative border-2 border-dashed rounded-xl p-8 flex flex-col items-center justify-center transition-colors cursor-pointer min-h-[160px]
-            ${isDragging ? 'border-[#C8FF00] bg-[#F4FFC4]' : 'border-[#C8FF00]/30 bg-[#F5F5F0] hover:border-[#C8FF00]/60 hover:bg-[#F5F5F0]'}`}
+            ${isDragging ? 'border-[#2F4A00] bg-[#F4FFC4]' : 'border-[#2F4A00] bg-[#F5F5F0] hover:border-[#2F4A00]/60 hover:bg-[#F5F5F0]'}`}
         >
           <input
             type="file"
@@ -163,7 +163,7 @@ export function DocumentUploader({ name, label, hint, required, specsList }: Doc
             </div>
           ) : (
             <div className="text-center">
-              <div className="bg-[#1A1A1A] text-[#C8FF00] rounded-full p-3 inline-block mb-3">
+              <div className="bg-[#1A1A1A] text-[#2F4A00] rounded-full p-3 inline-block mb-3">
                 <UploadCloud className="w-6 h-6" />
               </div>
               <p className="text-[#0A0A0A] font-medium mb-1">Haz clic o arrastra tu archivo aquí</p>

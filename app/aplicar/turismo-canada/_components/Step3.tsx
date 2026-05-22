@@ -39,14 +39,14 @@ export function Step3() {
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormField label="País de nacimiento" name="step3.birth_country" required error={errors.step3?.birth_country?.message as string}>
-            <select {...register('step3.birth_country')} className="w-full bg-white border border-[#E5E5E5] rounded-lg px-4 py-3 text-[#0A0A0A] focus:outline-none focus:border-[#C8FF00] focus:ring-2 focus:ring-[#C8FF00] transition-colors appearance-none">
+            <select {...register('step3.birth_country')} className="w-full bg-white border border-[#E5E5E5] rounded-lg px-4 py-3 text-[#0A0A0A] focus:outline-none focus:border-[#2F4A00] focus:ring-2 focus:ring-[#2F4A00] transition-colors appearance-none">
               <option value="">Seleccionar país</option>
               {ALL_COUNTRIES.map(c => <option key={c.code} value={c.code}>{c.flag} {c.name}</option>)}
             </select>
           </FormField>
 
           <FormField label="Ciudad/Pueblo de nacimiento" name="step3.birth_city" required error={errors.step3?.birth_city?.message as string}>
-            <input {...register('step3.birth_city')} className="w-full bg-white border border-[#E5E5E5] rounded-lg px-4 py-3 text-[#0A0A0A] focus:outline-none focus:border-[#C8FF00] focus:ring-2 focus:ring-[#C8FF00] transition-colors" />
+            <input {...register('step3.birth_city')} className="w-full bg-white border border-[#E5E5E5] rounded-lg px-4 py-3 text-[#0A0A0A] focus:outline-none focus:border-[#2F4A00] focus:ring-2 focus:ring-[#2F4A00] transition-colors" />
           </FormField>
         </div>
       </div>
@@ -57,18 +57,18 @@ export function Step3() {
         <FormField label="¿Tienes ciudadanía de más de un país/territorio?" name="step3.multiple_citizenship" required error={errors.step3?.multiple_citizenship?.message as string}>
           <div className="flex gap-6 mt-2">
             <label className="flex items-center gap-3 cursor-pointer group">
-              <input type="radio" value="true" {...register('step3.multiple_citizenship')} className="w-5 h-5 accent-[#C8FF00] bg-white border-[#E5E5E5] focus:ring-[#C8FF00]" />
+              <input type="radio" value="true" {...register('step3.multiple_citizenship')} className="w-5 h-5 accent-[#2F4A00] bg-white border-[#E5E5E5] focus:ring-[#2F4A00]" />
               <span className="text-[#525252] group-hover:text-[#0A0A0A] transition-colors">Sí</span>
             </label>
             <label className="flex items-center gap-3 cursor-pointer group">
-              <input type="radio" value="false" {...register('step3.multiple_citizenship')} className="w-5 h-5 accent-[#C8FF00] bg-white border-[#E5E5E5] focus:ring-[#C8FF00]" />
+              <input type="radio" value="false" {...register('step3.multiple_citizenship')} className="w-5 h-5 accent-[#2F4A00] bg-white border-[#E5E5E5] focus:ring-[#2F4A00]" />
               <span className="text-[#525252] group-hover:text-[#0A0A0A] transition-colors">No</span>
             </label>
           </div>
         </FormField>
 
         <FormField label="¿De qué país/territorio eres ciudadano principal?" name="step3.citizenship_country" required error={errors.step3?.citizenship_country?.message as string}>
-          <select {...register('step3.citizenship_country')} className="w-full bg-white border border-[#E5E5E5] rounded-lg px-4 py-3 text-[#0A0A0A] focus:outline-none focus:border-[#C8FF00] focus:ring-2 focus:ring-[#C8FF00] transition-colors appearance-none">
+          <select {...register('step3.citizenship_country')} className="w-full bg-white border border-[#E5E5E5] rounded-lg px-4 py-3 text-[#0A0A0A] focus:outline-none focus:border-[#2F4A00] focus:ring-2 focus:ring-[#2F4A00] transition-colors appearance-none">
             <option value="">Seleccionar país</option>
             {ALL_COUNTRIES.map(c => <option key={c.code} value={c.code}>{c.flag} {c.name}</option>)}
           </select>
@@ -77,11 +77,11 @@ export function Step3() {
         <FormField label="¿Eres ciudadano de ese país desde que naciste?" name="step3.citizen_since_birth" required error={errors.step3?.citizen_since_birth?.message as string}>
           <div className="flex gap-6 mt-2">
             <label className="flex items-center gap-3 cursor-pointer group">
-              <input type="radio" value="true" {...register('step3.citizen_since_birth')} className="w-5 h-5 accent-[#C8FF00] bg-white border-[#E5E5E5] focus:ring-[#C8FF00]" />
+              <input type="radio" value="true" {...register('step3.citizen_since_birth')} className="w-5 h-5 accent-[#2F4A00] bg-white border-[#E5E5E5] focus:ring-[#2F4A00]" />
               <span className="text-[#525252] group-hover:text-[#0A0A0A] transition-colors">Sí</span>
             </label>
             <label className="flex items-center gap-3 cursor-pointer group">
-              <input type="radio" value="false" {...register('step3.citizen_since_birth')} className="w-5 h-5 accent-[#C8FF00] bg-white border-[#E5E5E5] focus:ring-[#C8FF00]" />
+              <input type="radio" value="false" {...register('step3.citizen_since_birth')} className="w-5 h-5 accent-[#2F4A00] bg-white border-[#E5E5E5] focus:ring-[#2F4A00]" />
               <span className="text-[#525252] group-hover:text-[#0A0A0A] transition-colors">No</span>
             </label>
           </div>
@@ -90,7 +90,7 @@ export function Step3() {
         {citizenSinceBirth === 'false' && (
           <div className="bg-white p-6 rounded-xl border border-[#E5E5E5] animate-in fade-in slide-in-from-top-2">
             <FormField label="¿Desde qué fecha eres ciudadano?" name="step3.citizen_since_date" required error={errors.step3?.citizen_since_date?.message as string}>
-              <input type="date" {...register('step3.citizen_since_date')} className="w-full bg-[#F5F5F0] border border-[#E5E5E5] rounded-lg px-4 py-3 text-[#0A0A0A] focus:outline-none focus:border-[#C8FF00] transition-colors [color-scheme:light]" />
+              <input type="date" {...register('step3.citizen_since_date')} className="w-full bg-[#F5F5F0] border border-[#E5E5E5] rounded-lg px-4 py-3 text-[#0A0A0A] focus:outline-none focus:border-[#2F4A00] transition-colors [color-scheme:light]" />
             </FormField>
           </div>
         )}
@@ -102,11 +102,11 @@ export function Step3() {
         <FormField label="¿Tienes un documento nacional de identidad? (Ej. Cédula, DNI)" name="step3.has_national_id" required error={errors.step3?.has_national_id?.message as string}>
           <div className="flex gap-6 mt-2">
             <label className="flex items-center gap-3 cursor-pointer group">
-              <input type="radio" value="true" {...register('step3.has_national_id')} className="w-5 h-5 accent-[#C8FF00] bg-white border-[#E5E5E5] focus:ring-[#C8FF00]" />
+              <input type="radio" value="true" {...register('step3.has_national_id')} className="w-5 h-5 accent-[#2F4A00] bg-white border-[#E5E5E5] focus:ring-[#2F4A00]" />
               <span className="text-[#525252] group-hover:text-[#0A0A0A] transition-colors">Sí</span>
             </label>
             <label className="flex items-center gap-3 cursor-pointer group">
-              <input type="radio" value="false" {...register('step3.has_national_id')} className="w-5 h-5 accent-[#C8FF00] bg-white border-[#E5E5E5] focus:ring-[#C8FF00]" />
+              <input type="radio" value="false" {...register('step3.has_national_id')} className="w-5 h-5 accent-[#2F4A00] bg-white border-[#E5E5E5] focus:ring-[#2F4A00]" />
               <span className="text-[#525252] group-hover:text-[#0A0A0A] transition-colors">No</span>
             </label>
           </div>
@@ -115,16 +115,16 @@ export function Step3() {
         {hasNationalId === 'true' && (
           <div className="bg-white p-6 rounded-xl border border-[#E5E5E5] space-y-4 animate-in fade-in slide-in-from-top-2">
             <FormField label="Número de documento" name="step3.national_id_number" required error={errors.step3?.national_id_number?.message as string}>
-              <input {...register('step3.national_id_number')} className="w-full bg-[#F5F5F0] border border-[#E5E5E5] rounded-lg px-4 py-3 text-[#0A0A0A] focus:outline-none focus:border-[#C8FF00] transition-colors uppercase" />
+              <input {...register('step3.national_id_number')} className="w-full bg-[#F5F5F0] border border-[#E5E5E5] rounded-lg px-4 py-3 text-[#0A0A0A] focus:outline-none focus:border-[#2F4A00] transition-colors uppercase" />
             </FormField>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <FormField label="Fecha de emisión" name="step3.national_id_issue_date" required error={errors.step3?.national_id_issue_date?.message as string}>
-                <input type="date" {...register('step3.national_id_issue_date')} className="w-full bg-[#F5F5F0] border border-[#E5E5E5] rounded-lg px-4 py-3 text-[#0A0A0A] focus:outline-none focus:border-[#C8FF00] transition-colors [color-scheme:light]" />
+                <input type="date" {...register('step3.national_id_issue_date')} className="w-full bg-[#F5F5F0] border border-[#E5E5E5] rounded-lg px-4 py-3 text-[#0A0A0A] focus:outline-none focus:border-[#2F4A00] transition-colors [color-scheme:light]" />
               </FormField>
               
               <FormField label="País de emisión" name="step3.national_id_country" required error={errors.step3?.national_id_country?.message as string}>
-                <select {...register('step3.national_id_country')} className="w-full bg-[#F5F5F0] border border-[#E5E5E5] rounded-lg px-4 py-3 text-[#0A0A0A] focus:outline-none focus:border-[#C8FF00] transition-colors appearance-none">
+                <select {...register('step3.national_id_country')} className="w-full bg-[#F5F5F0] border border-[#E5E5E5] rounded-lg px-4 py-3 text-[#0A0A0A] focus:outline-none focus:border-[#2F4A00] transition-colors appearance-none">
                   <option value="">Seleccionar país</option>
                   {ALL_COUNTRIES.map(c => <option key={c.code} value={c.code}>{c.flag} {c.name}</option>)}
                 </select>
@@ -140,11 +140,11 @@ export function Step3() {
         <FormField label="¿Has usado algún otro nombre en el pasado? (Alias, nombre de soltero/a, etc.)" name="step3.used_other_name" required error={errors.step3?.used_other_name?.message as string}>
           <div className="flex gap-6 mt-2">
             <label className="flex items-center gap-3 cursor-pointer group">
-              <input type="radio" value="true" {...register('step3.used_other_name')} className="w-5 h-5 accent-[#C8FF00] bg-white border-[#E5E5E5] focus:ring-[#C8FF00]" />
+              <input type="radio" value="true" {...register('step3.used_other_name')} className="w-5 h-5 accent-[#2F4A00] bg-white border-[#E5E5E5] focus:ring-[#2F4A00]" />
               <span className="text-[#525252] group-hover:text-[#0A0A0A] transition-colors">Sí</span>
             </label>
             <label className="flex items-center gap-3 cursor-pointer group">
-              <input type="radio" value="false" {...register('step3.used_other_name')} className="w-5 h-5 accent-[#C8FF00] bg-white border-[#E5E5E5] focus:ring-[#C8FF00]" />
+              <input type="radio" value="false" {...register('step3.used_other_name')} className="w-5 h-5 accent-[#2F4A00] bg-white border-[#E5E5E5] focus:ring-[#2F4A00]" />
               <span className="text-[#525252] group-hover:text-[#0A0A0A] transition-colors">No</span>
             </label>
           </div>
@@ -160,10 +160,10 @@ export function Step3() {
               renderItem={(index) => (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <FormField label="Apellidos" name={`step3.other_names.${index}.surname`} required error={(errors.step3?.other_names as any)?.[index]?.surname?.message as string}>
-                    <input {...register(`step3.other_names.${index}.surname`)} className="w-full bg-[#F5F5F0] border border-[#E5E5E5] rounded-lg px-4 py-3 text-[#0A0A0A] focus:outline-none focus:border-[#C8FF00] transition-colors" />
+                    <input {...register(`step3.other_names.${index}.surname`)} className="w-full bg-[#F5F5F0] border border-[#E5E5E5] rounded-lg px-4 py-3 text-[#0A0A0A] focus:outline-none focus:border-[#2F4A00] transition-colors" />
                   </FormField>
                   <FormField label="Nombres" name={`step3.other_names.${index}.given_name`} error={(errors.step3?.other_names as any)?.[index]?.given_name?.message as string}>
-                    <input {...register(`step3.other_names.${index}.given_name`)} className="w-full bg-[#F5F5F0] border border-[#E5E5E5] rounded-lg px-4 py-3 text-[#0A0A0A] focus:outline-none focus:border-[#C8FF00] transition-colors" />
+                    <input {...register(`step3.other_names.${index}.given_name`)} className="w-full bg-[#F5F5F0] border border-[#E5E5E5] rounded-lg px-4 py-3 text-[#0A0A0A] focus:outline-none focus:border-[#2F4A00] transition-colors" />
                   </FormField>
                 </div>
               )}

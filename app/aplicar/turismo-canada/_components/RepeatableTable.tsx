@@ -18,6 +18,21 @@ export function RepeatableTable({ name, title, description, defaultItem, renderI
     name: name as never
   })
 
+  const hasInitialized = React.useRef(false)
+  React.useEffect(() => {
+    if (!hasInitialized.current) {
+      if (fields.length < minItems) {
+        if (Array.isArray(defaultItem)) {
+          const toAppend = defaultItem.slice(fields.length)
+          if (toAppend.length > 0) append(toAppend)
+        } else {
+          append(Array(minItems - fields.length).fill(defaultItem))
+        }
+      }
+      hasInitialized.current = true
+    }
+  }, [fields.length, minItems, defaultItem, append])
+
   return (
     <div className="bg-[#F5F5F0] p-6 rounded-xl border border-[#E5E5E5] space-y-4">
       <div>
@@ -46,7 +61,7 @@ export function RepeatableTable({ name, title, description, defaultItem, renderI
       <button
         type="button"
         onClick={() => append(defaultItem)}
-        className="flex items-center gap-2 text-[#C8FF00] hover:text-[#A8D900] font-medium px-4 py-2 border border-[#C8FF00]/30 rounded-lg bg-[#C8FF00]/5 transition-colors mt-2"
+        className="flex items-center gap-2 text-[#2F4A00] hover:text-[#1D2D00] font-medium px-4 py-2 border border-[#2F4A00] rounded-lg bg-white transition-colors mt-2"
       >
         <Plus className="w-4 h-4" /> Agregar otro registro
       </button>

@@ -22,10 +22,10 @@ export function Step10() {
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormField label="Idioma nativo / Materno" name="step10.native_language" required error={errors.step10?.native_language?.message as string}>
-            <input {...register('step10.native_language')} className="w-full bg-white border border-[#E5E5E5] rounded-lg px-4 py-3 text-[#0A0A0A] focus:outline-none focus:border-[#C8FF00] focus:ring-2 focus:ring-[#C8FF00] transition-colors" />
+            <input {...register('step10.native_language')} className="w-full bg-white border border-[#E5E5E5] rounded-lg px-4 py-3 text-[#0A0A0A] focus:outline-none focus:border-[#2F4A00] focus:ring-2 focus:ring-[#2F4A00] transition-colors" />
           </FormField>
           <FormField label="¿Qué idiomas oficiales de Canadá dominas?" name="step10.communicate_language" required error={errors.step10?.communicate_language?.message as string}>
-            <select {...register('step10.communicate_language')} className="w-full bg-white border border-[#E5E5E5] rounded-lg px-4 py-3 text-[#0A0A0A] focus:outline-none focus:border-[#C8FF00] focus:ring-2 focus:ring-[#C8FF00] transition-colors appearance-none">
+            <select {...register('step10.communicate_language')} className="w-full bg-white border border-[#E5E5E5] rounded-lg px-4 py-3 text-[#0A0A0A] focus:outline-none focus:border-[#2F4A00] focus:ring-2 focus:ring-[#2F4A00] transition-colors appearance-none">
               <option value="">Seleccionar</option>
               <option value="English">Inglés</option>
               <option value="French">Francés</option>
@@ -42,7 +42,7 @@ export function Step10() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormField label="Correo electrónico" name="step10.email" required error={errors.step10?.email?.message as string}>
-            <input type="email" {...register('step10.email')} className="w-full bg-white border border-[#E5E5E5] rounded-lg px-4 py-3 text-[#0A0A0A] focus:outline-none focus:border-[#C8FF00] focus:ring-2 focus:ring-[#C8FF00] transition-colors" />
+            <input type="email" {...register('step10.email')} className="w-full bg-white border border-[#E5E5E5] rounded-lg px-4 py-3 text-[#0A0A0A] focus:outline-none focus:border-[#2F4A00] focus:ring-2 focus:ring-[#2F4A00] transition-colors" />
           </FormField>
           <FormField label="Confirmar correo" name="step10.email_confirm" required error={errors.step10?.email_confirm?.message as string}>
             <input 
@@ -52,7 +52,7 @@ export function Step10() {
               className={`w-full bg-white border rounded-lg px-4 py-3 text-[#0A0A0A] focus:outline-none focus:ring-2 transition-colors ${
                 emailValue && emailConfirmValue && emailValue !== emailConfirmValue 
                   ? 'border-[#DC2626] focus:border-[#DC2626] focus:ring-[#DC2626]/20' 
-                  : 'border-[#E5E5E5] focus:border-[#C8FF00] focus:ring-[#C8FF00]'
+                  : 'border-[#E5E5E5] focus:border-[#2F4A00] focus:ring-[#2F4A00]'
               }`} 
             />
           </FormField>
@@ -69,7 +69,7 @@ export function Step10() {
           renderItem={(index) => (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <FormField label="Tipo de teléfono" name={`step10.phones.${index}.type`} required error={(errors.step10?.phones as any)?.[index]?.type?.message as string}>
-                <select {...register(`step10.phones.${index}.type`)} className="w-full bg-[#F5F5F0] border border-[#E5E5E5] rounded-lg px-4 py-3 text-[#0A0A0A] focus:outline-none focus:border-[#C8FF00] transition-colors appearance-none">
+                <select {...register(`step10.phones.${index}.type`)} className="w-full bg-[#F5F5F0] border border-[#E5E5E5] rounded-lg px-4 py-3 text-[#0A0A0A] focus:outline-none focus:border-[#2F4A00] transition-colors appearance-none">
                   <option value="">Seleccionar tipo</option>
                   <option value="Cellular">Celular / Móvil</option>
                   <option value="Residence">Casa / Residencia</option>
@@ -78,7 +78,7 @@ export function Step10() {
               </FormField>
               
               <FormField label="País" name={`step10.phones.${index}.country`} required error={(errors.step10?.phones as any)?.[index]?.country?.message as string}>
-                <select {...register(`step10.phones.${index}.country`)} className="w-full bg-[#F5F5F0] border border-[#E5E5E5] rounded-lg px-4 py-3 text-[#0A0A0A] focus:outline-none focus:border-[#C8FF00] transition-colors appearance-none">
+                <select {...register(`step10.phones.${index}.country`)} className="w-full bg-[#F5F5F0] border border-[#E5E5E5] rounded-lg px-4 py-3 text-[#0A0A0A] focus:outline-none focus:border-[#2F4A00] transition-colors appearance-none">
                   <option value="">Seleccionar país</option>
                   {ALL_COUNTRIES.map(c => <option key={c.code} value={c.code}>{c.flag} {c.name}</option>)}
                 </select>
@@ -86,13 +86,13 @@ export function Step10() {
               
               <div className="md:col-span-2 grid grid-cols-[1fr_2fr_1fr] gap-4">
                 <FormField label="Cod. área/país" name={`step10.phones.${index}.dial_code`} required error={(errors.step10?.phones as any)?.[index]?.dial_code?.message as string}>
-                  <input {...register(`step10.phones.${index}.dial_code`)} placeholder="+00" className="w-full bg-[#F5F5F0] border border-[#E5E5E5] rounded-lg px-4 py-3 text-[#0A0A0A] focus:outline-none focus:border-[#C8FF00] transition-colors" />
+                  <input {...register(`step10.phones.${index}.dial_code`)} placeholder="+00" className="w-full bg-[#F5F5F0] border border-[#E5E5E5] rounded-lg px-4 py-3 text-[#0A0A0A] focus:outline-none focus:border-[#2F4A00] transition-colors" />
                 </FormField>
                 <FormField label="Número telefónico" name={`step10.phones.${index}.number`} required error={(errors.step10?.phones as any)?.[index]?.number?.message as string}>
-                  <input type="tel" {...register(`step10.phones.${index}.number`)} className="w-full bg-[#F5F5F0] border border-[#E5E5E5] rounded-lg px-4 py-3 text-[#0A0A0A] focus:outline-none focus:border-[#C8FF00] transition-colors" />
+                  <input type="tel" {...register(`step10.phones.${index}.number`)} className="w-full bg-[#F5F5F0] border border-[#E5E5E5] rounded-lg px-4 py-3 text-[#0A0A0A] focus:outline-none focus:border-[#2F4A00] transition-colors" />
                 </FormField>
                 <FormField label="Ext." name={`step10.phones.${index}.extension`} error={(errors.step10?.phones as any)?.[index]?.extension?.message as string}>
-                  <input {...register(`step10.phones.${index}.extension`)} className="w-full bg-[#F5F5F0] border border-[#E5E5E5] rounded-lg px-4 py-3 text-[#0A0A0A] focus:outline-none focus:border-[#C8FF00] transition-colors" />
+                  <input {...register(`step10.phones.${index}.extension`)} className="w-full bg-[#F5F5F0] border border-[#E5E5E5] rounded-lg px-4 py-3 text-[#0A0A0A] focus:outline-none focus:border-[#2F4A00] transition-colors" />
                 </FormField>
               </div>
             </div>

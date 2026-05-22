@@ -145,7 +145,8 @@ export const step5Schema = z.object({
   }
   // If unemployed, job_title, employer, duties are optional. Else required.
   data.work_history.forEach((work, idx) => {
-    if (work.activity !== 'Unemployed') {
+    const isUnemployed = work.activity === 'Unemployed' || work.activity === 'Retired' || work.activity === 'Student';
+    if (!isUnemployed) {
       if (!work.job_title?.trim()) ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Campo requerido', path: ['work_history', idx, 'job_title'] })
       if (!work.employer?.trim()) ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Campo requerido', path: ['work_history', idx, 'employer'] })
       if (!work.duties?.trim()) ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Campo requerido', path: ['work_history', idx, 'duties'] })
@@ -231,7 +232,7 @@ export const step9Schema = z.object({
     street: optionalString,
     city: optionalString,
     accompany: requiredString
-  })).min(1, 'Debes añadir al menos un padre/madre')
+  })).min(2, 'Debes añadir la información de ambos padres')
 }).superRefine((data, ctx) => {
   if (['Married', 'Common Law', 'Casado(a)', 'Unión libre'].includes(data.marital_status)) {
     if (!data.marriage_date?.trim()) ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Campo requerido', path: ['marriage_date'] })
