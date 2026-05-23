@@ -9,20 +9,9 @@ export async function submitCanadaApplication(
   formDataInput: FormData
 ): Promise<{ success: boolean; applicationId?: string; error?: string; errorCode?: string; digest?: string }> {
 
-  let ipAddress = 'unknown'
-  let userAgent = 'unknown'
-
-  try {
-    const headersList = headers()
-    ipAddress = headersList.get('x-forwarded-for') || headersList.get('x-real-ip') || 'unknown'
-    userAgent = headersList.get('user-agent') || 'unknown'
-  } catch (e) {
-    // Ignore
-  }
-
   try {
     const formData = JSON.parse(formDataInput.get('data') as string)
-    return await executeSubmit(formData, ipAddress, userAgent)
+    return await executeSubmit(formData)
   } catch (error: any) {
     console.error('[GLOBAL_CATCH] Error:', error.message, error.stack)
     return {
@@ -34,7 +23,7 @@ export async function submitCanadaApplication(
   }
 }
 
-async function executeSubmit(formData: any, ipAddress: string, userAgent: string) {
+async function executeSubmit(formData: any) {
   const t0 = Date.now()
   console.log('[SUBMIT_CANADA] Start', new Date().toISOString())
 
@@ -56,8 +45,21 @@ async function executeSubmit(formData: any, ipAddress: string, userAgent: string
   // Mapeo seguro de booleanos (de string "true" / "false" a boolean real)
   const toBool = (val: any) => val === 'true' || val === true
   
-  // Convert empty strings to null
-  const nullify = (val: any) => val === '' ? null : val
+  // Convert empty strings to null recursively (crucial for dates in JSONB)
+  const deepNullify = (obj: any): any => {
+    if (obj === '') return null
+    if (Array.isArray(obj)) return obj.map(deepNullify)
+    if (obj !== null && typeof obj === 'object') {
+      const newObj: any = {}
+      for (const key in obj) {
+        newObj[key] = deepNullify(obj[key])
+      }
+      return newObj
+    }
+    return obj
+  }
+  
+  const nullify = deepNullify
 
   const step1 = formData.step1 || {}
   const step2 = formData.step2 || {}
@@ -119,7 +121,7 @@ async function executeSubmit(formData: any, ipAddress: string, userAgent: string
         national_id_issue_date: nullify(step3.national_id_issue_date),
         national_id_country: nullify(step3.national_id_country),
         used_other_name: toBool(step3.used_other_name),
-        other_names: step3.other_names || [],
+        other_names: deepNullify(step3.other_names || []),
 
         // Step 4
         residential_country: nullify(step4.residential_country),
@@ -131,21 +133,21 @@ async function executeSubmit(formData: any, ipAddress: string, userAgent: string
         mailing_street: nullify(step4.mailing_street),
         mailing_city: nullify(step4.mailing_city),
         mailing_postal_code: nullify(step4.mailing_postal_code),
-        residence_history: step4.residence_history || [],
+        residence_history: deepNullify(step4.residence_history || []),
         provided_biometrics_10y: toBool(step4.provided_biometrics_10y),
 
         // Step 5
-        funds_cad: step5.funds_cad === '' ? null : (step5.funds_cad ? Number(step5.funds_cad) : null),
+        funds_cad: !step5.funds_cad ? null : Number(step5.funds_cad),
         someone_else_funding: toBool(step5.someone_else_funding),
         studied_postsecondary: toBool(step5.studied_postsecondary),
-        education_history: step5.education_history || [],
+        education_history: deepNullify(step5.education_history || []),
         military_service: toBool(step5.military_service),
-        military_details: step5.military_details || [],
-        work_history: step5.work_history || [],
+        military_details: deepNullify(step5.military_details || []),
+        work_history: deepNullify(step5.work_history || []),
 
         // Step 6
         travelled_past_5y: toBool(step6.travelled_past_5y),
-        travel_history: step6.travel_history || [],
+        travel_history: deepNullify(step6.travel_history || []),
         stayed_illegally_canada: toBool(step6.stayed_illegally_canada),
         refused_visa: toBool(step6.refused_visa),
         refusal_details: nullify(step6.refusal_details),
@@ -179,14 +181,14 @@ async function executeSubmit(formData: any, ipAddress: string, userAgent: string
         spouse_address_same: step9.spouse_address_same ? toBool(step9.spouse_address_same) : null,
         spouse_accompany: step9.spouse_accompany ? toBool(step9.spouse_accompany) : null,
         has_children: toBool(step9.has_children),
-        children: step9.children || [],
-        parents: step9.parents || [],
+        children: deepNullify(step9.children || []),
+        parents: deepNullify(step9.parents || []),
 
         // Step 10
         native_language: nullify(step10.native_language),
         communicate_language: nullify(step10.communicate_language),
         email: nullify(step10.email),
-        phones: step10.phones || [],
+        phones: deepNullify(step10.phones || []),
         
         // Documents
         doc_id_passport: nullify(step10.doc_id_passport),
