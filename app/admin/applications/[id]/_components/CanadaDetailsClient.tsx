@@ -77,17 +77,16 @@ function DocumentLink({ url, label }: { url: string; label: string }) {
 
 export function CanadaDetailsClient({ application, signedPhotoUrls }: Props) {
   const router = useRouter()
-  const d = application.data || {}
-  const s1 = d.step1 || {}
-  const s2 = d.step2 || {}
-  const s3 = d.step3 || {}
-  const s4 = d.step4 || {}
-  const s5 = d.step5 || {}
-  const s6 = d.step6 || {}
-  const s7 = d.step7 || {}
-  const s8 = d.step8 || {}
-  const s9 = d.step9 || {}
-  const s10 = d.step10 || {}
+  const s1 = application || {}
+  const s2 = application || {}
+  const s3 = application || {}
+  const s4 = application || {}
+  const s5 = application || {}
+  const s6 = application || {}
+  const s7 = application || {}
+  const s8 = application || {}
+  const s9 = application || {}
+  const s10 = application || {}
 
   const [status, setStatus] = useState(application.status || 'nuevo')
   const [notes, setNotes] = useState(application.admin_notes || '')

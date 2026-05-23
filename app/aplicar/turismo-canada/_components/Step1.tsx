@@ -57,11 +57,11 @@ export function Step1() {
           <FormField label="¿Estás completando esta aplicación en nombre de alguien más?" name="step1.applying_on_behalf" required error={errors.step1?.applying_on_behalf?.message as string}>
             <div className="flex gap-6 mt-2">
               <label className="flex items-center gap-3 cursor-pointer group">
-                <input type="radio" value="true" {...register('step1.applying_on_behalf')} className="w-5 h-5 accent-[#2F4A00] bg-white border-[#E5E5E5] focus:ring-[#2F4A00]" />
+                <input type="radio" value="true" {...register('step1.applying_on_behalf')} className="w-5 h-5 accent-[#C8FF00] bg-white border-[#E5E5E5] focus:ring-[#2F4A00]" />
                 <span className="text-[#525252] group-hover:text-[#0A0A0A] transition-colors">Sí</span>
               </label>
               <label className="flex items-center gap-3 cursor-pointer group">
-                <input type="radio" value="false" {...register('step1.applying_on_behalf')} className="w-5 h-5 accent-[#2F4A00] bg-white border-[#E5E5E5] focus:ring-[#2F4A00]" />
+                <input type="radio" value="false" {...register('step1.applying_on_behalf')} className="w-5 h-5 accent-[#C8FF00] bg-white border-[#E5E5E5] focus:ring-[#2F4A00]" />
                 <span className="text-[#525252] group-hover:text-[#0A0A0A] transition-colors">No</span>
               </label>
             </div>

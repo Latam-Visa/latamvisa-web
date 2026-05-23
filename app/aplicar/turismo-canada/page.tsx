@@ -66,6 +66,10 @@ const STORAGE_KEY = 'latamvisa-canada-draft'
 export default function TurismoCanadaApplication() {
   const router = useRouter()
   const [currentStep, setCurrentStep] = useState(1)
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }, [currentStep])
   const [showDraftModal, setShowDraftModal] = useState(false)
   const [draftData, setDraftData] = useState<any>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)

@@ -81,11 +81,11 @@ export function Step9() {
               <FormField label="¿Vive en la misma dirección que tú?" name="step9.spouse_address_same" required error={errors.step9?.spouse_address_same?.message as string}>
                 <div className="flex gap-6 mt-2">
                   <label className="flex items-center gap-3 cursor-pointer group">
-                    <input type="radio" value="true" {...register('step9.spouse_address_same')} className="w-5 h-5 accent-[#2F4A00] bg-[#F5F5F0] border-[#E5E5E5] focus:ring-[#2F4A00]" />
+                    <input type="radio" value="true" {...register('step9.spouse_address_same')} className="w-5 h-5 accent-[#C8FF00] bg-[#F5F5F0] border-[#E5E5E5] focus:ring-[#2F4A00]" />
                     <span className="text-[#525252] group-hover:text-[#0A0A0A] transition-colors">Sí</span>
                   </label>
                   <label className="flex items-center gap-3 cursor-pointer group">
-                    <input type="radio" value="false" {...register('step9.spouse_address_same')} className="w-5 h-5 accent-[#2F4A00] bg-[#F5F5F0] border-[#E5E5E5] focus:ring-[#2F4A00]" />
+                    <input type="radio" value="false" {...register('step9.spouse_address_same')} className="w-5 h-5 accent-[#C8FF00] bg-[#F5F5F0] border-[#E5E5E5] focus:ring-[#2F4A00]" />
                     <span className="text-[#525252] group-hover:text-[#0A0A0A] transition-colors">No</span>
                   </label>
                 </div>
@@ -93,11 +93,11 @@ export function Step9() {
               <FormField label="¿Viajará contigo a Canadá?" name="step9.spouse_accompany" required error={errors.step9?.spouse_accompany?.message as string}>
                 <div className="flex gap-6 mt-2">
                   <label className="flex items-center gap-3 cursor-pointer group">
-                    <input type="radio" value="true" {...register('step9.spouse_accompany')} className="w-5 h-5 accent-[#2F4A00] bg-[#F5F5F0] border-[#E5E5E5] focus:ring-[#2F4A00]" />
+                    <input type="radio" value="true" {...register('step9.spouse_accompany')} className="w-5 h-5 accent-[#C8FF00] bg-[#F5F5F0] border-[#E5E5E5] focus:ring-[#2F4A00]" />
                     <span className="text-[#525252] group-hover:text-[#0A0A0A] transition-colors">Sí</span>
                   </label>
                   <label className="flex items-center gap-3 cursor-pointer group">
-                    <input type="radio" value="false" {...register('step9.spouse_accompany')} className="w-5 h-5 accent-[#2F4A00] bg-[#F5F5F0] border-[#E5E5E5] focus:ring-[#2F4A00]" />
+                    <input type="radio" value="false" {...register('step9.spouse_accompany')} className="w-5 h-5 accent-[#C8FF00] bg-[#F5F5F0] border-[#E5E5E5] focus:ring-[#2F4A00]" />
                     <span className="text-[#525252] group-hover:text-[#0A0A0A] transition-colors">No</span>
                   </label>
                 </div>
@@ -112,11 +112,11 @@ export function Step9() {
         <FormField label="¿Tienes hijos?" name="step9.has_children" required error={errors.step9?.has_children?.message as string}>
           <div className="flex gap-6 mt-2">
             <label className="flex items-center gap-3 cursor-pointer group">
-              <input type="radio" value="true" {...register('step9.has_children')} className="w-5 h-5 accent-[#2F4A00] bg-white border-[#E5E5E5] focus:ring-[#2F4A00]" />
+              <input type="radio" value="true" {...register('step9.has_children')} className="w-5 h-5 accent-[#C8FF00] bg-white border-[#E5E5E5] focus:ring-[#2F4A00]" />
               <span className="text-[#525252] group-hover:text-[#0A0A0A] transition-colors">Sí</span>
             </label>
             <label className="flex items-center gap-3 cursor-pointer group">
-              <input type="radio" value="false" {...register('step9.has_children')} className="w-5 h-5 accent-[#2F4A00] bg-white border-[#E5E5E5] focus:ring-[#2F4A00]" />
+              <input type="radio" value="false" {...register('step9.has_children')} className="w-5 h-5 accent-[#C8FF00] bg-white border-[#E5E5E5] focus:ring-[#2F4A00]" />
               <span className="text-[#525252] group-hover:text-[#0A0A0A] transition-colors">No</span>
             </label>
           </div>
@@ -232,11 +232,11 @@ function ParentRow({ index }: { index: number }) {
         <FormField label="¿Vive en tu misma dirección actual?" name={`step9.parents.${index}.address_same`} required error={(errors.step9?.parents as any)?.[index]?.address_same?.message as string}>
           <div className="flex gap-6 mt-2">
             <label className="flex items-center gap-3 cursor-pointer group">
-              <input type="radio" value="true" {...register(`step9.parents.${index}.address_same`)} className="w-5 h-5 accent-[#2F4A00] bg-[#F5F5F0] border-[#E5E5E5] focus:ring-[#2F4A00]" />
+              <input type="radio" value="true" {...register(`step9.parents.${index}.address_same`)} className="w-5 h-5 accent-[#C8FF00] bg-[#F5F5F0] border-[#E5E5E5] focus:ring-[#2F4A00]" />
               <span className="text-[#525252] group-hover:text-[#0A0A0A] transition-colors">Sí</span>
             </label>
             <label className="flex items-center gap-3 cursor-pointer group">
-              <input type="radio" value="false" {...register(`step9.parents.${index}.address_same`)} className="w-5 h-5 accent-[#2F4A00] bg-[#F5F5F0] border-[#E5E5E5] focus:ring-[#2F4A00]" />
+              <input type="radio" value="false" {...register(`step9.parents.${index}.address_same`)} className="w-5 h-5 accent-[#C8FF00] bg-[#F5F5F0] border-[#E5E5E5] focus:ring-[#2F4A00]" />
               <span className="text-[#525252] group-hover:text-[#0A0A0A] transition-colors">No (o falleció)</span>
             </label>
           </div>
@@ -267,11 +267,11 @@ function ParentRow({ index }: { index: number }) {
         <FormField label="¿Viajará contigo a Canadá?" name={`step9.parents.${index}.accompany`} required error={(errors.step9?.parents as any)?.[index]?.accompany?.message as string}>
           <div className="flex gap-6 mt-2">
             <label className="flex items-center gap-3 cursor-pointer group">
-              <input type="radio" value="true" {...register(`step9.parents.${index}.accompany`)} className="w-5 h-5 accent-[#2F4A00] bg-[#F5F5F0] border-[#E5E5E5] focus:ring-[#2F4A00]" />
+              <input type="radio" value="true" {...register(`step9.parents.${index}.accompany`)} className="w-5 h-5 accent-[#C8FF00] bg-[#F5F5F0] border-[#E5E5E5] focus:ring-[#2F4A00]" />
               <span className="text-[#525252] group-hover:text-[#0A0A0A] transition-colors">Sí</span>
             </label>
             <label className="flex items-center gap-3 cursor-pointer group">
-              <input type="radio" value="false" {...register(`step9.parents.${index}.accompany`)} className="w-5 h-5 accent-[#2F4A00] bg-[#F5F5F0] border-[#E5E5E5] focus:ring-[#2F4A00]" />
+              <input type="radio" value="false" {...register(`step9.parents.${index}.accompany`)} className="w-5 h-5 accent-[#C8FF00] bg-[#F5F5F0] border-[#E5E5E5] focus:ring-[#2F4A00]" />
               <span className="text-[#525252] group-hover:text-[#0A0A0A] transition-colors">No</span>
             </label>
           </div>

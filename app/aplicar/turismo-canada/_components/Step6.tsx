@@ -31,11 +31,11 @@ export function Step6() {
         <FormField label="¿Has viajado a otros países en los últimos 5 años?" name="step6.travelled_past_5y" required error={errors.step6?.travelled_past_5y?.message as string}>
           <div className="flex gap-6 mt-2">
             <label className="flex items-center gap-3 cursor-pointer group">
-              <input type="radio" value="true" {...register('step6.travelled_past_5y')} className="w-5 h-5 accent-[#2F4A00] bg-white border-[#E5E5E5] focus:ring-[#2F4A00]" />
+              <input type="radio" value="true" {...register('step6.travelled_past_5y')} className="w-5 h-5 accent-[#C8FF00] bg-white border-[#E5E5E5] focus:ring-[#2F4A00]" />
               <span className="text-[#525252] group-hover:text-[#0A0A0A] transition-colors">Sí</span>
             </label>
             <label className="flex items-center gap-3 cursor-pointer group">
-              <input type="radio" value="false" {...register('step6.travelled_past_5y')} className="w-5 h-5 accent-[#2F4A00] bg-white border-[#E5E5E5] focus:ring-[#2F4A00]" />
+              <input type="radio" value="false" {...register('step6.travelled_past_5y')} className="w-5 h-5 accent-[#C8FF00] bg-white border-[#E5E5E5] focus:ring-[#2F4A00]" />
               <span className="text-[#525252] group-hover:text-[#0A0A0A] transition-colors">No</span>
             </label>
           </div>
@@ -84,11 +84,11 @@ export function Step6() {
         <FormField label="¿Alguna vez te has quedado en Canadá más tiempo de lo permitido, estudiado o trabajado sin autorización?" name="step6.stayed_illegally_canada" required error={errors.step6?.stayed_illegally_canada?.message as string}>
           <div className="flex gap-6 mt-2">
             <label className="flex items-center gap-3 cursor-pointer group">
-              <input type="radio" value="true" {...register('step6.stayed_illegally_canada')} className="w-5 h-5 accent-[#2F4A00] bg-white border-[#E5E5E5] focus:ring-[#2F4A00]" />
+              <input type="radio" value="true" {...register('step6.stayed_illegally_canada')} className="w-5 h-5 accent-[#C8FF00] bg-white border-[#E5E5E5] focus:ring-[#2F4A00]" />
               <span className="text-[#525252] group-hover:text-[#0A0A0A] transition-colors">Sí</span>
             </label>
             <label className="flex items-center gap-3 cursor-pointer group">
-              <input type="radio" value="false" {...register('step6.stayed_illegally_canada')} className="w-5 h-5 accent-[#2F4A00] bg-white border-[#E5E5E5] focus:ring-[#2F4A00]" />
+              <input type="radio" value="false" {...register('step6.stayed_illegally_canada')} className="w-5 h-5 accent-[#C8FF00] bg-white border-[#E5E5E5] focus:ring-[#2F4A00]" />
               <span className="text-[#525252] group-hover:text-[#0A0A0A] transition-colors">No</span>
             </label>
           </div>
@@ -98,11 +98,11 @@ export function Step6() {
           <FormField label="¿Alguna vez te han denegado una visa, permiso, o te han denegado la entrada a Canadá o a cualquier otro país?" name="step6.refused_visa" required error={errors.step6?.refused_visa?.message as string}>
             <div className="flex gap-6 mt-2">
               <label className="flex items-center gap-3 cursor-pointer group">
-                <input type="radio" value="true" {...register('step6.refused_visa')} className="w-5 h-5 accent-[#2F4A00] bg-white border-[#E5E5E5] focus:ring-[#2F4A00]" />
+                <input type="radio" value="true" {...register('step6.refused_visa')} className="w-5 h-5 accent-[#C8FF00] bg-white border-[#E5E5E5] focus:ring-[#2F4A00]" />
                 <span className="text-[#525252] group-hover:text-[#0A0A0A] transition-colors">Sí</span>
               </label>
               <label className="flex items-center gap-3 cursor-pointer group">
-                <input type="radio" value="false" {...register('step6.refused_visa')} className="w-5 h-5 accent-[#2F4A00] bg-white border-[#E5E5E5] focus:ring-[#2F4A00]" />
+                <input type="radio" value="false" {...register('step6.refused_visa')} className="w-5 h-5 accent-[#C8FF00] bg-white border-[#E5E5E5] focus:ring-[#2F4A00]" />
                 <span className="text-[#525252] group-hover:text-[#0A0A0A] transition-colors">No</span>
               </label>
             </div>

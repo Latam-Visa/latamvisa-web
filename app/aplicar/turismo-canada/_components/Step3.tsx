@@ -57,11 +57,11 @@ export function Step3() {
         <FormField label="¿Tienes ciudadanía de más de un país/territorio?" name="step3.multiple_citizenship" required error={errors.step3?.multiple_citizenship?.message as string}>
           <div className="flex gap-6 mt-2">
             <label className="flex items-center gap-3 cursor-pointer group">
-              <input type="radio" value="true" {...register('step3.multiple_citizenship')} className="w-5 h-5 accent-[#2F4A00] bg-white border-[#E5E5E5] focus:ring-[#2F4A00]" />
+              <input type="radio" value="true" {...register('step3.multiple_citizenship')} className="w-5 h-5 accent-[#C8FF00] bg-white border-[#E5E5E5] focus:ring-[#2F4A00]" />
               <span className="text-[#525252] group-hover:text-[#0A0A0A] transition-colors">Sí</span>
             </label>
             <label className="flex items-center gap-3 cursor-pointer group">
-              <input type="radio" value="false" {...register('step3.multiple_citizenship')} className="w-5 h-5 accent-[#2F4A00] bg-white border-[#E5E5E5] focus:ring-[#2F4A00]" />
+              <input type="radio" value="false" {...register('step3.multiple_citizenship')} className="w-5 h-5 accent-[#C8FF00] bg-white border-[#E5E5E5] focus:ring-[#2F4A00]" />
               <span className="text-[#525252] group-hover:text-[#0A0A0A] transition-colors">No</span>
             </label>
           </div>
@@ -77,11 +77,11 @@ export function Step3() {
         <FormField label="¿Eres ciudadano de ese país desde que naciste?" name="step3.citizen_since_birth" required error={errors.step3?.citizen_since_birth?.message as string}>
           <div className="flex gap-6 mt-2">
             <label className="flex items-center gap-3 cursor-pointer group">
-              <input type="radio" value="true" {...register('step3.citizen_since_birth')} className="w-5 h-5 accent-[#2F4A00] bg-white border-[#E5E5E5] focus:ring-[#2F4A00]" />
+              <input type="radio" value="true" {...register('step3.citizen_since_birth')} className="w-5 h-5 accent-[#C8FF00] bg-white border-[#E5E5E5] focus:ring-[#2F4A00]" />
               <span className="text-[#525252] group-hover:text-[#0A0A0A] transition-colors">Sí</span>
             </label>
             <label className="flex items-center gap-3 cursor-pointer group">
-              <input type="radio" value="false" {...register('step3.citizen_since_birth')} className="w-5 h-5 accent-[#2F4A00] bg-white border-[#E5E5E5] focus:ring-[#2F4A00]" />
+              <input type="radio" value="false" {...register('step3.citizen_since_birth')} className="w-5 h-5 accent-[#C8FF00] bg-white border-[#E5E5E5] focus:ring-[#2F4A00]" />
               <span className="text-[#525252] group-hover:text-[#0A0A0A] transition-colors">No</span>
             </label>
           </div>
@@ -102,11 +102,11 @@ export function Step3() {
         <FormField label="¿Tienes un documento nacional de identidad? (Ej. Cédula, DNI)" name="step3.has_national_id" required error={errors.step3?.has_national_id?.message as string}>
           <div className="flex gap-6 mt-2">
             <label className="flex items-center gap-3 cursor-pointer group">
-              <input type="radio" value="true" {...register('step3.has_national_id')} className="w-5 h-5 accent-[#2F4A00] bg-white border-[#E5E5E5] focus:ring-[#2F4A00]" />
+              <input type="radio" value="true" {...register('step3.has_national_id')} className="w-5 h-5 accent-[#C8FF00] bg-white border-[#E5E5E5] focus:ring-[#2F4A00]" />
               <span className="text-[#525252] group-hover:text-[#0A0A0A] transition-colors">Sí</span>
             </label>
             <label className="flex items-center gap-3 cursor-pointer group">
-              <input type="radio" value="false" {...register('step3.has_national_id')} className="w-5 h-5 accent-[#2F4A00] bg-white border-[#E5E5E5] focus:ring-[#2F4A00]" />
+              <input type="radio" value="false" {...register('step3.has_national_id')} className="w-5 h-5 accent-[#C8FF00] bg-white border-[#E5E5E5] focus:ring-[#2F4A00]" />
               <span className="text-[#525252] group-hover:text-[#0A0A0A] transition-colors">No</span>
             </label>
           </div>
@@ -140,11 +140,11 @@ export function Step3() {
         <FormField label="¿Has usado algún otro nombre en el pasado? (Alias, nombre de soltero/a, etc.)" name="step3.used_other_name" required error={errors.step3?.used_other_name?.message as string}>
           <div className="flex gap-6 mt-2">
             <label className="flex items-center gap-3 cursor-pointer group">
-              <input type="radio" value="true" {...register('step3.used_other_name')} className="w-5 h-5 accent-[#2F4A00] bg-white border-[#E5E5E5] focus:ring-[#2F4A00]" />
+              <input type="radio" value="true" {...register('step3.used_other_name')} className="w-5 h-5 accent-[#C8FF00] bg-white border-[#E5E5E5] focus:ring-[#2F4A00]" />
               <span className="text-[#525252] group-hover:text-[#0A0A0A] transition-colors">Sí</span>
             </label>
             <label className="flex items-center gap-3 cursor-pointer group">
-              <input type="radio" value="false" {...register('step3.used_other_name')} className="w-5 h-5 accent-[#2F4A00] bg-white border-[#E5E5E5] focus:ring-[#2F4A00]" />
+              <input type="radio" value="false" {...register('step3.used_other_name')} className="w-5 h-5 accent-[#C8FF00] bg-white border-[#E5E5E5] focus:ring-[#2F4A00]" />
               <span className="text-[#525252] group-hover:text-[#0A0A0A] transition-colors">No</span>
             </label>
           </div>

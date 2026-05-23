@@ -58,7 +58,7 @@ export default async function ApplicationDetailsPage({ params }: { params: { id:
     ])
     signedPhotoUrls = { passport, visaPhoto, previousVisa }
   } else {
-    const d = app.data.step10 || {}
+    const d = app
     const [docIdPassport, docTies, docBankStatements, docTravelItinerary, docFormsLetters] = await Promise.all([
       getSignedPhotoUrl(bucket, d.doc_id_passport),
       getSignedPhotoUrl(bucket, d.doc_ties),

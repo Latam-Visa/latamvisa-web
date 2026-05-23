@@ -26,7 +26,7 @@ export default function AdminDashboard() {
 async function ApplicationsTable() {
   const [usaRes, canRes] = await Promise.all([
     supabaseAdmin.from('visa_applications_usa').select('id, created_at, status, data').order('created_at', { ascending: false }),
-    supabaseAdmin.from('visa_applications_canada').select('id, created_at, status, data').order('created_at', { ascending: false })
+    supabaseAdmin.from('visa_applications_canada').select('*').order('created_at', { ascending: false })
   ])
 
   if (usaRes.error && canRes.error) {
@@ -48,9 +48,9 @@ async function ApplicationsTable() {
     created_at: app.created_at,
     status: app.status || 'nuevo',
     destination: 'Canadá',
-    fullName: `${app.data?.step2?.given_name || ''} ${app.data?.step2?.surname || ''}`.trim() || '—',
-    email: app.data?.step10?.email || '—',
-    visaType: app.data?.step1?.apply_for || '—'
+    fullName: `${app.given_name || ''} ${app.surname || ''}`.trim() || '—',
+    email: app.email || '—',
+    visaType: app.apply_for || '—'
   }))
 
   const applications = [...usaApps, ...canApps].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())

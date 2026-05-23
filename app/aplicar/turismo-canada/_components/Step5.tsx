@@ -37,11 +37,11 @@ export function Step5() {
         <FormField label="¿Alguien más está financiando tu viaje?" name="step5.someone_else_funding" required error={errors.step5?.someone_else_funding?.message as string}>
           <div className="flex gap-6 mt-2">
             <label className="flex items-center gap-3 cursor-pointer group">
-              <input type="radio" value="true" {...register('step5.someone_else_funding')} className="w-5 h-5 accent-[#2F4A00] bg-white border-[#E5E5E5] focus:ring-[#2F4A00]" />
+              <input type="radio" value="true" {...register('step5.someone_else_funding')} className="w-5 h-5 accent-[#C8FF00] bg-white border-[#E5E5E5] focus:ring-[#2F4A00]" />
               <span className="text-[#525252] group-hover:text-[#0A0A0A] transition-colors">Sí</span>
             </label>
             <label className="flex items-center gap-3 cursor-pointer group">
-              <input type="radio" value="false" {...register('step5.someone_else_funding')} className="w-5 h-5 accent-[#2F4A00] bg-white border-[#E5E5E5] focus:ring-[#2F4A00]" />
+              <input type="radio" value="false" {...register('step5.someone_else_funding')} className="w-5 h-5 accent-[#C8FF00] bg-white border-[#E5E5E5] focus:ring-[#2F4A00]" />
               <span className="text-[#525252] group-hover:text-[#0A0A0A] transition-colors">No</span>
             </label>
           </div>
@@ -54,11 +54,11 @@ export function Step5() {
         <FormField label="¿Has cursado estudios universitarios, técnicos o equivalentes?" name="step5.studied_postsecondary" required error={errors.step5?.studied_postsecondary?.message as string}>
           <div className="flex gap-6 mt-2">
             <label className="flex items-center gap-3 cursor-pointer group">
-              <input type="radio" value="true" {...register('step5.studied_postsecondary')} className="w-5 h-5 accent-[#2F4A00] bg-white border-[#E5E5E5] focus:ring-[#2F4A00]" />
+              <input type="radio" value="true" {...register('step5.studied_postsecondary')} className="w-5 h-5 accent-[#C8FF00] bg-white border-[#E5E5E5] focus:ring-[#2F4A00]" />
               <span className="text-[#525252] group-hover:text-[#0A0A0A] transition-colors">Sí</span>
             </label>
             <label className="flex items-center gap-3 cursor-pointer group">
-              <input type="radio" value="false" {...register('step5.studied_postsecondary')} className="w-5 h-5 accent-[#2F4A00] bg-white border-[#E5E5E5] focus:ring-[#2F4A00]" />
+              <input type="radio" value="false" {...register('step5.studied_postsecondary')} className="w-5 h-5 accent-[#C8FF00] bg-white border-[#E5E5E5] focus:ring-[#2F4A00]" />
               <span className="text-[#525252] group-hover:text-[#0A0A0A] transition-colors">No</span>
             </label>
           </div>
@@ -173,7 +173,7 @@ export function Step5() {
                     <input type="date" disabled={isOngoing} {...register(`step5.work_history.${index}.to`)} className={`w-full bg-[#F5F5F0] border border-[#E5E5E5] rounded-lg px-4 py-3 text-[#0A0A0A] focus:outline-none focus:border-[#2F4A00] transition-colors [color-scheme:light] ${isOngoing ? 'opacity-50 cursor-not-allowed' : ''}`} />
                   </FormField>
                   <label className="flex items-center gap-2 mt-2 cursor-pointer">
-                    <input type="checkbox" {...register(`step5.work_history.${index}.ongoing`)} className="w-4 h-4 accent-[#2F4A00]" onChange={(e) => {
+                    <input type="checkbox" {...register(`step5.work_history.${index}.ongoing`)} className="w-4 h-4 accent-[#C8FF00]" onChange={(e) => {
                       setValue(`step5.work_history.${index}.ongoing`, e.target.checked)
                       if (e.target.checked) setValue(`step5.work_history.${index}.to`, '')
                     }} />
@@ -192,11 +192,11 @@ export function Step5() {
         <FormField label="¿Has prestado servicio militar alguna vez?" name="step5.military_service" required error={errors.step5?.military_service?.message as string}>
           <div className="flex gap-6 mt-2">
             <label className="flex items-center gap-3 cursor-pointer group">
-              <input type="radio" value="true" {...register('step5.military_service')} className="w-5 h-5 accent-[#2F4A00] bg-white border-[#E5E5E5] focus:ring-[#2F4A00]" />
+              <input type="radio" value="true" {...register('step5.military_service')} className="w-5 h-5 accent-[#C8FF00] bg-white border-[#E5E5E5] focus:ring-[#2F4A00]" />
               <span className="text-[#525252] group-hover:text-[#0A0A0A] transition-colors">Sí</span>
             </label>
             <label className="flex items-center gap-3 cursor-pointer group">
-              <input type="radio" value="false" {...register('step5.military_service')} className="w-5 h-5 accent-[#2F4A00] bg-white border-[#E5E5E5] focus:ring-[#2F4A00]" />
+              <input type="radio" value="false" {...register('step5.military_service')} className="w-5 h-5 accent-[#C8FF00] bg-white border-[#E5E5E5] focus:ring-[#2F4A00]" />
               <span className="text-[#525252] group-hover:text-[#0A0A0A] transition-colors">No</span>
             </label>
           </div>
