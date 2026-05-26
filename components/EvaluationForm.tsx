@@ -24,36 +24,40 @@ type FormData = {
   nivel_ingles: string
   tiempo_estudio: string
   situacion_laboral: string
+  situacion_libre: string
 }
 
 const INITIAL: FormData = {
   nombre: '', tipo_visa: '', pais_origen: '', edad: '', email: '', acepta: false,
   pais_destino: '', tiempo_estadia: '', viajes_previos: '', pasaporte: '', situacion_actual: '',
-  que_estudiar: '', nivel_ingles: '', tiempo_estudio: '', situacion_laboral: '',
+  que_estudiar: '', nivel_ingles: '', tiempo_estudio: '', situacion_laboral: '', situacion_libre: ''
 }
 
-// Steps: 0=nombre, 1=tipo_visa, 2=pais_origen, 3=edad, 4-8=branch(5), 9=email → total 10
-const TOTAL_STEPS = 10
+// Steps: 0=nombre, 1=tipo_visa, 2=pais_origen, 3=edad, 4-8=branch(5), 9=email → total 10 (or 11 for estudiante)
 
 function getLabel(step: number, visa: VisaType): string {
   if (step === 0) return 'Tu nombre'
   if (step === 1) return '¿Qué tipo de visa te interesa?'
   if (step === 2) return '¿De qué país eres?'
   if (step === 3) return '¿Cuántos años tienes?'
-  if (step === 9) return 'Tu correo electrónico'
+  
   if (visa === 'turismo') {
     if (step === 4) return '¿A qué país quieres viajar?'
     if (step === 5) return '¿Cuánto tiempo planeas quedarte?'
     if (step === 6) return '¿Has viajado al extranjero antes?'
     if (step === 7) return '¿Tienes pasaporte vigente?'
     if (step === 8) return '¿Cuál es tu situación actual?'
+    if (step === 9) return 'Tu correo electrónico'
   }
+  
   if (visa === 'estudiante') {
     if (step === 4) return '¿Qué quieres estudiar en Australia?'
     if (step === 5) return '¿Cómo describes tu inglés actual?'
     if (step === 6) return '¿Cuánto tiempo quieres estudiar?'
     if (step === 7) return '¿Tienes pasaporte vigente?'
     if (step === 8) return '¿Estás trabajando actualmente?'
+    if (step === 9) return 'Cuéntanos tu situación (opcional)'
+    if (step === 10) return 'Tu correo electrónico'
   }
   return ''
 }
@@ -108,6 +112,8 @@ export default function EvaluationForm() {
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle')
   const [direction, setDirection] = useState(1)
 
+  const TOTAL_STEPS = data.tipo_visa === 'estudiante' ? 11 : 10;
+
   const ref = useRef(null)
   const inView = useInView(ref, { once: false, margin: '-100px' })
 
@@ -116,20 +122,24 @@ export default function EvaluationForm() {
     if (step === 1) return data.tipo_visa !== ''
     if (step === 2) return data.pais_origen !== ''
     if (step === 3) return data.edad !== ''
-    if (step === 9) return data.email.trim() !== '' && data.acepta
+    
     if (data.tipo_visa === 'turismo') {
       if (step === 4) return data.pais_destino !== ''
       if (step === 5) return data.tiempo_estadia !== ''
       if (step === 6) return data.viajes_previos !== ''
       if (step === 7) return data.pasaporte !== ''
       if (step === 8) return data.situacion_actual !== ''
+      if (step === 9) return data.email.trim() !== '' && data.acepta
     }
+    
     if (data.tipo_visa === 'estudiante') {
       if (step === 4) return data.que_estudiar !== ''
       if (step === 5) return data.nivel_ingles !== ''
       if (step === 6) return data.tiempo_estudio !== ''
       if (step === 7) return data.pasaporte !== ''
       if (step === 8) return data.situacion_laboral !== ''
+      if (step === 9) return true // Situación libre (opcional)
+      if (step === 10) return data.email.trim() !== '' && data.acepta
     }
     return false
   }
@@ -464,8 +474,22 @@ export default function EvaluationForm() {
                         </div>
                       )}
 
-                      {/* Step 9 — Email (ambas ramas) */}
-                      {step === 9 && (
+                      {/* ESTUDIANTE — Step 9: Situación libre */}
+                      {step === 9 && data.tipo_visa === 'estudiante' && (
+                        <div className="flex flex-col gap-2">
+                          <textarea
+                            placeholder="Ej: Llevo 2 años en Australia, estudié inglés 1 año y un diploma en IT. Mi visa vence en 5 meses y quiero seguir estudiando. Viajo con mi pareja..."
+                            value={data.situacion_libre}
+                            onChange={e => setData({ ...data, situacion_libre: e.target.value })}
+                            className="w-full backdrop-blur-md border text-[#0d2b0d] px-4 py-3 font-monument font-medium text-[13px] focus:outline-none transition-all rounded-lg placeholder-[#7aaa7a] resize-none"
+                            style={{ background: 'rgba(255,255,255,0.55)', borderColor: 'rgba(200,255,0,0.5)' }}
+                            rows={4}
+                          />
+                        </div>
+                      )}
+
+                      {/* Step 9 (Turismo) o Step 10 (Estudiante) — Email */}
+                      {((step === 9 && data.tipo_visa === 'turismo') || (step === 10 && data.tipo_visa === 'estudiante')) && (
                         <div className="space-y-4">
                           <input
                             type="email"
