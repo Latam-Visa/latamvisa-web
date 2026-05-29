@@ -268,10 +268,10 @@ export const step10Schema = z.object({
     extension: optionalString
   })).min(1, 'Añade al menos un teléfono'),
   doc_id_passport: z.union([z.string(), z.array(z.string())]).refine(val => val.length > 0, 'Este campo es requerido'),
-  doc_ties: requiredString,
-  doc_bank_statements: optionalString,
-  doc_travel_itinerary: requiredString,
-  doc_forms_letters: optionalString,
+  doc_ties: z.union([z.string(), z.array(z.string())]).refine(val => val.length > 0, 'Este campo es requerido'),
+  doc_bank_statements: z.union([z.string(), z.array(z.string())]).optional(),
+  doc_travel_itinerary: z.union([z.string(), z.array(z.string())]).optional(),
+  doc_forms_letters: z.union([z.string(), z.array(z.string())]).optional(),
   doc_us_visa: z.union([z.string(), z.array(z.string())]).optional()
 }).superRefine((data, ctx) => {
   if (data.email !== data.email_confirm) {

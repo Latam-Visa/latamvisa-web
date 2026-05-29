@@ -130,40 +130,44 @@ export function Step10() {
           name="step10.doc_ties"
           label="Prueba de lazos con el país de origen (Trabajo/Estudios)"
           required
+          multiple
           specsList={[
-            'Si trabajas: Carta laboral indicando tu cargo, sueldo, tiempo de servicio y aprobación de vacaciones.',
-            'Si estudias: Certificado de estudios, pago de matrícula o carta de la institución.'
+            'Demuestra que tienes razones fuertes para regresar a tu país. Sube uno o varios de estos según tu caso:',
+            'Si estás en Australia con visa de estudio/sponsor: tu visa actual + un bill o lease a tu nombre con tu dirección.',
+            'Si vives en tu país de origen: certificado laboral (cargo, salario, antigüedad, vacaciones aprobadas) + certificados de propiedades o vehículos si los tienes.',
+            'Si eres estudiante: carta de la institución confirmando matrícula activa.'
           ]}
         />
 
         {!isMinor && (
           <DocumentUploader
             name="step10.doc_bank_statements"
-            label="Extractos bancarios de los últimos 4 meses"
+            label="Extractos bancarios"
             required
+            multiple
             specsList={[
-              'Deben mostrar tu nombre y saldo final.',
-              'Debe demostrar que cuentas con los fondos indicados en el paso de finanzas.'
+              'Extractos bancarios de los últimos 3 a 6 meses (PDF descargado del banco, NO screenshots).',
+              '💡 Tip pro: Si tu banco genera una \'carta de balance\' o \'balance letter\' (en CommBank, ANZ, NAB y Bancolombia se puede), súbela también. Este documento suma puntos importantes.'
             ]}
           />
         )}
 
         <DocumentUploader
           name="step10.doc_travel_itinerary"
-          label="Itinerario de viaje (Vuelos y alojamiento)"
-          required
+          label="Itinerario de viaje y Carta de Intención"
+          multiple
           specsList={[
-            'No necesitas comprar los pasajes. Solo evidencia de reservas de vuelos y hotel.',
-            'Si te quedas con un familiar, carga una carta de invitación.'
+            'Como parte del servicio de $290, nosotros generamos tu carta de intención profesional con IA basada en los datos que ya nos diste. No tienes que escribir nada.',
+            'Si prefieres subir tu propio itinerario en Word o PDF, puedes hacerlo acá (opcional).'
           ]}
         />
 
         <DocumentUploader
           name="step10.doc_forms_letters"
-          label="Cartas adicionales o documentos de apoyo (Opcional)"
+          label="Cartas adicionales (Opcional)"
+          multiple
           specsList={[
-            'Carta explicativa de los motivos del viaje.',
-            'Documentos adicionales que prueben arraigo (propiedades, etc.).'
+            'Solo si vas a visitar familia o amigos en Canadá: sube la carta de invitación de tu anfitrión + copia de su pasaporte o residencia canadiense.'
           ]}
         />
 
