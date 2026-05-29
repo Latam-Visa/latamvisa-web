@@ -150,16 +150,12 @@ export const DESTINOS: Record<DestinoSlug, DestinoConfig> = {
     codigo: 'CAN',
     visaType: 'TRV',
     visaTypeFull: 'Temporary Resident Visa (TRV)',
-    tieneTraduccion: true,
+    tieneTraduccion: false,
     precios: {
       sinTraduccion: {
-        monto: 250,
-        priceId: 'price_1TQdApJ9ezpBcyYbzhvQKaTS',
-      },
-      conTraduccion: {
         monto: 290,
         priceId: 'price_1TQdBmJ9ezpBcyYbYSWQwrM3',
-      },
+      }
     },
     currency: 'AUD',
     currencySymbol: 'A$',

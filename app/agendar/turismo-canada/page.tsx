@@ -83,7 +83,7 @@ export default function TurismoCanadaCheckoutPage() {
             </div>
 
             <p className="font-funnel font-bold text-2xl sm:text-3xl text-[#111111] mb-8 flex items-center justify-start gap-4">
-              AUD $190
+              AUD $290
               <span className="font-iceland text-[10px] sm:text-xs text-[#5B6A00] tracking-widest uppercase border border-[#5B6A00]/40 bg-white/40 rounded px-2 py-0.5 leading-[1.2] flex items-center h-fit">
                 PAGO ÚNICO
               </span>
@@ -95,11 +95,11 @@ export default function TurismoCanadaCheckoutPage() {
               </h2>
               <ul className="space-y-3">
                 {[
-                  'Formulario IMM 5257 completo',
-                  'Carta de propósito (IA + Revisión)',
-                  'Revisión de soportes financieros',
-                  'Preparación para biométricos',
-                  'Soporte hasta resolución',
+                  'Aplicación profesional',
+                  'Traducción de documentos incluida',
+                  'Organización de biométricos',
+                  'Carta de intención profesional',
+                  'Soporte personalizado',
                 ].map((item, idx) => (
                   <li key={idx} className="flex items-center gap-4 group">
                     <span className="shrink-0 w-1.5 h-1.5 rounded-full" style={{ backgroundColor: '#D52B1E', boxShadow: '0 0 4px rgba(213,43,30,0.3)' }}></span>

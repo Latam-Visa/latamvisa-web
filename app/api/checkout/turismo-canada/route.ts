@@ -10,7 +10,7 @@ export async function POST() {
     // Validar env vars antes de inicializar Stripe
     const secretKey = process.env.STRIPE_SECRET_KEY;
     // Usamos el ID unificado
-    const priceId = process.env.STRIPE_PRICE_ID_TURISMO_USA;
+    const priceId = process.env.STRIPE_PRICE_ID_TURISMO_CANADA;
     const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
 
     if (!secretKey) {
