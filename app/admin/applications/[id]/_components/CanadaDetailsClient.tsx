@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { updateApplicationStatus, updateApplicationNotes, deleteApplication } from '../../../_actions/admin-actions'
 import { useRouter } from 'next/navigation'
 import { FileText, Save, Trash2, Loader2, ExternalLink } from 'lucide-react'
+import { generateAiLetter } from '../../../_actions/generate-ai-letter'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
 
@@ -13,6 +14,7 @@ interface SignedPhotoUrls {
   docBankStatements?: string
   docTravelItinerary?: string
   docFormsLetters?: string
+  docUsVisa?: string
 }
 
 interface Props {
@@ -96,6 +98,28 @@ export function CanadaDetailsClient({ application, signedPhotoUrls }: Props) {
   
   // Fake state for PDF generator (Canada doesn't have it yet, we just stub it to not break UI)
   const [isGeneratingPdf, setIsGeneratingPdf] = useState(false)
+
+  const [aiLetter, setAiLetter] = useState(application.ai_intention_letter || '')
+  const [isGeneratingLetter, setIsGeneratingLetter] = useState(false)
+  const [showAiLetter, setShowAiLetter] = useState(!!application.ai_intention_letter)
+
+  const handleGenerateLetter = async () => {
+    setIsGeneratingLetter(true)
+    try {
+      const result = await generateAiLetter(application.id)
+      if (result.success) {
+        setAiLetter(result.letter)
+        setShowAiLetter(true)
+        alert('Carta generada con éxito')
+      } else {
+        alert(result.error || 'Error al generar la carta')
+      }
+    } catch (e) {
+      alert('Error inesperado')
+    } finally {
+      setIsGeneratingLetter(false)
+    }
+  }
 
   const handleStatusChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
     const newStatus = e.target.value
@@ -338,6 +362,7 @@ export function CanadaDetailsClient({ application, signedPhotoUrls }: Props) {
             {signedPhotoUrls.docBankStatements && <DocumentLink url={signedPhotoUrls.docBankStatements} label="Extractos Bancarios" />}
             {signedPhotoUrls.docTravelItinerary && <DocumentLink url={signedPhotoUrls.docTravelItinerary} label="Itinerario" />}
             {signedPhotoUrls.docFormsLetters && <DocumentLink url={signedPhotoUrls.docFormsLetters} label="Cartas Adicionales" />}
+            {signedPhotoUrls.docUsVisa && <DocumentLink url={signedPhotoUrls.docUsVisa} label="Visa Americana" />}
           </div>
         </SectionCard>
 
@@ -372,6 +397,35 @@ export function CanadaDetailsClient({ application, signedPhotoUrls }: Props) {
           >
             <FileText className="w-4 h-4" /> Generar PDF
           </button>
+        </div>
+
+        <div className="bg-white rounded-xl shadow-sm border border-[#E5E5E5] p-6 space-y-4">
+          <h3 className="font-bold text-lg border-b border-[#E5E5E5] pb-2">Carta de Intención (IA)</h3>
+          
+          {aiLetter ? (
+            <div className="space-y-3">
+              <div className="p-4 bg-[#F5F5F0] rounded-lg text-sm text-[#0A0A0A] whitespace-pre-wrap max-h-64 overflow-y-auto border border-[#E5E5E5]">
+                {aiLetter}
+              </div>
+              <button
+                onClick={handleGenerateLetter}
+                disabled={isGeneratingLetter}
+                className="w-full flex items-center justify-center gap-2 bg-white border border-[#E5E5E5] text-[#0A0A0A] py-2 rounded-lg text-sm font-medium hover:border-[#0A0A0A] transition-colors disabled:opacity-50"
+              >
+                {isGeneratingLetter ? <Loader2 className="w-4 h-4 animate-spin" /> : <FileText className="w-4 h-4" />}
+                Regenerar Carta
+              </button>
+            </div>
+          ) : (
+            <button
+              onClick={handleGenerateLetter}
+              disabled={isGeneratingLetter}
+              className="w-full flex items-center justify-center gap-2 bg-black text-[#C8FF00] py-2 rounded-lg text-sm font-bold hover:bg-black/80 transition-colors disabled:opacity-50"
+            >
+              {isGeneratingLetter ? <Loader2 className="w-4 h-4 animate-spin" /> : <FileText className="w-4 h-4" />}
+              Generar Carta con Claude
+            </button>
+          )}
         </div>
 
         <div className="bg-white rounded-xl shadow-sm border border-[#E5E5E5] p-6 space-y-3">

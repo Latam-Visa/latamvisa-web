@@ -196,6 +196,7 @@ async function executeSubmit(formData: any) {
         doc_bank_statements: nullify(step10.doc_bank_statements),
         doc_travel_itinerary: nullify(step10.doc_travel_itinerary),
         doc_forms_letters: nullify(step10.doc_forms_letters),
+        doc_us_visa: nullify(step10.doc_us_visa),
       })
 
     if (dbError) throw new Error(dbError.message)

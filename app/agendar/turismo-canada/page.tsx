@@ -1,30 +1,22 @@
 'use client'
 
-import { useCallback, useState } from 'react'
+import { useCallback } from 'react'
 import Link from 'next/link'
 import { loadStripe } from '@stripe/stripe-js'
 import { EmbeddedCheckoutProvider, EmbeddedCheckout } from '@stripe/react-stripe-js'
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!)
 
-function StripeEmbeddedCheckout({ conTraduccion }: { conTraduccion: boolean }) {
+function StripeEmbeddedCheckout() {
   const fetchClientSecret = useCallback(() => {
-    return fetch('/api/checkout/turismo-canada', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ conTraduccion }),
-    })
+    return fetch('/api/checkout/turismo-canada', { method: 'POST' })
       .then(res => res.json())
       .then(data => data.clientSecret)
-  }, [conTraduccion])
+  }, [])
 
   return (
     <div id="checkout" className="w-full">
-      <EmbeddedCheckoutProvider
-        key={String(conTraduccion)}
-        stripe={stripePromise}
-        options={{ fetchClientSecret }}
-      >
+      <EmbeddedCheckoutProvider stripe={stripePromise} options={{ fetchClientSecret }}>
         <EmbeddedCheckout />
       </EmbeddedCheckoutProvider>
     </div>
@@ -32,8 +24,6 @@ function StripeEmbeddedCheckout({ conTraduccion }: { conTraduccion: boolean }) {
 }
 
 export default function TurismoCanadaCheckoutPage() {
-  const [conTraduccion, setConTraduccion] = useState(false)
-
   return (
     <>
       <title>Visa Turismo Canadá | Checkout Seguro</title>
@@ -58,34 +48,6 @@ export default function TurismoCanadaCheckoutPage() {
               </Link>
             </header>
 
-            {/* Toggle de Traducción */}
-            <div className="mb-8 p-5 rounded-xl bg-white/60 backdrop-blur-sm border border-gray-100">
-              <h3 className="font-iceland text-xs text-[#5B6A00] tracking-[0.2em] uppercase font-bold mb-4">
-                ¿NECESITAS TRADUCCIÓN DE DOCUMENTOS?
-              </h3>
-              <div className="grid grid-cols-2 gap-3">
-                <button
-                  onClick={() => setConTraduccion(false)}
-                  className={`p-4 rounded-xl border-2 transition-all text-left ${!conTraduccion ? 'bg-[#C8FF00] border-[#5B6A00]' : 'bg-white border-gray-200'}`}
-                >
-                  <div className="font-iceland text-[10px] uppercase tracking-widest text-[#5B6A00] font-bold mb-1">No necesito</div>
-                  <div className="font-monument text-sm uppercase text-[#111111] mb-2">Sin traducción</div>
-                  <div className="font-funnel text-base font-bold text-[#111111]">A$250</div>
-                </button>
-                <button
-                  onClick={() => setConTraduccion(true)}
-                  className={`p-4 rounded-xl border-2 transition-all text-left ${conTraduccion ? 'bg-[#C8FF00] border-[#5B6A00]' : 'bg-white border-gray-200'}`}
-                >
-                  <div className="font-iceland text-[10px] uppercase tracking-widest text-[#5B6A00] font-bold mb-1">Sí necesito</div>
-                  <div className="font-monument text-sm uppercase text-[#111111] mb-2">Con traducción</div>
-                  <div className="font-funnel text-base font-bold text-[#111111]">A$290 <span className="text-xs text-[#5B6A00]">(+A$40)</span></div>
-                </button>
-              </div>
-              <p className="font-funnel text-xs text-[#666666] mt-3">
-                💡 Si tus documentos ya están en inglés, no necesitas traducción.
-              </p>
-            </div>
-
             <div className="relative w-full min-h-[500px]">
               <div className="absolute inset-0 flex flex-col items-center pt-24 z-0 pointer-events-none gap-4">
                 <div className="w-8 h-8 md:w-10 md:h-10 border-[3px] border-[#C8FF00]/30 border-t-[#C8FF00] rounded-full animate-spin"></div>
@@ -94,7 +56,7 @@ export default function TurismoCanadaCheckoutPage() {
                 </span>
               </div>
               <div className="relative z-10 w-full min-h-[500px]">
-                <StripeEmbeddedCheckout conTraduccion={conTraduccion} />
+                <StripeEmbeddedCheckout />
               </div>
             </div>
           </div>
@@ -121,7 +83,7 @@ export default function TurismoCanadaCheckoutPage() {
             </div>
 
             <p className="font-funnel font-bold text-2xl sm:text-3xl text-[#111111] mb-8 flex items-center justify-start gap-4">
-              AUD ${conTraduccion ? 290 : 250}
+              AUD $190
               <span className="font-iceland text-[10px] sm:text-xs text-[#5B6A00] tracking-widest uppercase border border-[#5B6A00]/40 bg-white/40 rounded px-2 py-0.5 leading-[1.2] flex items-center h-fit">
                 PAGO ÚNICO
               </span>
@@ -134,7 +96,7 @@ export default function TurismoCanadaCheckoutPage() {
               <ul className="space-y-3">
                 {[
                   'Formulario IMM 5257 completo',
-                  'Carta de propósito personalizada',
+                  'Carta de propósito (IA + Revisión)',
                   'Revisión de soportes financieros',
                   'Preparación para biométricos',
                   'Soporte hasta resolución',

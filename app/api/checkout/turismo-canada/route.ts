@@ -1,40 +1,60 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import Stripe from 'stripe';
 
+// Forzar runtime dinámico para evitar ejecución en build time
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
 
-export async function POST(request: NextRequest) {
+export async function POST() {
   try {
+    // Validar env vars antes de inicializar Stripe
     const secretKey = process.env.STRIPE_SECRET_KEY;
+    // Usamos el ID unificado
+    const priceId = process.env.STRIPE_PRICE_ID_TURISMO_USA;
     const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
 
-    if (!secretKey || !siteUrl) {
+    if (!secretKey) {
+      console.error('Missing STRIPE_SECRET_KEY');
       return NextResponse.json(
-        { error: 'Server configuration error' },
+        { error: 'Server configuration error: missing Stripe secret key' },
         { status: 500 }
       );
     }
 
-    const body = await request.json().catch(() => ({}));
-    const conTraduccion = body?.conTraduccion === true;
+    if (!priceId) {
+      console.error('Missing STRIPE_PRICE_ID_TURISMO_USA');
+      return NextResponse.json(
+        { error: 'Server configuration error: missing price ID' },
+        { status: 500 }
+      );
+    }
 
-    const priceId = conTraduccion
-      ? 'price_1TQdBmJ9ezpBcyYbYSWQwrM3'
-      : 'price_1TQdApJ9ezpBcyYbzhvQKaTS';
+    if (!siteUrl) {
+      console.error('Missing NEXT_PUBLIC_SITE_URL');
+      return NextResponse.json(
+        { error: 'Server configuration error: missing site URL' },
+        { status: 500 }
+      );
+    }
 
+    // Inicializar Stripe DENTRO de la función (runtime, no build time)
     const stripe = new Stripe(secretKey);
 
     const session = await stripe.checkout.sessions.create({
       ui_mode: 'embedded_page',
-      line_items: [{ price: priceId, quantity: 1 }],
+      line_items: [
+        {
+          price: priceId,
+          quantity: 1,
+        },
+      ],
       mode: 'payment',
       return_url: `${siteUrl}/gracias-pago?session_id={CHECKOUT_SESSION_ID}&destino=turismo-canada`,
     });
 
     return NextResponse.json({ clientSecret: session.client_secret });
   } catch (err) {
-    console.error('Stripe error:', err);
+    console.error('Stripe checkout error:', err);
     const message = err instanceof Error ? err.message : 'Unknown error';
     return NextResponse.json({ error: message }, { status: 500 });
   }

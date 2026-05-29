@@ -61,7 +61,7 @@ export function RepeatableTable({ name, title, description, defaultItem, renderI
       <button
         type="button"
         onClick={() => append(defaultItem)}
-        className="flex items-center gap-2 text-[#2F4A00] hover:text-[#1D2D00] font-medium px-4 py-2 border border-[#2F4A00] rounded-lg bg-white transition-colors mt-2"
+        className="flex items-center gap-2 text-[#C8FF00] hover:text-[#1D2D00] font-medium px-4 py-2 border border-[#C8FF00] rounded-lg bg-white transition-colors mt-2"
       >
         <Plus className="w-4 h-4" /> Agregar otro registro
       </button>

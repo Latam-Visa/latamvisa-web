@@ -271,7 +271,8 @@ export const step10Schema = z.object({
   doc_ties: requiredString,
   doc_bank_statements: optionalString,
   doc_travel_itinerary: requiredString,
-  doc_forms_letters: optionalString
+  doc_forms_letters: optionalString,
+  doc_us_visa: optionalString
 }).superRefine((data, ctx) => {
   if (data.email !== data.email_confirm) {
     ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Los correos no coinciden', path: ['email_confirm'] })

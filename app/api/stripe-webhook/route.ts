@@ -7,7 +7,7 @@ export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
-  apiVersion: '2024-06-20'
+  apiVersion: '2024-06-20' as any
 })
 
 const resend = new Resend(process.env.RESEND_API_KEY)
