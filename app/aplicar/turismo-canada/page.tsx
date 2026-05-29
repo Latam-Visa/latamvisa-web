@@ -145,6 +145,7 @@ export default function TurismoCanadaApplication() {
     setIsValidating(false)
 
     if (isStepValid) {
+      if (currentStep === 1) setShowServiceInfo(false)
       if (currentStep < TOTAL_STEPS) {
         setCurrentStep(s => s + 1)
         window.scrollTo({ top: 0, behavior: 'smooth' })
@@ -334,7 +335,7 @@ export default function TurismoCanadaApplication() {
         </div>
 
         {showServiceInfo && (
-          <div className="bg-white rounded-xl border border-[#C8FF00] p-6 mb-8 relative shadow-sm">
+          <div className="bg-white rounded-xl border border-[#C8FF00] p-5 mb-8 relative shadow-sm max-w-xl mx-auto">
             <button 
               type="button"
               onClick={() => setShowServiceInfo(false)} 
@@ -357,7 +358,7 @@ export default function TurismoCanadaApplication() {
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-base leading-tight shrink-0">✅</span>
-                <span>Carta de intención generada profesionalmente con IA</span>
+                <span>Carta de intención profesional redactada a tu medida</span>
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-base leading-tight shrink-0">✅</span>
