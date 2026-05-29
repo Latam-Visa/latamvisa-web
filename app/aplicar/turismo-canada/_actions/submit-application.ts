@@ -4,6 +4,7 @@ import { headers } from 'next/headers'
 import { v4 as uuidv4 } from 'uuid'
 import { supabaseAdmin } from '@/lib/supabase/admin'
 import { resend } from '@/lib/resend'
+import { generateIntentionLetterBg } from './generate-intention-letter'
 
 export async function submitCanadaApplication(
   formDataInput: FormData
@@ -195,12 +196,15 @@ async function executeSubmit(formData: any) {
         doc_ties: nullify(step10.doc_ties),
         doc_bank_statements: nullify(step10.doc_bank_statements),
         doc_travel_itinerary: nullify(step10.doc_travel_itinerary),
-        doc_forms_letters: nullify(step10.doc_forms_letters),
         doc_us_visa: nullify(step10.doc_us_visa),
+        ai_letter_status: 'generating',
       })
 
     if (dbError) throw new Error(dbError.message)
     console.log('[SUBMIT_CANADA] DB insert OK')
+
+    // Kick off AI letter generation in the background
+    generateIntentionLetterBg(applicationId).catch(err => console.error('[BG_AI_LETTER] failed to start:', err))
   } catch (error: any) {
     console.error('[DB_INSERT_CANADA] Error:', error)
     return { success: false, error: 'No pudimos guardar tu aplicación. Intenta en unos minutos.', errorCode: 'DB_INSERT' }
