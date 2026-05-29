@@ -108,11 +108,21 @@ export function Step10() {
 
         <DocumentUploader
           name="step10.doc_id_passport"
-          label="Pasaporte (Hoja de datos biográficos)"
+          label="Pasaporte (hoja de datos biográficos)"
           required
+          multiple
           specsList={[
-            'Debe ser una copia clara a color.',
-            'Asegúrate de que no haya reflejos que oculten tu foto o los datos.'
+            'Sube una foto/escaneo CLARO A COLOR de la página principal de tu pasaporte (donde está tu foto, nombre, fecha de nacimiento y número). Asegúrate de que no haya reflejos ni partes cortadas.'
+          ]}
+        />
+
+        <DocumentUploader
+          name="step10.doc_id_passport"
+          label="Cédula o documento de identidad nacional"
+          required
+          multiple
+          specsList={[
+            'Sube ambos lados de tu cédula o documento de identidad nacional, claro y a color.'
           ]}
         />
 
@@ -159,10 +169,10 @@ export function Step10() {
 
         <DocumentUploader
           name="step10.doc_us_visa"
-          label="Visa Americana (Solo si tienes o has tenido)"
+          label="Visa de Estados Unidos (si tienes)"
+          multiple
           specsList={[
-            'Opcional, pero recomendado si tienes visa de Estados Unidos vigente o vencida.',
-            'Asegúrate de que se vean claramente tus datos biográficos y fechas.'
+            'Si tienes una visa de Estados Unidos estampada en tu pasaporte (B1/B2, F1, J1, etc.), súbela. Esto SUMA PUNTOS importantes para tu visa de Canadá porque demuestra que ya pasaste un control consular estricto. Sube una foto clara del sticker de la visa en tu pasaporte.'
           ]}
         />
       </div>

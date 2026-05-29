@@ -9,12 +9,12 @@ import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
 
 interface SignedPhotoUrls {
-  docIdPassport?: string
-  docTies?: string
-  docBankStatements?: string
-  docTravelItinerary?: string
-  docFormsLetters?: string
-  docUsVisa?: string
+  docIdPassport?: string | string[]
+  docTies?: string | string[]
+  docBankStatements?: string | string[]
+  docTravelItinerary?: string | string[]
+  docFormsLetters?: string | string[]
+  docUsVisa?: string | string[]
 }
 
 interface Props {
@@ -60,19 +60,26 @@ function SectionCard({ title, children }: { title: string; children: React.React
   )
 }
 
-function DocumentLink({ url, label }: { url: string; label: string }) {
+function DocumentLink({ url, label }: { url: string | string[]; label: string }) {
+  const urls = Array.isArray(url) ? url : [url]
+  
   return (
-    <div className="mt-4 bg-[#F5F5F0] border border-[#E5E5E5] rounded-xl p-4 flex items-center justify-between">
+    <div className="mt-4 bg-[#F5F5F0] border border-[#E5E5E5] rounded-xl p-4 flex flex-col gap-3">
       <span className="text-sm font-medium text-[#0A0A0A]">📄 {label}</span>
-      <a
-        href={url}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="flex items-center gap-2 text-sm text-[#0A0A0A] bg-white border border-[#E5E5E5] px-3 py-1.5 rounded-lg hover:border-[#C8FF00] hover:text-[#C8FF00] transition-colors font-medium"
-      >
-        <ExternalLink className="w-4 h-4" />
-        Ver Documento
-      </a>
+      <div className="flex flex-wrap gap-2">
+        {urls.map((u, i) => (
+          <a
+            key={i}
+            href={u}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-2 text-sm text-[#0A0A0A] bg-white border border-[#E5E5E5] px-3 py-1.5 rounded-lg hover:border-[#C8FF00] hover:text-[#C8FF00] transition-colors font-medium"
+          >
+            <ExternalLink className="w-4 h-4" />
+            Ver Documento {urls.length > 1 ? i + 1 : ''}
+          </a>
+        ))}
+      </div>
     </div>
   )
 }

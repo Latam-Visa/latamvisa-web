@@ -7,12 +7,21 @@ import { ArrowLeft } from 'lucide-react'
 
 export const dynamic = 'force-dynamic'
 
-async function getSignedPhotoUrl(bucket: string, path: string | null | undefined): Promise<string | undefined> {
+async function getSignedPhotoUrl(bucket: string, path: string | string[] | null | undefined): Promise<string | string[] | undefined> {
   if (!path) return undefined
   try {
-    const { data, error } = await supabaseAdmin.storage.from(bucket).createSignedUrl(path, 3600)
-    if (error || !data) return undefined
-    return data.signedUrl
+    if (Array.isArray(path)) {
+      const promises = path.map(async (p) => {
+        const { data, error } = await supabaseAdmin.storage.from(bucket).createSignedUrl(p, 3600)
+        return (!error && data) ? data.signedUrl : undefined
+      })
+      const results = await Promise.all(promises)
+      return results.filter(Boolean) as string[]
+    } else {
+      const { data, error } = await supabaseAdmin.storage.from(bucket).createSignedUrl(path, 3600)
+      if (error || !data) return undefined
+      return data.signedUrl
+    }
   } catch {
     return undefined
   }

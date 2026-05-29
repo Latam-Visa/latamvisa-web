@@ -11,6 +11,7 @@ interface DocumentUploaderProps {
   hint?: string
   required?: boolean
   specsList?: string[]
+  multiple?: boolean
 }
 
 const ALLOWED_TYPES = [
@@ -20,15 +21,14 @@ const ALLOWED_TYPES = [
   'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
 ]
 
-export function DocumentUploader({ name, label, hint, required, specsList }: DocumentUploaderProps) {
+export function DocumentUploader({ name, label, hint, required, specsList, multiple = false }: DocumentUploaderProps) {
   const { control } = useFormContext()
   const { field, fieldState } = useController({ name, control })
   
   const [isDragging, setIsDragging] = useState(false)
   const [isUploading, setIsUploading] = useState(false)
   const [errorMsg, setErrorMsg] = useState('')
-  const [fileName, setFileName] = useState('')
-  const [fileSize, setFileSize] = useState(0)
+  const [fileDetails, setFileDetails] = useState<{name: string, size: number, path: string}[]>([])
   
   const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -78,9 +78,14 @@ export function DocumentUploader({ name, label, hint, required, specsList }: Doc
       }
 
       // Success
-      field.onChange(path)
-      setFileName(file.name)
-      setFileSize(fileToUpload.size)
+      if (multiple) {
+        const currentVals = Array.isArray(field.value) ? field.value : (field.value ? [field.value] : [])
+        field.onChange([...currentVals, path])
+        setFileDetails(prev => [...prev, { name: file.name, size: fileToUpload.size, path }])
+      } else {
+        field.onChange(path)
+        setFileDetails([{ name: file.name, size: fileToUpload.size, path }])
+      }
     } catch (error: any) {
       console.error(error)
       setErrorMsg(error.message || 'Error procesando el archivo.')
@@ -116,10 +121,16 @@ export function DocumentUploader({ name, label, hint, required, specsList }: Doc
     }
   }, [])
 
-  const handleRemove = () => {
-    field.onChange('')
-    setFileName('')
-    setFileSize(0)
+  const handleRemove = (pathToRemove?: string) => {
+    if (multiple && pathToRemove) {
+      const currentVals = Array.isArray(field.value) ? field.value : []
+      const newVals = currentVals.filter(p => p !== pathToRemove)
+      field.onChange(newVals.length > 0 ? newVals : undefined)
+      setFileDetails(prev => prev.filter(f => f.path !== pathToRemove))
+    } else {
+      field.onChange('')
+      setFileDetails([])
+    }
     if (fileInputRef.current) fileInputRef.current.value = ''
   }
 
@@ -139,7 +150,7 @@ export function DocumentUploader({ name, label, hint, required, specsList }: Doc
         </div>
       )}
 
-      {!field.value ? (
+      {(!field.value || (multiple && (!Array.isArray(field.value) || field.value.length < 5))) && (
         <div
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
@@ -171,27 +182,36 @@ export function DocumentUploader({ name, label, hint, required, specsList }: Doc
             </div>
           )}
         </div>
-      ) : (
-        <div className="bg-[#F5F5F0] p-4 rounded-xl border border-[#E5E5E5] flex items-center gap-4">
-          <div className="w-16 h-16 rounded-lg bg-white border border-[#E5E5E5] shrink-0 flex items-center justify-center">
-            <FileIcon className="w-8 h-8 text-[#3D5A00]" />
-          </div>
-          <div className="flex-1">
-            <div className="text-[#0A0A0A] font-medium mb-1 truncate max-w-[200px] sm:max-w-[400px]">
-              {fileName || 'Documento cargado exitosamente'}
-            </div>
-            {fileSize > 0 && <p className="text-[#A3A3A3] text-sm mb-2">{(fileSize / 1024).toFixed(1)} KB</p>}
-            
-            <div className="flex gap-3 mt-2">
-              <button
-                type="button"
-                onClick={handleRemove}
-                className="text-sm font-medium text-[#DC2626] hover:text-[#B91C1C] flex items-center gap-1"
-              >
-                <Trash2 className="w-4 h-4" /> Eliminar
-              </button>
-            </div>
-          </div>
+      )}
+      
+      {field.value && (Array.isArray(field.value) ? field.value.length > 0 : true) && (
+        <div className="mt-4 space-y-3">
+          {(multiple && Array.isArray(field.value) ? field.value : [field.value]).map((val, idx) => {
+            const detail = fileDetails.find(d => d.path === val) || { name: `Documento cargado exitosamente ${idx + 1}`, size: 0, path: val }
+            return (
+              <div key={idx} className="bg-[#F5F5F0] p-4 rounded-xl border border-[#E5E5E5] flex items-center gap-4">
+                <div className="w-16 h-16 rounded-lg bg-white border border-[#E5E5E5] shrink-0 flex items-center justify-center">
+                  <FileIcon className="w-8 h-8 text-[#3D5A00]" />
+                </div>
+                <div className="flex-1">
+                  <div className="text-[#0A0A0A] font-medium mb-1 truncate max-w-[200px] sm:max-w-[400px]">
+                    {detail.name}
+                  </div>
+                  {detail.size > 0 && <p className="text-[#A3A3A3] text-sm mb-2">{(detail.size / 1024).toFixed(1)} KB</p>}
+                  
+                  <div className="flex gap-3 mt-2">
+                    <button
+                      type="button"
+                      onClick={() => handleRemove(val)}
+                      className="text-sm font-medium text-[#DC2626] hover:text-[#B91C1C] flex items-center gap-1"
+                    >
+                      <Trash2 className="w-4 h-4" /> Eliminar
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )
+          })}
         </div>
       )}
     </FormField>
