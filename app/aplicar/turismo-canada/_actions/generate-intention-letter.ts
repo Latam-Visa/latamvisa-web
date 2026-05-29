@@ -103,6 +103,8 @@ Applicant data:
       })
       .eq('id', applicationId)
 
+    return { success: true, letter }
+
   } catch (error: any) {
     console.error('Error generating AI letter in background:', error)
     await supabaseAdmin
@@ -111,5 +113,7 @@ Applicant data:
         ai_letter_status: 'failed'
       })
       .eq('id', applicationId)
+      
+    return { success: false, error: error.message }
   }
 }

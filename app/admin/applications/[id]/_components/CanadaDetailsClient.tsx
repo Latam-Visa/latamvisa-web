@@ -3,8 +3,8 @@
 import { useState } from 'react'
 import { updateApplicationStatus, updateApplicationNotes, deleteApplication } from '../../../_actions/admin-actions'
 import { useRouter } from 'next/navigation'
-import { FileText, Save, Trash2, Loader2, ExternalLink } from 'lucide-react'
-import { generateAiLetter } from '../../../_actions/generate-ai-letter'
+import { FileText, Save, Trash2, Loader2, ExternalLink, Copy } from 'lucide-react'
+import { generateIntentionLetterBg } from '@/app/aplicar/turismo-canada/_actions/generate-intention-letter'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
 
@@ -99,26 +99,30 @@ export function CanadaDetailsClient({ application, signedPhotoUrls }: Props) {
   // Fake state for PDF generator (Canada doesn't have it yet, we just stub it to not break UI)
   const [isGeneratingPdf, setIsGeneratingPdf] = useState(false)
 
+  const [activeTab, setActiveTab] = useState<'datos' | 'cartas'>('datos')
+  const [aiLetterStatus, setAiLetterStatus] = useState(application.ai_letter_status || 'pending')
   const [aiLetter, setAiLetter] = useState(application.ai_intention_letter || '')
-  const [isGeneratingLetter, setIsGeneratingLetter] = useState(false)
-  const [showAiLetter, setShowAiLetter] = useState(!!application.ai_intention_letter)
+  const [aiLetterGeneratedAt, setAiLetterGeneratedAt] = useState(application.ai_letter_generated_at || null)
 
-  const handleGenerateLetter = async () => {
-    setIsGeneratingLetter(true)
+  const handleRegenerateLetter = async () => {
+    setAiLetterStatus('generating')
     try {
-      const result = await generateAiLetter(application.id)
-      if (result.success) {
-        setAiLetter(result.letter)
-        setShowAiLetter(true)
-        alert('Carta generada con éxito')
+      const res = await generateIntentionLetterBg(application.id)
+      if (res.success) {
+        setAiLetter(res.letter)
+        setAiLetterStatus('completed')
+        setAiLetterGeneratedAt(new Date().toISOString())
       } else {
-        alert(result.error || 'Error al generar la carta')
+        setAiLetterStatus('failed')
       }
-    } catch (e) {
-      alert('Error inesperado')
-    } finally {
-      setIsGeneratingLetter(false)
+    } catch {
+      setAiLetterStatus('failed')
     }
+  }
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(aiLetter)
+    alert('Carta copiada al portapapeles')
   }
 
   const handleStatusChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -165,7 +169,25 @@ export function CanadaDetailsClient({ application, signedPhotoUrls }: Props) {
 
       <div className="lg:col-span-2 space-y-6">
 
-        <SectionCard title="Paso 1 — Detalles de Visita">
+        <div className="flex border-b border-[#E5E5E5] gap-6 mb-6">
+          <button
+            onClick={() => setActiveTab('datos')}
+            className={`pb-3 text-sm font-bold transition-colors border-b-2 ${activeTab === 'datos' ? 'border-[#C8FF00] text-[#0A0A0A]' : 'border-transparent text-[#888] hover:text-[#0A0A0A]'}`}
+          >
+            Datos de Solicitud
+          </button>
+          <button
+            onClick={() => setActiveTab('cartas')}
+            className={`pb-3 text-sm font-bold transition-colors border-b-2 flex items-center gap-2 ${activeTab === 'cartas' ? 'border-[#C8FF00] text-[#0A0A0A]' : 'border-transparent text-[#888] hover:text-[#0A0A0A]'}`}
+          >
+            Cartas
+            {aiLetterStatus === 'generating' && <Loader2 className="w-3 h-3 animate-spin text-[#0A0A0A]" />}
+          </button>
+        </div>
+
+        {activeTab === 'datos' ? (
+          <>
+            <SectionCard title="Paso 1 — Detalles de Visita">
           <Row label="Visa que aplica" value={val(s1.apply_for)} />
           <Row label="Motivo" value={val(s1.visa_reason)} />
           <Row label="Actividades" value={val(s1.activities_in_canada)} />
@@ -365,6 +387,56 @@ export function CanadaDetailsClient({ application, signedPhotoUrls }: Props) {
             {signedPhotoUrls.docUsVisa && <DocumentLink url={signedPhotoUrls.docUsVisa} label="Visa Americana" />}
           </div>
         </SectionCard>
+          </>
+        ) : (
+          <SectionCard title="Carta de Intención">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-3">
+                <span className={`px-2 py-1 text-xs font-bold uppercase tracking-wider rounded ${
+                  aiLetterStatus === 'completed' ? 'bg-[#C8FF00]/20 text-[#5B6A00]' :
+                  aiLetterStatus === 'generating' ? 'bg-blue-100 text-blue-700' :
+                  aiLetterStatus === 'failed' ? 'bg-red-100 text-red-700' :
+                  'bg-gray-100 text-gray-700'
+                }`}>
+                  {aiLetterStatus === 'completed' ? 'Completada' :
+                   aiLetterStatus === 'generating' ? 'Generando' :
+                   aiLetterStatus === 'failed' ? 'Fallida' : 'Pendiente'}
+                </span>
+                {aiLetterGeneratedAt && (
+                  <span className="text-xs text-[#888]">
+                    Generada el {format(new Date(aiLetterGeneratedAt), "d MMM yyyy, HH:mm", { locale: es })}
+                  </span>
+                )}
+              </div>
+              <div className="flex gap-2">
+                <button onClick={handleRegenerateLetter} disabled={aiLetterStatus === 'generating'} className="flex items-center gap-2 px-3 py-1.5 text-xs font-bold text-[#0A0A0A] bg-white border border-[#E5E5E5] rounded-md hover:bg-gray-50 disabled:opacity-50">
+                  {aiLetterStatus === 'generating' ? <Loader2 className="w-3 h-3 animate-spin" /> : <FileText className="w-3 h-3" />}
+                  Regenerar carta
+                </button>
+                <button onClick={handleCopy} disabled={!aiLetter} className="flex items-center gap-2 px-3 py-1.5 text-xs font-bold text-[#0A0A0A] bg-[#C8FF00] rounded-md hover:bg-[#b8ef00] disabled:opacity-50">
+                  <Copy className="w-3 h-3" />
+                  Copiar
+                </button>
+              </div>
+            </div>
+
+            {(aiLetterStatus === 'pending' || aiLetterStatus === 'generating') && !aiLetter ? (
+              <div className="flex flex-col items-center justify-center p-12 bg-[#F5F5F0] border border-[#E5E5E5] rounded-xl">
+                <Loader2 className="w-8 h-8 animate-spin text-[#C8FF00] mb-4" />
+                <p className="text-sm font-medium text-[#0A0A0A]">Generando carta con IA...</p>
+                <p className="text-xs text-[#888] mt-2 text-center max-w-sm">Esto puede tardar unos 15 a 30 segundos mientras analizamos el perfil y redactamos la intención.</p>
+              </div>
+            ) : aiLetter ? (
+              <div className="p-6 bg-[#F5F5F0] border border-[#E5E5E5] rounded-xl text-sm text-[#0A0A0A] whitespace-pre-wrap font-serif leading-relaxed h-[600px] overflow-y-auto shadow-inner">
+                {aiLetter}
+              </div>
+            ) : (
+              <div className="p-6 bg-[#FEF2F2] border border-red-200 rounded-xl text-sm text-red-700">
+                Ocurrió un error al generar la carta. Por favor intenta regenerarla.
+              </div>
+            )}
+          </SectionCard>
+        )}
 
       </div>
 
@@ -397,35 +469,6 @@ export function CanadaDetailsClient({ application, signedPhotoUrls }: Props) {
           >
             <FileText className="w-4 h-4" /> Generar PDF
           </button>
-        </div>
-
-        <div className="bg-white rounded-xl shadow-sm border border-[#E5E5E5] p-6 space-y-4">
-          <h3 className="font-bold text-lg border-b border-[#E5E5E5] pb-2">Carta de Intención (IA)</h3>
-          
-          {aiLetter ? (
-            <div className="space-y-3">
-              <div className="p-4 bg-[#F5F5F0] rounded-lg text-sm text-[#0A0A0A] whitespace-pre-wrap max-h-64 overflow-y-auto border border-[#E5E5E5]">
-                {aiLetter}
-              </div>
-              <button
-                onClick={handleGenerateLetter}
-                disabled={isGeneratingLetter}
-                className="w-full flex items-center justify-center gap-2 bg-white border border-[#E5E5E5] text-[#0A0A0A] py-2 rounded-lg text-sm font-medium hover:border-[#0A0A0A] transition-colors disabled:opacity-50"
-              >
-                {isGeneratingLetter ? <Loader2 className="w-4 h-4 animate-spin" /> : <FileText className="w-4 h-4" />}
-                Regenerar Carta
-              </button>
-            </div>
-          ) : (
-            <button
-              onClick={handleGenerateLetter}
-              disabled={isGeneratingLetter}
-              className="w-full flex items-center justify-center gap-2 bg-black text-[#C8FF00] py-2 rounded-lg text-sm font-bold hover:bg-black/80 transition-colors disabled:opacity-50"
-            >
-              {isGeneratingLetter ? <Loader2 className="w-4 h-4 animate-spin" /> : <FileText className="w-4 h-4" />}
-              Generar Carta con Claude
-            </button>
-          )}
         </div>
 
         <div className="bg-white rounded-xl shadow-sm border border-[#E5E5E5] p-6 space-y-3">
