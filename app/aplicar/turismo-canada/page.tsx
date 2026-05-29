@@ -375,6 +375,13 @@ export default function TurismoCanadaApplication() {
           </div>
         )}
 
+        <div className="flex items-start gap-2 bg-[#F5F5F0] border border-[#E5E5E5] rounded-xl p-4 mb-8 text-sm text-[#525252]">
+          <span className="text-base leading-tight shrink-0">🔒</span>
+          <p className="leading-relaxed">
+            Tus datos y documentos se almacenan cifrados en servidores seguros. Solo el equipo de LATAM VISA tiene acceso, exclusivamente para procesar tu aplicación. Nunca compartimos tu información con terceros.
+          </p>
+        </div>
+
         <FormProvider {...methods}>
           <form onSubmit={(e) => { e.preventDefault(); handleNext(); }} className="space-y-8">
             <ProgressBar 
