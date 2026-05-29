@@ -76,6 +76,7 @@ export default function TurismoCanadaApplication() {
   const [isValidating, setIsValidating] = useState(false)
   const [showErrorToast, setShowErrorToast] = useState(false)
   const [showSuccess, setShowSuccess] = useState(false)
+  const [showServiceInfo, setShowServiceInfo] = useState(true)
 
   const methods = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -331,6 +332,49 @@ export default function TurismoCanadaApplication() {
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/logo.png" alt="LATAM VISA Logo" className="h-16 sm:h-20 object-contain" />
         </div>
+
+        {showServiceInfo && (
+          <div className="bg-white rounded-xl border border-[#C8FF00] p-6 mb-8 relative shadow-sm">
+            <button 
+              type="button"
+              onClick={() => setShowServiceInfo(false)} 
+              className="absolute top-4 right-4 text-[#A3A3A3] hover:text-[#0A0A0A] transition-colors"
+              aria-label="Cerrar información"
+            >
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+            <h3 className="text-xl font-bold text-[#2F4A00] mb-4">¿Qué incluye tu servicio de $290 USD?</h3>
+            <ul className="space-y-3 text-[#0A0A0A] text-sm font-medium">
+              <li className="flex items-start gap-2">
+                <span className="text-base leading-tight shrink-0">✅</span>
+                <span>Aplicación profesional ante IRCC (Inmigración Canadá)</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-base leading-tight shrink-0">✅</span>
+                <span>Traducción profesional de todos tus documentos</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-base leading-tight shrink-0">✅</span>
+                <span>Carta de intención generada profesionalmente con IA</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-base leading-tight shrink-0">✅</span>
+                <span>Organización de tu cita biométrica</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-base leading-tight shrink-0">✅</span>
+                <span>Soporte personalizado durante todo el proceso</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-base leading-tight shrink-0">✅</span>
+                <span>Paso a paso hasta el día de los biométricos</span>
+              </li>
+            </ul>
+          </div>
+        )}
+
         <FormProvider {...methods}>
           <form onSubmit={(e) => { e.preventDefault(); handleNext(); }} className="space-y-8">
             <ProgressBar 
