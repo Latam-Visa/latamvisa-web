@@ -70,6 +70,7 @@ export default function TurismoCanadaApplication() {
   const [passportData, setPassportData] = useState<any>(null)
   const [passportStatus, setPassportStatus] = useState<'idle'|'uploading'|'success'|'error'>('idle')
   const [passportError, setPassportError] = useState('')
+  const [passportWasScanned, setPassportWasScanned] = useState(false)
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' })
@@ -94,6 +95,8 @@ export default function TurismoCanadaApplication() {
       step10: { phones: [] }
     }
   })
+
+  const { setValue } = methods
 
   // Load from local storage on mount
   useEffect(() => {
@@ -336,8 +339,27 @@ export default function TurismoCanadaApplication() {
             data={passportData.data}
             sources={passportData.sources || {}}
             onConfirm={(confirmed) => {
-              // pre-fill form fields from confirmed data here
-              // (we will wire this in the next step)
+              // Step 2 personal data
+              if (confirmed.surname) setValue('step2.surname' as any, confirmed.surname)
+              if (confirmed.given_names) setValue('step2.given_name' as any, confirmed.given_names)
+              if (confirmed.date_of_birth) setValue('step2.date_of_birth' as any, confirmed.date_of_birth)
+              
+              // Step 2 passport fields
+              if (confirmed.document_number) {
+                setValue('step2.passport_number' as any, confirmed.document_number)
+                setValue('step2.passport_number_confirm' as any, confirmed.document_number)
+              }
+              if (confirmed.date_of_issue) setValue('step2.passport_issue_date' as any, confirmed.date_of_issue)
+              if (confirmed.date_of_expiry) setValue('step2.passport_expiry_date' as any, confirmed.date_of_expiry)
+              if (confirmed.issuing_country) setValue('step2.passport_country_code' as any, confirmed.issuing_country)
+              if (confirmed.nationality) setValue('step2.passport_nationality' as any, confirmed.nationality)
+              
+              // Step 3 birth data
+              if (confirmed.place_of_birth) setValue('step3.birth_city' as any, confirmed.place_of_birth)
+              
+              // Mark passport as scanned for banner
+              setPassportWasScanned(true)
+              
               setPassportData(null)
               setCurrentStep(1)
               window.scrollTo({ top: 0, behavior: 'smooth' })
@@ -352,7 +374,17 @@ export default function TurismoCanadaApplication() {
   const renderStep = () => {
     switch (currentStep) {
       case 0: return renderStep0()
-      case 1: return <Step1 />
+      case 1: return (
+        <>
+          {passportWasScanned && (
+            <div className="mb-4 px-4 py-3 rounded-xl text-sm font-medium"
+              style={{ backgroundColor: '#F0FDE4', color: '#2F4A00' }}>
+              ✓ Datos extraídos de tu pasaporte — revisá que todo esté correcto
+            </div>
+          )}
+          <Step1 />
+        </>
+      )
       case 2: return <Step2 />
       case 3: return <Step3 />
       case 4: return <Step4 />
