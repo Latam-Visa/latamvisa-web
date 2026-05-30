@@ -13,6 +13,7 @@ export interface PassportData {
   place_of_birth?: string | null
   date_of_issue?: string | null
   issuing_country?: string | null
+  document_type?: string | null
 }
 
 export interface PassportConfirmModalProps {
@@ -32,7 +33,8 @@ const FIELD_LABELS: Record<keyof PassportData, string> = {
   date_of_expiry: 'Fecha de vencimiento',
   place_of_birth: 'Lugar de nacimiento',
   date_of_issue: 'Fecha de emisión',
-  issuing_country: 'País emisor'
+  issuing_country: 'País emisor',
+  document_type: 'Tipo de documento'
 }
 
 export function PassportConfirmModal({ data, sources, onConfirm, onClose }: PassportConfirmModalProps) {
@@ -46,7 +48,8 @@ export function PassportConfirmModal({ data, sources, onConfirm, onClose }: Pass
     date_of_expiry: data.date_of_expiry || '',
     place_of_birth: data.place_of_birth || '',
     date_of_issue: data.date_of_issue || '',
-    issuing_country: data.issuing_country || ''
+    issuing_country: data.issuing_country || '',
+    document_type: data.document_type || ''
   })
 
   const handleChange = (field: keyof PassportData, value: string) => {

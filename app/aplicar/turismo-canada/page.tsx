@@ -342,15 +342,22 @@ export default function TurismoCanadaApplication() {
               // Step 2 personal data
               if (confirmed.surname) setValue('step2.surname' as any, confirmed.surname)
               if (confirmed.given_names) setValue('step2.given_name' as any, confirmed.given_names)
+              
+              // Dates are now in YYYY-MM-DD format, compatible with date inputs
               if (confirmed.date_of_birth) setValue('step2.date_of_birth' as any, confirmed.date_of_birth)
+              if (confirmed.date_of_issue) setValue('step2.passport_issue_date' as any, confirmed.date_of_issue)
+              if (confirmed.date_of_expiry) setValue('step2.passport_expiry_date' as any, confirmed.date_of_expiry)
+
+              // Document type from MRZ (PA = regular passport)
+              if (confirmed.document_type) setValue('step2.document_type' as any, confirmed.document_type)
               
               // Step 2 passport fields
               if (confirmed.document_number) {
                 setValue('step2.passport_number' as any, confirmed.document_number)
                 setValue('step2.passport_number_confirm' as any, confirmed.document_number)
               }
-              if (confirmed.date_of_issue) setValue('step2.passport_issue_date' as any, confirmed.date_of_issue)
-              if (confirmed.date_of_expiry) setValue('step2.passport_expiry_date' as any, confirmed.date_of_expiry)
+              
+              // Nationality and issuing country for passport section
               if (confirmed.issuing_country) setValue('step2.passport_country_code' as any, confirmed.issuing_country)
               if (confirmed.nationality) setValue('step2.passport_nationality' as any, confirmed.nationality)
               
