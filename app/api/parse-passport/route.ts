@@ -120,11 +120,14 @@ If a field is not visible or unclear, return null for that field.`
 
     let visionData: any = {}
     try {
-      const visionText = (visionRes.content[0] as any).text.trim()
+      let visionText = (visionRes.content[0] as any).text.trim()
+      // Strip markdown code fences if present
+      visionText = visionText.replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/\s*```$/i, '').trim()
       visionData = JSON.parse(visionText)
     } catch (e) {
       console.error('Vision JSON parsing failed:', e)
-      return NextResponse.json({ success: false, error: 'Failed to parse Vision output as JSON' }, { status: 500 })
+      // Don't fail — return empty vision data and rely on MRZ only
+      visionData = {}
     }
 
     // 6. Merge MRZ result (higher priority) with Claude result (fills gaps)
