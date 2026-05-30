@@ -462,8 +462,8 @@ export default function TurismoCanadaApplication() {
           <img src="/logo.png" alt="LATAM VISA Logo" className="h-16 sm:h-20 object-contain" />
         </div>
 
-        {showServiceInfo && (
-          <div className="bg-white rounded-xl border border-[#C8FF00] p-5 mb-8 relative shadow-sm max-w-xl mx-auto">
+        {currentStep === 0 && showServiceInfo && (
+          <div className="bg-white rounded-xl border border-[#C8FF00] p-5 mb-8 relative shadow-sm max-w-2xl mx-auto">
             <button 
               type="button"
               onClick={() => setShowServiceInfo(false)} 
@@ -474,42 +474,44 @@ export default function TurismoCanadaApplication() {
                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
-            <h3 className="text-xl font-bold text-[#2F4A00] mb-4">¿Qué incluye tu servicio de $290 USD?</h3>
-            <ul className="space-y-3 text-[#0A0A0A] text-sm font-medium">
+            <h3 className="text-lg font-bold text-[#2F4A00] mb-4">¿Qué incluye tu servicio de $290 USD?</h3>
+            <ul className="space-y-3 text-[#0A0A0A] text-xs font-medium">
               <li className="flex items-start gap-2">
-                <span className="text-base leading-tight shrink-0">✅</span>
+                <span className="text-sm leading-tight shrink-0">✅</span>
                 <span>Aplicación profesional ante IRCC (Inmigración Canadá)</span>
               </li>
               <li className="flex items-start gap-2">
-                <span className="text-base leading-tight shrink-0">✅</span>
+                <span className="text-sm leading-tight shrink-0">✅</span>
                 <span>Traducción profesional de todos tus documentos</span>
               </li>
               <li className="flex items-start gap-2">
-                <span className="text-base leading-tight shrink-0">✅</span>
+                <span className="text-sm leading-tight shrink-0">✅</span>
                 <span>Carta de intención profesional redactada a tu medida</span>
               </li>
               <li className="flex items-start gap-2">
-                <span className="text-base leading-tight shrink-0">✅</span>
+                <span className="text-sm leading-tight shrink-0">✅</span>
                 <span>Organización de tu cita biométrica</span>
               </li>
               <li className="flex items-start gap-2">
-                <span className="text-base leading-tight shrink-0">✅</span>
+                <span className="text-sm leading-tight shrink-0">✅</span>
                 <span>Soporte personalizado durante todo el proceso</span>
               </li>
               <li className="flex items-start gap-2">
-                <span className="text-base leading-tight shrink-0">✅</span>
+                <span className="text-sm leading-tight shrink-0">✅</span>
                 <span>Paso a paso hasta el día de los biométricos</span>
               </li>
             </ul>
           </div>
         )}
 
-        <div className="flex items-start gap-2 bg-[#F5F5F0] border border-[#E5E5E5] rounded-xl p-4 mb-8 text-sm text-[#525252]">
-          <span className="text-base leading-tight shrink-0">🔒</span>
-          <p className="leading-relaxed">
-            Tus datos y documentos se almacenan cifrados en servidores seguros. Solo el equipo de LATAM VISA tiene acceso, exclusivamente para procesar tu aplicación. Nunca compartimos tu información con terceros.
-          </p>
-        </div>
+        {currentStep === 0 && (
+          <div className="flex items-start gap-2 bg-[#F5F5F0] border border-[#E5E5E5] rounded-xl p-4 mb-8 text-xs text-[#525252] max-w-2xl mx-auto">
+            <span className="text-sm leading-tight shrink-0">🔒</span>
+            <p className="leading-relaxed">
+              Tus datos y documentos se almacenan cifrados en servidores seguros. Solo el equipo de LATAM VISA tiene acceso, exclusivamente para procesar tu aplicación. Nunca compartimos tu información con terceros.
+            </p>
+          </div>
+        )}
 
         <FormProvider {...methods}>
           <form onSubmit={(e) => { e.preventDefault(); handleNext(); }} className="space-y-8">
