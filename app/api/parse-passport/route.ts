@@ -6,6 +6,24 @@ const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
 })
 
+function ddmmyyyyToYYYYMMDD(dateStr: string | null): string | null {
+  if (!dateStr) return null
+  const parts = dateStr.split('/')
+  if (parts.length !== 3) return null
+  const [dd, mm, yyyy] = parts
+  if (!dd || !mm || !yyyy) return null
+  return `${yyyy}-${mm.padStart(2,'0')}-${dd.padStart(2,'0')}`
+}
+
+function inferDocumentType(mrzLines: string[] | null): string | null {
+  if (!mrzLines || mrzLines.length === 0) return null
+  const firstLine = mrzLines[0].toUpperCase()
+  if (firstLine.startsWith('P<') || firstLine.startsWith('P ')) return 'PA'
+  if (firstLine.startsWith('I')) return 'IC'
+  if (firstLine.startsWith('V')) return 'VI'
+  return 'PA' // default to regular passport
+}
+
 export async function POST(req: NextRequest) {
   try {
     const formData = await req.formData()
@@ -141,7 +159,8 @@ If a field is not visible or unclear, return null for that field.`
       date_of_expiry: null,
       place_of_birth: null,
       date_of_issue: null,
-      issuing_country: null
+      issuing_country: null,
+      document_type: null
     }
 
     const sources: any = {}
@@ -190,6 +209,28 @@ If a field is not visible or unclear, return null for that field.`
     if (!merged.full_name && merged.given_names && merged.surname) {
       merged.full_name = `${merged.given_names} ${merged.surname}`
       sources.full_name = sources.given_names === 'mrz' && sources.surname === 'mrz' ? 'mrz' : 'vision'
+    }
+
+    // Convert dates to YYYY-MM-DD for form compatibility
+    if (merged.date_of_birth) merged.date_of_birth = ddmmyyyyToYYYYMMDD(merged.date_of_birth)
+    if (merged.date_of_expiry) merged.date_of_expiry = ddmmyyyyToYYYYMMDD(merged.date_of_expiry)
+    if (merged.date_of_issue) merged.date_of_issue = ddmmyyyyToYYYYMMDD(merged.date_of_issue)
+
+    // Infer document type from MRZ
+    let inferredDocType = null
+    try {
+      if (mrzOcrRes) {
+        let rawText = (mrzOcrRes.content[0] as any).text.trim()
+        rawText = rawText.replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/\s*```$/i, '').trim()
+        inferredDocType = inferDocumentType(JSON.parse(rawText))
+      }
+    } catch (e) {
+      // ignore
+    }
+    
+    if (inferredDocType) {
+      merged.document_type = inferredDocType
+      sources.document_type = 'mrz'
     }
 
     // 7. Return merged JSON
