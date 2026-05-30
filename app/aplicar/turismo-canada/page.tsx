@@ -65,7 +65,10 @@ const STORAGE_KEY = 'latamvisa-canada-draft'
 
 export default function TurismoCanadaApplication() {
   const router = useRouter()
-  const [currentStep, setCurrentStep] = useState(1)
+  const [currentStep, setCurrentStep] = useState(0)
+  const [passportData, setPassportData] = useState<any>(null)
+  const [passportStatus, setPassportStatus] = useState<'idle'|'uploading'|'success'|'error'>('idle')
+  const [passportError, setPassportError] = useState('')
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' })
@@ -138,6 +141,12 @@ export default function TurismoCanadaApplication() {
   }
 
   const handleNext = async () => {
+    if (currentStep === 0) {
+      setCurrentStep(1)
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+      return
+    }
+
     setIsValidating(true)
     const stepKey = `step${currentStep}` as keyof FormData
 
@@ -220,8 +229,111 @@ export default function TurismoCanadaApplication() {
     }
   }
 
+  const handlePassportUpload = async (file: File) => {
+    if (file.size > 5 * 1024 * 1024) {
+      setPassportStatus('error')
+      setPassportError('El archivo pesa más de 5MB. Sube una foto más ligera.')
+      return
+    }
+
+    setPassportStatus('uploading')
+    setPassportError('')
+
+    const formData = new FormData()
+    formData.append('file', file)
+
+    try {
+      const res = await fetch('/api/parse-passport', {
+        method: 'POST',
+        body: formData
+      })
+      const result = await res.json()
+
+      if (result.success) {
+        setPassportData(result.data)
+        setPassportStatus('success')
+      } else {
+        setPassportStatus('error')
+        setPassportError(result.error || 'No pudimos leer el pasaporte. Podés continuar manualmente.')
+      }
+    } catch (e) {
+      setPassportStatus('error')
+      setPassportError('Error de red al intentar procesar el pasaporte.')
+    }
+  }
+
+  const renderStep0 = () => {
+    return (
+      <div className="space-y-6">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold text-[#0A0A0A] mb-2">Primero, sube tu pasaporte</h2>
+          <p className="text-[#525252]">Extraemos tus datos automáticamente para que no tengas que escribirlos a mano.</p>
+        </div>
+
+        {passportStatus === 'uploading' ? (
+          <div className="flex flex-col items-center justify-center p-12 bg-[#F5F5F0] border border-[#E5E5E5] rounded-xl">
+            <Loader2 className="w-10 h-10 animate-spin text-[#C8FF00] mb-4" />
+            <p className="text-lg font-bold text-[#0A0A0A]">Leyendo tu pasaporte...</p>
+            <p className="text-sm text-[#525252] mt-2 text-center max-w-sm">Nuestra IA está extrayendo los datos. Esto puede tomar unos segundos.</p>
+          </div>
+        ) : (
+          <div 
+            className="bg-[#F5F5F0] p-8 rounded-xl border-2 border-dashed border-[#C8FF00] flex flex-col items-center justify-center transition-colors hover:bg-[#F5F5F0]/80"
+            onDragOver={(e) => { e.preventDefault(); e.stopPropagation() }}
+            onDrop={(e) => {
+              e.preventDefault()
+              e.stopPropagation()
+              if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+                handlePassportUpload(e.dataTransfer.files[0])
+              }
+            }}
+          >
+            <div className="w-16 h-16 bg-[#1A1A1A] rounded-full flex items-center justify-center mb-4">
+               <svg className="w-8 h-8 text-[#C8FF00]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+               </svg>
+            </div>
+            <p className="text-[#0A0A0A] font-bold mb-2">Arrastra tu archivo aquí o haz clic para subir</p>
+            <p className="text-[#888] text-sm mb-6 text-center max-w-sm">Aceptamos imágenes (JPG, PNG) y PDF. Tamaño máximo: 5MB.</p>
+            <label className="cursor-pointer bg-[#C8FF00] text-black font-bold py-3 px-6 rounded-lg hover:bg-[#B5E600] transition-colors shadow-sm">
+              Seleccionar archivo
+              <input 
+                type="file" 
+                accept="image/*,application/pdf" 
+                className="hidden" 
+                onChange={(e) => {
+                  if (e.target.files && e.target.files[0]) {
+                    handlePassportUpload(e.target.files[0])
+                  }
+                }}
+              />
+            </label>
+          </div>
+        )}
+
+        {passportStatus === 'error' && (
+          <div className="bg-[#FEF2F2] border border-[#DC2626] p-4 rounded-xl">
+            <p className="text-[#DC2626] font-medium mb-4 text-center">{passportError || 'No pudimos leer el pasaporte. Podés continuar manualmente.'}</p>
+            <div className="flex justify-center">
+              <button 
+                type="button"
+                onClick={() => setCurrentStep(1)} 
+                className="bg-white border border-[#DC2626] text-[#DC2626] font-bold py-2 px-6 rounded-lg hover:bg-[#FEF2F2] transition-colors"
+              >
+                Continuar sin escanear
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* PassportConfirmModal goes here */}
+      </div>
+    )
+  }
+
   const renderStep = () => {
     switch (currentStep) {
+      case 0: return renderStep0()
       case 1: return <Step1 />
       case 2: return <Step2 />
       case 3: return <Step3 />
@@ -238,6 +350,7 @@ export default function TurismoCanadaApplication() {
 
   const getStepTitle = () => {
     switch (currentStep) {
+      case 0: return 'Escaneo Inteligente'
       case 1: return 'Detalles de Aplicación'
       case 2: return 'Datos Personales'
       case 3: return 'Identificación'
@@ -254,6 +367,7 @@ export default function TurismoCanadaApplication() {
 
   const getStepSubtitle = () => {
     switch (currentStep) {
+      case 0: return 'Sube tu pasaporte para autocompletar'
       case 1: return 'Motivo del viaje y fechas'
       case 2: return 'Datos de pasaporte y visados previos'
       case 3: return 'Nacionalidad y otros nombres'
@@ -386,7 +500,7 @@ export default function TurismoCanadaApplication() {
         <FormProvider {...methods}>
           <form onSubmit={(e) => { e.preventDefault(); handleNext(); }} className="space-y-8">
             <ProgressBar 
-              currentStep={currentStep} 
+              currentStep={Math.max(1, currentStep)} 
               totalSteps={TOTAL_STEPS} 
               title={getStepTitle()} 
               subtitle={getStepSubtitle()} 
@@ -396,12 +510,14 @@ export default function TurismoCanadaApplication() {
               {renderStep()}
             </div>
 
-            <StepNavigation 
-              currentStep={currentStep} 
-              totalSteps={TOTAL_STEPS} 
-              onBack={handleBack} 
-              isNextDisabled={isSubmitting || isValidating}
-            />
+            {currentStep > 0 && (
+              <StepNavigation 
+                currentStep={currentStep} 
+                totalSteps={TOTAL_STEPS} 
+                onBack={handleBack} 
+                isNextDisabled={isSubmitting || isValidating}
+              />
+            )}
           </form>
         </FormProvider>
       </div>
