@@ -29,6 +29,7 @@ import { Step7 } from './_components/Step7'
 import { Step8 } from './_components/Step8'
 import { Step9 } from './_components/Step9'
 import { Step10 } from './_components/Step10'
+import { PassportConfirmModal } from './components/PassportConfirmModal'
 
 // Combined schema for the whole form
 const baseFormSchema = z.object({
@@ -250,7 +251,7 @@ export default function TurismoCanadaApplication() {
       const result = await res.json()
 
       if (result.success) {
-        setPassportData(result.data)
+        setPassportData(result)
         setPassportStatus('success')
       } else {
         setPassportStatus('error')
@@ -326,7 +327,20 @@ export default function TurismoCanadaApplication() {
           </div>
         )}
 
-        {/* PassportConfirmModal goes here */}
+        {passportData && (
+          <PassportConfirmModal
+            data={passportData.data}
+            sources={passportData.sources || {}}
+            onConfirm={(confirmed) => {
+              // pre-fill form fields from confirmed data here
+              // (we will wire this in the next step)
+              setPassportData(null)
+              setCurrentStep(1)
+              window.scrollTo({ top: 0, behavior: 'smooth' })
+            }}
+            onClose={() => setPassportData(null)}
+          />
+        )}
       </div>
     )
   }
