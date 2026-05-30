@@ -55,7 +55,7 @@ export async function POST(req: NextRequest) {
 
     if (!isPdf) {
       mrzOcrPromise = anthropic.messages.create({
-        model: 'claude-sonnet-4-5-20251001',
+        model: 'claude-haiku-4-5',
         max_tokens: 300,
         system: 'Extract ONLY the 2 or 3 lines of the Machine Readable Zone (MRZ) from the bottom of the passport. Return ONLY a valid JSON array of strings, with no markdown formatting. Example: ["P<USASMITH<<JOHN<<<<<<<<<<<<<<<<<<<<", "1234567890USA1234567M1234567<<<<<<<9"]',
         messages: [
@@ -86,7 +86,7 @@ export async function POST(req: NextRequest) {
 If a field is not visible or unclear, return null for that field.`
 
     const visionPromise = anthropic.messages.create({
-      model: 'claude-sonnet-4-5-20251001',
+      model: 'claude-haiku-4-5',
       max_tokens: 1000,
       system: visionPrompt,
       messages: [
