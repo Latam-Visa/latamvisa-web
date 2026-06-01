@@ -381,7 +381,46 @@ export default function TurismoCanadaApplication() {
               }
               
               // Step 3 birth data
-              if (confirmed.place_of_birth) setValue('step3.birth_city' as any, confirmed.place_of_birth)
+              if (confirmed.place_of_birth) {
+                const birthPlace = confirmed.place_of_birth || ''
+
+                const countryCodeMap: Record<string, string> = {
+                  'COL': 'CO', 'COLOMBIA': 'CO', 'CO': 'CO',
+                  'VEN': 'VE', 'VENEZUELA': 'VE', 'VE': 'VE',
+                  'MEX': 'MX', 'MEXICO': 'MX', 'MX': 'MX',
+                  'PER': 'PE', 'PERU': 'PE', 'PE': 'PE',
+                  'ECU': 'EC', 'ECUADOR': 'EC', 'EC': 'EC',
+                  'ARG': 'AR', 'ARGENTINA': 'AR', 'AR': 'AR',
+                  'BRA': 'BR', 'BRASIL': 'BR', 'BRAZIL': 'BR', 'BR': 'BR',
+                  'CHL': 'CL', 'CHILE': 'CL', 'CL': 'CL',
+                  'BOL': 'BO', 'BOLIVIA': 'BO', 'BO': 'BO',
+                  'URY': 'UY', 'URUGUAY': 'UY', 'UY': 'UY',
+                  'PRY': 'PY', 'PARAGUAY': 'PY', 'PY': 'PY',
+                  'AUS': 'AU', 'AUSTRALIA': 'AU', 'AU': 'AU',
+                  'USA': 'US', 'ESTADOS UNIDOS': 'US', 'US': 'US',
+                  'ESP': 'ES', 'ESPAÑA': 'ES', 'SPAIN': 'ES', 'ES': 'ES',
+                  'GBR': 'GB', 'UK': 'GB', 'GB': 'GB',
+                }
+
+                const parts = birthPlace.toUpperCase().trim().split(/\s+/)
+                let detectedCountry: string | null = null
+
+                for (let i = parts.length - 1; i >= 0; i--) {
+                  if (countryCodeMap[parts[i]]) {
+                    detectedCountry = countryCodeMap[parts[i]]
+                    break
+                  }
+                }
+
+                let cleanCity = birthPlace
+                if (detectedCountry) {
+                  const lastPart = parts[parts.length - 1]
+                  cleanCity = birthPlace.replace(new RegExp(lastPart + '$', 'i'), '').trim()
+                }
+
+                if (cleanCity) setValue('step3.birth_city' as any, cleanCity)
+                if (detectedCountry) setValue('step3.birth_country' as any, detectedCountry)
+              }
               
               // Mark passport as scanned for banner
               setPassportWasScanned(true)

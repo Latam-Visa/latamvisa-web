@@ -37,7 +37,7 @@ export function Step3() {
       <div className="bg-[#F5F5F0] p-6 rounded-xl border border-[#E5E5E5] space-y-6">
         <h3 className="text-lg font-medium text-[#0A0A0A] mb-2">Lugar de Nacimiento</h3>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-2 gap-4">
           <FormField label="País de nacimiento" name="step3.birth_country" required error={errors.step3?.birth_country?.message as string}>
             <select {...register('step3.birth_country')} className="w-full bg-white border border-[#E5E5E5] rounded-lg px-4 py-3 text-[#0A0A0A] focus:outline-none focus:border-[#C8FF00] focus:ring-2 focus:ring-[#C8FF00] transition-colors appearance-none">
               <option value="">Seleccionar país</option>

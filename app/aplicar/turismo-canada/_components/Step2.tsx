@@ -57,13 +57,20 @@ export function Step2() {
               <option value="Official">Oficial</option>
               <option value="Diplomatic">Diplomático</option>
             </select>
+            {watch('step2.document_type') === 'Passport' && <p className="text-sm text-[#525252] mt-2 bg-white p-3 rounded-lg border border-[#E5E5E5]">El pasaporte regular es el documento de viaje estándar para ciudadanos. Es el más común.</p>}
+            {watch('step2.document_type') === 'Official' && <p className="text-sm text-[#525252] mt-2 bg-white p-3 rounded-lg border border-[#E5E5E5]">Emitido para funcionarios del gobierno en viajes oficiales. No es el pasaporte personal.</p>}
+            {watch('step2.document_type') === 'Diplomatic' && <p className="text-sm text-[#525252] mt-2 bg-white p-3 rounded-lg border border-[#E5E5E5]">Para diplomáticos y personal consular. No es el pasaporte personal.</p>}
           </FormField>
           <FormField label="Categoría de pasaporte" name="step2.passport_kind" required error={errors.step2?.passport_kind?.message as string}>
             <select {...register('step2.passport_kind')} className="w-full bg-white border border-[#E5E5E5] rounded-lg px-4 py-3 text-[#0A0A0A] focus:outline-none focus:border-[#C8FF00] focus:ring-2 focus:ring-[#C8FF00] transition-colors appearance-none">
               <option value="">Seleccionar categoría</option>
               <option value="Regular">Regular</option>
               <option value="Official">Oficial</option>
+              <option value="Diplomatic">Diplomático</option>
             </select>
+            {watch('step2.passport_kind') === 'Regular' && <p className="text-sm text-[#525252] mt-2 bg-white p-3 rounded-lg border border-[#E5E5E5]">Pasaporte de uso personal para viajes internacionales. El 99% de los aplicantes tienen este.</p>}
+            {watch('step2.passport_kind') === 'Official' && <p className="text-sm text-[#525252] mt-2 bg-white p-3 rounded-lg border border-[#E5E5E5]">Solo para funcionarios públicos en misión oficial.</p>}
+            {watch('step2.passport_kind') === 'Diplomatic' && <p className="text-sm text-[#525252] mt-2 bg-white p-3 rounded-lg border border-[#E5E5E5]">Exclusivo para cuerpo diplomático.</p>}
           </FormField>
         </div>
 
