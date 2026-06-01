@@ -69,7 +69,7 @@ export function Step9() {
               <FormField label="País de nacimiento" name="step9.spouse_birth_country" required error={errors.step9?.spouse_birth_country?.message as string}>
                 <select {...register('step9.spouse_birth_country')} className="w-full bg-[#F5F5F0] border border-[#E5E5E5] rounded-lg px-4 py-3 text-[#0A0A0A] focus:outline-none focus:border-[#C8FF00] transition-colors appearance-none">
                   <option value="">Seleccionar país</option>
-                  {ALL_COUNTRIES.map(c => <option key={c.code} value={c.code}>{c.flag} {c.name}</option>)}
+                  {ALL_COUNTRIES.map(c => <option key={c.code} value={c.code} disabled={c.code === 'DIVIDER'}>{c.flag ? c.flag + ' ' : ''}{c.name}</option>)}
                 </select>
               </FormField>
               <FormField label="Ocupación actual" name="step9.spouse_occupation" required error={errors.step9?.spouse_occupation?.message as string}>
@@ -151,7 +151,7 @@ export function Step9() {
                     <FormField label="País de nacimiento" name={`step9.children.${index}.birth_country`} required error={(errors.step9?.children as any)?.[index]?.birth_country?.message as string}>
                       <select {...register(`step9.children.${index}.birth_country`)} className="w-full bg-[#F5F5F0] border border-[#E5E5E5] rounded-lg px-4 py-3 text-[#0A0A0A] focus:outline-none focus:border-[#C8FF00] transition-colors appearance-none">
                         <option value="">Seleccionar país</option>
-                        {ALL_COUNTRIES.map(c => <option key={c.code} value={c.code}>{c.flag} {c.name}</option>)}
+                        {ALL_COUNTRIES.map(c => <option key={c.code} value={c.code} disabled={c.code === 'DIVIDER'}>{c.flag ? c.flag + ' ' : ''}{c.name}</option>)}
                       </select>
                     </FormField>
                   </div>
@@ -176,7 +176,7 @@ export function Step9() {
                       <FormField label="País" name={`step9.children.${index}.child_country`} error={(errors.step9?.children as any)?.[index]?.child_country?.message as string}>
                         <select {...register(`step9.children.${index}.child_country`)} className="w-full bg-[#F5F5F0] border border-[#E5E5E5] rounded-lg px-4 py-3 text-[#0A0A0A] focus:outline-none focus:border-[#C8FF00] transition-colors appearance-none">
                           <option value="">Seleccionar país</option>
-                          {ALL_COUNTRIES.map(c => <option key={c.code} value={c.code}>{c.flag} {c.name}</option>)}
+                          {ALL_COUNTRIES.map(c => <option key={c.code} value={c.code} disabled={c.code === 'DIVIDER'}>{c.flag ? c.flag + ' ' : ''}{c.name}</option>)}
                         </select>
                       </FormField>
                       <FormField label="Ciudad" name={`step9.children.${index}.child_city`} error={(errors.step9?.children as any)?.[index]?.child_city?.message as string}>
@@ -267,7 +267,7 @@ function ParentRow({ index }: { index: number }) {
       <FormField label="País de nacimiento" name={`step9.parents.${index}.birth_country`} required error={(errors.step9?.parents as any)?.[index]?.birth_country?.message as string}>
         <select {...register(`step9.parents.${index}.birth_country`)} className="w-full bg-[#F5F5F0] border border-[#E5E5E5] rounded-lg px-4 py-3 text-[#0A0A0A] focus:outline-none focus:border-[#C8FF00] transition-colors appearance-none">
           <option value="">Seleccionar país</option>
-          {ALL_COUNTRIES.map(c => <option key={c.code} value={c.code}>{c.flag} {c.name}</option>)}
+          {ALL_COUNTRIES.map(c => <option key={c.code} value={c.code} disabled={c.code === 'DIVIDER'}>{c.flag ? c.flag + ' ' : ''}{c.name}</option>)}
         </select>
       </FormField>
       
@@ -298,7 +298,7 @@ function ParentRow({ index }: { index: number }) {
             <select {...register(`step9.parents.${index}.country`)} className="w-full bg-[#F5F5F0] border border-[#E5E5E5] rounded-lg px-4 py-3 text-[#0A0A0A] focus:outline-none focus:border-[#C8FF00] transition-colors appearance-none">
               <option value="">Seleccionar país</option>
               <option value="Deceased">Fallecido / Deceased</option>
-              {ALL_COUNTRIES.map(c => <option key={c.code} value={c.code}>{c.flag} {c.name}</option>)}
+              {ALL_COUNTRIES.map(c => <option key={c.code} value={c.code} disabled={c.code === 'DIVIDER'}>{c.flag ? c.flag + ' ' : ''}{c.name}</option>)}
             </select>
           </FormField>
           <FormField label="Ciudad" name={`step9.parents.${index}.city`} required error={(errors.step9?.parents as any)?.[index]?.city?.message as string}>

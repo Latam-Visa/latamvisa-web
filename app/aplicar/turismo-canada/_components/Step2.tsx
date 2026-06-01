@@ -71,13 +71,13 @@ export function Step2() {
           <FormField label="País que emitió el pasaporte" name="step2.passport_country_code" required error={errors.step2?.passport_country_code?.message as string}>
             <select {...register('step2.passport_country_code')} className="w-full bg-white border border-[#E5E5E5] rounded-lg px-4 py-3 text-[#0A0A0A] focus:outline-none focus:border-[#C8FF00] focus:ring-2 focus:ring-[#C8FF00] transition-colors appearance-none">
               <option value="">Seleccionar país</option>
-              {ALL_COUNTRIES.map(c => <option key={c.code} value={c.code}>{c.flag} {c.name}</option>)}
+              {ALL_COUNTRIES.map(c => <option key={c.code} value={c.code} disabled={c.code === 'DIVIDER'}>{c.flag ? c.flag + ' ' : ''}{c.name}</option>)}
             </select>
           </FormField>
           <FormField label="Nacionalidad en el pasaporte" name="step2.passport_nationality" required error={errors.step2?.passport_nationality?.message as string}>
             <select {...register('step2.passport_nationality')} className="w-full bg-white border border-[#E5E5E5] rounded-lg px-4 py-3 text-[#0A0A0A] focus:outline-none focus:border-[#C8FF00] focus:ring-2 focus:ring-[#C8FF00] transition-colors appearance-none">
               <option value="">Seleccionar país</option>
-              {ALL_COUNTRIES.map(c => <option key={c.code} value={c.code}>{c.flag} {c.name}</option>)}
+              {ALL_COUNTRIES.map(c => <option key={c.code} value={c.code} disabled={c.code === 'DIVIDER'}>{c.flag ? c.flag + ' ' : ''}{c.name}</option>)}
             </select>
           </FormField>
         </div>

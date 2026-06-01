@@ -28,7 +28,7 @@ export function Step4() {
           <FormField label="País de residencia" name="step4.residential_country" required error={errors.step4?.residential_country?.message as string}>
             <select {...register('step4.residential_country')} className="w-full bg-white border border-[#E5E5E5] rounded-lg px-4 py-3 text-[#0A0A0A] focus:outline-none focus:border-[#C8FF00] focus:ring-2 focus:ring-[#C8FF00] transition-colors appearance-none">
               <option value="">Seleccionar país</option>
-              {ALL_COUNTRIES.map(c => <option key={c.code} value={c.code}>{c.flag} {c.name}</option>)}
+              {ALL_COUNTRIES.map(c => <option key={c.code} value={c.code} disabled={c.code === 'DIVIDER'}>{c.flag ? c.flag + ' ' : ''}{c.name}</option>)}
             </select>
           </FormField>
           <FormField label="Ciudad/Pueblo" name="step4.residential_city" required error={errors.step4?.residential_city?.message as string}>
@@ -68,7 +68,7 @@ export function Step4() {
               <FormField label="País de correspondencia" name="step4.mailing_country" required error={errors.step4?.mailing_country?.message as string}>
                 <select {...register('step4.mailing_country')} className="w-full bg-[#F5F5F0] border border-[#E5E5E5] rounded-lg px-4 py-3 text-[#0A0A0A] focus:outline-none focus:border-[#C8FF00] transition-colors appearance-none">
                   <option value="">Seleccionar país</option>
-                  {ALL_COUNTRIES.map(c => <option key={c.code} value={c.code}>{c.flag} {c.name}</option>)}
+                  {ALL_COUNTRIES.map(c => <option key={c.code} value={c.code} disabled={c.code === 'DIVIDER'}>{c.flag ? c.flag + ' ' : ''}{c.name}</option>)}
                 </select>
               </FormField>
               <FormField label="Ciudad/Pueblo" name="step4.mailing_city" required error={errors.step4?.mailing_city?.message as string}>
@@ -101,7 +101,7 @@ export function Step4() {
                 <FormField label="País/Territorio" name={`step4.residence_history.${index}.country`} required error={(errors.step4?.residence_history as any)?.[index]?.country?.message as string}>
                   <select {...register(`step4.residence_history.${index}.country`)} className="w-full bg-[#F5F5F0] border border-[#E5E5E5] rounded-lg px-4 py-3 text-[#0A0A0A] focus:outline-none focus:border-[#C8FF00] transition-colors appearance-none">
                     <option value="">Seleccionar país</option>
-                    {ALL_COUNTRIES.map(c => <option key={c.code} value={c.code}>{c.flag} {c.name}</option>)}
+                    {ALL_COUNTRIES.map(c => <option key={c.code} value={c.code} disabled={c.code === 'DIVIDER'}>{c.flag ? c.flag + ' ' : ''}{c.name}</option>)}
                   </select>
                 </FormField>
                 

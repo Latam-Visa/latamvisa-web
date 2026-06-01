@@ -41,7 +41,7 @@ export function Step3() {
           <FormField label="País de nacimiento" name="step3.birth_country" required error={errors.step3?.birth_country?.message as string}>
             <select {...register('step3.birth_country')} className="w-full bg-white border border-[#E5E5E5] rounded-lg px-4 py-3 text-[#0A0A0A] focus:outline-none focus:border-[#C8FF00] focus:ring-2 focus:ring-[#C8FF00] transition-colors appearance-none">
               <option value="">Seleccionar país</option>
-              {ALL_COUNTRIES.map(c => <option key={c.code} value={c.code}>{c.flag} {c.name}</option>)}
+              {ALL_COUNTRIES.map(c => <option key={c.code} value={c.code} disabled={c.code === 'DIVIDER'}>{c.flag ? c.flag + ' ' : ''}{c.name}</option>)}
             </select>
           </FormField>
 
@@ -70,7 +70,7 @@ export function Step3() {
         <FormField label="¿De qué país/territorio eres ciudadano principal?" name="step3.citizenship_country" required error={errors.step3?.citizenship_country?.message as string}>
           <select {...register('step3.citizenship_country')} className="w-full bg-white border border-[#E5E5E5] rounded-lg px-4 py-3 text-[#0A0A0A] focus:outline-none focus:border-[#C8FF00] focus:ring-2 focus:ring-[#C8FF00] transition-colors appearance-none">
             <option value="">Seleccionar país</option>
-            {ALL_COUNTRIES.map(c => <option key={c.code} value={c.code}>{c.flag} {c.name}</option>)}
+            {ALL_COUNTRIES.map(c => <option key={c.code} value={c.code} disabled={c.code === 'DIVIDER'}>{c.flag ? c.flag + ' ' : ''}{c.name}</option>)}
           </select>
         </FormField>
 
@@ -126,7 +126,7 @@ export function Step3() {
               <FormField label="País de emisión" name="step3.national_id_country" required error={errors.step3?.national_id_country?.message as string}>
                 <select {...register('step3.national_id_country')} className="w-full bg-[#F5F5F0] border border-[#E5E5E5] rounded-lg px-4 py-3 text-[#0A0A0A] focus:outline-none focus:border-[#C8FF00] transition-colors appearance-none">
                   <option value="">Seleccionar país</option>
-                  {ALL_COUNTRIES.map(c => <option key={c.code} value={c.code}>{c.flag} {c.name}</option>)}
+                  {ALL_COUNTRIES.map(c => <option key={c.code} value={c.code} disabled={c.code === 'DIVIDER'}>{c.flag ? c.flag + ' ' : ''}{c.name}</option>)}
                 </select>
               </FormField>
             </div>

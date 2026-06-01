@@ -358,8 +358,14 @@ export default function TurismoCanadaApplication() {
               }
               
               // Nationality and issuing country for passport section
-              if (confirmed.issuing_country) setValue('step2.passport_country_code' as any, confirmed.issuing_country)
-              if (confirmed.nationality) setValue('step2.passport_nationality' as any, confirmed.nationality)
+              if (confirmed.issuing_country) {
+                const code = countryNameToCode[confirmed.issuing_country] || confirmed.issuing_country
+                setValue('step2.passport_country_code' as any, code)
+              }
+              if (confirmed.nationality) {
+                const code = countryNameToCode[confirmed.nationality] || confirmed.nationality
+                setValue('step2.passport_nationality' as any, code)
+              }
               
               // Step 3 birth data
               if (confirmed.place_of_birth) setValue('step3.birth_city' as any, confirmed.place_of_birth)
@@ -437,6 +443,23 @@ export default function TurismoCanadaApplication() {
       case 10: return 'Carga de archivos requeridos'
       default: return ''
     }
+  }
+
+  const countryNameToCode: Record<string, string> = {
+    'Colombia': 'CO', 'Australia': 'AU', 'Mexico': 'MX',
+    'México': 'MX', 'Venezuela': 'VE', 'Peru': 'PE',
+    'Perú': 'PE', 'Ecuador': 'EC', 'Bolivia': 'BO',
+    'Chile': 'CL', 'Argentina': 'AR', 'Brazil': 'BR',
+    'Brasil': 'BR', 'Uruguay': 'UY', 'Paraguay': 'PY',
+    'Panama': 'PA', 'Panamá': 'PA', 'Spain': 'ES',
+    'España': 'ES', 'United States': 'US', 'Canada': 'CA',
+    'New Zealand': 'NZ', 'United Kingdom': 'GB',
+    'France': 'FR', 'Germany': 'DE', 'Italy': 'IT',
+    'Portugal': 'PT', 'Netherlands': 'NL', 'Japan': 'JP',
+    'China': 'CN', 'India': 'IN', 'South Korea': 'KR',
+    'Costa Rica': 'CR', 'Guatemala': 'GT', 'Honduras': 'HN',
+    'El Salvador': 'SV', 'Nicaragua': 'NI', 'Cuba': 'CU',
+    'Dominican Republic': 'DO', 'República Dominicana': 'DO'
   }
 
   return (

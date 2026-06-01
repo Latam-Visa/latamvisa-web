@@ -94,7 +94,7 @@ export function Step5() {
                   <FormField label="País" name={`step5.education_history.${index}.country`} required error={(errors.step5?.education_history as any)?.[index]?.country?.message as string}>
                     <select {...register(`step5.education_history.${index}.country`)} className="w-full bg-[#F5F5F0] border border-[#E5E5E5] rounded-lg px-4 py-3 text-[#0A0A0A] focus:outline-none focus:border-[#C8FF00] transition-colors appearance-none">
                       <option value="">Seleccionar país</option>
-                      {ALL_COUNTRIES.map(c => <option key={c.code} value={c.code}>{c.flag} {c.name}</option>)}
+                      {ALL_COUNTRIES.map(c => <option key={c.code} value={c.code} disabled={c.code === 'DIVIDER'}>{c.flag ? c.flag + ' ' : ''}{c.name}</option>)}
                     </select>
                   </FormField>
                   <FormField label="Ciudad" name={`step5.education_history.${index}.city`} required error={(errors.step5?.education_history as any)?.[index]?.city?.message as string}>
@@ -164,7 +164,7 @@ export function Step5() {
                 <FormField label="País" name={`step5.work_history.${index}.country`} required error={(errors.step5?.work_history as any)?.[index]?.country?.message as string}>
                   <select {...register(`step5.work_history.${index}.country`)} className="w-full bg-[#F5F5F0] border border-[#E5E5E5] rounded-lg px-4 py-3 text-[#0A0A0A] focus:outline-none focus:border-[#C8FF00] transition-colors appearance-none">
                     <option value="">Seleccionar país</option>
-                    {ALL_COUNTRIES.map(c => <option key={c.code} value={c.code}>{c.flag} {c.name}</option>)}
+                    {ALL_COUNTRIES.map(c => <option key={c.code} value={c.code} disabled={c.code === 'DIVIDER'}>{c.flag ? c.flag + ' ' : ''}{c.name}</option>)}
                   </select>
                 </FormField>
                 
@@ -241,7 +241,7 @@ export function Step5() {
                   <FormField label="País" name={`step5.military_details.${index}.country`} required error={(errors.step5?.military_details as any)?.[index]?.country?.message as string}>
                     <select {...register(`step5.military_details.${index}.country`)} className="w-full bg-[#F5F5F0] border border-[#E5E5E5] rounded-lg px-4 py-3 text-[#0A0A0A] focus:outline-none focus:border-[#C8FF00] transition-colors appearance-none">
                       <option value="">Seleccionar país</option>
-                      {ALL_COUNTRIES.map(c => <option key={c.code} value={c.code}>{c.flag} {c.name}</option>)}
+                      {ALL_COUNTRIES.map(c => <option key={c.code} value={c.code} disabled={c.code === 'DIVIDER'}>{c.flag ? c.flag + ' ' : ''}{c.name}</option>)}
                     </select>
                   </FormField>
                   <FormField label="Rama (Ej: Armada, Marina)" name={`step5.military_details.${index}.branch`} required error={(errors.step5?.military_details as any)?.[index]?.branch?.message as string}>

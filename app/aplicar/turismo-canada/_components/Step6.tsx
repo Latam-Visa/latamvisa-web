@@ -54,7 +54,7 @@ export function Step6() {
                   <FormField label="País visitado" name={`step6.travel_history.${index}.country`} required error={(errors.step6?.travel_history as any)?.[index]?.country?.message as string}>
                     <select {...register(`step6.travel_history.${index}.country`)} className="w-full bg-[#F5F5F0] border border-[#E5E5E5] rounded-lg px-4 py-3 text-[#0A0A0A] focus:outline-none focus:border-[#C8FF00] transition-colors appearance-none">
                       <option value="">Seleccionar país</option>
-                      {ALL_COUNTRIES.map(c => <option key={c.code} value={c.code}>{c.flag} {c.name}</option>)}
+                      {ALL_COUNTRIES.map(c => <option key={c.code} value={c.code} disabled={c.code === 'DIVIDER'}>{c.flag ? c.flag + ' ' : ''}{c.name}</option>)}
                     </select>
                   </FormField>
                   <FormField label="Ciudad / Ubicación" name={`step6.travel_history.${index}.location`} required error={(errors.step6?.travel_history as any)?.[index]?.location?.message as string}>
