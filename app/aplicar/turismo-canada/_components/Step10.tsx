@@ -27,10 +27,9 @@ export function Step10() {
           <FormField label="¿Qué idiomas oficiales de Canadá dominas?" name="step10.communicate_language" required error={errors.step10?.communicate_language?.message as string}>
             <select {...register('step10.communicate_language')} className="w-full bg-white border border-[#E5E5E5] rounded-lg px-4 py-3 text-[#0A0A0A] focus:outline-none focus:border-[#C8FF00] focus:ring-2 focus:ring-[#C8FF00] transition-colors appearance-none">
               <option value="">Seleccionar</option>
-              <option value="English">Inglés</option>
-              <option value="French">Francés</option>
-              <option value="Both">Ambos</option>
-              <option value="Neither">Ninguno</option>
+              <option value="en">Inglés</option>
+              <option value="fr">Francés</option>
+              <option value="both">Ambos</option>
             </select>
           </FormField>
         </div>

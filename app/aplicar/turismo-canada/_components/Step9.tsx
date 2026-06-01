@@ -155,6 +155,55 @@ export function Step9() {
                       </select>
                     </FormField>
                   </div>
+
+                  <div className="md:col-span-2 pt-2 border-t border-[#E5E5E5]">
+                    <FormField label="¿Tiene la misma dirección que la tuya?" name={`step9.children.${index}.address_same`} required error={(errors.step9?.children as any)?.[index]?.address_same?.message as string}>
+                      <div className="flex gap-6 mt-2">
+                        <label className="flex items-center gap-3 cursor-pointer group">
+                          <input type="radio" value="true" {...register(`step9.children.${index}.address_same`)} className="w-5 h-5 accent-[#C8FF00] bg-[#F5F5F0] border-[#E5E5E5] focus:ring-[#C8FF00]" />
+                          <span className="text-[#525252] group-hover:text-[#0A0A0A] transition-colors">Sí</span>
+                        </label>
+                        <label className="flex items-center gap-3 cursor-pointer group">
+                          <input type="radio" value="false" {...register(`step9.children.${index}.address_same`)} className="w-5 h-5 accent-[#C8FF00] bg-[#F5F5F0] border-[#E5E5E5] focus:ring-[#C8FF00]" />
+                          <span className="text-[#525252] group-hover:text-[#0A0A0A] transition-colors">No</span>
+                        </label>
+                      </div>
+                    </FormField>
+                  </div>
+
+                  {watch(`step9.children.${index}.address_same`) === 'false' && (
+                    <>
+                      <FormField label="País" name={`step9.children.${index}.child_country`} error={(errors.step9?.children as any)?.[index]?.child_country?.message as string}>
+                        <select {...register(`step9.children.${index}.child_country`)} className="w-full bg-[#F5F5F0] border border-[#E5E5E5] rounded-lg px-4 py-3 text-[#0A0A0A] focus:outline-none focus:border-[#C8FF00] transition-colors appearance-none">
+                          <option value="">Seleccionar país</option>
+                          {ALL_COUNTRIES.map(c => <option key={c.code} value={c.code}>{c.flag} {c.name}</option>)}
+                        </select>
+                      </FormField>
+                      <FormField label="Ciudad" name={`step9.children.${index}.child_city`} error={(errors.step9?.children as any)?.[index]?.child_city?.message as string}>
+                        <input {...register(`step9.children.${index}.child_city`)} className="w-full bg-[#F5F5F0] border border-[#E5E5E5] rounded-lg px-4 py-3 text-[#0A0A0A] focus:outline-none focus:border-[#C8FF00] transition-colors" />
+                      </FormField>
+                      <div className="md:col-span-2">
+                        <FormField label="Dirección" name={`step9.children.${index}.child_street`} error={(errors.step9?.children as any)?.[index]?.child_street?.message as string}>
+                          <input {...register(`step9.children.${index}.child_street`)} className="w-full bg-[#F5F5F0] border border-[#E5E5E5] rounded-lg px-4 py-3 text-[#0A0A0A] focus:outline-none focus:border-[#C8FF00] transition-colors" />
+                        </FormField>
+                      </div>
+                    </>
+                  )}
+
+                  <div className="md:col-span-2 pt-2 border-t border-[#E5E5E5]">
+                    <FormField label="¿Viajará contigo a Canadá?" name={`step9.children.${index}.accompany`} required error={(errors.step9?.children as any)?.[index]?.accompany?.message as string}>
+                      <div className="flex gap-6 mt-2">
+                        <label className="flex items-center gap-3 cursor-pointer group">
+                          <input type="radio" value="true" {...register(`step9.children.${index}.accompany`)} className="w-5 h-5 accent-[#C8FF00] bg-[#F5F5F0] border-[#E5E5E5] focus:ring-[#C8FF00]" />
+                          <span className="text-[#525252] group-hover:text-[#0A0A0A] transition-colors">Sí</span>
+                        </label>
+                        <label className="flex items-center gap-3 cursor-pointer group">
+                          <input type="radio" value="false" {...register(`step9.children.${index}.accompany`)} className="w-5 h-5 accent-[#C8FF00] bg-[#F5F5F0] border-[#E5E5E5] focus:ring-[#C8FF00]" />
+                          <span className="text-[#525252] group-hover:text-[#0A0A0A] transition-colors">No</span>
+                        </label>
+                      </div>
+                    </FormField>
+                  </div>
                 </div>
               )}
             />

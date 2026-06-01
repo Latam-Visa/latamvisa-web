@@ -123,13 +123,17 @@ export const step5Schema = z.object({
     field: requiredString,
     country: requiredString,
     street: requiredString,
-    city: requiredString
+    city: requiredString,
+    postal_code: optionalString
   })).optional(),
   military_service: requiredBooleanEnum,
+  military_area: z.enum(['true', 'false']).optional(),
   military_details: z.array(z.any()).optional(), // Assuming similar structure, left flexible
+  funding_details: optionalString,
   work_history: z.array(z.object({
     activity: requiredString,
     job_title: optionalString,
+    sector: optionalString,
     employer: optionalString,
     duties: optionalString,
     country: requiredString,
@@ -140,6 +144,12 @@ export const step5Schema = z.object({
     ongoing: z.boolean().optional()
   })).min(1, 'Debes añadir al menos un registro')
 }).superRefine((data, ctx) => {
+  if (data.someone_else_funding === 'true' && !data.funding_details?.trim()) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Campo requerido', path: ['funding_details'] })
+  }
+  if (data.military_service === 'true' && !data.military_area?.trim()) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Debes responder', path: ['military_area'] })
+  }
   if (data.studied_postsecondary === 'true' && (!data.education_history || data.education_history.length === 0)) {
     ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Debes añadir al menos un registro educativo', path: ['education_history'] })
   }
@@ -218,7 +228,12 @@ export const step9Schema = z.object({
     first_name: requiredString,
     dob: requiredDate,
     relationship: requiredString,
-    birth_country: requiredString
+    birth_country: requiredString,
+    address_same: requiredBooleanEnum,
+    child_country: optionalString,
+    child_street: optionalString,
+    child_city: optionalString,
+    accompany: requiredBooleanEnum
   })).optional(),
   parents: z.array(z.object({
     surname: requiredString,
@@ -243,8 +258,18 @@ export const step9Schema = z.object({
     if (!data.spouse_address_same?.trim()) ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Campo requerido', path: ['spouse_address_same'] })
     if (!data.spouse_accompany?.trim()) ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Campo requerido', path: ['spouse_accompany'] })
   }
-  if (data.has_children === 'true' && (!data.children || data.children.length === 0)) {
-    ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Debes añadir al menos un hijo', path: ['children'] })
+  if (data.has_children === 'true') {
+    if (!data.children || data.children.length === 0) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Debes añadir al menos un hijo', path: ['children'] })
+    } else {
+      data.children.forEach((child, idx) => {
+        if (child.address_same === 'false') {
+          if (!child.child_country?.trim()) ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Campo requerido', path: ['children', idx, 'child_country'] })
+          if (!child.child_street?.trim()) ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Campo requerido', path: ['children', idx, 'child_street'] })
+          if (!child.child_city?.trim()) ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Campo requerido', path: ['children', idx, 'child_city'] })
+        }
+      })
+    }
   }
   data.parents.forEach((parent, idx) => {
     if (parent.address_same === 'false') {

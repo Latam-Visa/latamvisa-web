@@ -46,6 +46,14 @@ export function Step5() {
             </label>
           </div>
         </FormField>
+
+        {watch('step5.someone_else_funding') === 'true' && (
+          <div className="animate-in fade-in slide-in-from-top-2">
+            <FormField label="¿Quién le da los recursos y por qué?" name="step5.funding_details" error={errors.step5?.funding_details?.message as string}>
+              <textarea rows={3} {...register('step5.funding_details')} className="w-full bg-white border border-[#E5E5E5] rounded-lg px-4 py-3 text-[#0A0A0A] focus:outline-none focus:border-[#C8FF00] focus:ring-2 focus:ring-[#C8FF00] transition-colors resize-none" />
+            </FormField>
+          </div>
+        )}
       </div>
 
       <div className="bg-[#F5F5F0] p-6 rounded-xl border border-[#E5E5E5] space-y-6">
@@ -95,6 +103,9 @@ export function Step5() {
                   <FormField label="Dirección" name={`step5.education_history.${index}.street`} required error={(errors.step5?.education_history as any)?.[index]?.street?.message as string}>
                     <input {...register(`step5.education_history.${index}.street`)} className="w-full bg-[#F5F5F0] border border-[#E5E5E5] rounded-lg px-4 py-3 text-[#0A0A0A] focus:outline-none focus:border-[#C8FF00] transition-colors" />
                   </FormField>
+                  <FormField label="Código postal" name={`step5.education_history.${index}.postal_code`} error={(errors.step5?.education_history as any)?.[index]?.postal_code?.message as string}>
+                    <input {...register(`step5.education_history.${index}.postal_code`)} className="w-full bg-[#F5F5F0] border border-[#E5E5E5] rounded-lg px-4 py-3 text-[#0A0A0A] focus:outline-none focus:border-[#C8FF00] transition-colors" />
+                  </FormField>
                   <FormField label="Desde" name={`step5.education_history.${index}.from`} required error={(errors.step5?.education_history as any)?.[index]?.from?.message as string}>
                     <input type="date" {...register(`step5.education_history.${index}.from`)} className="w-full bg-[#F5F5F0] border border-[#E5E5E5] rounded-lg px-4 py-3 text-[#0A0A0A] focus:outline-none focus:border-[#C8FF00] transition-colors [color-scheme:light]" />
                   </FormField>
@@ -137,6 +148,9 @@ export function Step5() {
                   <>
                     <FormField label="Cargo / Profesión" name={`step5.work_history.${index}.job_title`} required error={(errors.step5?.work_history as any)?.[index]?.job_title?.message as string}>
                       <input {...register(`step5.work_history.${index}.job_title`)} className="w-full bg-[#F5F5F0] border border-[#E5E5E5] rounded-lg px-4 py-3 text-[#0A0A0A] focus:outline-none focus:border-[#C8FF00] transition-colors" />
+                    </FormField>
+                    <FormField label="Sector de trabajo" name={`step5.work_history.${index}.sector`} error={(errors.step5?.work_history as any)?.[index]?.sector?.message as string}>
+                      <input placeholder="ej: salud, tecnología, educación" {...register(`step5.work_history.${index}.sector`)} className="w-full bg-[#F5F5F0] border border-[#E5E5E5] rounded-lg px-4 py-3 text-[#0A0A0A] focus:outline-none focus:border-[#C8FF00] transition-colors" />
                     </FormField>
                     <FormField label="Empleador / Empresa" name={`step5.work_history.${index}.employer`} required error={(errors.step5?.work_history as any)?.[index]?.employer?.message as string}>
                       <input {...register(`step5.work_history.${index}.employer`)} className="w-full bg-[#F5F5F0] border border-[#E5E5E5] rounded-lg px-4 py-3 text-[#0A0A0A] focus:outline-none focus:border-[#C8FF00] transition-colors" />
@@ -203,7 +217,20 @@ export function Step5() {
         </FormField>
 
         {militaryService === 'true' && (
-          <div className="animate-in fade-in slide-in-from-top-2">
+          <div className="animate-in fade-in slide-in-from-top-2 space-y-6 mt-6">
+            <FormField label="¿Ha trabajado específicamente en área militar (fuerzas armadas, defensa)?" name="step5.military_area" required error={errors.step5?.military_area?.message as string}>
+              <div className="flex gap-6 mt-2">
+                <label className="flex items-center gap-3 cursor-pointer group">
+                  <input type="radio" value="true" {...register('step5.military_area')} className="w-5 h-5 accent-[#C8FF00] bg-white border-[#E5E5E5] focus:ring-[#C8FF00]" />
+                  <span className="text-[#525252] group-hover:text-[#0A0A0A] transition-colors">Sí</span>
+                </label>
+                <label className="flex items-center gap-3 cursor-pointer group">
+                  <input type="radio" value="false" {...register('step5.military_area')} className="w-5 h-5 accent-[#C8FF00] bg-white border-[#E5E5E5] focus:ring-[#C8FF00]" />
+                  <span className="text-[#525252] group-hover:text-[#0A0A0A] transition-colors">No</span>
+                </label>
+              </div>
+            </FormField>
+
             <RepeatableTable
               name="step5.military_details"
               title="Detalles de Servicio Militar"
