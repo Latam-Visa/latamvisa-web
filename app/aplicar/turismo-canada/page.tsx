@@ -6,6 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useRouter } from 'next/navigation'
 import * as z from 'zod'
 import { Loader2, AlertCircle } from 'lucide-react'
+import { createClient } from '@/lib/supabase/client'
 
 // Reusing USA components for progress and navigation
 import { ProgressBar } from '../turismo-usa/_components/ProgressBar'
@@ -71,6 +72,7 @@ export default function TurismoCanadaApplication() {
   const [passportStatus, setPassportStatus] = useState<'idle'|'uploading'|'success'|'error'>('idle')
   const [passportError, setPassportError] = useState('')
   const [passportWasScanned, setPassportWasScanned] = useState(false)
+  const [passportFileUrl, setPassportFileUrl] = useState<string|null>(null)
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' })
@@ -256,6 +258,17 @@ export default function TurismoCanadaApplication() {
       if (result.success) {
         setPassportData(result)
         setPassportStatus('success')
+        
+        const supabase = createClient()
+        const fileExt = file.name.split('.').pop()
+        const fileName = `canada/passport_scan_${Date.now()}.${fileExt}`
+        const { data: uploadData } = await supabase.storage
+          .from('visa-applications')
+          .upload(fileName, file, { upsert: true })
+        if (uploadData) {
+          setValue('step0_passport_url' as any, uploadData.path)
+          setPassportFileUrl(uploadData.path)
+        }
       } else {
         setPassportStatus('error')
         setPassportError(result.error || 'No pudimos leer el pasaporte. Podés continuar manualmente.')

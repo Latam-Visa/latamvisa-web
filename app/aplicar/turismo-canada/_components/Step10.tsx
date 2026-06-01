@@ -105,15 +105,6 @@ export function Step10() {
           <p className="text-sm text-[#525252]">Por favor carga los documentos requeridos en formato PDF, Word, o imagen.</p>
         </div>
 
-        <DocumentUploader
-          name="step10.doc_id_passport"
-          label="Pasaporte (hoja de datos biográficos)"
-          required
-          multiple
-          specsList={[
-            'Sube una foto/escaneo CLARO A COLOR de la página principal de tu pasaporte (donde está tu foto, nombre, fecha de nacimiento y número). Asegúrate de que no haya reflejos ni partes cortadas.'
-          ]}
-        />
 
         <DocumentUploader
           name="step10.doc_id_passport"
@@ -156,7 +147,7 @@ export function Step10() {
           label="Itinerario de viaje y Carta de Intención"
           multiple
           specsList={[
-            'Como parte del servicio de $290, nosotros generamos tu carta de intención profesional con IA basada en los datos que ya nos diste. No tienes que escribir nada.',
+            'Como parte del servicio de $290, nuestro equipo profesional prepara tu carta de intención personalizada basada en los datos que nos diste. No tienes que escribir nada.',
             'Si prefieres subir tu propio itinerario en Word o PDF, puedes hacerlo acá (opcional).'
           ]}
         />
