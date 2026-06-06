@@ -68,7 +68,6 @@ export default function TurismoUkApplication() {
   const [isValidating, setIsValidating] = useState(false)
   const [showErrorToast, setShowErrorToast] = useState(false)
   const [showSuccess, setShowSuccess] = useState(false)
-  const [showServiceInfo, setShowServiceInfo] = useState(true)
 
   const methods = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -142,7 +141,6 @@ export default function TurismoUkApplication() {
     setIsValidating(false)
 
     if (isStepValid) {
-      if (currentStep === 1) setShowServiceInfo(false)
       if (currentStep < TOTAL_STEPS) {
         setCurrentStep(s => s + 1)
         window.scrollTo({ top: 0, behavior: 'smooth' })
@@ -496,43 +494,7 @@ export default function TurismoUkApplication() {
           <img src="/logo.png" alt="LATAM VISA Logo" className="h-16 sm:h-20 object-contain" />
         </div>
 
-        {currentStep === 0 && showServiceInfo && (
-          <div className="bg-white rounded-xl border border-[#C8FF00] p-4 mb-3 relative shadow-sm max-w-3xl mx-auto">
-            <button 
-              type="button"
-              onClick={() => setShowServiceInfo(false)} 
-              className="absolute top-4 right-4 text-[#A3A3A3] hover:text-[#0A0A0A] transition-colors"
-              aria-label="Cerrar información"
-            >
-              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-            <h3 className="text-lg font-bold text-[#2F4A00] mb-4">¿Qué incluye tu servicio de $290 USD?</h3>
-            <ul className="space-y-3 text-[#0A0A0A] text-xs font-medium">
-              <li className="flex items-start gap-2">
-                <span className="text-sm leading-tight shrink-0">✅</span>
-                <span>Aplicación profesional ante el Gobierno del Reino Unido</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="text-sm leading-tight shrink-0">✅</span>
-                <span>Revisión de documentación</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="text-sm leading-tight shrink-0">✅</span>
-                <span>Carta de intención profesional redactada a tu medida</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="text-sm leading-tight shrink-0">✅</span>
-                <span>Organización de tu cita biométrica</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="text-sm leading-tight shrink-0">✅</span>
-                <span>Soporte personalizado durante todo el proceso</span>
-              </li>
-            </ul>
-          </div>
-        )}
+
 
         {currentStep === 0 && (
           <div className="flex items-start gap-2 bg-[#F5F5F0] border border-[#E5E5E5] rounded-xl p-4 mb-3 text-xs text-[#525252] max-w-3xl mx-auto">
