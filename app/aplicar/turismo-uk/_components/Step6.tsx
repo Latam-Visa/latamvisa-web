@@ -1,7 +1,7 @@
 import { useFormContext, useWatch } from 'react-hook-form'
 import { FormField } from '../../turismo-usa/_components/FormField'
 import { RepeatableTable } from './RepeatableTable'
-import COUNTRIES from '@/lib/constants/countries.json'
+import { ALL_COUNTRIES as COUNTRIES } from '@/lib/constants/countries'
 
 export function Step6() {
   const { register, formState } = useFormContext()

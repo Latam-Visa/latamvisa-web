@@ -1,6 +1,6 @@
 import { useFormContext } from 'react-hook-form'
 import { FormField } from '../../turismo-usa/_components/FormField'
-import COUNTRIES from '@/lib/constants/countries.json'
+import { ALL_COUNTRIES as COUNTRIES } from '@/lib/constants/countries'
 
 export function Step4() {
   const { register, formState } = useFormContext()
