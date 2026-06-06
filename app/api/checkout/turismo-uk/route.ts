@@ -19,9 +19,11 @@ export async function POST(request: NextRequest) {
     const body = await request.json().catch(() => ({}));
     const conTraduccion = body?.conTraduccion === true;
 
-    const priceId = conTraduccion
-      ? 'price_1TQdGKJ9ezpBcyYb9TVMWZ8i'
-      : 'price_1TQdFyJ9ezpBcyYb8LOFImAq';
+    const priceId = process.env.STRIPE_PRICE_ID_TURISMO_UK;
+    
+    if (!priceId) {
+      return NextResponse.json({ error: 'Price ID not configured' }, { status: 500 });
+    }
 
     const stripe = new Stripe(secretKey);
 

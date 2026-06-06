@@ -2,6 +2,7 @@ import { supabaseAdmin } from '@/lib/supabase/admin'
 import { notFound } from 'next/navigation'
 import { AdminDetailsClient } from './_components/AdminDetailsClient'
 import { CanadaDetailsClient } from './_components/CanadaDetailsClient'
+import { UKDetailsClient } from './_components/UKDetailsClient'
 import Link from 'next/link'
 import { ArrowLeft } from 'lucide-react'
 
@@ -51,7 +52,18 @@ export default async function ApplicationDetailsPage({ params }: { params: { id:
       app = canApp
       destination = 'canada'
     } else {
-      notFound()
+      const { data: ukApp } = await supabaseAdmin
+        .from('visa_applications_uk')
+        .select('*')
+        .eq('id', params.id)
+        .single()
+
+      if (ukApp) {
+        app = ukApp
+        destination = 'uk'
+      } else {
+        notFound()
+      }
     }
   }
 
@@ -66,7 +78,7 @@ export default async function ApplicationDetailsPage({ params }: { params: { id:
       getSignedPhotoUrl(bucket, app.previous_visa_photo_url),
     ])
     signedPhotoUrls = { passport, visaPhoto, previousVisa }
-  } else {
+  } else if (destination === 'canada') {
     const d = app
     const [docIdPassport, docTies, docBankStatements, docTravelItinerary, docFormsLetters, docUsVisa] = await Promise.all([
       getSignedPhotoUrl(bucket, d.doc_id_passport),
@@ -77,6 +89,30 @@ export default async function ApplicationDetailsPage({ params }: { params: { id:
       getSignedPhotoUrl(bucket, d.doc_us_visa),
     ])
     signedPhotoUrls = { docIdPassport, docTies, docBankStatements, docTravelItinerary, docFormsLetters, docUsVisa }
+  } else if (destination === 'uk') {
+    const d = app
+    const [passport, photo, bankStatements, employmentProof, tiesProof, otherVisa, itinerary] = await Promise.all([
+      getSignedPhotoUrl(bucket, d.passport_file_url),
+      getSignedPhotoUrl(bucket, d.photo_file_url),
+      getSignedPhotoUrl(bucket, d.bank_statements_url),
+      getSignedPhotoUrl(bucket, d.employment_proof_url),
+      getSignedPhotoUrl(bucket, d.ties_proof_url),
+      getSignedPhotoUrl(bucket, d.other_visa_url),
+      getSignedPhotoUrl(bucket, d.itinerary_url),
+    ])
+    // Also handle dynamic documents array
+    let extraDocs: any[] = []
+    if (d.documents && Array.isArray(d.documents)) {
+      const docPromises = d.documents.map(async (doc: any) => {
+        const url = await getSignedPhotoUrl(bucket, doc.url)
+        return { ...doc, signedUrl: url }
+      })
+      extraDocs = await Promise.all(docPromises)
+    }
+
+    signedPhotoUrls = { 
+      passport, photo, bankStatements, employmentProof, tiesProof, otherVisa, itinerary, extraDocs 
+    }
   }
 
   return (
@@ -90,7 +126,7 @@ export default async function ApplicationDetailsPage({ params }: { params: { id:
         </Link>
         <div>
           <h2 className="text-2xl font-bold font-[PPMonumentExtended]">
-            Detalles de Solicitud <span className="text-sm bg-black text-[#C8FF00] px-2 py-1 rounded-md ml-2 align-middle">{destination === 'usa' ? 'USA' : 'CANADÁ'}</span>
+            Detalles de Solicitud <span className="text-sm bg-black text-[#C8FF00] px-2 py-1 rounded-md ml-2 align-middle">{destination === 'usa' ? 'USA' : destination === 'canada' ? 'CANADÁ' : 'UK'}</span>
           </h2>
           <p className="text-[#525252] text-sm">ID: {app.id}</p>
         </div>
@@ -98,8 +134,10 @@ export default async function ApplicationDetailsPage({ params }: { params: { id:
 
       {destination === 'usa' ? (
         <AdminDetailsClient application={app} signedPhotoUrls={signedPhotoUrls} />
-      ) : (
+      ) : destination === 'canada' ? (
         <CanadaDetailsClient application={app} signedPhotoUrls={signedPhotoUrls} />
+      ) : (
+        <UKDetailsClient application={app} signedPhotoUrls={signedPhotoUrls} />
       )}
     </div>
   )
