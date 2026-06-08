@@ -107,31 +107,46 @@ export async function POST(req: Request) {
             await resend.emails.send({
               from: 'LATAM VISA <noreply@latamvisatravel.com>',
               to: email,
-              subject: '¡Pago confirmado! Continúa tu solicitud de visa UK 🇬🇧',
+              subject: '¡Bienvenido a LATAM VISA! 🌎 Tu solicitud de visa UK empieza aquí',
               html: `
-                <div style="background-color: #050505; color: #FAFAF7; font-family: sans-serif; padding: 40px 20px; line-height: 1.6;">
-                  <div style="max-width: 600px; margin: 0 auto; background-color: #111111; border-radius: 16px; padding: 40px; border: 1px solid #333;">
-                    <h1 style="color: #FAFAF7; font-size: 24px; margin-bottom: 24px; font-weight: normal;">¡Hola ${firstName}!</h1>
+                <div style="background-color: #FAFAF7; color: #0A0A0A; font-family: sans-serif; padding: 40px 20px; line-height: 1.6;">
+                  <div style="max-width: 600px; margin: 0 auto; background-color: #FFFFFF; border-radius: 16px; padding: 40px; border: 1px solid #E5E5E5;">
+                    <h1 style="color: #2F4A00; font-size: 24px; margin-bottom: 24px; font-weight: normal;">Hola ${fullName},</h1>
                     
-                    <p style="color: #A3A3A3; font-size: 16px; margin-bottom: 24px;">
-                      Hemos recibido tu pago correctamente. Gracias por confiar en LATAM VISA para tu trámite de visa para el <strong>Reino Unido 🇬🇧</strong>.
+                    <p style="color: #0A0A0A; font-size: 16px; margin-bottom: 24px;">
+                      Gracias por confiar en LATAM VISA. Acabas de dar un paso que muchos posponen durante años por miedo a ese "seguro me la niegan" — y ese solo gesto ya te pone por delante.
                     </p>
   
-                    <p style="color: #A3A3A3; font-size: 16px; margin-bottom: 32px;">
-                      El siguiente paso es completar nuestro formulario experto. Es muy importante que lo llenes con calma y la información más precisa posible.
+                    <p style="color: #0A0A0A; font-size: 16px; margin-bottom: 24px;">
+                      Queremos que sepas algo desde el primer día: para nosotros esto no es llenar un formulario ni tramitar un papel. Una visa es apenas el puente. Lo que de verdad construimos juntos es el momento que está del otro lado: el abrazo en el aeropuerto, la cena con los que extrañas, la foto frente a ese lugar con el que soñaste, el reencuentro que llevas tiempo aplazando.
+                    </p>
+  
+                    <p style="color: #0A0A0A; font-size: 16px; margin-bottom: 24px;">
+                      Creemos que estar lejos de tu país no te resta: te da poder. Tu historia, tu camino y tu plan valen — y nuestro trabajo es ayudarte a contarlos con claridad y confianza. Tú pones el sueño; nosotros ponemos la estrategia y el acompañamiento para que llegues bien preparado.
+                    </p>
+  
+                    <p style="color: #0A0A0A; font-size: 16px; margin-bottom: 32px;">
+                      El siguiente paso es sencillo: completa tu formulario de solicitud para que nuestro equipo comience a preparar tu expediente.
                     </p>
   
                     <div style="text-align: center; margin-bottom: 40px;">
                       <a href="${NEXT_PUBLIC_SITE_URL}/aplicar/turismo-uk" style="display: inline-block; background-color: #C8FF00; color: #000000; text-decoration: none; font-weight: bold; padding: 16px 32px; border-radius: 50px; font-size: 16px; text-transform: uppercase; letter-spacing: 1px;">
-                        Completar mi formulario →
+                        Completar mi solicitud →
                       </a>
                     </div>
   
-                    <p style="color: #A3A3A3; font-size: 16px; margin-bottom: 16px;">
-                      ¡Un abrazo!
+                    <p style="color: #0A0A0A; font-size: 16px; margin-bottom: 32px;">
+                      ¿Tienes dudas? Escríbenos cuando quieras. Estamos contigo en todo el proceso.
                     </p>
-                    <p style="color: #FAFAF7; font-size: 16px; font-weight: bold; margin-top: 0;">
-                      Equipo LATAM VISA
+  
+                    <p style="color: #0A0A0A; font-size: 16px; margin-bottom: 4px;">
+                      Con cariño,
+                    </p>
+                    <p style="color: #2F4A00; font-size: 16px; font-weight: bold; margin-top: 0; margin-bottom: 4px;">
+                      El equipo de LATAM VISA
+                    </p>
+                    <p style="color: #0A0A0A; font-size: 14px; margin-top: 0;">
+                      Conectamos culturas. Reunimos familias.
                     </p>
                   </div>
                 </div>
