@@ -47,27 +47,26 @@ export async function POST(req: Request) {
     if (event.type === 'checkout.session.completed') {
       const session = event.data.object as Stripe.Checkout.Session
 
-      // Check if it's a UK payment by Product ID
+      // Check product ID for USA, Canada, UK
       const lineItems = await stripe.checkout.sessions.listLineItems(session.id);
-      const isUKProduct = lineItems.data.some(item => {
+      let destinationId = '';
+      
+      const matchedItem = lineItems.data.find(item => {
         const productId = typeof item.price?.product === 'string' ? item.price.product : item.price?.product?.id;
-        return productId === 'prod_UPSArEprnY5NMG';
+        if (productId === 'prod_UNzInIKcEPubsv') { destinationId = 'usa'; return true; }
+        if (productId === 'prod_UPS4wTFA8YcTQB') { destinationId = 'canada'; return true; }
+        if (productId === 'prod_UPSArEprnY5NMG') { destinationId = 'uk'; return true; }
+        return false;
       });
 
-      if (isUKProduct) {
-        const ukItem = lineItems.data.find(item => {
-          const productId = typeof item.price?.product === 'string' ? item.price.product : item.price?.product?.id;
-          return productId === 'prod_UPSArEprnY5NMG';
-        });
-
+      if (matchedItem) {
         const email = session.customer_details?.email;
         const fullName = session.customer_details?.name || 'Viajero';
-        const firstName = fullName.split(' ')[0];
         const amountTotal = session.amount_total || 0;
         const currency = session.currency?.toUpperCase() || 'USD';
         
         let chosenOption = 'Sin traducción';
-        const itemDesc = ukItem?.description?.toLowerCase() || '';
+        const itemDesc = matchedItem.description?.toLowerCase() || '';
         if (itemDesc.includes('traducción') || itemDesc.includes('traduccion')) {
           chosenOption = 'Con traducción';
         } else if (amountTotal === 29000 || amountTotal === 290) {
@@ -77,29 +76,52 @@ export async function POST(req: Request) {
         const ADMIN_EMAIL = process.env.RESEND_ADMIN_EMAIL || 'future@latamvisas.com.au';
         const NEXT_PUBLIC_SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://latamvisatravel.com';
 
+        let adminDestName = '';
+        let clientSubject = '';
+        let formLink = '';
+        
+        if (destinationId === 'usa') {
+          adminDestName = 'USA';
+          clientSubject = '¡Bienvenido a LATAM VISA! 🌎 Tu solicitud de visa USA empieza aquí';
+          formLink = `${NEXT_PUBLIC_SITE_URL}/aplicar/turismo-usa`;
+        } else if (destinationId === 'canada') {
+          adminDestName = 'Canadá';
+          clientSubject = '¡Bienvenido a LATAM VISA! 🌎 Tu solicitud de visa Canadá empieza aquí';
+          formLink = `${NEXT_PUBLIC_SITE_URL}/aplicar/turismo-canada`;
+        } else if (destinationId === 'uk') {
+          adminDestName = 'UK';
+          clientSubject = '¡Bienvenido a LATAM VISA! 🌎 Tu solicitud de visa UK empieza aquí';
+          formLink = `${NEXT_PUBLIC_SITE_URL}/aplicar/turismo-uk`;
+        }
+
+        let adminOptionText = '';
+        if (destinationId === 'canada' || destinationId === 'uk') {
+          adminOptionText = `<p><strong>Opción elegida:</strong> ${chosenOption}</p>`;
+        }
+
         if (email) {
           try {
             // Email A - to the ADMIN
             await resend.emails.send({
               from: 'LATAM VISA <noreply@latamvisatravel.com>',
               to: ADMIN_EMAIL,
-              subject: `💷 Pago UK recibido — ${fullName}`,
+              subject: `Pago ${adminDestName} recibido — ${fullName}`,
               html: `
                 <div style="font-family: sans-serif; background-color: #0A0A0A; color: #FAFAF7; padding: 40px 20px;">
                   <div style="max-width: 600px; margin: 0 auto; background-color: #1A1A1A; border-radius: 12px; padding: 30px; border: 1px solid #333;">
-                    <h2 style="color: #C8FF00; margin-top: 0;">Nuevo Pago Recibido (UK)</h2>
+                    <h2 style="color: #C8FF00; margin-top: 0;">Nuevo Pago Recibido (${adminDestName})</h2>
                     <p><strong>Cliente:</strong> ${fullName}</p>
                     <p><strong>Email:</strong> ${email}</p>
                     <p><strong>Monto:</strong> ${(amountTotal / 100).toFixed(2)} ${currency}</p>
-                    <p><strong>Opción elegida:</strong> ${chosenOption}</p>
+                    ${adminOptionText}
                     <p><strong>Fecha:</strong> ${new Date().toLocaleString('es-ES')}</p>
                   </div>
                 </div>
               `
             });
-            console.log(`Admin email sent for UK payment: ${email}`);
+            console.log(`Admin email sent for ${adminDestName} payment: ${email}`);
           } catch (e) {
-            console.error('Error sending UK admin email:', e);
+            console.error(`Error sending ${adminDestName} admin email:`, e);
           }
 
           try {
@@ -107,7 +129,7 @@ export async function POST(req: Request) {
             await resend.emails.send({
               from: 'LATAM VISA <noreply@latamvisatravel.com>',
               to: email,
-              subject: '¡Bienvenido a LATAM VISA! 🌎 Tu solicitud de visa UK empieza aquí',
+              subject: clientSubject,
               html: `
                 <div style="background-color: #FAFAF7; color: #0A0A0A; font-family: sans-serif; padding: 40px 20px; line-height: 1.6;">
                   <div style="max-width: 600px; margin: 0 auto; background-color: #FFFFFF; border-radius: 16px; padding: 40px; border: 1px solid #E5E5E5;">
@@ -130,7 +152,7 @@ export async function POST(req: Request) {
                     </p>
   
                     <div style="text-align: center; margin-bottom: 40px;">
-                      <a href="${NEXT_PUBLIC_SITE_URL}/aplicar/turismo-uk" style="display: inline-block; background-color: #C8FF00; color: #000000; text-decoration: none; font-weight: bold; padding: 16px 32px; border-radius: 50px; font-size: 16px; text-transform: uppercase; letter-spacing: 1px;">
+                      <a href="${formLink}" style="display: inline-block; background-color: #C8FF00; color: #000000; text-decoration: none; font-weight: bold; padding: 16px 32px; border-radius: 50px; font-size: 16px; text-transform: uppercase; letter-spacing: 1px;">
                         Completar mi solicitud →
                       </a>
                     </div>
@@ -152,9 +174,9 @@ export async function POST(req: Request) {
                 </div>
               `
             });
-            console.log(`Client email sent for UK payment: ${email}`);
+            console.log(`Client email sent for ${adminDestName} payment: ${email}`);
           } catch (e) {
-            console.error('Error sending UK client email:', e);
+            console.error(`Error sending ${adminDestName} client email:`, e);
           }
         }
         
@@ -218,7 +240,6 @@ export async function POST(req: Request) {
         } catch (emailError) {
           console.error('Error sending confirmation email:', emailError)
         }
-
         // TODO: Insert a row into a Supabase table "payments" with:
         // email, nombre, destino, stripe_session_id, amount, created_at.
         // Skipping implementation to avoid schema mismatch/errors.
