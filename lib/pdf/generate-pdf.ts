@@ -5,7 +5,7 @@ import React from 'react'
 export async function generateApplicationPdf(
   data: any,
   photoUrls: Record<string, string> = {},
-  destination: 'usa' | 'canada' | 'uk' = 'usa'
+  destination: 'usa' | 'canada' | 'uk' | 'schengen' = 'usa'
 ): Promise<Buffer> {
   let title = 'Solicitud de Visa'
   let subtitle = ''
@@ -158,6 +158,61 @@ export async function generateApplicationPdf(
           { label: 'Empleador', value: data?.employer_name },
           { label: 'Cargo', value: data?.job_title },
           { label: 'Ingreso', value: `${data?.monthly_income} ${data?.monthly_income_currency}` },
+        ]
+      }
+    ]
+
+    photos = [
+      { label: 'Pasaporte', dataUri: photoUrls.passport, hasPhotoField: !!data?.passport_file_url },
+      { label: 'Foto', dataUri: photoUrls.photo, hasPhotoField: !!data?.photo_file_url },
+    ]
+  } else if (destination === 'schengen') {
+    title = 'Solicitud de Visa Schengen'
+    subtitle = `Aplicante: ${data?.first_names || ''} ${data?.surname || ''} | Email: ${data?.home_email || ''}`
+    
+    sections = [
+      {
+        title: '1. Identidad',
+        rows: [
+          { label: 'Apellidos', value: data?.surname },
+          { label: 'Nombres', value: data?.first_names },
+          { label: 'Fecha de nacimiento', value: data?.date_of_birth },
+          { label: 'Lugar de nacimiento', value: data?.place_of_birth },
+          { label: 'País de nacimiento', value: data?.country_of_birth },
+          { label: 'Nacionalidad actual', value: data?.current_nationality },
+          { label: 'Sexo', value: data?.sex },
+          { label: 'Estado civil', value: data?.civil_status },
+        ]
+      },
+      {
+        title: '2. Documento de Viaje',
+        rows: [
+          { label: 'Tipo', value: data?.travel_document_type },
+          { label: 'Número', value: data?.passport_number },
+          { label: 'Emisión', value: data?.passport_issue_date },
+          { label: 'Expiración', value: data?.passport_expiry_date },
+          { label: 'País Emisor', value: data?.passport_issuing_country },
+        ]
+      },
+      {
+        title: '3. Contacto y Residencia',
+        rows: [
+          { label: 'Dirección', value: data?.home_address },
+          { label: 'Email', value: data?.home_email },
+          { label: 'Teléfono', value: data?.home_phone },
+          { label: 'Ocupación', value: data?.current_occupation },
+        ]
+      },
+      {
+        title: '4. Viaje',
+        rows: [
+          { label: 'Propósito', value: data?.purpose_of_journey },
+          { label: 'Destino', value: data?.member_state_destination },
+          { label: 'Primera Entrada', value: data?.member_state_first_entry },
+          { label: 'Entradas', value: data?.number_of_entries },
+          { label: 'Duración (días)', value: data?.duration_of_stay_days },
+          { label: 'Llegada', value: data?.intended_arrival_date },
+          { label: 'Salida', value: data?.intended_departure_date },
         ]
       }
     ]

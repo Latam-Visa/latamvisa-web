@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation'
 import { AdminDetailsClient } from './_components/AdminDetailsClient'
 import { CanadaDetailsClient } from './_components/CanadaDetailsClient'
 import { UKDetailsClient } from './_components/UKDetailsClient'
+import { SchengenDetailsClient } from './_components/SchengenDetailsClient'
 import Link from 'next/link'
 import { ArrowLeft } from 'lucide-react'
 
@@ -62,7 +63,18 @@ export default async function ApplicationDetailsPage({ params }: { params: { id:
         app = ukApp
         destination = 'uk'
       } else {
-        notFound()
+        const { data: schengenApp } = await supabaseAdmin
+          .from('visa_applications_schengen')
+          .select('*')
+          .eq('id', params.id)
+          .single()
+
+        if (schengenApp) {
+          app = schengenApp
+          destination = 'schengen'
+        } else {
+          notFound()
+        }
       }
     }
   }
@@ -113,6 +125,31 @@ export default async function ApplicationDetailsPage({ params }: { params: { id:
     signedPhotoUrls = { 
       passport, photo, bankStatements, employmentProof, tiesProof, otherVisa, itinerary, extraDocs 
     }
+  } else if (destination === 'schengen') {
+    const d = app
+    const [passport, photo, travelInsurance, bankStatements, accommodation, flightItinerary, employmentProof, tiesProof] = await Promise.all([
+      getSignedPhotoUrl(bucket, d.passport_file_url),
+      getSignedPhotoUrl(bucket, d.photo_file_url),
+      getSignedPhotoUrl(bucket, d.travel_insurance_url),
+      getSignedPhotoUrl(bucket, d.bank_statements_url),
+      getSignedPhotoUrl(bucket, d.accommodation_url),
+      getSignedPhotoUrl(bucket, d.flight_itinerary_url),
+      getSignedPhotoUrl(bucket, d.employment_proof_url),
+      getSignedPhotoUrl(bucket, d.ties_proof_url),
+    ])
+    
+    let extraDocs: any[] = []
+    if (d.documents && Array.isArray(d.documents)) {
+      const docPromises = d.documents.map(async (doc: any) => {
+        const url = await getSignedPhotoUrl(bucket, doc.url)
+        return { ...doc, signedUrl: url }
+      })
+      extraDocs = await Promise.all(docPromises)
+    }
+
+    signedPhotoUrls = {
+      passport, photo, travelInsurance, bankStatements, accommodation, flightItinerary, employmentProof, tiesProof, extraDocs
+    }
   }
 
   return (
@@ -126,7 +163,7 @@ export default async function ApplicationDetailsPage({ params }: { params: { id:
         </Link>
         <div>
           <h2 className="text-2xl font-bold font-[PPMonumentExtended]">
-            Detalles de Solicitud <span className="text-sm bg-black text-[#C8FF00] px-2 py-1 rounded-md ml-2 align-middle">{destination === 'usa' ? 'USA' : destination === 'canada' ? 'CANADÁ' : 'UK'}</span>
+            Detalles de Solicitud <span className="text-sm bg-black text-[#C8FF00] px-2 py-1 rounded-md ml-2 align-middle">{destination === 'usa' ? 'USA' : destination === 'canada' ? 'CANADÁ' : destination === 'uk' ? 'UK' : 'SCHENGEN'}</span>
           </h2>
           <p className="text-[#525252] text-sm">ID: {app.id}</p>
         </div>
@@ -136,8 +173,10 @@ export default async function ApplicationDetailsPage({ params }: { params: { id:
         <AdminDetailsClient application={app} signedPhotoUrls={signedPhotoUrls} />
       ) : destination === 'canada' ? (
         <CanadaDetailsClient application={app} signedPhotoUrls={signedPhotoUrls} />
-      ) : (
+      ) : destination === 'uk' ? (
         <UKDetailsClient application={app} signedPhotoUrls={signedPhotoUrls} />
+      ) : (
+        <SchengenDetailsClient application={app} signedPhotoUrls={signedPhotoUrls} />
       )}
     </div>
   )

@@ -27,7 +27,7 @@ async function fetchPhotoAsDataUri(url: string | undefined): Promise<string | un
 
 export async function generateApplicationPdfAction(
   applicationId: string,
-  destination: 'usa' | 'canada' | 'uk' = 'usa'
+  destination: 'usa' | 'canada' | 'uk' | 'schengen' = 'usa'
 ): Promise<{
   success: boolean
   url?: string
@@ -39,7 +39,7 @@ export async function generateApplicationPdfAction(
 
     console.log('[PDF_GEN] Starting for application:', applicationId, 'destination:', destination)
 
-    const table = destination === 'usa' ? 'visa_applications_usa' : destination === 'canada' ? 'visa_applications_canada' : 'visa_applications_uk'
+    const table = destination === 'usa' ? 'visa_applications_usa' : destination === 'canada' ? 'visa_applications_canada' : destination === 'uk' ? 'visa_applications_uk' : 'visa_applications_schengen'
 
     const { data: application, error } = await supabaseAdmin
       .from(table)
@@ -69,6 +69,12 @@ export async function generateApplicationPdfAction(
         docTies: application.doc_ties
       }
     } else if (destination === 'uk') {
+      hasPhotos = !!application.passport_file_url || !!application.photo_file_url
+      photoPaths = {
+        passport: application.passport_file_url,
+        photo: application.photo_file_url
+      }
+    } else if (destination === 'schengen') {
       hasPhotos = !!application.passport_file_url || !!application.photo_file_url
       photoPaths = {
         passport: application.passport_file_url,
