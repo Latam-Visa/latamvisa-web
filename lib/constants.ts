@@ -31,3 +31,8 @@ export const LATAM_COUNTRIES = [
 ]
 
 export const LATAM_COUNTRY_NAMES = LATAM_COUNTRIES.map(c => c.name)
+
+export const AI_MODELS = {
+  generation: 'claude-sonnet-4-6',
+  extraction: 'claude-haiku-4-5',
+}

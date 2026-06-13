@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getServiceSupabase, supabase as anonSupabase } from '@/lib/supabase';
 import Anthropic from '@anthropic-ai/sdk';
+import { AI_MODELS } from '@/lib/constants';
 
 const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY || '',
@@ -85,7 +86,7 @@ The "summary_insight" field should be one powerful sentence that captures the mo
 
     // 3. Llamar a Claude
     const response = await anthropic.messages.create({
-      model: "claude-3-5-sonnet-20241022",
+      model: AI_MODELS.generation,
       max_tokens: 2500,
       temperature: 0.2, // Baja temperatura para JSON predecible
       system: systemPrompt,

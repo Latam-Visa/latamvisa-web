@@ -2,6 +2,7 @@
 
 import { supabaseAdmin } from '@/lib/supabase/admin'
 import Anthropic from '@anthropic-ai/sdk'
+import { AI_MODELS } from '@/lib/constants'
 
 export async function generateAiLetter(applicationId: string) {
   try {
@@ -47,7 +48,7 @@ Debe incluir:
 La carta debe estar completamente en inglés. Devuelve SOLO el cuerpo y el texto de la carta (sin introducciones tuyas tipo "Aquí tienes la carta", ni explicaciones).`
 
     const msg = await anthropic.messages.create({
-      model: "claude-3-5-sonnet-20241022",
+      model: AI_MODELS.generation,
       max_tokens: 2000,
       temperature: 0.7,
       messages: [

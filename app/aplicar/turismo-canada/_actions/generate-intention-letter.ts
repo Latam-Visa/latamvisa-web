@@ -2,6 +2,7 @@
 
 import { supabaseAdmin } from '@/lib/supabase/admin'
 import Anthropic from '@anthropic-ai/sdk'
+import { AI_MODELS } from '@/lib/constants'
 
 export async function generateIntentionLetterBg(applicationId: string) {
   try {
@@ -81,7 +82,7 @@ Applicant data:
 - Education: ${educationSummary}`
 
     const msg = await anthropic.messages.create({
-      model: "claude-3-5-sonnet-20241022",
+      model: AI_MODELS.generation,
       max_tokens: 2000,
       temperature: 0.7,
       messages: [
