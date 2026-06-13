@@ -6,6 +6,7 @@ import { supabaseAdmin } from '@/lib/supabase/admin'
 import { resend } from '@/lib/resend'
 import { generateIntentionLetterBg } from './generate-intention-letter'
 import { getClientConfirmationEmail } from '@/lib/emails/client-confirmation'
+import { generateApplicationPdf } from '@/lib/pdf/generate-pdf'
 
 export async function submitSchengenApplication(
   formDataInput: FormData
@@ -243,43 +244,24 @@ async function executeSubmit(formData: any) {
   // 3. Generar PDF
   let pdfBuffer: Buffer | undefined
   try {
-    const headersList = headers()
-    const host = headersList.get('host')
-    const protocol = headersList.get('x-forwarded-proto') || 'http'
-    const pdfUrl = `${protocol}://${host}/api/pdf/generate-buffer`
-
-    const pdfRes = await fetch(pdfUrl, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ formData, destination: 'schengen' })
-    })
-    
-    if (pdfRes.ok) {
-      const arrayBuffer = await pdfRes.arrayBuffer()
-      pdfBuffer = Buffer.from(arrayBuffer)
-    } else {
-      console.error('[PDF_GEN] API falló:', pdfRes.status)
-    }
+    pdfBuffer = await generateApplicationPdf(insertData, {}, 'schengen')
   } catch (pdfError) {
-    console.error('[PDF_GEN] Error al hacer fetch del PDF para el cliente:', pdfError)
+    console.error('[PDF_GEN_SCHENGEN] Error generating PDF for client:', pdfError)
   }
 
   // 4. Send client email
   try {
-    const clientHtml = getClientConfirmationEmail({
-      firstName: step1.first_names || '',
-      destination: step4.member_state_destination || 'Schengen'
-    })
+    const clientHtml = getClientConfirmationEmail(insertData, 'schengen')
     
     const attachments = pdfBuffer ? [{
-      filename: 'Resumen_Aplicacion_Schengen.pdf',
+      filename: 'resumen-solicitud-latam-visa.pdf',
       content: pdfBuffer
     }] : undefined
 
     await resend.emails.send({
       from: FROM_EMAIL,
       to: step3.home_email,
-      subject: 'Recibimos tu solicitud — LATAM VISA ✅',
+      subject: '🇪🇺 Recibimos tu solicitud para Schengen — LATAM VISA',
       html: clientHtml,
       attachments
     })

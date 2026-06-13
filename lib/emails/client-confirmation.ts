@@ -10,11 +10,43 @@ function formatDate(dateStr: string | undefined): string {
   }
 }
 
-export function getClientConfirmationEmail(formData: any): string {
-  const c = formData.step1Contact || {}
-  const t = formData.step4Travel || {}
+export function getClientConfirmationEmail(
+  formData: any,
+  destination: 'usa' | 'canada' | 'uk' | 'schengen' = 'usa'
+): string {
+  let name = '';
+  let email = '';
+  let visaType = '';
+  let travelDate = '';
+  let destName = '';
 
-  const firstName = (c.fullName || '').split(' ')[0] || 'Hola'
+  if (destination === 'usa') {
+    name = formData.step1Contact?.fullName || '';
+    email = formData.step1Contact?.email || '';
+    visaType = formData.step4Travel?.usaVisaType || 'Turismo';
+    travelDate = formatDate(formData.step4Travel?.arrivalDate);
+    destName = 'Estados Unidos';
+  } else if (destination === 'canada') {
+    name = `${formData.given_name || ''} ${formData.surname || ''}`.trim();
+    email = formData.email || '';
+    visaType = formData.apply_for || 'Turismo';
+    travelDate = formatDate(formData.entry_date);
+    destName = 'Canadá';
+  } else if (destination === 'uk') {
+    name = `${formData.first_name || ''} ${formData.last_name || ''}`.trim();
+    email = formData.email || '';
+    visaType = 'UK Visitor Visa';
+    travelDate = formatDate(formData.proposed_entry_date);
+    destName = 'Reino Unido';
+  } else if (destination === 'schengen') {
+    name = `${formData.first_names || ''} ${formData.surname || ''}`.trim();
+    email = formData.home_email || '';
+    visaType = `Schengen - ${formData.destination_country || 'Europa'}`;
+    travelDate = formatDate(formData.entry_date);
+    destName = 'Europa (Schengen)';
+  }
+
+  const firstName = name.split(' ')[0] || 'Hola';
 
   return `
 <!DOCTYPE html>
@@ -33,7 +65,7 @@ export function getClientConfirmationEmail(formData: any): string {
     <p style="font-size:24px;font-weight:bold;color:#2F4A00;margin:0 0 16px 0;">¡Hola, ${firstName}!</p>
 
     <p style="font-size:16px;color:#333333;line-height:1.7;margin:0 0 28px 0;">
-      Recibimos tu solicitud de visa con éxito. Nos emociona acompañarte en este paso y conectar tus sueños con nuevas oportunidades.
+      Recibimos tu solicitud de visa para ${destName} con éxito. Nos emociona acompañarte en este paso y conectar tus sueños con nuevas oportunidades.
     </p>
 
     <!-- Application Summary -->
@@ -42,19 +74,19 @@ export function getClientConfirmationEmail(formData: any): string {
       <table style="width:100%;border-collapse:collapse;">
         <tr>
           <td style="padding:6px 12px 6px 0;color:#666666;font-size:14px;width:160px;font-weight:500;">Nombre</td>
-          <td style="padding:6px 0;color:#0A0A0A;font-size:14px;font-weight:600;">${c.fullName || '—'}</td>
+          <td style="padding:6px 0;color:#0A0A0A;font-size:14px;font-weight:600;">${name || '—'}</td>
         </tr>
         <tr>
           <td style="padding:6px 12px 6px 0;color:#666666;font-size:14px;font-weight:500;">Email</td>
-          <td style="padding:6px 0;color:#0A0A0A;font-size:14px;font-weight:600;">${c.email || '—'}</td>
+          <td style="padding:6px 0;color:#0A0A0A;font-size:14px;font-weight:600;">${email || '—'}</td>
         </tr>
         <tr>
           <td style="padding:6px 12px 6px 0;color:#666666;font-size:14px;font-weight:500;">Tipo de visa</td>
-          <td style="padding:6px 0;color:#0A0A0A;font-size:14px;font-weight:600;">${t.usaVisaType || 'Turismo'}</td>
+          <td style="padding:6px 0;color:#0A0A0A;font-size:14px;font-weight:600;">${visaType || 'Turismo'}</td>
         </tr>
         <tr>
           <td style="padding:6px 12px 6px 0;color:#666666;font-size:14px;font-weight:500;">Fecha de viaje</td>
-          <td style="padding:6px 0;color:#0A0A0A;font-size:14px;font-weight:600;">${formatDate(t.arrivalDate)}</td>
+          <td style="padding:6px 0;color:#0A0A0A;font-size:14px;font-weight:600;">${travelDate}</td>
         </tr>
       </table>
     </div>

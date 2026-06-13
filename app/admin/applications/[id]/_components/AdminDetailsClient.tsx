@@ -100,8 +100,7 @@ export function AdminDetailsClient({ application, signedPhotoUrls }: Props) {
   const [isUpdatingStatus, setIsUpdatingStatus] = useState(false)
   const [isUpdatingNotes, setIsUpdatingNotes] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
-  const [isGeneratingPdf, setIsGeneratingPdf] = useState(false)
-  const [hasPdfUrl, setHasPdfUrl] = useState(!!application.pdf_url)
+
 
   const handleStatusChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
     const newStatus = e.target.value
@@ -138,32 +137,7 @@ export function AdminDetailsClient({ application, signedPhotoUrls }: Props) {
     }
   }
 
-  const handlePdfClick = async () => {
-    setIsGeneratingPdf(true)
-    try {
-      const response = await fetch('/api/admin/generate-pdf', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ applicationId: application.id, destination: 'usa' })
-      })
-      const result = await response.json()
-      if (result.success && result.url) {
-        setHasPdfUrl(true)
-        const a = document.createElement('a')
-        a.href = result.url
-        a.target = '_blank'
-        document.body.appendChild(a)
-        a.click()
-        document.body.removeChild(a)
-      } else {
-        alert(result.error || 'No pudimos generar el PDF')
-      }
-    } catch {
-      alert('Error inesperado al generar PDF')
-    } finally {
-      setIsGeneratingPdf(false)
-    }
-  }
+
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -410,14 +384,7 @@ export function AdminDetailsClient({ application, signedPhotoUrls }: Props) {
             </select>
           </div>
 
-          <button
-            onClick={handlePdfClick}
-            disabled={isGeneratingPdf}
-            className="w-full flex items-center justify-center gap-2 bg-[#C8FF00] text-black py-2 rounded-lg text-sm font-bold hover:bg-[#b8ef00] transition-colors disabled:opacity-50"
-          >
-            {isGeneratingPdf ? <Loader2 className="w-4 h-4 animate-spin" /> : <FileText className="w-4 h-4" />}
-            {isGeneratingPdf ? 'Generando...' : hasPdfUrl ? 'Descargar PDF' : 'Generar PDF'}
-          </button>
+
         </div>
 
         <div className="bg-white rounded-xl shadow-sm border border-[#E5E5E5] p-6 space-y-3">

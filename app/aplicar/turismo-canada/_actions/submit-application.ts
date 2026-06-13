@@ -4,6 +4,8 @@ import { headers } from 'next/headers'
 import { v4 as uuidv4 } from 'uuid'
 import { supabaseAdmin } from '@/lib/supabase/admin'
 import { resend } from '@/lib/resend'
+import { generateApplicationPdf } from '@/lib/pdf/generate-pdf'
+import { getClientConfirmationEmail } from '@/lib/emails/client-confirmation'
 import { generateIntentionLetterBg } from './generate-intention-letter'
 
 export async function submitCanadaApplication(
@@ -258,26 +260,28 @@ async function executeSubmit(formData: any) {
     console.error('[EMAIL_ADMIN] failed:', error)
   }
 
-  // 3. Send client email
+  // 3. Generate PDF summary for the client
+  let pdfBuffer: Buffer | undefined
   try {
-    const clientHtml = `
-      <div style="${emailStyle}">
-        <div style="${cardStyle}">
-          <h2 style="${titleStyle}">¡Recibimos tu aplicación para Canadá!</h2>
-          <p>Hola ${step2.given_name || step2.surname},</p>
-          <p>Hemos recibido exitosamente tu formulario de aplicación y documentos para la visa de Canadá.</p>
-          <p>Nuestro equipo de expertos revisará tu perfil en las próximas 24-48 horas hábiles y nos pondremos en contacto contigo vía WhatsApp o correo electrónico para los siguientes pasos.</p>
-          <br/>
-          <p>Atentamente,</p>
-          <p style="color: #C8FF00; font-weight: bold;">El equipo de LATAM VISA</p>
-        </div>
-      </div>
-    `
+    pdfBuffer = await generateApplicationPdf(insertData, {}, 'canada')
+  } catch (pdfError) {
+    console.error('[PDF_GEN_CANADA] Error generating PDF for client:', pdfError)
+  }
+
+  // 4. Send client email
+  try {
+    const clientHtml = getClientConfirmationEmail(insertData, 'canada')
     await resend.emails.send({
       from: FROM_EMAIL,
       to: step10.email,
-      subject: '🇨🇦 Recibimos tu aplicación para Canadá — LATAM VISA',
+      subject: '🇨🇦 Recibimos tu solicitud para Canadá — LATAM VISA',
       html: clientHtml,
+      attachments: pdfBuffer ? [
+        {
+          filename: 'resumen-solicitud-latam-visa.pdf',
+          content: pdfBuffer,
+        }
+      ] : []
     })
     console.log('[EMAIL_CLIENT] sent')
   } catch (error: any) {
