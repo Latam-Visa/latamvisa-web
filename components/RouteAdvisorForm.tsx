@@ -29,6 +29,7 @@ const priorityOptions = ['Precio más bajo (sin importar escalas)', 'Menor tiemp
 export default function RouteAdvisorForm() {
   const [step, setStep] = useState(1)
   const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
   const [results, setResults] = useState<any>(null)
 
   const [formData, setFormData] = useState({
@@ -67,6 +68,7 @@ export default function RouteAdvisorForm() {
 
   const handleSubmit = async () => {
     setIsLoading(true)
+    setError(null)
     try {
       const response = await fetch('/api/asesor-vuelos', {
         method: 'POST',
@@ -77,11 +79,12 @@ export default function RouteAdvisorForm() {
       if (!response.ok) throw new Error('Network response was not ok')
       
       const data = await response.json()
+      if (data.error) throw new Error(data.error)
       setResults(data)
       setStep(6) // Step 6 is Results
-    } catch (error) {
-      console.error("Error submitting form:", error)
-      alert("Ocurrió un error analizando tu perfil. Por favor intenta de nuevo.")
+    } catch (err: any) {
+      console.error("Error submitting form:", err)
+      setError(err.message || "Ocurrió un error analizando tu perfil. Por favor intenta de nuevo.")
     } finally {
       setIsLoading(false)
     }
@@ -200,16 +203,63 @@ export default function RouteAdvisorForm() {
     )
   }
 
-  if (isLoading) {
+  if (isLoading || error) {
     return (
-      <div className={`min-h-[60vh] flex flex-col items-center justify-center ${inter.className}`}>
-        <div className="relative w-24 h-24 mb-8">
-          <div className="absolute inset-0 border-t-2 border-[#C8FF00] rounded-full animate-spin"></div>
-          <div className="absolute inset-2 border-r-2 border-white/20 rounded-full animate-spin-slow"></div>
-          <Plane className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-8 h-8 text-[#C8FF00]" />
+      <div className={`w-full max-w-5xl mx-auto bg-white/40 backdrop-blur-xl border border-white/60 rounded-[2rem] shadow-2xl overflow-hidden flex flex-col md:flex-row min-h-[60vh] ${inter.className}`}>
+        {/* Left Panel (Static Context) */}
+        <div className="md:w-1/2 bg-gradient-to-br from-[#f0fdf4] to-white p-10 md:p-16 flex flex-col justify-center border-b md:border-b-0 md:border-r border-gray-200 relative">
+          <div className="absolute top-10 left-10">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#C8FF00]/20 border border-[#C8FF00] text-black text-xs uppercase tracking-widest font-semibold">
+              <span className="w-2 h-2 rounded-full bg-[#C8FF00] animate-pulse"></span> LATAM VISA
+            </div>
+          </div>
+          <h3 className="text-4xl md:text-5xl font-[PPMonumentExtended] text-black mt-10 mb-6 leading-tight">Analizando<br/>Perfil...</h3>
+          <p className="text-gray-600 text-lg max-w-sm leading-relaxed">Evaluando opciones de tránsito, requisitos migratorios y optimización estratégica de rutas.</p>
         </div>
-        <h3 className="text-2xl font-[PPMonumentExtended] text-white mb-2 animate-pulse">Analizando Perfil...</h3>
-        <p className="text-gray-400 text-center max-w-sm">Evaluando opciones de tránsito, requisitos migratorios y optimización de rutas.</p>
+
+        {/* Right Panel (Dynamic Content) */}
+        <div className="md:w-1/2 bg-white/20 p-10 md:p-16 flex flex-col items-center justify-center relative">
+          {isLoading && !error && (
+            <div className="w-full max-w-sm bg-white rounded-2xl shadow-sm border border-gray-100 p-8 flex flex-col items-center text-center">
+              <div className="relative w-20 h-20 mb-8 flex items-center justify-center">
+                <div className="absolute inset-0 border-2 border-gray-100 rounded-full"></div>
+                <div className="absolute inset-0 border-t-2 border-[#C8FF00] rounded-full animate-spin"></div>
+                <Plane className="w-8 h-8 text-black animate-pulse" />
+              </div>
+              <h4 className="text-black font-semibold text-lg mb-2">Conectando con servidores consulares...</h4>
+              <div className="w-full h-1 bg-gray-100 rounded-full mt-4 overflow-hidden relative">
+                <motion.div 
+                  className="absolute top-0 left-0 h-full bg-[#C8FF00] rounded-full"
+                  initial={{ width: "0%" }}
+                  animate={{ width: "100%" }}
+                  transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
+                />
+              </div>
+            </div>
+          )}
+
+          {error && (
+            <div className="w-full max-w-sm bg-white rounded-2xl shadow-lg border-2 border-red-500/20 p-8 flex flex-col items-center text-center">
+              <div className="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mb-6">
+                <ShieldAlert className="w-8 h-8 text-red-500" />
+              </div>
+              <h4 className="text-black font-[PPMonumentExtended] text-xl mb-3">Interrupción</h4>
+              <p className="text-gray-600 mb-8 text-sm">{error}</p>
+              <button 
+                onClick={() => handleSubmit()}
+                className="w-full bg-black text-white hover:bg-[#C8FF00] hover:text-black py-4 rounded-xl font-medium transition-colors border border-black hover:border-[#C8FF00]"
+              >
+                VOLVER A INTENTAR
+              </button>
+              <button 
+                onClick={() => setError(null)}
+                className="w-full bg-transparent text-gray-500 hover:text-black mt-4 text-sm font-medium transition-colors"
+              >
+                VOLVER AL FORMULARIO
+              </button>
+            </div>
+          )}
+        </div>
       </div>
     )
   }

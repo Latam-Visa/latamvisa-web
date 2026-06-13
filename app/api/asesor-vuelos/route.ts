@@ -103,12 +103,22 @@ The "summary_insight" field should be one powerful sentence that captures the mo
     // 4. Filtro Anti-Precio
     let sanitizedResponse = textResponse.replace(priceRegex, '[Precio Omitido - Consultar en tiempo real]');
 
-    // Intentar parsear el JSON
+    // 4.1. Limpiador de Markdown (LA SOLUCIÓN AL ERROR)
+    // Extrae desde la primera llave '{' hasta la última '}'
+    let cleanJsonString = sanitizedResponse;
+    const firstBrace = cleanJsonString.indexOf('{');
+    const lastBrace = cleanJsonString.lastIndexOf('}');
+    
+    if (firstBrace !== -1 && lastBrace !== -1) {
+      cleanJsonString = cleanJsonString.substring(firstBrace, lastBrace + 1);
+    }
+
+    // Intentar parsear el JSON limpio
     let jsonResponse;
     try {
-      jsonResponse = JSON.parse(sanitizedResponse);
+      jsonResponse = JSON.parse(cleanJsonString);
     } catch (e) {
-      console.error('Failed to parse Claude JSON response:', e, sanitizedResponse);
+      console.error('Failed to parse Claude JSON response:', e, cleanJsonString);
       return NextResponse.json({ error: 'Error procesando la estrategia. Intenta de nuevo.' }, { status: 500 });
     }
 
