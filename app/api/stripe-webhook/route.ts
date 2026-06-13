@@ -56,6 +56,7 @@ export async function POST(req: Request) {
         if (productId === 'prod_UNzInIKcEPubsv') { destinationId = 'usa'; return true; }
         if (productId === 'prod_UPS4wTFA8YcTQB') { destinationId = 'canada'; return true; }
         if (productId === 'prod_UPSArEprnY5NMG') { destinationId = 'uk'; return true; }
+        if (productId === 'prod_Uh5FvGa1iRJrpG') { destinationId = 'schengen'; return true; }
         return false;
       });
 
@@ -92,10 +93,14 @@ export async function POST(req: Request) {
           adminDestName = 'UK';
           clientSubject = '¡Bienvenido a LATAM VISA! 🌎 Tu solicitud de visa UK empieza aquí';
           formLink = `${NEXT_PUBLIC_SITE_URL}/aplicar/turismo-uk`;
+        } else if (destinationId === 'schengen') {
+          adminDestName = 'Schengen';
+          clientSubject = '¡Bienvenido a LATAM VISA! 🌎 Tu solicitud de visa Schengen empieza aquí';
+          formLink = `${NEXT_PUBLIC_SITE_URL}/aplicar/turismo-schengen`;
         }
 
         let adminOptionText = '';
-        if (destinationId === 'canada' || destinationId === 'uk') {
+        if (destinationId === 'canada' || destinationId === 'uk' || destinationId === 'schengen') {
           adminOptionText = `<p><strong>Opción elegida:</strong> ${chosenOption}</p>`;
         }
 
