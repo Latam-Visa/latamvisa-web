@@ -36,8 +36,8 @@ export function PhotoUploader({ name, label, hint, required, specsList }: PhotoU
 
   const processFile = async (file: File) => {
     setErrorMsg('')
-    if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
-      setErrorMsg('Formato inválido. Solo JPG, PNG, o WEBP.')
+    if (!['image/jpeg', 'image/png', 'image/webp', 'application/pdf'].includes(file.type)) {
+      setErrorMsg('Formato inválido. Solo JPG, PNG, WEBP o PDF.')
       return
     }
     if (file.size > 50 * 1024 * 1024) {
@@ -47,16 +47,19 @@ export function PhotoUploader({ name, label, hint, required, specsList }: PhotoU
 
     setIsCompressing(true)
     try {
-      const options = {
-        maxSizeMB: 1,
-        maxWidthOrHeight: 2400,
-        useWebWorker: true,
-        fileType: 'image/jpeg'
+      let uploadFile = file
+      if (file.type !== 'application/pdf') {
+        const options = {
+          maxSizeMB: 1,
+          maxWidthOrHeight: 2400,
+          useWebWorker: true,
+          fileType: 'image/jpeg'
+        }
+        uploadFile = await imageCompression(file, options)
       }
-      const compressedFile = await imageCompression(file, options)
       
       // Get signed URL
-      const { success, url, path, error } = await getUploadUrl(compressedFile.type)
+      const { success, url, path, error } = await getUploadUrl(uploadFile.type)
       if (!success || !url || !path) {
         throw new Error(error || 'Error al obtener URL de subida')
       }
@@ -64,9 +67,9 @@ export function PhotoUploader({ name, label, hint, required, specsList }: PhotoU
       // Upload file directly to Supabase via PUT
       const uploadRes = await fetch(url, {
         method: 'PUT',
-        body: compressedFile,
+        body: uploadFile,
         headers: {
-          'Content-Type': compressedFile.type
+          'Content-Type': uploadFile.type
         }
       })
 
@@ -75,13 +78,18 @@ export function PhotoUploader({ name, label, hint, required, specsList }: PhotoU
       }
 
       // Success
-      const objectUrl = URL.createObjectURL(compressedFile)
-      if (localPreview) URL.revokeObjectURL(localPreview)
-      setLocalPreview(objectUrl)
+      if (file.type !== 'application/pdf') {
+        const objectUrl = URL.createObjectURL(uploadFile)
+        if (localPreview) URL.revokeObjectURL(localPreview)
+        setLocalPreview(objectUrl)
+      } else {
+        if (localPreview) URL.revokeObjectURL(localPreview)
+        setLocalPreview(null)
+      }
       
       field.onChange(path)
       setFileName(file.name)
-      setFileSize(compressedFile.size)
+      setFileSize(uploadFile.size)
     } catch (error: any) {
       console.error(error)
       setErrorMsg(error.message || 'Error procesando la imagen.')
@@ -165,7 +173,7 @@ export function PhotoUploader({ name, label, hint, required, specsList }: PhotoU
         >
           <input
             type="file"
-            accept="image/jpeg,image/png,image/webp"
+            accept="image/jpeg,image/png,image/webp,application/pdf"
             ref={fileInputRef}
             onChange={handleFileChange}
             className="hidden"
@@ -181,8 +189,8 @@ export function PhotoUploader({ name, label, hint, required, specsList }: PhotoU
               <div className="bg-[#1A1A1A] text-[#C8FF00] rounded-full p-4 inline-block mb-4">
                 <UploadCloud className="w-8 h-8" />
               </div>
-              <p className="text-[#0A0A0A] font-medium text-lg mb-1">Haz clic o arrastra tu foto aquí</p>
-              <p className="text-[#A3A3A3] text-sm">JPEG, PNG, WEBP hasta 50MB</p>
+              <p className="text-[#0A0A0A] font-medium text-lg mb-1">Haz clic o arrastra tu archivo aquí</p>
+              <p className="text-[#A3A3A3] text-sm">JPEG, PNG, WEBP, PDF hasta 50MB</p>
             </div>
           )}
         </div>
@@ -222,7 +230,7 @@ export function PhotoUploader({ name, label, hint, required, specsList }: PhotoU
           </div>
           <input
             type="file"
-            accept="image/jpeg,image/png,image/webp"
+            accept="image/jpeg,image/png,image/webp,application/pdf"
             ref={fileInputRef}
             onChange={handleFileChange}
             className="hidden"

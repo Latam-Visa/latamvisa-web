@@ -34,14 +34,19 @@ export function UsaApplicationPDF({ data, photoUrls }: UsaApplicationPDFProps) {
     )
   }
 
-  const renderPhoto = (label: string, dataUri: string | undefined) => {
-    if (!dataUri) return <Text style={styles.photoNote}>📸 {label}: no disponible</Text>
-    return (
-      <View>
-        <Text style={styles.photoLabel}>📸 {label}</Text>
-        <Image src={dataUri} style={styles.photo} />
-      </View>
-    )
+  const renderPhoto = (label: string, dataUri: string | undefined, hasPhotoField?: boolean) => {
+    if (dataUri) {
+      return (
+        <View>
+          <Text style={styles.photoLabel}>📸 {label}</Text>
+          <Image src={dataUri} style={styles.photo} />
+        </View>
+      )
+    }
+    if (hasPhotoField) {
+      return <Text style={styles.photoNote}>📸 {label}: Recibida correctamente</Text>
+    }
+    return null
   }
 
   return (
@@ -80,7 +85,7 @@ export function UsaApplicationPDF({ data, photoUrls }: UsaApplicationPDFProps) {
           {renderRow('Expiración', step3Passport?.passportExpiryDate)}
           {renderRow('País de emisión', step3Passport?.passportIssueCountry)}
           {renderRow('¿Perdido/Robado?', step3Passport?.passportLostStolen)}
-          {renderPhoto('Foto del pasaporte', photoUrls?.passport)}
+          {renderPhoto('Foto del pasaporte', photoUrls?.passport, !!step3Passport?.passportPhotoPath)}
         </View>
 
         <View style={styles.section}>
@@ -102,7 +107,7 @@ export function UsaApplicationPDF({ data, photoUrls }: UsaApplicationPDFProps) {
               {renderRow('Detalles visa previa', step5VisaHistory?.previousVisaDetails)}
               {renderRow('Número visa previa', step5VisaHistory?.previousVisaNumber)}
               {renderRow('Emisión visa previa', step5VisaHistory?.previousVisaIssueDate)}
-              {photoUrls?.previousVisa && renderPhoto('Foto de visa anterior', photoUrls.previousVisa)}
+              {renderPhoto('Foto de visa anterior', photoUrls?.previousVisa, !!step5VisaHistory?.previousVisaPhotoPath)}
             </>
           )}
         </View>
@@ -130,7 +135,7 @@ export function UsaApplicationPDF({ data, photoUrls }: UsaApplicationPDFProps) {
           {renderRow('Antecedentes penales', step8Additional?.criminalRecord)}
           {renderRow('Condiciones médicas', step8Additional?.medicalConditions)}
           {renderRow('Deportación', step8Additional?.deportationHistory)}
-          {renderPhoto('Foto tipo visa', photoUrls?.visaPhoto)}
+          {renderPhoto('Foto tipo visa', photoUrls?.visaPhoto, !!step8Additional?.visaPhotoPath)}
         </View>
       </Page>
     </Document>

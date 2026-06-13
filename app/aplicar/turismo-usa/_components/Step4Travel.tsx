@@ -38,23 +38,21 @@ export function Step4Travel() {
   return (
     <div className="space-y-6">
       <FormField 
-        label="Tipo de visa USA que solicitas" 
+        label="¿Es tu primera solicitud de visa o una renovación?" 
         name="step4Travel.usaVisaType" 
         required 
         error={errors.step4Travel?.usaVisaType?.message as string}
       >
-        <select
-          {...register('step4Travel.usaVisaType')}
-          className="w-full bg-[#F5F5F0] border border-[#E5E5E5] rounded-lg px-4 py-3 text-[#0A0A0A] focus:outline-none focus:border-[#C8FF00] focus:ring-2 focus:ring-[#C8FF00] focus:bg-white transition-colors appearance-none"
-        >
-          <option value="">Selecciona el tipo de visa</option>
-          <option value="B-1/B-2 — Turismo / Negocios / Visita familiar">B-1/B-2 — Turismo / Negocios / Visita familiar</option>
-          <option value="F-1 — Estudiante">F-1 — Estudiante</option>
-          <option value="J-1 — Programa de intercambio">J-1 — Programa de intercambio</option>
-          <option value="H-1B — Trabajador especializado">H-1B — Trabajador especializado</option>
-          <option value="H-2A — Trabajador agrícola temporal">H-2A — Trabajador agrícola temporal</option>
-          <option value="O-1 — Habilidad extraordinaria">O-1 — Habilidad extraordinaria</option>
-        </select>
+        <div className="flex gap-6 mt-2">
+          <label className="flex items-center gap-3 cursor-pointer group">
+            <input type="radio" value="Primera vez" {...register('step4Travel.usaVisaType')} className="w-5 h-5 accent-[#C8FF00] bg-[#F5F5F0] border-[#E5E5E5] focus:ring-[#C8FF00]" />
+            <span className="text-[#525252] group-hover:text-[#0A0A0A] transition-colors">Primera vez</span>
+          </label>
+          <label className="flex items-center gap-3 cursor-pointer group">
+            <input type="radio" value="Renovación" {...register('step4Travel.usaVisaType')} className="w-5 h-5 accent-[#C8FF00] bg-[#F5F5F0] border-[#E5E5E5] focus:ring-[#C8FF00]" />
+            <span className="text-[#525252] group-hover:text-[#0A0A0A] transition-colors">Renovación</span>
+          </label>
+        </div>
       </FormField>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

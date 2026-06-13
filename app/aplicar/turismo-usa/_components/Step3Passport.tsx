@@ -121,16 +121,30 @@ export function Step3Passport() {
       )}
 
       <div className="pt-6 border-t border-[#E5E5E5]">
-        <PhotoUploader
-          name="step3Passport.passportPhotoPath"
-          label="Sube una foto de la página principal de tu pasaporte"
-          required
-          specsList={[
-            'Debe verse claramente tu foto, nombres, número y código de barras inferior',
-            'Sin reflejos de luz que tapen la información',
-            'Formato JPEG, PNG o WEBP (máximo 5MB)'
-          ]}
-        />
+        {watch('step3Passport.passportPhotoPath') ? (
+          <div className="bg-[#F0FDE4] border border-[#2F4A00]/20 p-4 rounded-xl flex items-center gap-3">
+            <div className="w-8 h-8 bg-[#C8FF00] rounded-full flex items-center justify-center shrink-0">
+              <svg className="w-5 h-5 text-black" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
+            </div>
+            <div>
+              <p className="text-[#0A0A0A] font-medium text-sm">Foto del pasaporte subida correctamente</p>
+              <p className="text-[#525252] text-xs">Se cargó en el Paso 0</p>
+            </div>
+          </div>
+        ) : (
+          <PhotoUploader
+            name="step3Passport.passportPhotoPath"
+            label="Sube una foto de la página principal de tu pasaporte"
+            required
+            specsList={[
+              'Debe verse claramente tu foto, nombres, número y código de barras inferior',
+              'Sin reflejos de luz que tapen la información',
+              'Formato JPEG, PNG o WEBP (máximo 5MB)'
+            ]}
+          />
+        )}
       </div>
     </div>
   )

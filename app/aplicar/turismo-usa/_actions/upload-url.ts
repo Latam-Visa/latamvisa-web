@@ -16,6 +16,7 @@ export async function getUploadUrl(
     let ext = 'jpg'
     if (fileType === 'image/png') ext = 'png'
     else if (fileType === 'image/webp') ext = 'webp'
+    else if (fileType === 'application/pdf') ext = 'pdf'
 
     // Generate unique path
     const path = `uploads/${new Date().toISOString().split('T')[0]}/${uuidv4()}.${ext}`

@@ -2,7 +2,6 @@
 
 import { useState } from 'react'
 import { updateApplicationStatus, updateApplicationNotes, deleteApplication } from '../../../_actions/admin-actions'
-import { generateApplicationPdfAction } from '../_actions/generate-pdf'
 import { useRouter } from 'next/navigation'
 import { FileText, Save, Trash2, Loader2, ExternalLink } from 'lucide-react'
 import { format } from 'date-fns'
@@ -142,7 +141,12 @@ export function AdminDetailsClient({ application, signedPhotoUrls }: Props) {
   const handlePdfClick = async () => {
     setIsGeneratingPdf(true)
     try {
-      const result = await generateApplicationPdfAction(application.id)
+      const response = await fetch('/api/admin/generate-pdf', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ applicationId: application.id })
+      })
+      const result = await response.json()
       if (result.success && result.url) {
         setHasPdfUrl(true)
         window.open(result.url, '_blank')

@@ -113,14 +113,44 @@ async function executeSubmit(formData: any, ipAddress: string, userAgent: string
     console.error('[EMAIL_ADMIN] failed:', error)
   }
 
+  // 3. Generar PDF (sin fotos, solo texto/confirmación de adjuntos) para el cliente
+  let pdfBuffer: Buffer | undefined
+  try {
+    const headersList = headers()
+    const host = headersList.get('host')
+    const protocol = headersList.get('x-forwarded-proto') || 'http'
+    const pdfUrl = `${protocol}://${host}/api/pdf/generate-buffer`
+
+    const pdfRes = await fetch(pdfUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(formData)
+    })
+    
+    if (pdfRes.ok) {
+      const arrayBuffer = await pdfRes.arrayBuffer()
+      pdfBuffer = Buffer.from(arrayBuffer)
+    } else {
+      console.error('[PDF_GEN] API falló:', pdfRes.status)
+    }
+  } catch (pdfError) {
+    console.error('[PDF_GEN] Error al hacer fetch del PDF para el cliente:', pdfError)
+  }
+
   // 4. Send client email
   try {
     const clientEmailHtml = getClientConfirmationEmail(formData)
     await resend.emails.send({
       from: FROM_EMAIL,
       to: formData.step1Contact?.email,
-      subject: '✅ Recibimos tu aplicación — LATAM VISA',
+      subject: '✅ Recibimos tu solicitud — LATAM VISA',
       html: clientEmailHtml,
+      attachments: pdfBuffer ? [
+        {
+          filename: 'resumen-solicitud-latam-visa.pdf',
+          content: pdfBuffer,
+        }
+      ] : []
     })
     console.log('[EMAIL_CLIENT] sent')
   } catch (error: any) {

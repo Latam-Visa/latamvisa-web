@@ -18,6 +18,8 @@ import { Step6Family } from './_components/Step6Family'
 import { Step7Work } from './_components/Step7Work'
 import { Step8Additional } from './_components/Step8Additional'
 import { submitUsaApplication } from './_actions/submit-application'
+import { createClient } from '@/lib/supabase/client'
+import { PassportConfirmModal } from '../turismo-uk/components/PassportConfirmModal'
 
 import { step1Schema, step2Schema, step3Schema, step4Schema, step5Schema, step6Schema, step7Schema, step8Schema } from './_schemas'
 
@@ -40,7 +42,16 @@ const STORAGE_KEY = 'usa_visa_application_draft'
 
 export default function TurismoUsaApplication() {
   const router = useRouter()
-  const [currentStep, setCurrentStep] = useState(1)
+  const [currentStep, setCurrentStep] = useState(0)
+  const [passportData, setPassportData] = useState<any>(null)
+  const [passportStatus, setPassportStatus] = useState<'idle'|'uploading'|'success'|'error'>('idle')
+  const [passportError, setPassportError] = useState('')
+  const [passportWasScanned, setPassportWasScanned] = useState(false)
+  const [passportFileUrl, setPassportFileUrl] = useState<string|null>(null)
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }, [currentStep])
   const [showDraftModal, setShowDraftModal] = useState(false)
   const [draftData, setDraftData] = useState<any>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -78,20 +89,29 @@ export default function TurismoUsaApplication() {
   }, [])
 
   // Autosave
+  const { setValue } = methods
+
   const formValues = useWatch({ control: methods.control })
   useEffect(() => {
     const timeout = setTimeout(() => {
       // Don't save if it's completely empty
       if (Object.keys(formValues).length > 0) {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(formValues))
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({
+          step: currentStep,
+          data: formValues
+        }))
       }
     }, 500)
     return () => clearTimeout(timeout)
   }, [formValues])
 
   const handleLoadDraft = () => {
-    if (draftData) {
+    if (draftData && draftData.data) {
+      methods.reset(draftData.data)
+      setCurrentStep(draftData.step || 1)
+    } else if (draftData) {
       methods.reset(draftData)
+      setCurrentStep(1)
     }
     setShowDraftModal(false)
   }
@@ -102,6 +122,12 @@ export default function TurismoUsaApplication() {
   }
 
   const handleNext = async () => {
+    if (currentStep === 0) {
+      setCurrentStep(1)
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+      return
+    }
+
     setIsValidating(true)
     let stepKey: keyof FormData = 'step1Contact'
     if (currentStep === 1) stepKey = 'step1Contact'
@@ -194,9 +220,158 @@ export default function TurismoUsaApplication() {
     }
   }
 
+
+  const handlePassportUpload = async (file: File) => {
+    if (file.size > 5 * 1024 * 1024) {
+      setPassportStatus('error')
+      setPassportError('El archivo pesa más de 5MB. Sube una foto más ligera.')
+      return
+    }
+
+    setPassportStatus('uploading')
+    setPassportError('')
+
+    const formData = new FormData()
+    formData.append('file', file)
+
+    try {
+      const res = await fetch('/api/parse-passport', {
+        method: 'POST',
+        body: formData
+      })
+      const result = await res.json()
+
+      if (result.success) {
+        setPassportData(result)
+        setPassportStatus('success')
+        
+        const supabase = createClient()
+        const fileExt = file.name.split('.').pop()
+        const fileName = `usa/passport_scan_${Date.now()}.${fileExt}`
+        const { data: uploadData } = await supabase.storage
+          .from('visa-applications')
+          .upload(fileName, file, { upsert: true })
+        if (uploadData) {
+          setValue('step3Passport.passportPhotoPath' as any, uploadData.path)
+          setPassportFileUrl(uploadData.path)
+        }
+      } else {
+        setPassportStatus('error')
+        setPassportError(result.error || 'No pudimos leer el pasaporte. Podés continuar manualmente.')
+      }
+    } catch (e) {
+      setPassportStatus('error')
+      setPassportError('Error de red al intentar procesar el pasaporte.')
+    }
+  }
+
+  const renderStep0 = () => {
+    return (
+      <div className="space-y-6 max-w-3xl mx-auto">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold text-[#0A0A0A] mb-2">Primero, sube tu pasaporte</h2>
+          <p className="text-[#525252]">Extraemos tus datos automáticamente para que no tengas que escribirlos a mano.</p>
+        </div>
+
+        {passportStatus === 'uploading' ? (
+          <div className="flex flex-col items-center justify-center p-8 bg-[#F5F5F0] border border-[#E5E5E5] rounded-xl">
+            <Loader2 className="w-10 h-10 animate-spin text-[#C8FF00] mb-4" />
+            <p className="text-lg font-bold text-[#0A0A0A]">Leyendo tu pasaporte...</p>
+            <p className="text-sm text-[#525252] mt-2 text-center max-w-sm">Nuestra IA está extrayendo los datos. Esto puede tomar unos segundos.</p>
+          </div>
+        ) : (
+          <div 
+            className="bg-[#F5F5F0] p-4 md:p-6 rounded-xl border-2 border-dashed border-[#C8FF00] flex flex-col md:flex-row items-center justify-between gap-4 transition-colors hover:bg-[#F5F5F0]/80"
+            onDragOver={(e) => { e.preventDefault(); e.stopPropagation() }}
+            onDrop={(e) => {
+              e.preventDefault()
+              e.stopPropagation()
+              if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+                handlePassportUpload(e.dataTransfer.files[0])
+              }
+            }}
+          >
+            <div className="flex flex-col md:flex-row items-center md:items-start md:justify-start gap-4 flex-1">
+              <div className="w-16 h-16 shrink-0 bg-[#1A1A1A] rounded-full flex items-center justify-center">
+                 <svg className="w-8 h-8 text-[#C8FF00]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                 </svg>
+              </div>
+              <div className="text-center md:text-left">
+                <p className="text-[#0A0A0A] font-bold mb-1">Arrastra tu archivo aquí o haz clic para subir</p>
+                <p className="text-[#888] text-sm">Aceptamos imágenes (JPG, PNG) y PDF. Tamaño máximo: 5MB.</p>
+              </div>
+            </div>
+            <label className="shrink-0 cursor-pointer bg-[#C8FF00] text-black font-bold py-3 px-6 rounded-lg hover:bg-[#B5E600] transition-colors shadow-sm whitespace-nowrap">
+              Seleccionar archivo
+              <input 
+                type="file" 
+                accept="image/*,application/pdf" 
+                className="hidden" 
+                onChange={(e) => {
+                  if (e.target.files && e.target.files[0]) {
+                    handlePassportUpload(e.target.files[0])
+                  }
+                }}
+              />
+            </label>
+          </div>
+        )}
+
+        {passportStatus === 'error' && (
+          <div className="bg-[#FEF2F2] border border-[#DC2626] p-4 rounded-xl">
+            <p className="text-[#DC2626] font-medium mb-4 text-center">{passportError || 'No pudimos leer el pasaporte. Podés continuar manualmente.'}</p>
+            <div className="flex justify-center">
+              <button 
+                type="button"
+                onClick={() => setCurrentStep(1)} 
+                className="bg-white border border-[#DC2626] text-[#DC2626] font-bold py-2 px-6 rounded-lg hover:bg-[#FEF2F2] transition-colors"
+              >
+                Continuar sin escanear
+              </button>
+            </div>
+          </div>
+        )}
+
+        {passportData && (
+          <PassportConfirmModal
+            data={passportData.data}
+            sources={passportData.sources || {}}
+            onConfirm={(confirmed) => {
+              if (confirmed.date_of_birth) setValue('step2Personal.dateOfBirth' as any, confirmed.date_of_birth)
+              if (confirmed.date_of_issue) setValue('step3Passport.passportIssueDate' as any, confirmed.date_of_issue)
+              if (confirmed.date_of_expiry) setValue('step3Passport.passportExpiryDate' as any, confirmed.date_of_expiry)
+              if (confirmed.document_number) setValue('step3Passport.passportNumber' as any, confirmed.document_number)
+              if (confirmed.issuing_country) setValue('step3Passport.passportIssueCountry' as any, confirmed.issuing_country)
+              if (confirmed.nationality) setValue('step2Personal.nationality' as any, confirmed.nationality)
+              if (confirmed.place_of_birth) setValue('step2Personal.cityOfBirth' as any, confirmed.place_of_birth)
+              
+              setPassportWasScanned(true)
+              setPassportData(null)
+              setCurrentStep(1)
+              window.scrollTo({ top: 0, behavior: 'smooth' })
+            }}
+            onClose={() => setPassportData(null)}
+          />
+        )}
+      </div>
+    )
+  }
+
   const renderStep = () => {
     switch (currentStep) {
-      case 1: return <Step1Contact />
+      case 0: return renderStep0()
+      case 1: return (
+        <>
+          {passportWasScanned && (
+            <div className="mb-4 px-4 py-3 rounded-xl text-sm font-medium"
+              style={{ backgroundColor: '#F0FDE4', color: '#2F4A00' }}>
+              ✓ Datos extraídos de tu pasaporte — revisá que todo esté correcto
+            </div>
+          )}
+          <Step1Contact />
+        </>
+      )
       case 2: return <Step2Personal />
       case 3: return <Step3Passport />
       case 4: return <Step4Travel />
@@ -210,6 +385,7 @@ export default function TurismoUsaApplication() {
 
   const getStepTitle = () => {
     switch (currentStep) {
+      case 0: return 'Escaneo Inteligente'
       case 1: return 'Información de contacto'
       case 2: return 'Información personal'
       case 3: return 'Información del pasaporte'
@@ -224,6 +400,7 @@ export default function TurismoUsaApplication() {
 
   const getStepSubtitle = () => {
     switch (currentStep) {
+      case 0: return 'Sube tu pasaporte para autocompletar'
       case 1: return 'Empecemos con cómo contactarte y tu situación actual'
       case 2: return 'Datos que aparecerán en tu DS-160'
       case 3: return 'Los datos exactos de tu pasaporte vigente'
@@ -297,7 +474,7 @@ export default function TurismoUsaApplication() {
         <FormProvider {...methods}>
           <form onSubmit={(e) => { e.preventDefault(); handleNext(); }} className="space-y-8">
             <ProgressBar 
-              currentStep={currentStep} 
+              currentStep={Math.max(1, currentStep)} 
               totalSteps={TOTAL_STEPS} 
               title={getStepTitle()} 
               subtitle={getStepSubtitle()} 
@@ -307,12 +484,14 @@ export default function TurismoUsaApplication() {
               {renderStep()}
             </div>
 
-            <StepNavigation 
-              currentStep={currentStep} 
-              totalSteps={TOTAL_STEPS} 
-              onBack={handleBack} 
-              isNextDisabled={isSubmitting || isValidating}
-            />
+            {currentStep > 0 && (
+              <StepNavigation 
+                currentStep={currentStep} 
+                totalSteps={TOTAL_STEPS} 
+                onBack={handleBack} 
+                isNextDisabled={isSubmitting || isValidating}
+              />
+            )}
           </form>
         </FormProvider>
       </div>

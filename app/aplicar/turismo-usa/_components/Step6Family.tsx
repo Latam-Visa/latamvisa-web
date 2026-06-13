@@ -18,19 +18,19 @@ export function Step6Family() {
     <div className="space-y-8">
       <div className="space-y-6">
         <h3 className="text-lg font-medium text-[#0A0A0A] border-b border-[#E5E5E5] pb-2">Datos del Padre</h3>
-        <FormField label="Nombre completo del padre" name="step6Family.fatherFullName" required error={errors.step6Family?.fatherFullName?.message as string}>
+        <FormField label="Nombre completo del padre" name="step6Family.fatherFullName" error={errors.step6Family?.fatherFullName?.message as string}>
           <input {...register('step6Family.fatherFullName')} className="w-full bg-[#F5F5F0] border border-[#E5E5E5] rounded-lg px-4 py-3 text-[#0A0A0A] focus:outline-none focus:border-[#C8FF00] focus:ring-2 focus:ring-[#C8FF00] focus:bg-white transition-colors" />
         </FormField>
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <FormField label="Nacionalidad del padre" name="step6Family.fatherNationality" required error={errors.step6Family?.fatherNationality?.message as string}>
+          <FormField label="Nacionalidad del padre" name="step6Family.fatherNationality" error={errors.step6Family?.fatherNationality?.message as string}>
             <select {...register('step6Family.fatherNationality')} className="w-full bg-[#F5F5F0] border border-[#E5E5E5] rounded-lg px-4 py-3 text-[#0A0A0A] focus:outline-none focus:border-[#C8FF00] focus:ring-2 focus:ring-[#C8FF00] focus:bg-white transition-colors appearance-none">
               <option value="">Seleccionar país</option>
               {ALL_COUNTRIES.map(c => <option key={c.code} value={c.code}>{c.flag} {c.name}</option>)}
             </select>
           </FormField>
           
-          <FormField label="Fecha de nacimiento del padre" name="step6Family.fatherDateOfBirth" required hint="Si no la sabes exacta, pon una fecha aproximada" error={errors.step6Family?.fatherDateOfBirth?.message as string}>
+          <FormField label="Fecha de nacimiento del padre" name="step6Family.fatherDateOfBirth" hint="Si no la sabes exacta, pon una fecha aproximada. (Opcional)" error={errors.step6Family?.fatherDateOfBirth?.message as string}>
             <input type="date" {...register('step6Family.fatherDateOfBirth')} className="w-full bg-[#F5F5F0] border border-[#E5E5E5] rounded-lg px-4 py-3 text-[#0A0A0A] focus:outline-none focus:border-[#C8FF00] focus:ring-2 focus:ring-[#C8FF00] focus:bg-white transition-colors [color-scheme:light]" />
           </FormField>
         </div>

@@ -1,5 +1,3 @@
-'use server'
-
 import { supabaseAdmin } from '@/lib/supabase/admin'
 import { generateApplicationPdf } from '@/lib/pdf/generate-pdf'
 

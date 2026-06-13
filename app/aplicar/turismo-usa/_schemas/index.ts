@@ -67,7 +67,7 @@ export const step3Schema = z.object({
   passportIssueCountry: requiredString,
   passportLostStolen: z.enum(['true', 'false'], { error: 'Debes responder esta pregunta' }),
   passportLostDetails: z.string().optional(),
-  passportPhotoPath: z.string().min(1, 'Subí la foto del pasaporte'),
+  passportPhotoPath: z.string().optional(),
 }).superRefine((data, ctx) => {
   if (data.passportLostStolen === 'true' && !data.passportLostDetails?.trim()) {
     ctx.addIssue({
@@ -177,9 +177,9 @@ export const familyMemberSchema = z.object({
 })
 
 export const step6Schema = z.object({
-  fatherFullName: requiredString,
-  fatherNationality: requiredString,
-  fatherDateOfBirth: requiredDate,
+  fatherFullName: z.string().optional(),
+  fatherNationality: z.string().optional(),
+  fatherDateOfBirth: z.string().optional(),
   motherFullName: z.string().optional(),
   motherNationality: z.string().optional(),
   motherDateOfBirth: z.string().optional(),
