@@ -25,20 +25,24 @@ async function fetchPhotoAsDataUri(url: string | undefined): Promise<string | un
   }
 }
 
-export async function generateApplicationPdfAction(applicationId: string): Promise<{
+export async function generateApplicationPdfAction(
+  applicationId: string,
+  destination: 'usa' | 'canada' | 'uk' = 'usa'
+): Promise<{
   success: boolean
   url?: string
   cached?: boolean
   error?: string
 }> {
   try {
-    const bucket = process.env.SUPABASE_STORAGE_BUCKET
-    if (!bucket) return { success: false, error: 'SUPABASE_STORAGE_BUCKET no configurado' }
+    const bucket = destination === 'usa' ? (process.env.SUPABASE_STORAGE_BUCKET || 'visa-documents') : 'visa-applications'
 
-    console.log('[PDF_GEN] Starting for application:', applicationId)
+    console.log('[PDF_GEN] Starting for application:', applicationId, 'destination:', destination)
+
+    const table = destination === 'usa' ? 'visa_applications_usa' : destination === 'canada' ? 'visa_applications_canada' : 'visa_applications_uk'
 
     const { data: application, error } = await supabaseAdmin
-      .from('visa_applications_usa')
+      .from(table)
       .select('*')
       .eq('id', applicationId)
       .single()
@@ -47,9 +51,31 @@ export async function generateApplicationPdfAction(applicationId: string): Promi
       return { success: false, error: 'Aplicación no encontrada' }
     }
 
-    // If PDF already exists AND the application has no photos, return cached
-    // (if photos exist we always regenerate so they're embedded)
-    const hasPhotos = !!(application.passport_photo_url || application.visa_photo_url)
+    // Check photos presence for caching logic
+    let hasPhotos = false
+    let photoPaths: Record<string, string | null> = {}
+
+    if (destination === 'usa') {
+      hasPhotos = !!(application.passport_photo_url || application.visa_photo_url)
+      photoPaths = {
+        passport: application.passport_photo_url,
+        visaPhoto: application.visa_photo_url,
+        previousVisa: application.previous_visa_photo_url
+      }
+    } else if (destination === 'canada') {
+      hasPhotos = !!application.doc_id_passport || !!application.doc_ties
+      photoPaths = {
+        docIdPassport: application.doc_id_passport,
+        docTies: application.doc_ties
+      }
+    } else if (destination === 'uk') {
+      hasPhotos = !!application.passport_file_url || !!application.photo_file_url
+      photoPaths = {
+        passport: application.passport_file_url,
+        photo: application.photo_file_url
+      }
+    }
+
     if (application.pdf_url && !hasPhotos) {
       console.log('[PDF_GEN] PDF already exists, returning cached signed URL')
       const { data: signedData, error: signedError } = await supabaseAdmin
@@ -66,31 +92,28 @@ export async function generateApplicationPdfAction(applicationId: string): Promi
 
     // Fetch signed photo URLs and download as data URIs for embedding in PDF
     console.log('[PDF_GEN] Fetching photo data URIs...')
-    const [passportSignedUrl, visaSignedUrl, prevVisaSignedUrl] = await Promise.all([
-      getSignedUrl(bucket, application.passport_photo_url),
-      getSignedUrl(bucket, application.visa_photo_url),
-      getSignedUrl(bucket, application.previous_visa_photo_url),
-    ])
-    const [passportDataUri, visaDataUri, prevVisaDataUri] = await Promise.all([
-      fetchPhotoAsDataUri(passportSignedUrl),
-      fetchPhotoAsDataUri(visaSignedUrl),
-      fetchPhotoAsDataUri(prevVisaSignedUrl),
-    ])
-    const photoUrls: Record<string, string> = {}
-    if (passportDataUri) photoUrls.passport = passportDataUri
-    if (visaDataUri) photoUrls.visaPhoto = visaDataUri
-    if (prevVisaDataUri) photoUrls.previousVisa = prevVisaDataUri
+    const photoDataUris: Record<string, string> = {}
+    
+    for (const [key, path] of Object.entries(photoPaths)) {
+      if (path) {
+        const signedUrl = await getSignedUrl(bucket, path)
+        const dataUri = await fetchPhotoAsDataUri(signedUrl)
+        if (dataUri) photoDataUris[key] = dataUri
+      }
+    }
 
     // Render PDF — try with photos first, fall back to text-only if image embedding fails
     console.log('[PDF_GEN] Rendering PDF (with photos)...')
     let pdfBuffer: Buffer
+    const pdfData = destination === 'usa' ? application.data : application
+
     try {
-      pdfBuffer = await generateApplicationPdf(application.data, photoUrls)
+      pdfBuffer = await generateApplicationPdf(pdfData, photoDataUris, destination)
       console.log('[PDF_GEN] PDF with photos generated, size:', pdfBuffer.length, 'bytes')
     } catch (pdfErrWithPhotos: any) {
       console.error('[PDF_GEN] PDF with photos failed:', pdfErrWithPhotos.message, '— retrying without photos')
       try {
-        pdfBuffer = await generateApplicationPdf(application.data, {})
+        pdfBuffer = await generateApplicationPdf(pdfData, {}, destination)
         console.log('[PDF_GEN] PDF text-only generated, size:', pdfBuffer.length, 'bytes')
       } catch (pdfErrNoPhotos: any) {
         console.error('[PDF_GEN] PDF text-only also failed:', pdfErrNoPhotos.message)
@@ -115,7 +138,7 @@ export async function generateApplicationPdfAction(applicationId: string): Promi
 
     // Update DB row with pdf_url
     await supabaseAdmin
-      .from('visa_applications_usa')
+      .from(table)
       .update({ pdf_url: pdfPath })
       .eq('id', applicationId)
 

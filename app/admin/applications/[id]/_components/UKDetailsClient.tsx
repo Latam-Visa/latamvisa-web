@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from 'react'
-import { Download, Loader2, Sparkles, RefreshCw } from 'lucide-react'
+import { Download, Loader2, Sparkles, RefreshCw, FileText } from 'lucide-react'
 import { generateIntentionLetterBg } from '@/app/aplicar/turismo-uk/_actions/generate-intention-letter'
 
 function DataRow({ label, value, className = '' }: { label: string, value: any, className?: string }) {
@@ -62,6 +62,27 @@ export function UKDetailsClient({ application, signedPhotoUrls }: { application:
   const [isGenerating, setIsGenerating] = useState(false)
   const [aiLetter, setAiLetter] = useState(application.ai_intention_letter)
   const [letterStatus, setLetterStatus] = useState(application.ai_letter_status)
+  const [isGeneratingPdf, setIsGeneratingPdf] = useState(false)
+
+  const handlePdfClick = async () => {
+    setIsGeneratingPdf(true)
+    try {
+      const response = await fetch('/api/admin/generate-pdf', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ applicationId: application.id, destination: 'uk' })
+      })
+      const result = await response.json()
+      if (result.success && result.url) {
+        window.open(result.url, '_blank')
+      } else {
+        alert(result.error || 'Error al generar el PDF')
+      }
+    } catch {
+      alert('Error de red al intentar generar el PDF')
+    }
+    setIsGeneratingPdf(false)
+  }
 
   const handleGenerateLetter = async () => {
     setIsGenerating(true)
@@ -112,6 +133,14 @@ export function UKDetailsClient({ application, signedPhotoUrls }: { application:
             <span className="text-sm text-[#888] flex items-center ml-2">
               {new Date(application.created_at).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
             </span>
+            <button
+              onClick={handlePdfClick}
+              disabled={isGeneratingPdf}
+              className="ml-auto flex items-center gap-2 bg-[#C8FF00] text-black px-4 py-1.5 rounded-lg text-sm font-bold hover:bg-[#b8ef00] transition-colors disabled:opacity-50"
+            >
+              {isGeneratingPdf ? <Loader2 className="w-4 h-4 animate-spin" /> : <FileText className="w-4 h-4" />}
+              Generar PDF
+            </button>
           </div>
         </div>
       </div>

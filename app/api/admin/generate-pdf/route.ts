@@ -3,14 +3,14 @@ import { generateApplicationPdfAction } from '@/app/admin/applications/[id]/_act
 
 export async function POST(request: Request) {
   try {
-    const { applicationId } = await request.json()
+    const { applicationId, destination = 'usa' } = await request.json()
     if (!applicationId) {
       return NextResponse.json({ success: false, error: 'Falta applicationId' })
     }
     
     // We can call the action function directly since it's just a normal async function 
     // when called from an API Route (it won't go through the Server Action Webpack proxy boundary)
-    const result = await generateApplicationPdfAction(applicationId)
+    const result = await generateApplicationPdfAction(applicationId, destination)
     return NextResponse.json(result)
   } catch (err: any) {
     return NextResponse.json({ success: false, error: err.message || 'Error inesperado' })

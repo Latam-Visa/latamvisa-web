@@ -144,7 +144,7 @@ export function AdminDetailsClient({ application, signedPhotoUrls }: Props) {
       const response = await fetch('/api/admin/generate-pdf', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ applicationId: application.id })
+        body: JSON.stringify({ applicationId: application.id, destination: 'usa' })
       })
       const result = await response.json()
       if (result.success && result.url) {

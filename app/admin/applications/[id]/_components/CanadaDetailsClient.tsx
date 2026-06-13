@@ -168,7 +168,23 @@ export function CanadaDetailsClient({ application, signedPhotoUrls }: Props) {
   }
 
   const handlePdfClick = async () => {
-    alert('La generación de PDF para Canadá aún no está implementada.')
+    setIsGeneratingPdf(true)
+    try {
+      const response = await fetch('/api/admin/generate-pdf', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ applicationId: application.id, destination: 'canada' })
+      })
+      const result = await response.json()
+      if (result.success && result.url) {
+        window.open(result.url, '_blank')
+      } else {
+        alert(result.error || 'Error al generar el PDF')
+      }
+    } catch {
+      alert('Error de red al intentar generar el PDF')
+    }
+    setIsGeneratingPdf(false)
   }
 
   return (
