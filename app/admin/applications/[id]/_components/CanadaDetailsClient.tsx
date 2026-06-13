@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { updateApplicationStatus, updateApplicationNotes, deleteApplication } from '../../../_actions/admin-actions'
 import { useRouter } from 'next/navigation'
 import { FileText, Save, Trash2, Loader2, ExternalLink, Copy } from 'lucide-react'
-import { generateIntentionLetterBg } from '@/app/aplicar/turismo-canada/_actions/generate-intention-letter'
+// import { generateIntentionLetterBg } from '@/app/aplicar/turismo-canada/_actions/generate-intention-letter'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
 
@@ -114,15 +114,22 @@ export function CanadaDetailsClient({ application, signedPhotoUrls }: Props) {
   const handleRegenerateLetter = async () => {
     setAiLetterStatus('generating')
     try {
-      const res = await generateIntentionLetterBg(application.id)
+      const response = await fetch('/api/admin/generate-letter', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ applicationId: application.id, destination: 'canada' })
+      })
+      const res = await response.json()
       if (res.success) {
         setAiLetter(res.letter)
         setAiLetterStatus('completed')
         setAiLetterGeneratedAt(new Date().toISOString())
       } else {
+        alert(res.error || 'Error al generar la carta')
         setAiLetterStatus('failed')
       }
-    } catch {
+    } catch (e) {
+      alert('Error de red al intentar generar la carta')
       setAiLetterStatus('failed')
     }
   }
@@ -177,7 +184,12 @@ export function CanadaDetailsClient({ application, signedPhotoUrls }: Props) {
       })
       const result = await response.json()
       if (result.success && result.url) {
-        window.open(result.url, '_blank')
+        const a = document.createElement('a')
+        a.href = result.url
+        a.target = '_blank'
+        document.body.appendChild(a)
+        a.click()
+        document.body.removeChild(a)
       } else {
         alert(result.error || 'Error al generar el PDF')
       }

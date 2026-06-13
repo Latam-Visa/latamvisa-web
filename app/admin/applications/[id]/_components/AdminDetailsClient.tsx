@@ -149,7 +149,12 @@ export function AdminDetailsClient({ application, signedPhotoUrls }: Props) {
       const result = await response.json()
       if (result.success && result.url) {
         setHasPdfUrl(true)
-        window.open(result.url, '_blank')
+        const a = document.createElement('a')
+        a.href = result.url
+        a.target = '_blank'
+        document.body.appendChild(a)
+        a.click()
+        document.body.removeChild(a)
       } else {
         alert(result.error || 'No pudimos generar el PDF')
       }

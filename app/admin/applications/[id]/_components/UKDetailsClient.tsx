@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { Download, Loader2, Sparkles, RefreshCw, FileText } from 'lucide-react'
-import { generateIntentionLetterBg } from '@/app/aplicar/turismo-uk/_actions/generate-intention-letter'
+// import { generateIntentionLetterBg } from '@/app/aplicar/turismo-uk/_actions/generate-intention-letter'
 
 function DataRow({ label, value, className = '' }: { label: string, value: any, className?: string }) {
   if (value === null || value === undefined || value === '') return null
@@ -74,7 +74,12 @@ export function UKDetailsClient({ application, signedPhotoUrls }: { application:
       })
       const result = await response.json()
       if (result.success && result.url) {
-        window.open(result.url, '_blank')
+        const a = document.createElement('a')
+        a.href = result.url
+        a.target = '_blank'
+        document.body.appendChild(a)
+        a.click()
+        document.body.removeChild(a)
       } else {
         alert(result.error || 'Error al generar el PDF')
       }
@@ -88,7 +93,12 @@ export function UKDetailsClient({ application, signedPhotoUrls }: { application:
     setIsGenerating(true)
     setLetterStatus('generating')
     try {
-      const res = await generateIntentionLetterBg(application.id)
+      const response = await fetch('/api/admin/generate-letter', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ applicationId: application.id, destination: 'uk' })
+      })
+      const res = await response.json()
       if (res.success) {
         setAiLetter(res.letter)
         setLetterStatus('completed')
@@ -97,7 +107,7 @@ export function UKDetailsClient({ application, signedPhotoUrls }: { application:
         setLetterStatus('failed')
       }
     } catch (e) {
-      alert('Error de red')
+      alert('Error de red al intentar generar la carta')
       setLetterStatus('failed')
     } finally {
       setIsGenerating(false)

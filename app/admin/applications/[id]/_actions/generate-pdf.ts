@@ -87,7 +87,7 @@ export async function generateApplicationPdfAction(
       const { data: signedData, error: signedError } = await supabaseAdmin
         .storage
         .from(bucket)
-        .createSignedUrl(application.pdf_url, 300)
+        .createSignedUrl(application.pdf_url, 300, { download: 'application.pdf' })
 
       if (signedError || !signedData) {
         return { success: false, error: 'No pudimos generar el enlace de descarga' }
@@ -152,7 +152,7 @@ export async function generateApplicationPdfAction(
     const { data: signedData } = await supabaseAdmin
       .storage
       .from(bucket)
-      .createSignedUrl(pdfPath, 300)
+      .createSignedUrl(pdfPath, 300, { download: 'application.pdf' })
 
     console.log('[PDF_GEN] Done.')
     return { success: true, url: signedData?.signedUrl, cached: false }
