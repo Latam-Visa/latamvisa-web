@@ -107,7 +107,15 @@ export default function HeroScroll() {
 
       const progress = Math.max(0, Math.min(1, (scrollY - spacerTop) / scrollable))
 
-      // Removed canvas fade logic so the sky stays permanently as the background behind sections
+      // Canvas fades only after textLayer2 is completely gone (0.80) — long cinematic crossfade
+      if (progress > 0.80) {
+        const heroFade = Math.max(0, 1 - (progress - 0.80) / 0.20)
+        fixed.style.opacity = String(heroFade)
+        fixed.style.visibility = heroFade < 0.01 ? 'hidden' : 'visible'
+      } else {
+        fixed.style.visibility = 'visible'
+        fixed.style.opacity = '1'
+      }
 
       /* Frame draw */
       const frameIndex = Math.min(Math.floor(progress * TOTAL_FRAMES), TOTAL_FRAMES - 1)
@@ -254,7 +262,7 @@ export default function HeroScroll() {
       {/* Fixed fullscreen hero */}
       <div
         ref={fixedRef}
-        style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', zIndex: 0, pointerEvents: 'none' }}
+        style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', zIndex: 45, pointerEvents: 'none' }}
       >
         {/* Frame-001 fallback — visible while canvas hasn't drawn yet */}
         {/* eslint-disable-next-line @next/next/no-img-element */}
