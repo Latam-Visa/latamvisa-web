@@ -28,7 +28,6 @@ export default function HeroScroll() {
   const currentFrameRef = useRef(0)
   const spacerOffsetRef = useRef(0)
   const framesRef = useRef<HTMLImageElement[]>([])
-  const whiteOverlayRef = useRef<HTMLDivElement>(null)
   const isMobileRef = useRef(false)
 
   /* ── Sync isMobile to ref so scroll handler can read it ── */
@@ -108,15 +107,7 @@ export default function HeroScroll() {
 
       const progress = Math.max(0, Math.min(1, (scrollY - spacerTop) / scrollable))
 
-      // Canvas fades only after textLayer2 is completely gone (0.80) — long cinematic crossfade
-      if (progress > 0.80) {
-        const heroFade = Math.max(0, 1 - (progress - 0.80) / 0.20)
-        fixed.style.opacity = String(heroFade)
-        fixed.style.visibility = heroFade < 0.01 ? 'hidden' : 'visible'
-      } else {
-        fixed.style.visibility = 'visible'
-        fixed.style.opacity = '1'
-      }
+      // Removed canvas fade logic so the sky stays permanently as the background behind sections
 
       /* Frame draw */
       const frameIndex = Math.min(Math.floor(progress * TOTAL_FRAMES), TOTAL_FRAMES - 1)
@@ -151,16 +142,7 @@ export default function HeroScroll() {
         ctaRef.current.style.pointerEvents = ctaOp < 0.1 ? 'none' : 'auto'
       }
 
-      /* White overlay — bleaches hero clean before it fades, creating a white transition to sections */
-      if (whiteOverlayRef.current) {
-        if (progress <= 0.72) {
-          whiteOverlayRef.current.style.opacity = '0'
-        } else if (progress <= 0.82) {
-          whiteOverlayRef.current.style.opacity = String((progress - 0.72) / 0.10)
-        } else {
-          whiteOverlayRef.current.style.opacity = '1'
-        }
-      }
+      // Removed white overlay logic
 
       /* Bottom vignette — fades out alongside textLayer2 exit */
       if (bottomVignetteRef.current) {
@@ -272,7 +254,7 @@ export default function HeroScroll() {
       {/* Fixed fullscreen hero */}
       <div
         ref={fixedRef}
-        style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', zIndex: 45, pointerEvents: 'none' }}
+        style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', zIndex: 0, pointerEvents: 'none' }}
       >
         {/* Frame-001 fallback — visible while canvas hasn't drawn yet */}
         {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -292,12 +274,6 @@ export default function HeroScroll() {
         <div
           ref={overlayRef}
           style={{ position: 'absolute', inset: 0, backgroundColor: 'transparent', opacity: 0, pointerEvents: 'none', zIndex: 2 }}
-        />
-
-        {/* White overlay — bleaches hero to white before exit, creates clean transition to sections */}
-        <div
-          ref={whiteOverlayRef}
-          style={{ position: 'absolute', inset: 0, backgroundColor: '#FFFFFF', opacity: 0, pointerEvents: 'none', zIndex: 8 }}
         />
 
         {/* Top vignette */}
