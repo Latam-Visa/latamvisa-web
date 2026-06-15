@@ -25,15 +25,18 @@ type FormData = {
   tiempo_estudio: string
   situacion_laboral: string
   situacion_libre: string
+  // Shared
+  ubicacion: string
 }
 
 const INITIAL: FormData = {
   nombre: '', tipo_visa: '', pais_origen: '', edad: '', email: '', acepta: false,
   pais_destino: '', tiempo_estadia: '', viajes_previos: '', pasaporte: '', situacion_actual: '',
-  que_estudiar: '', nivel_ingles: '', tiempo_estudio: '', situacion_laboral: '', situacion_libre: ''
+  que_estudiar: '', nivel_ingles: '', tiempo_estudio: '', situacion_laboral: '', situacion_libre: '',
+  ubicacion: ''
 }
 
-// Steps: 0=nombre, 1=tipo_visa, 2=pais_origen, 3=edad, 4-8=branch(5), 9=email → total 10 (or 11 for estudiante)
+// Steps: 0=nombre, 1=tipo_visa, 2=pais_origen, 3=edad, 4-8=branch(5), 9=ubicacion(turismo), 10=email(turismo) → total 11 (or 12 for estudiante)
 
 function getLabel(step: number, visa: VisaType): string {
   if (step === 0) return 'Tu nombre'
@@ -47,7 +50,8 @@ function getLabel(step: number, visa: VisaType): string {
     if (step === 6) return '¿Has viajado al extranjero antes?'
     if (step === 7) return '¿Tienes pasaporte vigente?'
     if (step === 8) return '¿Cuál es tu situación actual?'
-    if (step === 9) return 'Tu correo electrónico'
+    if (step === 9) return '¿Dónde te encuentras ahora?'
+    if (step === 10) return 'Tu correo electrónico'
   }
   
   if (visa === 'estudiante') {
@@ -57,7 +61,8 @@ function getLabel(step: number, visa: VisaType): string {
     if (step === 7) return '¿Tienes pasaporte vigente?'
     if (step === 8) return '¿Estás trabajando actualmente?'
     if (step === 9) return 'Cuéntanos tu situación (opcional)'
-    if (step === 10) return 'Tu correo electrónico'
+    if (step === 10) return '¿Dónde te encuentras ahora?'
+    if (step === 11) return 'Tu correo electrónico'
   }
   return ''
 }
@@ -112,7 +117,7 @@ export default function EvaluationForm() {
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle')
   const [direction, setDirection] = useState(1)
 
-  const TOTAL_STEPS = data.tipo_visa === 'estudiante' ? 11 : 10;
+  const TOTAL_STEPS = data.tipo_visa === 'estudiante' ? 12 : 11;
 
   const ref = useRef(null)
   const inView = useInView(ref, { once: false, margin: '-100px' })
@@ -129,7 +134,8 @@ export default function EvaluationForm() {
       if (step === 6) return data.viajes_previos !== ''
       if (step === 7) return data.pasaporte !== ''
       if (step === 8) return data.situacion_actual !== ''
-      if (step === 9) return data.email.trim() !== '' && data.acepta
+      if (step === 9) return data.ubicacion !== ''
+      if (step === 10) return data.email.trim() !== '' && data.acepta
     }
     
     if (data.tipo_visa === 'estudiante') {
@@ -139,7 +145,8 @@ export default function EvaluationForm() {
       if (step === 7) return data.pasaporte !== ''
       if (step === 8) return data.situacion_laboral !== ''
       if (step === 9) return true // Situación libre (opcional)
-      if (step === 10) return data.email.trim() !== '' && data.acepta
+      if (step === 10) return data.ubicacion !== ''
+      if (step === 11) return data.email.trim() !== '' && data.acepta
     }
     return false
   }
@@ -151,7 +158,9 @@ export default function EvaluationForm() {
 
   const handleSubmit = async () => {
     setStatus('loading')
-    const payload = { ...data, edad: Number(data.edad), fecha: new Date().toISOString(), fuente: 'latamvisa.com' }
+    
+    const student_type = data.ubicacion.startsWith('En Australia') ? 'onshore' : 'offshore'
+    const payload = { ...data, edad: Number(data.edad), fecha: new Date().toISOString(), fuente: 'latamvisa.com', student_type }
     try {
       await fetch(N8N_WEBHOOK_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) })
       if (typeof window !== 'undefined' && (window as any).fbq) {
@@ -429,6 +438,15 @@ export default function EvaluationForm() {
                         </div>
                       )}
 
+                      {/* TURISMO — Step 9: Ubicación */}
+                      {step === 9 && data.tipo_visa === 'turismo' && (
+                        <div className="flex flex-col gap-2">
+                          {['En Australia (renovando visa)', 'Fuera de Australia (aplicando desde afuera)'].map(opt => (
+                            <RadioOption key={opt} value={opt} selected={data.ubicacion === opt} onSelect={() => setData({ ...data, ubicacion: opt })} />
+                          ))}
+                        </div>
+                      )}
+
                       {/* ESTUDIANTE — Step 4: Qué estudiar */}
                       {step === 4 && data.tipo_visa === 'estudiante' && (
                         <div className="flex flex-col gap-2">
@@ -488,8 +506,17 @@ export default function EvaluationForm() {
                         </div>
                       )}
 
-                      {/* Step 9 (Turismo) o Step 10 (Estudiante) — Email */}
-                      {((step === 9 && data.tipo_visa === 'turismo') || (step === 10 && data.tipo_visa === 'estudiante')) && (
+                      {/* ESTUDIANTE — Step 10: Ubicación */}
+                      {step === 10 && data.tipo_visa === 'estudiante' && (
+                        <div className="flex flex-col gap-2">
+                          {['En Australia (renovando visa)', 'Fuera de Australia (aplicando desde afuera)'].map(opt => (
+                            <RadioOption key={opt} value={opt} selected={data.ubicacion === opt} onSelect={() => setData({ ...data, ubicacion: opt })} />
+                          ))}
+                        </div>
+                      )}
+
+                      {/* Step 10 (Turismo) o Step 11 (Estudiante) — Email */}
+                      {((step === 10 && data.tipo_visa === 'turismo') || (step === 11 && data.tipo_visa === 'estudiante')) && (
                         <div className="space-y-4">
                           <input
                             type="email"
@@ -498,6 +525,7 @@ export default function EvaluationForm() {
                             onChange={e => setData({ ...data, email: e.target.value })}
                             className="w-full backdrop-blur-md border text-[#0d2b0d] px-4 py-3 font-monument font-medium text-[13px] focus:outline-none transition-all rounded-lg placeholder-[#7aaa7a]"
                           style={{ background: 'rgba(255,255,255,0.55)', borderColor: 'rgba(200,255,0,0.5)' }}
+
                           />
                           <label className="flex items-start gap-4 cursor-pointer p-3.5 border rounded-lg transition-colors" style={{ borderColor: 'rgba(200,255,0,0.45)', background: 'rgba(255,255,255,0.45)' }}>
                             <input
