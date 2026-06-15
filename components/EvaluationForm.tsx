@@ -74,12 +74,12 @@ function RadioOption({ value, selected, onSelect }: { value: string; selected: b
       onClick={onSelect}
       className={`relative w-full text-left px-4 py-2.5 border transition-all duration-200 font-monument font-medium text-xs md:text-[12px] rounded-lg ${
         selected
-          ? 'border-[#C8FF00] bg-[#C8FF00]/20 text-[#2d6a00] shadow-[0_4px_16px_rgba(200,255,0,0.25)] -translate-y-[1px]'
-          : 'border-white/50 bg-white/30 text-[#1a3a1a] hover:bg-white/50 hover:border-[#C8FF00]/50 hover:-translate-y-[1px]'
+          ? 'border-[#000000] bg-[#F5F5F5] text-[#0A0A0A] shadow-[0_4px_16px_rgba(0,0,0,0.08)] -translate-y-[1px]'
+          : 'border-black/10 bg-white/50 text-[#6B7280] hover:bg-white/80 hover:border-black/30 hover:-translate-y-[1px]'
       }`}
     >
-      <span className={`mr-2.5 inline-block w-3 h-3 rounded-full border-2 flex-shrink-0 relative align-middle transition-colors ${selected ? 'border-[#C8FF00] bg-[#C8FF00]' : 'border-[#2d6a00]/40 bg-transparent'}`}>
-        {selected && <span className="absolute inset-0 m-auto w-1.5 h-1.5 bg-[#1a3a1a] rounded-full" />}
+      <span className={`mr-2.5 inline-block w-3 h-3 rounded-full border-2 flex-shrink-0 relative align-middle transition-colors ${selected ? 'border-[#0A0A0A] bg-transparent' : 'border-black/20 bg-transparent'}`}>
+        {selected && <span className="absolute inset-0 m-auto w-1.5 h-1.5 bg-[#0A0A0A] rounded-full" />}
       </span>
       {value}
     </button>
@@ -93,18 +93,18 @@ function VisaCard({ label, desc, icon, selected, onSelect }: { label: string; de
       onClick={onSelect}
       className={`relative w-full text-left px-4 py-3.5 border rounded-xl transition-all duration-200 ${
         selected
-          ? 'border-[#C8FF00] bg-[#C8FF00]/20 shadow-[0_4px_20px_rgba(200,255,0,0.25)] -translate-y-[1px]'
-          : 'border-white/50 bg-white/30 hover:bg-white/50 hover:border-[#C8FF00]/50 hover:-translate-y-[1px]'
+          ? 'border-[#000000] bg-[#F5F5F5] shadow-[0_4px_20px_rgba(0,0,0,0.08)] -translate-y-[1px]'
+          : 'border-black/10 bg-white/50 hover:bg-white/80 hover:border-black/30 hover:-translate-y-[1px]'
       }`}
     >
       <div className="flex items-center gap-3">
         {icon && <span className="text-xl">{icon}</span>}
         <div>
-          <p className={`font-monument font-black text-sm ${selected ? 'text-[#2d6a00]' : 'text-[#1a3a1a]'}`}>{label}</p>
-          <p className="font-iceland text-xs text-[#4a7a4a] mt-0.5">{desc}</p>
+          <p className={`font-monument font-black text-sm ${selected ? 'text-[#0A0A0A]' : 'text-[#6B7280]'}`}>{label}</p>
+          <p className="font-iceland text-xs text-[#9CA3AF] mt-0.5">{desc}</p>
         </div>
-        <div className={`ml-auto w-3.5 h-3.5 rounded-full border-2 flex-shrink-0 transition-colors ${selected ? 'border-[#C8FF00] bg-[#C8FF00]' : 'border-[#2d6a00]/40'}`}>
-          {selected && <span className="block w-1.5 h-1.5 bg-[#1a3a1a] rounded-full m-auto mt-[1px]" />}
+        <div className={`ml-auto w-3.5 h-3.5 rounded-full border-2 flex-shrink-0 transition-colors ${selected ? 'border-[#0A0A0A] bg-transparent' : 'border-black/20'}`}>
+          {selected && <span className="block w-1.5 h-1.5 bg-[#0A0A0A] rounded-full m-auto mt-[1px]" />}
         </div>
       </div>
     </button>
@@ -195,26 +195,26 @@ export default function EvaluationForm() {
   const greeting = firstName ? `, ${firstName}` : ''
 
   return (
-    <section id="evaluacion" className="py-14 lg:py-24 px-6 relative z-10 -mt-[1px]" style={{ background: 'linear-gradient(to bottom, rgba(255,255,255,0) 0%, rgba(252,251,249,0.50) 100%)' }}>
+    <section id="evaluacion" className="py-14 lg:py-24 px-6 relative z-10 -mt-[1px]" style={{ background: '#FFFFFF' }}>
       <div className="max-w-5xl lg:max-w-6xl mx-auto px-2 sm:px-4" ref={ref}>
         {/* Master Card Contenedor Principal (Split-Card Flotante) */}
         <motion.div
           initial={{ opacity: 0, y: 60 }}
           animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 60 }}
           transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-          className="flex flex-col lg:grid lg:grid-cols-2 rounded-[2rem] overflow-hidden shadow-[0_32px_80px_rgba(0,80,0,0.18),0_8px_32px_rgba(200,255,0,0.1)] border border-white/60 relative backdrop-blur-3xl"
-          style={{ background: 'linear-gradient(135deg, rgba(255,255,255,0.55) 0%, rgba(220,255,200,0.35) 45%, rgba(255,255,255,0.5) 100%)' }}
+          className="flex flex-col lg:grid lg:grid-cols-2 rounded-[2rem] overflow-hidden shadow-[0_32px_80px_rgba(0,0,0,0.06),0_8px_32px_rgba(0,0,0,0.04)] border border-black/10 relative"
+          style={{ background: '#FAFAFA' }}
         >
 
           {/* Left Column (Información) */}
           <div className="p-8 sm:p-12 lg:p-16 flex flex-col justify-center relative z-10 w-full h-full overflow-hidden">
             {/* Orb decorativo columna izquierda */}
-            <div className="absolute -top-20 -right-20 w-[320px] h-[320px] rounded-full pointer-events-none" style={{ background: 'radial-gradient(circle, rgba(200,255,0,0.22) 0%, transparent 70%)' }} />
-            <div className="absolute -bottom-16 -left-16 w-[240px] h-[240px] rounded-full pointer-events-none" style={{ background: 'radial-gradient(circle, rgba(100,200,50,0.15) 0%, transparent 70%)' }} />
+            <div className="absolute -top-20 -right-20 w-[320px] h-[320px] rounded-full pointer-events-none" style={{ background: 'radial-gradient(circle, rgba(0,0,0,0.03) 0%, transparent 70%)' }} />
+            <div className="absolute -bottom-16 -left-16 w-[240px] h-[240px] rounded-full pointer-events-none" style={{ background: 'radial-gradient(circle, rgba(0,0,0,0.02) 0%, transparent 70%)' }} />
             {/* Badge */}
             <span
               className="inline-flex items-center gap-1.5 font-monument font-black uppercase mb-5 w-max"
-              style={{ background: '#C8FF00', color: '#000000', fontSize: '0.55rem', letterSpacing: '0.2em', padding: '0.35rem 0.75rem', borderRadius: '999px' }}
+              style={{ background: '#0A0A0A', color: '#FFFFFF', fontSize: '0.55rem', letterSpacing: '0.2em', padding: '0.35rem 0.75rem', borderRadius: '999px' }}
             >
               ✦ Empieza aquí
             </span>
@@ -222,38 +222,38 @@ export default function EvaluationForm() {
             {/* Title */}
             <h2
               className="font-monument font-black tracking-tight leading-[0.92] mb-1"
-              style={{ fontSize: 'clamp(1.8rem, 3.5vw, 3rem)', color: '#0d2b0d' }}
+              style={{ fontSize: 'clamp(1.8rem, 3.5vw, 3rem)', color: '#0A0A0A' }}
             >
               Evalúa tu
             </h2>
             <h2
               className="font-monument font-black tracking-tight leading-[0.92] mb-1"
-              style={{ fontSize: 'clamp(1.8rem, 3.5vw, 3rem)', color: '#C8FF00', WebkitTextStroke: '1px #2d6a00', textShadow: '0 2px 12px rgba(200,255,0,0.4)' }}
+              style={{ fontSize: 'clamp(1.8rem, 3.5vw, 3rem)', color: '#0A0A0A' }}
             >
               perfil
             </h2>
             <h2
               className="font-monument font-black italic tracking-tight mb-8 leading-[0.92]"
-              style={{ fontSize: 'clamp(1rem, 2vw, 1.6rem)', color: '#C8FF00', WebkitTextStroke: '0.8px #2d6a00', textShadow: '0 2px 10px rgba(200,255,0,0.35)' }}
+              style={{ fontSize: 'clamp(1rem, 2vw, 1.6rem)', color: '#6B7280' }}
             >
               gratuitamente
             </h2>
 
-            <div className="mb-8 border-l-2 border-[#C8FF00] pl-4">
-              <p className="font-monument font-bold max-w-sm" style={{ color: '#1a3a1a', fontSize: '0.82rem', lineHeight: '1.7' }}>
-                En <span style={{ color: '#2d6a00', fontWeight: 900 }}>2 minutos</span> analizamos tu perfil, evaluamos tu viabilidad real y te mostramos cómo potenciarlo.
+            <div className="mb-8 border-l-2 border-black/20 pl-4">
+              <p className="font-monument font-bold max-w-sm" style={{ color: '#0A0A0A', fontSize: '0.82rem', lineHeight: '1.7' }}>
+                En <span style={{ color: '#0A0A0A', fontWeight: 900 }}>2 minutos</span> analizamos tu perfil, evaluamos tu viabilidad real y te mostramos cómo potenciarlo.
               </p>
-              <p className="font-iceland font-bold text-[0.72rem] mt-3" style={{ color: '#2d6a00', letterSpacing: '0.05em' }}>
+              <p className="font-iceland font-bold text-[0.72rem] mt-3" style={{ color: '#6B7280', letterSpacing: '0.05em' }}>
                 🔒 100% privado · ✓ Gratis · Sin compromiso
               </p>
             </div>
 
             <div className="hidden lg:block mt-auto pt-6">
-              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.6rem', padding: '0.65rem 1.1rem', borderRadius: '0.85rem', background: 'rgba(255,255,255,0.5)', border: '1px solid rgba(200,255,0,0.5)', boxShadow: '0 4px 20px rgba(200,255,0,0.15)', backdropFilter: 'blur(12px)' }}>
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.6rem', padding: '0.65rem 1.1rem', borderRadius: '0.85rem', background: '#FFFFFF', border: '1px solid rgba(0,0,0,0.1)', boxShadow: '0 4px 20px rgba(0,0,0,0.04)' }}>
                 <span style={{ fontSize: '1.1rem', lineHeight: 1 }}>⚡</span>
                 <div>
-                  <p className="font-monument font-black uppercase" style={{ fontSize: '0.68rem', color: '#2d6a00', letterSpacing: '0.14em' }}>Respuesta Rápida</p>
-                  <p className="font-iceland" style={{ fontSize: '0.78rem', color: '#4a7a4a', marginTop: '0.08rem' }}>Análisis en menos de <span style={{ color: '#2d6a00', fontWeight: 700 }}>24h</span></p>
+                  <p className="font-monument font-black uppercase" style={{ fontSize: '0.68rem', color: '#0A0A0A', letterSpacing: '0.14em' }}>Respuesta Rápida</p>
+                  <p className="font-iceland" style={{ fontSize: '0.78rem', color: '#6B7280', marginTop: '0.08rem' }}>Análisis en menos de <span style={{ color: '#0A0A0A', fontWeight: 700 }}>24h</span></p>
                 </div>
               </div>
             </div>
@@ -261,32 +261,32 @@ export default function EvaluationForm() {
 
           {/* Right Column — Form Card (Integrado al Master Card) */}
           <div
-            className="relative flex flex-col w-full h-full border-t lg:border-t-0 lg:border-l border-white/50 overflow-hidden backdrop-blur-2xl"
-            style={{ background: 'rgba(255,255,255,0.25)', minHeight: '400px' }}
+            className="relative flex flex-col w-full h-full border-t lg:border-t-0 lg:border-l border-black/10 overflow-hidden"
+            style={{ background: '#FFFFFF', minHeight: '400px' }}
           >
             {/* Animated orbs */}
             <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
-              <motion.div variants={orb1Variants} animate="animate" className="absolute -top-24 -left-16 w-[280px] h-[280px] bg-[#C8FF00]/25 rounded-full filter blur-[70px]" />
-              <motion.div variants={orb2Variants} animate="animate" className="absolute top-1/3 -right-20 w-[240px] h-[240px] bg-[#C8FF00]/15 rounded-full filter blur-[80px]" />
-              <motion.div variants={orb3Variants} animate="animate" className="absolute -bottom-28 left-1/3 w-[320px] h-[320px] bg-[#C8FF00]/20 rounded-full filter blur-[90px]" />
+              <motion.div variants={orb1Variants} animate="animate" className="absolute -top-24 -left-16 w-[280px] h-[280px] bg-black/5 rounded-full filter blur-[70px]" />
+              <motion.div variants={orb2Variants} animate="animate" className="absolute top-1/3 -right-20 w-[240px] h-[240px] bg-black/5 rounded-full filter blur-[80px]" />
+              <motion.div variants={orb3Variants} animate="animate" className="absolute -bottom-28 left-1/3 w-[320px] h-[320px] bg-black/5 rounded-full filter blur-[90px]" />
             </div>
 
             <div className="relative z-10 flex flex-col h-full w-full">
               {/* Progress header */}
-              <div className="border-b border-white/50 px-6 py-4 flex-shrink-0" style={{ background: 'rgba(255,255,255,0.35)' }}>
+              <div className="border-b border-black/10 px-6 py-4 flex-shrink-0" style={{ background: '#FFFFFF' }}>
                 <div className="flex justify-between items-center mb-2.5">
-                  <span className="font-funnel font-bold text-xs text-[#1a3a1a] tracking-widest uppercase">
+                  <span className="font-funnel font-bold text-xs text-[#0A0A0A] tracking-widest uppercase">
                     Paso {step + 1}/{TOTAL_STEPS}
                   </span>
-                  <span className="font-iceland text-[#4a7a4a] text-xs uppercase tracking-widest truncate max-w-[55%] text-right">
+                  <span className="font-iceland text-[#6B7280] text-xs uppercase tracking-widest truncate max-w-[55%] text-right">
                     {getLabel(step, data.tipo_visa)}
                   </span>
                 </div>
                 <div className="flex gap-1 h-[2px]">
                   {Array.from({ length: TOTAL_STEPS }).map((_, i) => (
-                    <div key={i} className="flex-1 rounded-full overflow-hidden" style={{ background: 'rgba(200,255,0,0.18)' }}>
+                    <div key={i} className="flex-1 rounded-full overflow-hidden" style={{ background: 'rgba(0,0,0,0.08)' }}>
                       <motion.div
-                        className="h-full bg-[#C8FF00]"
+                        className="h-full bg-[#0A0A0A]"
                         initial={{ width: '0%' }}
                         animate={{ width: i <= step ? '100%' : '0%' }}
                         transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
@@ -302,16 +302,16 @@ export default function EvaluationForm() {
 
                   {status === 'loading' && (
                     <motion.div key="loading" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} className="flex flex-col items-center justify-center gap-5 absolute inset-0">
-                      <div className="w-12 h-12 border-4 border-[#C8FF00] border-t-transparent rounded-full animate-spin" />
-                      <p className="font-iceland text-[#4a7a4a] font-bold text-sm tracking-widest uppercase">Analizando perfil...</p>
+                      <div className="w-12 h-12 border-4 border-[#0A0A0A] border-t-transparent rounded-full animate-spin" />
+                      <p className="font-iceland text-[#6B7280] font-bold text-sm tracking-widest uppercase">Analizando perfil...</p>
                     </motion.div>
                   )}
 
                   {status === 'success' && (
                     <motion.div key="success" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="flex flex-col items-center justify-center gap-5 text-center absolute inset-0 px-6">
-                      <div className="w-20 h-20 bg-white/70 backdrop-blur-md rounded-full flex items-center justify-center text-4xl shadow-[0_20px_40px_rgba(200,255,0,0.2)] border border-white/80">📩</div>
-                      <h3 className="font-monument font-black text-2xl md:text-3xl text-[#0d2b0d]">¡Todo listo{greeting}!</h3>
-                      <p className="font-iceland text-[#1a3a1a] font-bold text-sm leading-relaxed max-w-[280px]">
+                      <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center text-4xl shadow-[0_20px_40px_rgba(0,0,0,0.06)] border border-black/10">📩</div>
+                      <h3 className="font-monument font-black text-2xl md:text-3xl text-[#0A0A0A]">¡Todo listo{greeting}!</h3>
+                      <p className="font-iceland text-[#6B7280] font-bold text-sm leading-relaxed max-w-[280px]">
                         Revisa tu correo en los próximos minutos. Te enviamos un análisis preliminar de tu ruta óptima.
                       </p>
                     </motion.div>
@@ -328,7 +328,7 @@ export default function EvaluationForm() {
                       transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
                       className="w-full flex flex-col justify-center"
                     >
-                      <h3 className="font-monument font-black text-lg sm:text-xl text-[#0d2b0d] mb-5 text-center drop-shadow-sm">
+                      <h3 className="font-monument font-black text-lg sm:text-xl text-[#0A0A0A] mb-5 text-center">
                         {getLabel(step, data.tipo_visa)}
                       </h3>
 
@@ -340,8 +340,8 @@ export default function EvaluationForm() {
                           value={data.nombre}
                           onChange={e => setData({ ...data, nombre: e.target.value })}
                           onKeyDown={e => { if (e.key === 'Enter' && canNext()) navigate(1) }}
-                          className="w-full backdrop-blur-md border text-[#0d2b0d] px-4 py-3 font-monument font-medium text-[13px] focus:outline-none transition-all text-center rounded-lg placeholder-[#7aaa7a]"
-                          style={{ background: 'rgba(255,255,255,0.55)', borderColor: 'rgba(200,255,0,0.5)' }}
+                          className="w-full bg-white border text-[#0A0A0A] px-4 py-3 font-monument font-medium text-[13px] focus:outline-none transition-all text-center rounded-lg placeholder-[#9CA3AF]"
+                          style={{ borderColor: 'rgba(0,0,0,0.1)' }}
                           autoFocus
                         />
                       )}
@@ -371,8 +371,8 @@ export default function EvaluationForm() {
                         <select
                           value={data.pais_origen}
                           onChange={e => setData({ ...data, pais_origen: e.target.value })}
-                          className="w-full backdrop-blur-md text-[#0d2b0d] px-5 py-4 font-monument font-medium text-sm focus:outline-none transition-all rounded-lg appearance-none cursor-pointer border"
-                          style={{ background: 'rgba(255,255,255,0.55)', borderColor: 'rgba(200,255,0,0.5)' }}
+                          className="w-full bg-white text-[#0A0A0A] px-5 py-4 font-monument font-medium text-sm focus:outline-none transition-all rounded-lg appearance-none cursor-pointer border"
+                          style={{ borderColor: 'rgba(0,0,0,0.1)' }}
                         >
                           <option value="" disabled>Selecciona tu país</option>
                           {LATAM_COUNTRY_NAMES.map(c => <option key={c} value={c}>{c}</option>)}
@@ -388,8 +388,8 @@ export default function EvaluationForm() {
                           value={data.edad}
                           onChange={e => setData({ ...data, edad: e.target.value })}
                           onKeyDown={e => { if (e.key === 'Enter' && canNext()) navigate(1) }}
-                          className="w-full backdrop-blur-md border text-[#0d2b0d] px-4 py-3 font-monument font-medium text-[13px] focus:outline-none transition-all text-center rounded-lg placeholder-[#7aaa7a]"
-                          style={{ background: 'rgba(255,255,255,0.55)', borderColor: 'rgba(200,255,0,0.5)' }}
+                          className="w-full bg-white border text-[#0A0A0A] px-4 py-3 font-monument font-medium text-[13px] focus:outline-none transition-all text-center rounded-lg placeholder-[#9CA3AF]"
+                          style={{ borderColor: 'rgba(0,0,0,0.1)' }}
                         />
                       )}
 
@@ -496,11 +496,11 @@ export default function EvaluationForm() {
                       {step === 9 && data.tipo_visa === 'estudiante' && (
                         <div className="flex flex-col gap-2">
                           <textarea
-                            placeholder="Ej: Llevo 2 años en Australia, estudié inglés 1 año y un diploma en IT. Mi visa vence en 5 meses y quiero seguir estudiando. Viajo con mi pareja..."
+                            placeholder="Ej: Llevo 2 años en Australia... Viajo con mi pareja..."
                             value={data.situacion_libre}
                             onChange={e => setData({ ...data, situacion_libre: e.target.value })}
-                            className="w-full backdrop-blur-md border text-[#0d2b0d] px-4 py-3 font-monument font-medium text-[13px] focus:outline-none transition-all rounded-lg placeholder-[#7aaa7a] resize-none"
-                            style={{ background: 'rgba(255,255,255,0.55)', borderColor: 'rgba(200,255,0,0.5)' }}
+                            className="w-full bg-white border text-[#0A0A0A] px-4 py-3 font-monument font-medium text-[13px] focus:outline-none transition-all rounded-lg placeholder-[#9CA3AF] resize-none"
+                            style={{ borderColor: 'rgba(0,0,0,0.1)' }}
                             rows={4}
                           />
                         </div>
@@ -523,20 +523,19 @@ export default function EvaluationForm() {
                             placeholder="tu@correo.com"
                             value={data.email}
                             onChange={e => setData({ ...data, email: e.target.value })}
-                            className="w-full backdrop-blur-md border text-[#0d2b0d] px-4 py-3 font-monument font-medium text-[13px] focus:outline-none transition-all rounded-lg placeholder-[#7aaa7a]"
-                          style={{ background: 'rgba(255,255,255,0.55)', borderColor: 'rgba(200,255,0,0.5)' }}
-
+                            className="w-full bg-white border text-[#0A0A0A] px-4 py-3 font-monument font-medium text-[13px] focus:outline-none transition-all rounded-lg placeholder-[#9CA3AF]"
+                            style={{ borderColor: 'rgba(0,0,0,0.1)' }}
                           />
-                          <label className="flex items-start gap-4 cursor-pointer p-3.5 border rounded-lg transition-colors" style={{ borderColor: 'rgba(200,255,0,0.45)', background: 'rgba(255,255,255,0.45)' }}>
+                          <label className="flex items-start gap-4 cursor-pointer p-3.5 border rounded-lg transition-colors bg-white" style={{ borderColor: 'rgba(0,0,0,0.1)' }}>
                             <input
                               type="checkbox"
                               checked={data.acepta}
                               onChange={e => setData({ ...data, acepta: e.target.checked })}
-                              className="mt-0.5 accent-[#C8FF00] w-4 h-4 flex-shrink-0"
+                              className="mt-0.5 accent-[#0A0A0A] w-4 h-4 flex-shrink-0 cursor-pointer"
                             />
-                            <span className="font-iceland text-xs text-[#1a3a1a] leading-relaxed font-bold">
+                            <span className="font-iceland text-xs text-[#0A0A0A] leading-relaxed font-bold">
                               Acepto recibir información de LATAM VISA®.{' '}
-                              <span className="text-[#4a7a4a] font-normal">No garantizamos la aprobación de visas.</span>
+                              <span className="text-[#6B7280] font-normal">No garantizamos la aprobación de visas.</span>
                             </span>
                           </label>
                         </div>
@@ -549,12 +548,12 @@ export default function EvaluationForm() {
 
               {/* Navigation */}
               {status === 'idle' && (
-                <div className="border-t border-white/50 p-3.5 flex flex-shrink-0 gap-2.5" style={{ background: 'rgba(255,255,255,0.35)' }}>
+                <div className="border-t border-black/10 p-3.5 flex flex-shrink-0 gap-2.5 bg-[#FFFFFF]">
                   {step > 0 && (
                     <button
                       onClick={() => navigate(-1)}
                       className="px-4 py-2.5 font-monument font-bold text-[10px] uppercase tracking-widest transition-all rounded-lg hover:-translate-y-0.5 border"
-                      style={{ borderColor: 'rgba(200,255,0,0.5)', color: '#2d6a00', background: 'rgba(255,255,255,0.5)' }}
+                      style={{ borderColor: 'rgba(0,0,0,0.1)', color: '#0A0A0A', background: '#FFFFFF' }}
                     >
                       Volver
                     </button>
@@ -563,7 +562,7 @@ export default function EvaluationForm() {
                     <button
                       onClick={() => { if (step < TOTAL_STEPS - 1) navigate(1); else handleSubmit() }}
                       disabled={!canNext()}
-                      className="flex-1 px-5 py-2.5 bg-[#111111] text-[#C8FF00] font-monument font-black text-[10px] uppercase tracking-widest hover:scale-[1.02] active:scale-[0.98] hover:shadow-[0_8px_24px_rgba(200,255,0,0.25)] transition-all rounded-lg disabled:opacity-30 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none"
+                      className="flex-1 px-5 py-2.5 bg-[#111111] text-[#FFFFFF] font-monument font-black text-[10px] uppercase tracking-widest hover:scale-[1.02] active:scale-[0.98] shadow-sm transition-all rounded-lg disabled:opacity-30 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none"
                     >
                       {step < TOTAL_STEPS - 1 ? 'Continuar' : 'Enviar'}
                     </button>
