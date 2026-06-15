@@ -594,6 +594,7 @@ export default function EvaluationForm() {
                 )}
               </div>
             </div>
+          </div>
         </motion.div>
       </div>
     </section>
