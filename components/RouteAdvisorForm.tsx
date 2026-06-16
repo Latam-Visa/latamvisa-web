@@ -10,7 +10,8 @@ import { allCountries } from '@/lib/countries'
 const inter = Inter({ subsets: ['latin'] })
 
 const visaOptions = [
-  'USA (B1/B2/C1)',
+  'USA (B1/B2, F1, J1, etc.)',
+  'USA (Tránsito C1)',
   'Canadá (Visa o eTA)',
   'Schengen (Europa)',
   'Ninguna'
@@ -28,18 +29,10 @@ export default function RouteAdvisorForm() {
     nombre: '',
     email: '',
     whatsapp: '',
-    edad: 'No especificada',
-    nacionalidad: '',
-    otra_ciudadania: 'Ninguna',
-    pais_residencia: 'No especificado',
-    ciudad_origen: '',
-    visas_vigentes: [] as string[],
+    origen: '',
     destino: '',
-    proposito: 'General',
-    mes: 'Pronto',
-    duracion: 'Variable',
-    prioridades: 'Mejor ruta',
-    presupuesto: 'No especificado'
+    nacionalidad: '',
+    visas_vigentes: [] as string[]
   })
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -67,7 +60,7 @@ export default function RouteAdvisorForm() {
   const handleSubmit = async () => {
     setIsLoading(true)
     setError(null)
-    setStep(4) // Show loading state in step 4
+    setStep(4) // Show loading state
     try {
       const response = await fetch('/api/asesor-vuelos', {
         method: 'POST',
@@ -75,10 +68,9 @@ export default function RouteAdvisorForm() {
         body: JSON.stringify(formData)
       })
       
-      if (!response.ok) throw new Error('Error en la conexión')
-      
       const data = await response.json()
-      if (data.error) throw new Error(data.error)
+      if (!response.ok || data.error) throw new Error(data.error || 'Error en la conexión')
+      
       setResults(data)
     } catch (err: any) {
       console.error("Error submitting form:", err)
@@ -89,15 +81,15 @@ export default function RouteAdvisorForm() {
   }
 
   const variants = {
-    initial: { opacity: 0, x: 20, scale: 0.95 },
-    animate: { opacity: 1, x: 0, scale: 1 },
-    exit: { opacity: 0, x: -20, scale: 0.95 }
+    initial: { opacity: 0, y: 20 },
+    animate: { opacity: 1, y: 0 },
+    exit: { opacity: 0, y: -20 }
   }
 
   const renderContent = () => {
     if (isLoading && !error) {
       return (
-        <motion.div key="loading" variants={variants} initial="initial" animate="animate" exit="exit" className="flex flex-col items-center justify-center py-20 text-center">
+        <motion.div key="loading" variants={variants} initial="initial" animate="animate" exit="exit" className="flex flex-col items-center justify-center py-24 text-center">
           <motion.div
             animate={{ 
               x: [0, 40, 0, -40, 0],
@@ -109,8 +101,8 @@ export default function RouteAdvisorForm() {
           >
             <Plane className="w-16 h-16 text-[#C8FF00]" />
           </motion.div>
-          <h3 className="text-2xl font-[PPMonumentExtended] text-white mb-3">Analizando conexiones...</h3>
-          <p className="text-white/60">Cruzando tus datos con requisitos migratorios y rutas viables.</p>
+          <h3 className="text-2xl md:text-3xl font-[PPMonumentExtended] text-white mb-3 drop-shadow-md">Analizando conexiones...</h3>
+          <p className="text-white/90 drop-shadow-sm">Cruzando tus datos con requisitos migratorios y rutas viables.</p>
         </motion.div>
       )
     }
@@ -118,20 +110,20 @@ export default function RouteAdvisorForm() {
     if (error) {
       return (
         <motion.div key="error" variants={variants} initial="initial" animate="animate" exit="exit" className="flex flex-col items-center justify-center py-16 text-center">
-          <div className="w-20 h-20 bg-red-500/20 rounded-full flex items-center justify-center mb-6">
+          <div className="w-20 h-20 bg-white/10 rounded-full flex items-center justify-center mb-6 border border-red-500/30">
             <ShieldAlert className="w-10 h-10 text-red-400" />
           </div>
-          <h3 className="text-2xl font-[PPMonumentExtended] text-white mb-3">Ocurrió un error</h3>
-          <p className="text-white/60 mb-8 max-w-sm">{error}</p>
+          <h3 className="text-2xl font-[PPMonumentExtended] text-white mb-3 drop-shadow-md">Ocurrió un error</h3>
+          <p className="text-white/90 mb-8 max-w-sm mx-auto drop-shadow-sm">{error}</p>
           <button 
             onClick={() => handleSubmit()}
-            className="bg-[#C8FF00] text-black px-8 py-3 rounded-xl font-bold hover:bg-[#aee600] transition-colors mb-4"
+            className="bg-[#C8FF00] text-black px-8 py-3 rounded-xl font-bold hover:bg-[#aee600] transition-colors mb-4 shadow-lg shadow-[#C8FF00]/20"
           >
             Volver a intentar
           </button>
           <button 
             onClick={() => setStep(3)}
-            className="text-white/60 hover:text-white text-sm transition-colors"
+            className="text-white/80 hover:text-white text-sm transition-colors drop-shadow-sm"
           >
             Regresar al formulario
           </button>
@@ -141,123 +133,55 @@ export default function RouteAdvisorForm() {
 
     if (step === 4 && results) {
       return (
-        <motion.div key="results" variants={variants} initial="initial" animate="animate" exit="exit" className="max-h-[70vh] overflow-y-auto pr-4 custom-scrollbar">
-          <div className="text-center mb-10 pt-4">
-            <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-[#C8FF00]/20 mb-6 border border-[#C8FF00]/50 shadow-[0_0_20px_rgba(200,255,0,0.2)]">
-              <CheckCircle2 className="w-8 h-8 text-[#C8FF00]" />
-            </div>
-            <h2 className="text-3xl font-[PPMonumentExtended] text-white mb-4">Tu Estrategia de Ruta</h2>
-            <p className="text-white/80 text-lg">Hemos generado las opciones óptimas para tu viaje.</p>
+        <motion.div key="results" variants={variants} initial="initial" animate="animate" exit="exit" className="p-6 md:p-12 text-center">
+          <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-white/10 mb-8 border border-[#C8FF00]/50 shadow-[0_0_30px_rgba(200,255,0,0.2)]">
+            <CheckCircle2 className="w-10 h-10 text-[#C8FF00]" />
+          </div>
+          <h2 className="text-3xl md:text-5xl font-[PPMonumentExtended] text-white mb-6 drop-shadow-lg">Cotización Lista</h2>
+          
+          <div className="bg-white/10 border border-white/20 rounded-3xl p-8 mb-8 backdrop-blur-md text-center max-w-2xl mx-auto shadow-2xl">
+            <h3 className="text-[#C8FF00] font-semibold tracking-widest uppercase text-xs mb-3 drop-shadow-sm">Ruta Sugerida</h3>
+            <p className="text-white text-xl md:text-2xl mb-10 font-light drop-shadow-md">{results.rutaSugerida}</p>
+            
+            <h3 className="text-[#C8FF00] font-semibold tracking-widest uppercase text-xs mb-3 drop-shadow-sm">Inversión Estimada</h3>
+            <p className="text-5xl md:text-6xl font-light text-white mb-3 drop-shadow-lg">${results.displayedPrice} <span className="text-xl md:text-2xl text-white/80">USD</span></p>
+            <p className="text-white/80 text-sm drop-shadow-sm">Incluye tarifa base y honorarios de gestión.</p>
           </div>
 
-          <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-6 md:p-8 mb-10 shadow-lg">
-            <h3 className="text-[#C8FF00] font-semibold tracking-wider mb-3 uppercase text-xs">Resumen Estratégico</h3>
-            <p className="text-white/95 text-lg leading-relaxed">{results.summary_insight}</p>
-          </div>
-
-          <div className="space-y-6 mb-12">
-            {results.strategies.map((strategy: any, idx: number) => (
-              <motion.div 
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: idx * 0.15 }}
-                key={idx} 
-                className="bg-black/30 backdrop-blur-lg border border-white/10 rounded-2xl overflow-hidden hover:border-[#C8FF00]/40 transition-all duration-300 shadow-lg"
-              >
-                <div className="p-6 border-b border-white/10 flex flex-col md:flex-row md:items-center justify-between gap-4">
-                  <div>
-                    <div className="flex items-center gap-3 mb-2">
-                      <span className="bg-[#C8FF00] text-black text-xs font-bold px-2.5 py-1 rounded-full">OPCIÓN {strategy.rank}</span>
-                    </div>
-                    <h3 className="text-xl text-white font-[PPMonumentExtended]">{strategy.name}</h3>
-                  </div>
-                  <div className="text-left md:text-right">
-                    <p className="text-[10px] text-white/50 uppercase tracking-widest font-semibold mb-1.5">Aerolíneas Sugeridas</p>
-                    <p className="text-white font-medium text-sm">{strategy.suggested_airlines.join(', ')}</p>
-                  </div>
-                </div>
-                
-                <div className="p-6 grid md:grid-cols-2 gap-8">
-                  <div>
-                    <h4 className="text-[#C8FF00] text-[10px] font-bold uppercase tracking-widest mb-3">Por qué es ideal para ti</h4>
-                    <p className="text-white/80 text-sm leading-relaxed mb-6">{strategy.why_it_fits}</p>
-                    
-                    <h4 className="text-[#C8FF00] text-[10px] font-bold uppercase tracking-widest mb-3">Ruta Sugerida</h4>
-                    <div className="flex flex-wrap items-center gap-2 text-white">
-                      {strategy.suggested_hubs.map((hub: string, hIdx: number) => (
-                        <span key={hIdx} className="flex items-center gap-2">
-                          <span className="bg-white/10 border border-white/20 px-3 py-1.5 rounded-lg text-sm shadow-inner">{hub}</span>
-                          {hIdx < strategy.suggested_hubs.length - 1 && <Plane className="w-4 h-4 text-white/30" />}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                  
-                  <div className="space-y-6">
-                    <div>
-                      <h4 className="text-[#C8FF00] text-[10px] font-bold uppercase tracking-widest mb-3">Documentos Extra</h4>
-                      <ul className="space-y-2.5">
-                        {strategy.extra_documents_needed.map((doc: string, dIdx: number) => (
-                          <li key={dIdx} className="flex items-start gap-2.5 text-sm text-white/80">
-                            <CheckCircle2 className="w-4 h-4 text-[#C8FF00] shrink-0 mt-0.5" />
-                            <span>{doc}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                    
-                    {strategy.risks_or_considerations && (
-                      <div className="bg-red-500/10 rounded-xl p-4 border border-red-500/20">
-                        <h4 className="text-red-400 text-[10px] font-bold uppercase tracking-widest mb-2 flex items-center gap-2">
-                          <ShieldAlert className="w-3.5 h-3.5" /> Consideraciones
-                        </h4>
-                        <p className="text-white/70 text-sm leading-relaxed">{strategy.risks_or_considerations}</p>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-
-          <div className="bg-[#C8FF00]/5 backdrop-blur-md border border-[#C8FF00]/30 rounded-2xl p-8 text-center mb-8 relative overflow-hidden shadow-[0_0_30px_rgba(200,255,0,0.1)]">
-            <h3 className="text-2xl text-white font-[PPMonumentExtended] mb-4">¿Listo para asegurar tu ruta?</h3>
-            <p className="text-white/70 mb-8 leading-relaxed max-w-xl mx-auto">Agenda una sesión de consultoría táctica con nuestros expertos. Evaluaremos tus fechas, buscaremos el mejor precio real y te acompañaremos en la compra.</p>
-            <a 
-              href="https://cal.com/latam-visa" 
-              target="_blank" 
-              rel="noreferrer"
-              className="inline-flex items-center gap-2 bg-[#C8FF00] text-black px-8 py-4 rounded-xl font-bold hover:bg-[#aee600] transition-colors shadow-lg hover:shadow-[#C8FF00]/20"
-            >
-              Agendar Asesoría (USD $59) <ArrowRight className="w-5 h-5" />
-            </a>
-          </div>
+          <a 
+            href="https://cal.com/latam-visa" 
+            target="_blank" 
+            rel="noreferrer"
+            className="inline-flex items-center gap-2 bg-[#C8FF00] text-black px-8 py-4 rounded-xl font-bold hover:bg-[#aee600] transition-colors shadow-lg shadow-[#C8FF00]/20 text-lg"
+          >
+            Agendar Asesoría y Asegurar Ruta <ArrowRight className="w-6 h-6" />
+          </a>
         </motion.div>
       )
     }
 
     return (
-      <div className="w-full flex flex-col h-full justify-between">
-        <div className="flex-1">
+      <div className="w-full flex flex-col justify-center p-6 md:p-12 min-h-[500px]">
+        <div className="flex-1 flex flex-col justify-center">
           <AnimatePresence mode="wait">
             {step === 1 && (
-              <motion.div key="step1" variants={variants} initial="initial" animate="animate" exit="exit">
-                <h2 className="text-3xl font-[PPMonumentExtended] text-white mb-2 text-center">¿Hacia dónde te diriges?</h2>
-                <p className="text-white/50 text-center mb-8 text-sm">Crea tu ruta de vuelo ideal</p>
-                <div className="space-y-6">
+              <motion.div key="step1" variants={variants} initial="initial" animate="animate" exit="exit" className="w-full">
+                <h2 className="text-3xl md:text-4xl font-[PPMonumentExtended] text-white mb-2 text-center drop-shadow-lg">¿Hacia dónde te diriges?</h2>
+                <p className="text-white/90 text-center mb-10 font-light drop-shadow-sm">Crea tu ruta de vuelo ideal</p>
+                <div className="space-y-6 max-w-md mx-auto">
                   <div>
-                    <label className="block text-sm font-medium text-white/80 mb-2">¿Desde dónde viajas?</label>
-                    <input required type="text" name="ciudad_origen" value={formData.ciudad_origen} onChange={handleChange} className="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-4 text-white placeholder:text-white/40 focus:outline-none focus:border-[#C8FF00] focus:ring-1 focus:ring-[#C8FF00] transition-all" placeholder="Ej. Bogotá (BOG)" />
+                    <label className="block text-sm font-medium text-white mb-2 drop-shadow-md">¿Desde dónde viajas?</label>
+                    <input required type="text" name="origen" value={formData.origen} onChange={handleChange} className="w-full bg-white/10 backdrop-blur-md border border-white/20 rounded-xl px-4 py-4 text-white placeholder:text-white/50 focus:outline-none focus:border-[#C8FF00] focus:ring-1 focus:ring-[#C8FF00] transition-all shadow-inner" placeholder="Ej. Bogotá (BOG)" />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-white/80 mb-2">¿Cuál es tu destino principal?</label>
+                    <label className="block text-sm font-medium text-white mb-2 drop-shadow-md">¿Cuál es tu destino principal?</label>
                     <div className="relative">
-                      <select required name="destino" value={formData.destino} onChange={handleChange} className="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-4 text-white focus:outline-none focus:border-[#C8FF00] focus:ring-1 focus:ring-[#C8FF00] transition-all appearance-none">
-                        <option value="" className="bg-gray-900">Selecciona tu destino</option>
-                        {destinationOptions.map(opt => <option key={opt} value={opt} className="bg-gray-900">{opt}</option>)}
+                      <select required name="destino" value={formData.destino} onChange={handleChange} className="w-full bg-white/10 backdrop-blur-md border border-white/20 rounded-xl px-4 py-4 text-white focus:outline-none focus:border-[#C8FF00] focus:ring-1 focus:ring-[#C8FF00] transition-all appearance-none shadow-inner">
+                        <option value="" className="text-black">Selecciona tu destino</option>
+                        {destinationOptions.map(opt => <option key={opt} value={opt} className="text-black">{opt}</option>)}
                       </select>
                       <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none">
-                        <ChevronRight className="w-4 h-4 text-white/50 rotate-90" />
+                        <ChevronRight className="w-4 h-4 text-white/70 rotate-90" />
                       </div>
                     </div>
                   </div>
@@ -266,16 +190,16 @@ export default function RouteAdvisorForm() {
             )}
 
             {step === 2 && (
-              <motion.div key="step2" variants={variants} initial="initial" animate="animate" exit="exit">
-                <h2 className="text-3xl font-[PPMonumentExtended] text-white mb-2 text-center">Tu perfil migratorio</h2>
-                <p className="text-white/50 text-center mb-8 text-sm">Para determinar escalas y permisos</p>
-                <div className="space-y-6">
+              <motion.div key="step2" variants={variants} initial="initial" animate="animate" exit="exit" className="w-full">
+                <h2 className="text-3xl md:text-4xl font-[PPMonumentExtended] text-white mb-2 text-center drop-shadow-lg">Tu perfil migratorio</h2>
+                <p className="text-white/90 text-center mb-10 font-light drop-shadow-sm">Para determinar escalas y permisos</p>
+                <div className="space-y-6 max-w-lg mx-auto">
                   <div>
-                    <label className="block text-sm font-medium text-white/80 mb-2">Nacionalidad Principal</label>
-                    <input required type="text" name="nacionalidad" value={formData.nacionalidad} onChange={handleChange} className="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-4 text-white placeholder:text-white/40 focus:outline-none focus:border-[#C8FF00] focus:ring-1 focus:ring-[#C8FF00] transition-all" placeholder="Ej. Colombia" />
+                    <label className="block text-sm font-medium text-white mb-2 drop-shadow-md">Nacionalidad Principal</label>
+                    <input required type="text" name="nacionalidad" value={formData.nacionalidad} onChange={handleChange} className="w-full bg-white/10 backdrop-blur-md border border-white/20 rounded-xl px-4 py-4 text-white placeholder:text-white/50 focus:outline-none focus:border-[#C8FF00] focus:ring-1 focus:ring-[#C8FF00] transition-all shadow-inner" placeholder="Ej. Colombia" />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-white/80 mb-3">¿Tienes alguna de estas visas vigentes?</label>
+                    <label className="block text-sm font-medium text-white mb-3 drop-shadow-md">¿Tienes alguna de estas visas vigentes?</label>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       {visaOptions.map(visa => {
                         const isSelected = formData.visas_vigentes.includes(visa)
@@ -284,14 +208,14 @@ export default function RouteAdvisorForm() {
                             key={visa}
                             type="button"
                             onClick={() => handleVisaToggle(visa)}
-                            className={`flex items-center justify-between px-4 py-4 rounded-xl border transition-all duration-300 ${
+                            className={`flex items-center justify-between px-4 py-4 rounded-xl border backdrop-blur-md transition-all duration-300 ${
                               isSelected 
-                                ? 'bg-[#C8FF00]/20 border-[#C8FF00] text-[#C8FF00] shadow-[0_0_15px_rgba(200,255,0,0.1)]' 
-                                : 'bg-white/5 border-white/20 text-white/80 hover:bg-white/10 hover:border-white/40'
+                                ? 'bg-[#C8FF00]/20 border-[#C8FF00] text-[#C8FF00] shadow-[0_0_15px_rgba(200,255,0,0.2)]' 
+                                : 'bg-white/5 border-white/20 text-white hover:bg-white/20 hover:border-white/40'
                             }`}
                           >
-                            <span className="text-sm font-medium">{visa}</span>
-                            <div className={`w-5 h-5 rounded-full border flex items-center justify-center transition-colors ${isSelected ? 'border-[#C8FF00]' : 'border-white/40'}`}>
+                            <span className="text-sm font-medium drop-shadow-sm">{visa}</span>
+                            <div className={`w-5 h-5 rounded-full border flex items-center justify-center transition-colors ${isSelected ? 'border-[#C8FF00]' : 'border-white/50'}`}>
                               {isSelected && <div className="w-2.5 h-2.5 bg-[#C8FF00] rounded-full" />}
                             </div>
                           </button>
@@ -304,21 +228,21 @@ export default function RouteAdvisorForm() {
             )}
 
             {step === 3 && (
-              <motion.div key="step3" variants={variants} initial="initial" animate="animate" exit="exit">
-                <h2 className="text-3xl font-[PPMonumentExtended] text-white mb-2 text-center">¿Dónde te contactamos?</h2>
-                <p className="text-white/50 text-center mb-8 text-sm">Para enviarte la estrategia final</p>
-                <div className="space-y-5">
+              <motion.div key="step3" variants={variants} initial="initial" animate="animate" exit="exit" className="w-full">
+                <h2 className="text-3xl md:text-4xl font-[PPMonumentExtended] text-white mb-2 text-center drop-shadow-lg">¿Dónde te contactamos?</h2>
+                <p className="text-white/90 text-center mb-10 font-light drop-shadow-sm">Para enviarte la estrategia final</p>
+                <div className="space-y-5 max-w-md mx-auto">
                   <div>
-                    <label className="block text-sm font-medium text-white/80 mb-1.5">Nombre Completo</label>
-                    <input required type="text" name="nombre" value={formData.nombre} onChange={handleChange} className="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3.5 text-white placeholder:text-white/40 focus:outline-none focus:border-[#C8FF00] focus:ring-1 focus:ring-[#C8FF00] transition-all" placeholder="Ej. Carlos Mendoza" />
+                    <label className="block text-sm font-medium text-white mb-1.5 drop-shadow-md">Nombre Completo</label>
+                    <input required type="text" name="nombre" value={formData.nombre} onChange={handleChange} className="w-full bg-white/10 backdrop-blur-md border border-white/20 rounded-xl px-4 py-3.5 text-white placeholder:text-white/50 focus:outline-none focus:border-[#C8FF00] focus:ring-1 focus:ring-[#C8FF00] transition-all shadow-inner" placeholder="Ej. Carlos Mendoza" />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-white/80 mb-1.5">Email</label>
-                    <input required type="email" name="email" value={formData.email} onChange={handleChange} className="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3.5 text-white placeholder:text-white/40 focus:outline-none focus:border-[#C8FF00] focus:ring-1 focus:ring-[#C8FF00] transition-all" placeholder="tu@email.com" />
+                    <label className="block text-sm font-medium text-white mb-1.5 drop-shadow-md">Email</label>
+                    <input required type="email" name="email" value={formData.email} onChange={handleChange} className="w-full bg-white/10 backdrop-blur-md border border-white/20 rounded-xl px-4 py-3.5 text-white placeholder:text-white/50 focus:outline-none focus:border-[#C8FF00] focus:ring-1 focus:ring-[#C8FF00] transition-all shadow-inner" placeholder="tu@email.com" />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-white/80 mb-1.5">WhatsApp</label>
-                    <input required type="text" name="whatsapp" value={formData.whatsapp} onChange={handleChange} className="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3.5 text-white placeholder:text-white/40 focus:outline-none focus:border-[#C8FF00] focus:ring-1 focus:ring-[#C8FF00] transition-all" placeholder="+57 300 000 0000" />
+                    <label className="block text-sm font-medium text-white mb-1.5 drop-shadow-md">WhatsApp</label>
+                    <input required type="text" name="whatsapp" value={formData.whatsapp} onChange={handleChange} className="w-full bg-white/10 backdrop-blur-md border border-white/20 rounded-xl px-4 py-3.5 text-white placeholder:text-white/50 focus:outline-none focus:border-[#C8FF00] focus:ring-1 focus:ring-[#C8FF00] transition-all shadow-inner" placeholder="+57 300 000 0000" />
                   </div>
                 </div>
               </motion.div>
@@ -326,11 +250,11 @@ export default function RouteAdvisorForm() {
           </AnimatePresence>
         </div>
 
-        <div className="flex justify-between mt-10 pt-6 border-t border-white/10">
+        <div className="flex justify-between mt-10 max-w-xl mx-auto w-full pt-6 border-t border-white/20">
           <button 
             onClick={prevStep} 
             disabled={step === 1}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl font-medium transition-colors ${step === 1 ? 'opacity-0 pointer-events-none' : 'text-white/60 hover:text-white hover:bg-white/10'}`}
+            className={`flex items-center gap-2 px-4 py-2 rounded-xl font-medium transition-colors ${step === 1 ? 'opacity-0 pointer-events-none' : 'text-white/90 hover:text-white hover:bg-white/10 drop-shadow-md'}`}
           >
             <ChevronLeft className="w-5 h-5" /> Atrás
           </button>
@@ -338,7 +262,7 @@ export default function RouteAdvisorForm() {
           {step < 3 ? (
             <button 
               onClick={nextStep}
-              disabled={step === 1 && (!formData.ciudad_origen || !formData.destino)}
+              disabled={step === 1 && (!formData.origen || !formData.destino)}
               className="flex items-center gap-2 bg-[#C8FF00] text-black px-6 py-2.5 rounded-xl font-bold hover:bg-[#aee600] transition-all shadow-lg shadow-[#C8FF00]/20 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Continuar <ChevronRight className="w-5 h-5" />
@@ -358,26 +282,11 @@ export default function RouteAdvisorForm() {
   }
 
   return (
-    <div className={`relative w-full max-w-5xl mx-auto rounded-3xl overflow-hidden shadow-[0_30px_60px_-15px_rgba(0,0,0,0.6)] min-h-[600px] flex items-center justify-center p-4 md:p-8 ${inter.className}`}>
-      {/* Background Image & Overlay */}
-      <div className="absolute inset-0 z-0">
-        <img 
-          src="/Sec1/ezgif-frame-001.png" 
-          alt="Window View" 
-          className="w-full h-full object-cover scale-105" 
-        />
-        <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
-        {/* Subtle gradient overlay to ensure text readability */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/30" />
-      </div>
-
-      {/* Main Glass Panel */}
-      <motion.div 
-        layout
-        className={`relative z-10 w-full ${step === 4 && results ? 'max-w-4xl' : 'max-w-lg'} bg-black/40 backdrop-blur-xl border border-white/20 rounded-3xl p-6 md:p-10 shadow-2xl transition-all duration-500`}
-      >
+    <div className={`relative min-h-screen bg-[url('/Sec1/ezgif-frame-001.png')] bg-cover bg-center bg-no-repeat flex items-center justify-center p-4 md:p-8 ${inter.className}`}>
+      {/* Real Glassmorphism Card */}
+      <div className="w-full max-w-4xl mx-auto bg-white/10 backdrop-blur-xl border border-white/20 rounded-[2rem] shadow-2xl overflow-hidden flex flex-col justify-center min-h-[500px]">
         {renderContent()}
-      </motion.div>
+      </div>
     </div>
   )
 }

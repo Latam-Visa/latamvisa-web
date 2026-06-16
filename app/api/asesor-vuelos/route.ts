@@ -1,143 +1,90 @@
 import { NextResponse } from 'next/server';
-import { getServiceSupabase, supabase as anonSupabase } from '@/lib/supabase';
-import Anthropic from '@anthropic-ai/sdk';
-import { AI_MODELS } from '@/lib/constants';
+import { createClient } from '@supabase/supabase-js';
 
-const anthropic = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY || '',
-});
+// Inicializar Supabase
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+const supabase = createClient(supabaseUrl, supabaseKey);
 
-// Regex para eliminar cualquier mención de precios
-// Busca $1200, $ 1.200, USD1200, USD 1,200, 1200 USD, etc.
-const priceRegex = /(\$\s*[\d,.]+)|(USD\s*[\d,.]+)|([\d,.]+\s*USD)/gi;
+// Configuración de tu Fee Administrativo
+const ADMIN_FEE_FIXED = 120; // $120 USD de gestión
+const ADMIN_FEE_PERCENTAGE = 1.05; // 5% de markup sobre la tarifa base
 
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    
-    // Obtener cliente de Supabase (preferible service role si existe, sino anon)
-    const supabaseClient = process.env.SUPABASE_SERVICE_ROLE_KEY ? getServiceSupabase() : anonSupabase;
+    const { nombre, email, whatsapp, origen, destino, nacionalidad, visas_vigentes } = body;
 
-    // 1. Guardar el Lead Inicial
-    const { data: leadData, error: leadError } = await supabaseClient
-      .from('flight_strategy_leads')
+    // 1. Simulación de cotización 
+    // Generamos un precio base simulado entre $1200 y $1800 para probar el flujo
+    const basePrice = Math.floor(Math.random() * (1800 - 1200 + 1)) + 1200; 
+    const finalPrice = Math.round((basePrice * ADMIN_FEE_PERCENTAGE) + ADMIN_FEE_FIXED);
+    
+    // Simulación de lógica de ruta 
+    const tieneVisaUSA = visas_vigentes?.includes('USA (B1/B2, F1, J1, etc.)') || visas_vigentes?.includes('USA (Tránsito C1)');
+    const rutaSugerida = tieneVisaUSA ? "Ruta Rápida Norteamericana (vía USA)" : "Ruta Sur Transpacífica (vía LATAM/NZ)";
+
+    // 2. Guardar en Supabase
+    // Configuramos la expiración a 2 horas desde el momento actual
+    const expiraEn = new Date(Date.now() + 2 * 60 * 60 * 1000).toISOString();
+
+    const { data: quoteData, error: dbError } = await supabase
+      .from('cotizaciones_vuelos')
       .insert([
         {
-          nombre: body.nombre,
-          email: body.email,
-          whatsapp: body.whatsapp,
-          edad: parseInt(body.edad) || null,
-          nacionalidad: body.nacionalidad,
-          otra_ciudadania: body.otra_ciudadania,
-          pais_residencia: body.pais_residencia,
-          ciudad_origen: body.ciudad_origen,
-          visas_vigentes: body.visas_vigentes || [],
-          destino: body.destino,
-          proposito: body.proposito,
-          mes_viaje: body.mes,
-          duracion: body.duracion,
-          prioridades: body.prioridades,
-          presupuesto: body.presupuesto,
-          step_completed: 5, // Completó todo el form
+          cliente_nombre: nombre,
+          cliente_email: email,
+          cliente_whatsapp: whatsapp,
+          origen,
+          destino,
+          nacionalidad,
+          visas_vigentes,
+          ruta_estrategica: rutaSugerida,
+          precio_cotizado: finalPrice,
+          estado: 'pendiente_pago',
+          expira_en: expiraEn
         }
       ])
       .select('id')
       .single();
 
-    if (leadError) {
-      console.error('Error insertando lead:', leadError);
-      // No bloqueamos el proceso si falla supabase, pero lo logueamos
+    if (dbError) {
+      console.error("Error en DB:", dbError);
+      throw new Error("No se pudo guardar la cotización");
     }
 
-    const leadId = leadData?.id;
+    // 3. Disparar Webhook de n8n 
+    const n8nWebhookUrl = process.env.N8N_WEBHOOK_URL || 'https://tu-railway-app.up.railway.app/webhook/cotizacion-vuelos';
+    
+    // Disparamos el webhook sin esperar (fire and forget)
+    fetch(n8nWebhookUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        quoteId: quoteData.id,
+        nombre,
+        email,
+        origen,
+        destino,
+        rutaSugerida,
+        precioFinal: finalPrice,
+        expiraEn
+      })
+    }).catch(err => console.error("Error disparando webhook de n8n:", err));
 
-    // 2. Preparar Prompt para Claude
-    const systemPrompt = `You are a senior flight route strategist for LATAM VISA, a premium travel and education consultancy in Brisbane, Australia. You serve Latin Americans planning travel to Australia, USA, Canada, UK, New Zealand, and Japan.
-
-Your job is to analyze a client's profile and produce three ranked route strategies based on their nationality, current residence, valid visas, destination, and priorities.
-
-CRITICAL RULES:
-1. NEVER invent specific prices. You have no live flight inventory. You may reference general price-tier reasoning ("rutas vía Asia tienden a ser más económicas") but never specific dollar amounts.
-2. NEVER recommend hidden city ticketing, throwaway tickets, or geo-pricing manipulation via VPN. These violate airline terms.
-3. NEVER provide legal migration advice. If the client's situation requires legal counsel, recommend a Registered Migration Agent (OMARA).
-4. ALWAYS reason from the client's actual visa portfolio. A client with a US B1/B2 visa can route through US hubs. A client residing in Chile can leverage Santiago as a departure hub. A client with EU passport has access to European hubs. Reason explicitly from what they have.
-5. ALWAYS write in neutral Colombian Spanish. No voseo. Direct, warm, professional. Use "tú" not "vos".
-6. ALWAYS verify what extra documents each route requires (US transit visa for some nationalities, Canadian eTA, etc.) and surface this clearly.
-
-OUTPUT FORMAT: Return ONLY valid JSON matching this schema, no markdown fences, no preamble:
-{"strategies":[{"rank":1,"name":"string","why_it_fits":"string","suggested_hubs":["string"],"suggested_airlines":["string"],"best_booking_window":"string","extra_documents_needed":["string"],"risks_or_considerations":"string","where_to_search":["string"]},{...},{...}],"summary_insight":"string","disclaimer":"string"}
-
-The "summary_insight" field should be one powerful sentence that captures the most important strategic insight for this specific client. The "disclaimer" field should always include the LATAM VISA legal disclaimer about not being a registered migration agency.`;
-
-    const userMessage = `Por favor analiza este perfil de cliente:
-- Nombre: ${body.nombre}
-- Edad: ${body.edad}
-- Nacionalidad: ${body.nacionalidad}
-- Otra ciudadanía/pasaporte: ${body.otra_ciudadania || 'Ninguna'}
-- País de residencia: ${body.pais_residencia}
-- Ciudad de origen (aeropuerto más cercano): ${body.ciudad_origen}
-- Visas vigentes: ${body.visas_vigentes ? body.visas_vigentes.join(', ') : 'Ninguna'}
-- Destino: ${body.destino}
-- Propósito del viaje: ${body.proposito}
-- Mes estimado de viaje: ${body.mes}
-- Duración del viaje: ${body.duracion}
-- Prioridades (precio, tiempo, comodidad): ${body.prioridades}
-- Presupuesto aproximado: ${body.presupuesto}`;
-
-    // 3. Llamar a Claude
-    const response = await anthropic.messages.create({
-      model: AI_MODELS.generation,
-      max_tokens: 2500,
-      temperature: 0.2, // Baja temperatura para JSON predecible
-      system: systemPrompt,
-      messages: [
-        { role: "user", content: userMessage }
-      ]
+    // 4. Retornar éxito al Frontend
+    return NextResponse.json({
+      success: true,
+      quoteId: quoteData.id,
+      displayedPrice: finalPrice,
+      rutaSugerida
     });
 
-    let textResponse = '';
-    if (response.content[0].type === 'text') {
-        textResponse = response.content[0].text;
-    }
-
-    // 4. Filtro Anti-Precio
-    let sanitizedResponse = textResponse.replace(priceRegex, '[Precio Omitido - Consultar en tiempo real]');
-
-    // 4.1. Limpiador de Markdown (LA SOLUCIÓN AL ERROR)
-    // Extrae desde la primera llave '{' hasta la última '}'
-    let cleanJsonString = sanitizedResponse;
-    const firstBrace = cleanJsonString.indexOf('{');
-    const lastBrace = cleanJsonString.lastIndexOf('}');
-    
-    if (firstBrace !== -1 && lastBrace !== -1) {
-      cleanJsonString = cleanJsonString.substring(firstBrace, lastBrace + 1);
-    }
-
-    // Intentar parsear el JSON limpio
-    let jsonResponse;
-    try {
-      jsonResponse = JSON.parse(cleanJsonString);
-    } catch (e) {
-      console.error('Failed to parse Claude JSON response:', e, cleanJsonString);
-      return NextResponse.json({ error: 'Error procesando la estrategia. Intenta de nuevo.' }, { status: 500 });
-    }
-
-    // 5. Guardar Respuesta en Supabase
-    if (leadId) {
-      await supabaseClient
-        .from('flight_strategy_responses')
-        .insert([
-          {
-            lead_id: leadId,
-            ai_response: jsonResponse,
-          }
-        ]);
-    }
-
-    return NextResponse.json(jsonResponse);
-
-  } catch (error) {
-    console.error('API Route Error:', error);
-    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+  } catch (error: any) {
+    console.error("Error en el endpoint:", error);
+    return NextResponse.json(
+      { error: error.message || "Error procesando tu perfil estratégico." },
+      { status: 500 }
+    );
   }
 }
