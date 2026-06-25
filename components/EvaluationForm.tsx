@@ -20,6 +20,7 @@ type FormData = {
   pasaporte: string
   situacion_actual: string
   // Estudiante
+  student_type: string
   que_estudiar: string
   nivel_ingles: string
   tiempo_estudio: string
@@ -32,7 +33,7 @@ type FormData = {
 const INITIAL: FormData = {
   nombre: '', tipo_visa: '', pais_origen: '', edad: '', email: '', acepta: false,
   pais_destino: '', tiempo_estadia: '', viajes_previos: '', pasaporte: '', situacion_actual: '',
-  que_estudiar: '', nivel_ingles: '', tiempo_estudio: '', situacion_laboral: '', situacion_libre: '',
+  student_type: '', que_estudiar: '', nivel_ingles: '', tiempo_estudio: '', situacion_laboral: '', situacion_libre: '',
   ubicacion: ''
 }
 
@@ -55,14 +56,15 @@ function getLabel(step: number, visa: VisaType): string {
   }
   
   if (visa === 'estudiante') {
-    if (step === 4) return '¿Qué quieres estudiar en Australia?'
-    if (step === 5) return '¿Cómo describes tu inglés actual?'
-    if (step === 6) return '¿Cuánto tiempo quieres estudiar?'
-    if (step === 7) return '¿Tienes pasaporte vigente?'
-    if (step === 8) return '¿Estás trabajando actualmente?'
-    if (step === 9) return 'Cuéntanos tu situación (opcional)'
-    if (step === 10) return '¿Dónde te encuentras ahora?'
-    if (step === 11) return 'Tu correo electrónico'
+    if (step === 4) return '¿Dónde te encuentras ahora?'
+    if (step === 5) return '¿Qué quieres estudiar en Australia?'
+    if (step === 6) return '¿Cómo describes tu inglés actual?'
+    if (step === 7) return '¿Cuánto tiempo quieres estudiar?'
+    if (step === 8) return '¿Tienes pasaporte vigente?'
+    if (step === 9) return '¿Estás trabajando actualmente?'
+    if (step === 10) return 'Cuéntanos tu situación (opcional)'
+    if (step === 11) return '¿Dónde te encuentras ahora?'
+    if (step === 12) return 'Tu correo electrónico'
   }
   return ''
 }
@@ -117,7 +119,7 @@ export default function EvaluationForm() {
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle')
   const [direction, setDirection] = useState(1)
 
-  const TOTAL_STEPS = data.tipo_visa === 'estudiante' ? 12 : 11;
+  const TOTAL_STEPS = data.tipo_visa === 'estudiante' ? 13 : 11;
 
   const ref = useRef(null)
   const inView = useInView(ref, { once: false, margin: '-100px' })
@@ -139,14 +141,15 @@ export default function EvaluationForm() {
     }
     
     if (data.tipo_visa === 'estudiante') {
-      if (step === 4) return data.que_estudiar !== ''
-      if (step === 5) return data.nivel_ingles !== ''
-      if (step === 6) return data.tiempo_estudio !== ''
-      if (step === 7) return data.pasaporte !== ''
-      if (step === 8) return data.situacion_laboral !== ''
-      if (step === 9) return true // Situación libre (opcional)
-      if (step === 10) return data.ubicacion !== ''
-      if (step === 11) return data.email.trim() !== '' && data.acepta
+      if (step === 4) return data.student_type !== ''
+      if (step === 5) return data.que_estudiar !== ''
+      if (step === 6) return data.nivel_ingles !== ''
+      if (step === 7) return data.tiempo_estudio !== ''
+      if (step === 8) return data.pasaporte !== ''
+      if (step === 9) return data.situacion_laboral !== ''
+      if (step === 10) return true // Situación libre (opcional)
+      if (step === 11) return data.ubicacion !== ''
+      if (step === 12) return data.email.trim() !== '' && data.acepta
     }
     return false
   }
@@ -159,8 +162,10 @@ export default function EvaluationForm() {
   const handleSubmit = async () => {
     setStatus('loading')
     
-    const student_type = data.ubicacion.startsWith('En Australia') ? 'onshore' : 'offshore'
-    const payload = { ...data, edad: Number(data.edad), fecha: new Date().toISOString(), fuente: 'latamvisa.com', student_type }
+    const final_student_type = data.tipo_visa === 'estudiante' && data.student_type !== ''
+      ? data.student_type 
+      : (data.ubicacion.startsWith('En Australia') ? 'onshore' : 'offshore')
+    const payload = { ...data, edad: Number(data.edad), fecha: new Date().toISOString(), fuente: 'latamvisa.com', student_type: final_student_type }
     try {
       await fetch(N8N_WEBHOOK_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) })
       if (typeof window !== 'undefined' && (window as any).fbq) {
@@ -470,8 +475,25 @@ export default function EvaluationForm() {
                         </div>
                       )}
 
-                      {/* ESTUDIANTE — Step 4: Qué estudiar */}
+                      {/* ESTUDIANTE — Step 4: Dónde te encuentras (student_type) */}
                       {step === 4 && data.tipo_visa === 'estudiante' && (
+                        <div className="flex flex-col gap-2">
+                          {[
+                            { label: 'Estoy fuera de Australia', value: 'offshore' },
+                            { label: 'Ya estoy en Australia', value: 'onshore' }
+                          ].map(opt => (
+                            <RadioOption 
+                              key={opt.value} 
+                              value={opt.label} 
+                              selected={data.student_type === opt.value} 
+                              onSelect={() => setData({ ...data, student_type: opt.value })} 
+                            />
+                          ))}
+                        </div>
+                      )}
+
+                      {/* ESTUDIANTE — Step 5: Qué estudiar */}
+                      {step === 5 && data.tipo_visa === 'estudiante' && (
                         <div className="flex flex-col gap-2">
                           {['Inglés general', 'Inglés + curso técnico VET', 'Ambos', 'Todavía explorando'].map(opt => (
                             <RadioOption key={opt} value={opt} selected={data.que_estudiar === opt} onSelect={() => setData({ ...data, que_estudiar: opt })} />
@@ -479,8 +501,8 @@ export default function EvaluationForm() {
                         </div>
                       )}
 
-                      {/* ESTUDIANTE — Step 5: Nivel inglés */}
-                      {step === 5 && data.tipo_visa === 'estudiante' && (
+                      {/* ESTUDIANTE — Step 6: Nivel inglés */}
+                      {step === 6 && data.tipo_visa === 'estudiante' && (
                         <div className="flex flex-col gap-2">
                           {['No hablo inglés', 'Básico', 'Intermedio', 'Avanzado'].map(opt => (
                             <RadioOption key={opt} value={opt} selected={data.nivel_ingles === opt} onSelect={() => setData({ ...data, nivel_ingles: opt })} />
@@ -488,8 +510,8 @@ export default function EvaluationForm() {
                         </div>
                       )}
 
-                      {/* ESTUDIANTE — Step 6: Tiempo estudio */}
-                      {step === 6 && data.tipo_visa === 'estudiante' && (
+                      {/* ESTUDIANTE — Step 7: Tiempo estudio */}
+                      {step === 7 && data.tipo_visa === 'estudiante' && (
                         <div className="flex flex-col gap-2">
                           {['1 a 3 meses', '3 a 6 meses', '6 meses a 1 año', 'Más de 1 año'].map(opt => (
                             <RadioOption key={opt} value={opt} selected={data.tiempo_estudio === opt} onSelect={() => setData({ ...data, tiempo_estudio: opt })} />
@@ -497,8 +519,8 @@ export default function EvaluationForm() {
                         </div>
                       )}
 
-                      {/* ESTUDIANTE — Step 7: Pasaporte */}
-                      {step === 7 && data.tipo_visa === 'estudiante' && (
+                      {/* ESTUDIANTE — Step 8: Pasaporte */}
+                      {step === 8 && data.tipo_visa === 'estudiante' && (
                         <div className="flex flex-col gap-2">
                           {['Sí, vigente', 'Vence pronto', 'En trámite', 'No tengo'].map(opt => (
                             <RadioOption key={opt} value={opt} selected={data.pasaporte === opt} onSelect={() => setData({ ...data, pasaporte: opt })} />
@@ -506,8 +528,8 @@ export default function EvaluationForm() {
                         </div>
                       )}
 
-                      {/* ESTUDIANTE — Step 8: Situación laboral */}
-                      {step === 8 && data.tipo_visa === 'estudiante' && (
+                      {/* ESTUDIANTE — Step 9: Situación laboral */}
+                      {step === 9 && data.tipo_visa === 'estudiante' && (
                         <div className="flex flex-col gap-2">
                           {['Sí, tiempo completo', 'Sí, medio tiempo', 'No', 'Soy estudiante'].map(opt => (
                             <RadioOption key={opt} value={opt} selected={data.situacion_laboral === opt} onSelect={() => setData({ ...data, situacion_laboral: opt })} />
@@ -515,8 +537,8 @@ export default function EvaluationForm() {
                         </div>
                       )}
 
-                        {/* ESTUDIANTE — Step 9: Situación libre */}
-                        {step === 9 && data.tipo_visa === 'estudiante' && (
+                        {/* ESTUDIANTE — Step 10: Situación libre */}
+                        {step === 10 && data.tipo_visa === 'estudiante' && (
                           <div className="flex flex-col gap-2">
                             <textarea
                               placeholder="Ej: Llevo 2 años en Australia... Viajo con mi pareja..."
@@ -529,8 +551,8 @@ export default function EvaluationForm() {
                           </div>
                         )}
 
-                      {/* ESTUDIANTE — Step 10: Ubicación */}
-                      {step === 10 && data.tipo_visa === 'estudiante' && (
+                      {/* ESTUDIANTE — Step 11: Ubicación */}
+                      {step === 11 && data.tipo_visa === 'estudiante' && (
                         <div className="flex flex-col gap-2">
                           {['En Australia (renovando visa)', 'Fuera de Australia (aplicando desde afuera)'].map(opt => (
                             <RadioOption key={opt} value={opt} selected={data.ubicacion === opt} onSelect={() => setData({ ...data, ubicacion: opt })} />
@@ -538,8 +560,8 @@ export default function EvaluationForm() {
                         </div>
                       )}
 
-                        {/* Step 10 (Turismo) o Step 11 (Estudiante) — Email */}
-                        {((step === 10 && data.tipo_visa === 'turismo') || (step === 11 && data.tipo_visa === 'estudiante')) && (
+                        {/* Step 10 (Turismo) o Step 12 (Estudiante) — Email */}
+                        {((step === 10 && data.tipo_visa === 'turismo') || (step === 12 && data.tipo_visa === 'estudiante')) && (
                           <div className="space-y-4">
                             <input
                               type="email"
