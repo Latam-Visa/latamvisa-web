@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getServiceSupabase } from '@/lib/supabase';
-import { QUOTE, DURATION_YEARS } from '@/lib/quoteConstants';
+import { QUOTE, DURATION_YEARS, lexisElicosMaterialFee } from '@/lib/quoteConstants';
 
 export async function POST(req: Request) {
   try {
@@ -70,9 +70,14 @@ export async function POST(req: Request) {
       const tuitionTotal = course.is_per_week ? (course.tuition_fee ?? 0) * weeks : (course.tuition_fee ?? 0);
       
       const enrolment = school.enrolment_fee ?? 0;
-      const material = course.material_included 
-        ? 0 
-        : (course.is_per_week ? (course.material_fee ?? 0) * weeks : (course.material_fee ?? 0));
+      let material = 0;
+      if (!course.material_included) {
+        if (course.school_code === 'lexis-eng' && course.is_per_week) {
+          material = lexisElicosMaterialFee(weeks, course.id === 'lexis-eng-cambridge');
+        } else {
+          material = course.is_per_week ? (course.material_fee ?? 0) * weeks : (course.material_fee ?? 0);
+        }
+      }
       
       const oshcTotal = Math.round(QUOTE.OSHC_AUD_YEAR_SINGLE * durationYears);
       const visaBase = QUOTE.VISA_500_FEE_AUD;

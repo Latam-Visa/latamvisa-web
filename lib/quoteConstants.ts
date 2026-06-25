@@ -16,3 +16,11 @@ export const DURATION_YEARS: Record<string, number> = {
   "2 anos": 2, "2 años": 2,
   "2 anos 6 meses": 2.5, "2 años 6 meses": 2.5,
 };
+
+export function lexisElicosMaterialFee(weeks: number, isCambridge = false): number {
+  if (isCambridge) return 325;
+  if (weeks <= 8)  return 195;
+  if (weeks <= 17) return 285;
+  if (weeks <= 24) return 335;
+  return 385;
+}
