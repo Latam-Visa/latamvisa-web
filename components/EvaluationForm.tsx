@@ -63,8 +63,7 @@ function getLabel(step: number, visa: VisaType): string {
     if (step === 8) return '¿Tienes pasaporte vigente?'
     if (step === 9) return '¿Estás trabajando actualmente?'
     if (step === 10) return 'Cuéntanos tu situación (opcional)'
-    if (step === 11) return '¿Dónde te encuentras ahora?'
-    if (step === 12) return 'Tu correo electrónico'
+    if (step === 11) return 'Tu correo electrónico'
   }
   return ''
 }
@@ -119,7 +118,7 @@ export default function EvaluationForm() {
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle')
   const [direction, setDirection] = useState(1)
 
-  const TOTAL_STEPS = data.tipo_visa === 'estudiante' ? 13 : 11;
+  const TOTAL_STEPS = data.tipo_visa === 'estudiante' ? 12 : 11;
 
   const ref = useRef(null)
   const inView = useInView(ref, { once: false, margin: '-100px' })
@@ -148,8 +147,7 @@ export default function EvaluationForm() {
       if (step === 8) return data.pasaporte !== ''
       if (step === 9) return data.situacion_laboral !== ''
       if (step === 10) return true // Situación libre (opcional)
-      if (step === 11) return data.ubicacion !== ''
-      if (step === 12) return data.email.trim() !== '' && data.acepta
+      if (step === 11) return data.email.trim() !== '' && data.acepta
     }
     return false
   }
@@ -551,17 +549,8 @@ export default function EvaluationForm() {
                           </div>
                         )}
 
-                      {/* ESTUDIANTE — Step 11: Ubicación */}
-                      {step === 11 && data.tipo_visa === 'estudiante' && (
-                        <div className="flex flex-col gap-2">
-                          {['En Australia (renovando visa)', 'Fuera de Australia (aplicando desde afuera)'].map(opt => (
-                            <RadioOption key={opt} value={opt} selected={data.ubicacion === opt} onSelect={() => setData({ ...data, ubicacion: opt })} />
-                          ))}
-                        </div>
-                      )}
-
-                        {/* Step 10 (Turismo) o Step 12 (Estudiante) — Email */}
-                        {((step === 10 && data.tipo_visa === 'turismo') || (step === 12 && data.tipo_visa === 'estudiante')) && (
+                        {/* Step 10 (Turismo) o Step 11 (Estudiante) — Email */}
+                        {((step === 10 && data.tipo_visa === 'turismo') || (step === 11 && data.tipo_visa === 'estudiante')) && (
                           <div className="space-y-4">
                             <input
                               type="email"
