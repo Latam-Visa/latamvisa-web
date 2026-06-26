@@ -40,6 +40,8 @@ type FormData = z.infer<typeof formSchema>
 const TOTAL_STEPS = 8
 const STORAGE_KEY = 'usa_visa_application_draft'
 
+export const maxDuration = 60;
+
 export default function TurismoUsaApplication() {
   const router = useRouter()
   const [currentStep, setCurrentStep] = useState(0)

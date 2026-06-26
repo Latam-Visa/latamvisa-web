@@ -100,47 +100,51 @@ async function executeSubmit(formData: any, ipAddress: string, userAgent: string
     return { success: false, error: 'No pudimos guardar tu aplicación. Intentá en unos minutos.', errorCode: 'DB_INSERT' }
   }
 
-  // 2. Send admin email
-  try {
-    const adminEmailHtml = getAdminNotificationEmail(formData, applicationId, submittedAt, ipAddress)
-    await resend.emails.send({
-      from: FROM_EMAIL,
-      to: ADMIN_EMAIL,
-      subject: `🚨 Nueva aplicación recibida — ${formData.step1Contact?.fullName || 'Aplicante'}`,
-      html: adminEmailHtml,
-    })
-    console.log('[EMAIL_ADMIN] sent')
-  } catch (error: any) {
-    console.error('[EMAIL_ADMIN] failed:', error)
-  }
+  // 2. Ejecutar envíos de email y PDF en paralelo para evitar Timeout
+  const adminEmailPromise = (async () => {
+    try {
+      const adminEmailHtml = getAdminNotificationEmail(formData, applicationId, submittedAt, ipAddress)
+      await resend.emails.send({
+        from: FROM_EMAIL,
+        to: ADMIN_EMAIL,
+        subject: `🚨 Nueva aplicación recibida — ${formData.step1Contact?.fullName || 'Aplicante'}`,
+        html: adminEmailHtml,
+      })
+      console.log('[EMAIL_ADMIN] sent')
+    } catch (error: any) {
+      console.error('[EMAIL_ADMIN] failed:', error)
+    }
+  })()
 
-  // 3. Generar PDF (sin fotos, solo texto/confirmación de adjuntos) para el cliente
-  let pdfBuffer: Buffer | undefined
-  try {
-    pdfBuffer = await generateApplicationPdf(formData, {}, 'usa')
-  } catch (pdfError) {
-    console.error('[PDF_GEN_USA] Error al generar el PDF para el cliente:', pdfError)
-  }
+  const clientEmailPromise = (async () => {
+    let pdfBuffer: Buffer | undefined
+    try {
+      pdfBuffer = await generateApplicationPdf(formData, {}, 'usa')
+    } catch (pdfError) {
+      console.error('[PDF_GEN_USA] Error al generar el PDF para el cliente:', pdfError)
+    }
 
-  // 4. Send client email
-  try {
-    const clientEmailHtml = getClientConfirmationEmail(formData, 'usa')
-    await resend.emails.send({
-      from: FROM_EMAIL,
-      to: formData.step1Contact?.email,
-      subject: '🇺🇸 Recibimos tu solicitud para USA — LATAM VISA',
-      html: clientEmailHtml,
-      attachments: pdfBuffer ? [
-        {
-          filename: 'resumen-solicitud-latam-visa.pdf',
-          content: pdfBuffer,
-        }
-      ] : []
-    })
-    console.log('[EMAIL_CLIENT] sent')
-  } catch (error: any) {
-    console.error('[EMAIL_CLIENT] failed:', error)
-  }
+    try {
+      const clientEmailHtml = getClientConfirmationEmail(formData, 'usa')
+      await resend.emails.send({
+        from: FROM_EMAIL,
+        to: formData.step1Contact?.email,
+        subject: '🇺🇸 Recibimos tu solicitud para USA — LATAM VISA',
+        html: clientEmailHtml,
+        attachments: pdfBuffer ? [
+          {
+            filename: 'resumen-solicitud-latam-visa.pdf',
+            content: pdfBuffer,
+          }
+        ] : []
+      })
+      console.log('[EMAIL_CLIENT] sent')
+    } catch (error: any) {
+      console.error('[EMAIL_CLIENT] failed:', error)
+    }
+  })()
+
+  await Promise.all([adminEmailPromise, clientEmailPromise])
 
   console.log('[SUBMIT] Done', Date.now() - t0, 'ms')
   return { success: true, applicationId }
