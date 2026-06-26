@@ -18,6 +18,7 @@ import { Step6Family } from './_components/Step6Family'
 import { Step7Work } from './_components/Step7Work'
 import { Step8Additional } from './_components/Step8Additional'
 import { submitUsaApplication } from './_actions/submit-application'
+import { getUploadUrl } from './_actions/upload-url'
 import { createClient } from '@/lib/supabase/client'
 import { PassportConfirmModal } from '../turismo-uk/components/PassportConfirmModal'
 
@@ -247,15 +248,23 @@ export default function TurismoUsaApplication() {
         setPassportData(result)
         setPassportStatus('success')
         
-        const supabase = createClient()
-        const fileExt = file.name.split('.').pop()
-        const fileName = `usa/passport_scan_${Date.now()}.${fileExt}`
-        const { data: uploadData } = await supabase.storage
-          .from('visa-applications')
-          .upload(fileName, file, { upsert: true })
-        if (uploadData) {
-          setValue('step3Passport.passportPhotoPath' as any, uploadData.path)
-          setPassportFileUrl(uploadData.path)
+        try {
+          const { success: uploadSuccess, url, path, error: uploadError } = await getUploadUrl(file.type)
+          if (uploadSuccess && url && path) {
+            const uploadRes = await fetch(url, {
+              method: 'PUT',
+              body: file,
+              headers: { 'Content-Type': file.type }
+            })
+            if (uploadRes.ok) {
+              setValue('step3Passport.passportPhotoPath' as any, path)
+              setPassportFileUrl(path)
+            } else {
+              console.error('Failed to upload file to signed URL')
+            }
+          }
+        } catch (uploadErr) {
+          console.error('Error uploading passport photo in step 0:', uploadErr)
         }
       } else {
         setPassportStatus('error')
