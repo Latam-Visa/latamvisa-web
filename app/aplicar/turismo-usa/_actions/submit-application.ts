@@ -119,7 +119,9 @@ async function executeSubmit(formData: any, ipAddress: string, userAgent: string
   const clientEmailPromise = (async () => {
     let pdfBuffer: Buffer | undefined
     try {
-      pdfBuffer = await generateApplicationPdf(formData, {}, 'usa')
+      // Bypassing PDF generation to prevent Vercel OOM (Out Of Memory) crash
+      // pdfBuffer = await generateApplicationPdf(formData, {}, 'usa')
+      pdfBuffer = undefined
     } catch (pdfError) {
       console.error('[PDF_GEN_USA] Error al generar el PDF para el cliente:', pdfError)
     }
