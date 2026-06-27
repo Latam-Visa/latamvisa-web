@@ -68,6 +68,53 @@ function getLabel(step: number, visa: VisaType): string {
   return ''
 }
 
+function getDynamicPlaceholder(data: FormData): string {
+  if (data.tipo_visa !== 'estudiante') return "Ej: Llevo 2 años en Australia... Viajo con mi pareja..."
+
+  const isOffshore = data.student_type === 'offshore';
+  const isOnshore = data.student_type === 'onshore';
+  
+  const wantsEnglish = data.que_estudiar === 'Inglés general' || data.que_estudiar === 'Inglés + curso técnico VET' || data.que_estudiar === 'Ambos';
+  const wantsVET = data.que_estudiar === 'Inglés + curso técnico VET' || data.que_estudiar === 'Ambos';
+  const isBasicEnglish = data.nivel_ingles === 'Básico' || data.nivel_ingles === 'No hablo inglés';
+  const isWorking = data.situacion_laboral === 'Sí, tiempo completo' || data.situacion_laboral === 'Sí, medio tiempo';
+
+  const originText = data.pais_origen ? ` de ${data.pais_origen}` : '';
+
+  // 1: Offshore + Working + English (Professional looking to upgrade)
+  if (isOffshore && isWorking && wantsEnglish && !wantsVET) {
+    return `Ej: Soy${originText} y actualmente trabajo, pero quiero hacer una pausa para perfeccionar mi inglés. Busco vivir la experiencia de estar en otro país y abrirme nuevas puertas laborales a mi regreso.`;
+  }
+  
+  // 2: Offshore + English + Basic (Starting from scratch)
+  if (isOffshore && wantsEnglish && isBasicEnglish) {
+    return `Ej: Soy${originText} y me gustaría estudiar inglés porque ampliaría mis oportunidades laborales en el futuro. Quiero vivir la experiencia de estar en otro país, aprender desde cero y conocer otras culturas.`;
+  }
+
+  // 3: Offshore + VET (Looking for a career)
+  if (isOffshore && wantsVET) {
+    return `Ej: Soy${originText} y busco estudiar un curso técnico para construir un camino profesional sólido. Me emociona la idea de vivir en Australia, trabajar mientras estudio y crecer como persona.`;
+  }
+
+  // 4: Onshore + VET (Renewing for career)
+  if (isOnshore && wantsVET) {
+    return `Ej: Actualmente estoy en Australia y quiero renovar mi visa para estudiar un curso VET. Mi objetivo es desarrollar mi carrera profesional aquí y seguir escalando.`;
+  }
+
+  // 5: Onshore + English
+  if (isOnshore && wantsEnglish) {
+    return `Ej: Llevo un tiempo en Australia y me he dado cuenta que necesito mejorar mi inglés para acceder a mejores trabajos y disfrutar más la experiencia en el país.`;
+  }
+
+  // 6: Generic Offshore fallback
+  if (isOffshore) {
+    return `Ej: Soy${originText} y me encantaría ir a Australia para estudiar, salir de mi zona de confort y vivir una aventura internacional inolvidable.`;
+  }
+
+  // Default fallback
+  return "Ej: Viajo con mi pareja y nuestro objetivo es estudiar y trabajar en Australia...";
+}
+
 function RadioOption({ value, selected, onSelect }: { value: string; selected: boolean; onSelect: () => void }) {
   return (
     <button
@@ -539,7 +586,7 @@ export default function EvaluationForm() {
                         {step === 10 && data.tipo_visa === 'estudiante' && (
                           <div className="flex flex-col gap-2">
                             <textarea
-                              placeholder="Ej: Llevo 2 años en Australia... Viajo con mi pareja..."
+                              placeholder={getDynamicPlaceholder(data)}
                               value={data.situacion_libre}
                               onChange={e => setData({ ...data, situacion_libre: e.target.value })}
                               className="w-full bg-white/70 backdrop-blur-sm border text-[#0d2b0d] px-4 py-3 font-monument font-medium text-[13px] focus:outline-none focus:border-[#C8FF00] transition-all rounded-lg placeholder-[#6B7280] resize-none"
