@@ -184,6 +184,16 @@ body:has(button:hover) .cursor-ring {
   opacity: 1;
 }
 
+/* Hide custom cursor on mobile and touch devices */
+@media (max-width: 768px), (pointer: coarse) {
+  html, body {
+    cursor: auto !important;
+  }
+  .cursor-dot, .cursor-ring {
+    display: none !important;
+  }
+}
+
 /* Noise texture overlay */
 body::before {
   content: '';
