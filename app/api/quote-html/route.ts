@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import fs from 'fs';
 import path from 'path';
+import { FONT_FACE_CSS, LOGO_NEON_DATA_URI } from '@/lib/pdf-assets';
 
 export async function POST(req: Request) {
   try {
@@ -18,10 +19,19 @@ export async function POST(req: Request) {
     const pasaporte = profile?.pasaporte || 'No especificado';
     const ciudadLlegada = profile?.ciudadLlegada || 'Australia';
 
-    // 1. Head (Fonts)
-    if (!html.includes('fonts.googleapis.com')) {
-      html = html.replace('<head>', '<head>\n<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet">');
-    }
+    // 1. Head (Fonts & Logos)
+    html = html.replace('<style>', `<style>\n${FONT_FACE_CSS}`);
+    html = html.replace(/body\s*\{font-family:"Poppins"/, 'body{font-family:"Funnel"');
+    html = html.replace(/\.htitle\s*\{[^\}]*\}/, ".htitle{font-family:'Monument';font-size:15px;font-weight:900;letter-spacing:-.3px;line-height:1.1;}");
+    html = html.replace(/\.total\s*\{([^\}]*)\}/, (match, p1) => {
+      let newRules = p1.replace(/font-weight:\s*800;?/, "font-weight:900;")
+                       .replace(/font-size:\s*18px;?/, "font-size:15px;");
+      return `.total{font-family:'Monument';${newRules}}`;
+    });
+    html = html.replace(/\.rhead h1\s*\{[^\}]*\}/, ".rhead h1{font-family:'Monument';font-size:26px;font-weight:900;color:#0d2b0d;letter-spacing:-.5px;line-height:1.05;}");
+    html = html.replace(/\.logo\s*\{[^\}]*\}/, ".logo{height:34px;width:auto;}");
+    html = html.replace(/<img class="logo" src="[^"]*"/, `<img class="logo" src="${LOGO_NEON_DATA_URI}"`);
+    html = html.replace(/<img class="rlogo" src="[^"]*"/, `<img class="rlogo" src="${LOGO_NEON_DATA_URI}"`);
 
     // 2. Header
     html = html.replace(/Preparado para <b>.*?<\/b> · Ruta de estudio en Australia/, `Preparado para <b>${nombre}</b> · Ruta de estudio en Australia`);
