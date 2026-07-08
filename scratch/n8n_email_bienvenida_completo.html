@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>¡Bienvenido a LATAM VISA!</title>
+</head>
+<body style="margin:0;padding:0;background:#FAFFEB;font-family:Arial,Helvetica,sans-serif;color:#111111;">
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#FAFFEB;padding:40px 20px;">
+<tr><td align="center">
+<table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;">
+
+<!-- LOGO -->
+<tr><td align="center" style="padding-bottom:30px;">
+<img src="https://i.postimg.cc/fLxvwXFF/logo.png" alt="LATAM VISA" width="280" style="display:block;border:none;">
+</td></tr>
+
+<!-- HERO CHECKMARK -->
+<tr><td align="center" style="padding:30px 0;">
+<div style="width:90px;height:90px;background:#C8FF00;border-radius:50%;display:inline-block;line-height:90px;font-size:48px;text-align:center;box-shadow:0 8px 24px rgba(200,255,0,0.4);">✓</div>
+</td></tr>
+
+<!-- TÍTULO -->
+<tr><td align="center" style="padding:10px 0 30px;">
+<h1 style="font-size:34px;font-weight:900;color:#111111;margin:0 0 12px;line-height:1.1;letter-spacing:-1px;">¡Pago confirmado!</h1>
+<p style="color:#1A2A00;font-size:14px;letter-spacing:2px;margin:0;text-transform:uppercase;font-weight:bold;">{{ $json.destinoSubtitulo }}</p>
+</td></tr>
+
+<!-- SALUDO -->
+<tr><td style="padding:20px 0;color:#111111;font-size:16px;line-height:1.6;">
+<p style="margin:0 0 16px;">Hola <strong>{{ $json.body.data.object.customer_details.name || 'viajero' }}</strong>,</p>
+<p style="margin:0 0 16px;">¡Bienvenido a la familia LATAM VISA! 🎉 Tu pago de <strong>${{ ($json.body.data.object.amount_total / 100).toFixed(2) }} USD</strong> fue procesado exitosamente y tu expediente para la <strong>visa de turismo a {{ $json.destinoNombre }}</strong> está oficialmente en marcha.</p>
+<p style="margin:0;">A partir de ahora, vamos juntos paso a paso. No estás solo en este proceso.</p>
+</td></tr>
+
+<!-- NÚMERO DE ORDEN -->
+<tr><td align="center" style="padding:20px 0;">
+<div style="background:#FFFFFF;border:2px solid #C8FF00;border-radius:16px;padding:20px 30px;display:inline-block;">
+<p style="margin:0 0 6px;color:#1A2A00;font-size:11px;letter-spacing:2px;text-transform:uppercase;font-weight:bold;">Número de orden</p>
+<p style="margin:0;color:#111111;font-size:22px;font-weight:900;font-family:'Courier New',monospace;letter-spacing:1px;">ORD-{{ $json.body.data.object.id.slice(-8).toUpperCase() }}</p>
+</div>
+</td></tr>
+
+<!-- PRÓXIMOS PASOS -->
+<tr><td style="padding:30px 0 10px;">
+<h2 style="color:#111111;font-size:20px;margin:0 0 20px;font-weight:900;text-transform:uppercase;letter-spacing:-0.5px;">¿Qué sigue ahora?</h2>
+</td></tr>
+
+<!-- PASO 1 -->
+<tr><td style="padding:10px 0;">
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#E8FF7A;border-radius:12px;">
+<tr>
+<td width="60" style="padding:20px;vertical-align:top;">
+<div style="width:40px;height:40px;background:#1A2A00;border-radius:10px;text-align:center;line-height:40px;color:#C8FF00;font-weight:900;font-size:16px;">01</div>
+</td>
+<td style="padding:20px 20px 20px 0;">
+<h3 style="color:#111111;font-size:14px;margin:0 0 6px;font-weight:900;text-transform:uppercase;letter-spacing:0.5px;">Te contactamos en 24 horas</h3>
+<p style="color:#1A2A00;font-size:14px;margin:0;line-height:1.5;">Nuestro equipo te escribirá por email y WhatsApp para iniciar el proceso oficialmente y resolver cualquier duda inicial.</p>
+</td>
+</tr>
+</table>
+</td></tr>
+
+<!-- PASO 2 -->
+<tr><td style="padding:10px 0;">
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#FFFFFF;border:1px solid #1A2A00;border-radius:12px;">
+<tr>
+<td width="60" style="padding:20px;vertical-align:top;">
+<div style="width:40px;height:40px;background:#C8FF00;border-radius:10px;text-align:center;line-height:40px;color:#111111;font-weight:900;font-size:16px;">02</div>
+</td>
+<td style="padding:20px 20px 20px 0;">
+<h3 style="color:#111111;font-size:14px;margin:0 0 6px;font-weight:900;text-transform:uppercase;letter-spacing:0.5px;">{{ $json.paso2Titulo }}</h3>
+<p style="color:#555555;font-size:14px;margin:0;line-height:1.5;">{{ $json.paso2Desc }}</p>
+</td>
+</tr>
+</table>
+</td></tr>
+
+<!-- PASO 3 -->
+<tr><td style="padding:10px 0;">
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#FFFFFF;border:1px solid #1A2A00;border-radius:12px;">
+<tr>
+<td width="60" style="padding:20px;vertical-align:top;">
+<div style="width:40px;height:40px;background:#C8FF00;border-radius:10px;text-align:center;line-height:40px;color:#111111;font-weight:900;font-size:16px;">03</div>
+</td>
+<td style="padding:20px 20px 20px 0;">
+<h3 style="color:#111111;font-size:14px;margin:0 0 6px;font-weight:900;text-transform:uppercase;letter-spacing:0.5px;">{{ $json.paso3Titulo }}</h3>
+<p style="color:#555555;font-size:14px;margin:0;line-height:1.5;">{{ $json.paso3Desc }}</p>
+</td>
+</tr>
+</table>
+</td></tr>
+
+<!-- CONTACTO -->
+<tr><td style="padding:40px 0 20px;">
+<div style="background:#1A2A00;border-radius:16px;padding:30px;text-align:center;">
+<p style="color:#E8FF7A;font-size:11px;letter-spacing:2px;text-transform:uppercase;margin:0 0 12px;font-weight:bold;">¿Tienes una duda urgente?</p>
+<p style="color:#FFFFFF;font-size:16px;margin:0 0 24px;line-height:1.5;">Estamos disponibles cuando nos necesites:</p>
+
+<!-- Botones de contacto -->
+<table cellpadding="0" cellspacing="0" style="margin:0 auto;">
+<tr>
+<td style="padding:5px;">
+<a href="mailto:future@latamvisas.com.au" style="display:inline-block;background:#C8FF00;color:#111111;text-decoration:none;padding:14px 28px;border-radius:50px;font-weight:bold;font-size:13px;letter-spacing:1px;text-transform:uppercase;">📧 Email</a>
+</td>
+<td style="padding:5px;">
+<a href="https://wa.me/61426779734?text=Hola%20LATAM%20VISA%2C%20vengo%20del%20email%20de%20confirmaci%C3%B3n%20de%20pago%20de%20mi%20expediente%20{{ encodeURIComponent($json.whatsappTexto) }}.%20Mi%20n%C3%BAmero%20de%20orden%20es%20ORD-{{ $json.body.data.object.id.slice(-8).toUpperCase() }}." style="display:inline-block;background:#FFFFFF;color:#111111;text-decoration:none;padding:14px 28px;border-radius:50px;font-weight:bold;font-size:13px;letter-spacing:1px;text-transform:uppercase;">💬 WhatsApp</a>
+</td>
+</tr>
+</table>
+
+<!-- Fallback con número grande -->
+<div style="margin-top:24px;padding-top:20px;border-top:1px solid rgba(200,255,0,0.2);">
+<p style="color:#888888;font-size:11px;margin:0 0 6px;letter-spacing:1px;text-transform:uppercase;">¿Los botones no funcionan?</p>
+<p style="color:#E8FF7A;font-size:18px;margin:0 0 4px;font-weight:900;letter-spacing:1px;">+61 426 779 734</p>
+<p style="color:#AAAAAA;font-size:11px;margin:0;">Agrégalo a tus contactos y escríbenos</p>
+</div>
+
+</div>
+</td></tr>
+
+<!-- TAGLINE EMOCIONAL -->
+<tr><td align="center" style="padding:30px 0 10px;">
+<p style="color:#1A2A00;font-size:14px;font-style:italic;margin:0;line-height:1.5;">La agencia hecha por latinos, para latinos ✈️</p>
+</td></tr>
+
+<!-- FOOTER LEGAL -->
+<tr><td style="padding:30px 0 10px;border-top:1px solid #DDDDDD;">
+<p style="color:#888888;font-size:11px;line-height:1.6;text-align:center;margin:0;">
+LATAM VISA es una Travel & Education Consultancy registrada en Australia. No somos agentes migratorios registrados (MARA/OMARA). Brindamos servicios de planeación de viaje y preparación de expedientes documentales. La aprobación de cualquier visa es decisión exclusiva de las autoridades consulares correspondientes.
+</p>
+</td></tr>
+
+<!-- REDES -->
+<tr><td align="center" style="padding:20px 0 10px;">
+<a href="https://www.instagram.com/latamvisausa/" style="text-decoration:none;margin:0 10px;color:#888888;font-size:12px;">Instagram</a>
+<span style="color:#DDDDDD;">—</span>
+<a href="https://www.facebook.com/profile.php?id=61563009909169" style="text-decoration:none;margin:0 10px;color:#888888;font-size:12px;">Facebook</a>
+</td></tr>
+
+<tr><td align="center" style="padding:10px 0;">
+<p style="color:#888888;font-size:11px;margin:0;">future@latamvisas.com.au — @latamvisa</p>
+</td></tr>
+
+</table>
+</td></tr>
+</table>
+</body>
+</html>

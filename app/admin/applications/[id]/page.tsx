@@ -4,6 +4,7 @@ import { AdminDetailsClient } from './_components/AdminDetailsClient'
 import { CanadaDetailsClient } from './_components/CanadaDetailsClient'
 import { UKDetailsClient } from './_components/UKDetailsClient'
 import { SchengenDetailsClient } from './_components/SchengenDetailsClient'
+import { AustraliaDetailsClient } from './_components/AustraliaDetailsClient'
 import Link from 'next/link'
 import { ArrowLeft } from 'lucide-react'
 
@@ -73,7 +74,18 @@ export default async function ApplicationDetailsPage({ params }: { params: { id:
           app = schengenApp
           destination = 'schengen'
         } else {
-          notFound()
+          const { data: ausApp } = await supabaseAdmin
+            .from('aplicaciones_turismo_australia')
+            .select('*')
+            .eq('id', params.id)
+            .single()
+
+          if (ausApp) {
+            app = ausApp
+            destination = 'australia'
+          } else {
+            notFound()
+          }
         }
       }
     }
@@ -150,6 +162,16 @@ export default async function ApplicationDetailsPage({ params }: { params: { id:
     signedPhotoUrls = {
       passport, photo, travelInsurance, bankStatements, accommodation, flightItinerary, employmentProof, tiesProof, extraDocs
     }
+  } else if (destination === 'australia') {
+    const d = app
+    const [doc_group1_arraigo, doc_group2_fondos, doc_group3_viajes, doc_national_id_url] = await Promise.all([
+      getSignedPhotoUrl(bucket, d.doc_group1_arraigo),
+      getSignedPhotoUrl(bucket, d.doc_group2_fondos),
+      getSignedPhotoUrl(bucket, d.doc_group3_viajes),
+      getSignedPhotoUrl(bucket, d.doc_national_id_url),
+    ])
+
+    signedPhotoUrls = { doc_group1_arraigo, doc_group2_fondos, doc_group3_viajes, doc_national_id_url }
   }
 
   return (
@@ -163,7 +185,7 @@ export default async function ApplicationDetailsPage({ params }: { params: { id:
         </Link>
         <div>
           <h2 className="text-2xl font-bold font-[PPMonumentExtended]">
-            Detalles de Solicitud <span className="text-sm bg-black text-[#C8FF00] px-2 py-1 rounded-md ml-2 align-middle">{destination === 'usa' ? 'USA' : destination === 'canada' ? 'CANADÁ' : destination === 'uk' ? 'UK' : 'SCHENGEN'}</span>
+            Detalles de Solicitud <span className="text-sm bg-black text-[#C8FF00] px-2 py-1 rounded-md ml-2 align-middle">{destination === 'usa' ? 'USA' : destination === 'canada' ? 'CANADÁ' : destination === 'uk' ? 'UK' : destination === 'australia' ? 'AUSTRALIA' : 'SCHENGEN'}</span>
           </h2>
           <p className="text-[#525252] text-sm">ID: {app.id}</p>
         </div>
@@ -175,9 +197,12 @@ export default async function ApplicationDetailsPage({ params }: { params: { id:
         <CanadaDetailsClient application={app} signedPhotoUrls={signedPhotoUrls} />
       ) : destination === 'uk' ? (
         <UKDetailsClient application={app} signedPhotoUrls={signedPhotoUrls} />
+      ) : destination === 'australia' ? (
+        <AustraliaDetailsClient application={app} signedPhotoUrls={signedPhotoUrls} />
       ) : (
         <SchengenDetailsClient application={app} signedPhotoUrls={signedPhotoUrls} />
       )}
     </div>
   )
 }
+

@@ -122,7 +122,8 @@ export async function POST(req: Request) {
           school: school.name,
           qualLevel: course.qual_level,
           durationYears: durationYears,
-          durationLabel: course.duration_label
+          durationLabel: course.duration_label,
+          cricos: course.cricos || school.cricos || null
         },
         blockA: {
           tuition: tuitionTotal,

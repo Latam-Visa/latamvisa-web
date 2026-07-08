@@ -12,7 +12,8 @@ function formatDate(dateStr: string | undefined): string {
 
 export function getClientConfirmationEmail(
   formData: any,
-  destination: 'usa' | 'canada' | 'uk' | 'schengen' = 'usa'
+  destination: 'usa' | 'canada' | 'uk' | 'schengen' | 'australia' = 'usa',
+  attachPdf: boolean = true
 ): string {
   let name = '';
   let email = '';
@@ -44,6 +45,12 @@ export function getClientConfirmationEmail(
     visaType = `Schengen - ${formData.destination_country || 'Europa'}`;
     travelDate = formatDate(formData.entry_date);
     destName = 'Europa (Schengen)';
+  } else if (destination === 'australia') {
+    name = `${formData.given_names || ''} ${formData.family_name || ''}`.trim();
+    email = formData.email || '';
+    visaType = 'Visa de Visitante (Subclass 600)';
+    travelDate = formatDate(formData.planned_arrival_date);
+    destName = 'Australia';
   }
 
   const firstName = name.split(' ')[0] || 'Hola';
@@ -96,9 +103,9 @@ export function getClientConfirmationEmail(
       <strong>Próximos pasos:</strong> Nuestro equipo revisará tu información detalladamente y te contactaremos por WhatsApp en las próximas 24 horas para indicarte cómo continuamos.
     </p>
     
-    <p style="margin:0 0 28px 0;font-size:16px;color:#333333;line-height:1.6;">
+    ${attachPdf ? `<p style="margin:0 0 28px 0;font-size:16px;color:#333333;line-height:1.6;">
       Hemos adjuntado un documento PDF con el resumen completo de la información que nos enviaste para tus registros.
-    </p>
+    </p>` : ''}
 
     <!-- Button -->
     <div style="text-align:center;margin-bottom:32px;">

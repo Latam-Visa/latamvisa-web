@@ -4,14 +4,15 @@ import { ApplicationsListClient } from './_components/ApplicationsListClient'
 export const dynamic = 'force-dynamic'
 
 export default async function AdminDashboard() {
-  const [usaRes, canRes, ukRes, schengenRes] = await Promise.all([
+  const [usaRes, canRes, ukRes, schengenRes, ausRes] = await Promise.all([
     supabaseAdmin.from('visa_applications_usa').select('id, created_at, status, data').order('created_at', { ascending: false }),
     supabaseAdmin.from('visa_applications_canada').select('*').order('created_at', { ascending: false }),
     supabaseAdmin.from('visa_applications_uk').select('*').order('created_at', { ascending: false }),
-    supabaseAdmin.from('visa_applications_schengen').select('*').order('created_at', { ascending: false })
+    supabaseAdmin.from('visa_applications_schengen').select('*').order('created_at', { ascending: false }),
+    supabaseAdmin.from('aplicaciones_turismo_australia').select('*').order('created_at', { ascending: false })
   ])
 
-  if (usaRes.error && canRes.error && ukRes.error && schengenRes.error) {
+  if (usaRes.error && canRes.error && ukRes.error && schengenRes.error && ausRes.error) {
     return <div className="p-8 text-center text-[#DC2626]">Error cargando datos.</div>
   }
 
@@ -55,7 +56,17 @@ export default async function AdminDashboard() {
     visaType: app.purpose_of_journey || '—'
   }))
 
-  const applications = [...usaApps, ...canApps, ...ukApps, ...schengenApps].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+  const ausApps = (ausRes.data || []).map(app => ({
+    id: app.id,
+    created_at: app.created_at,
+    status: app.status || 'nuevo',
+    destination: 'Australia',
+    fullName: `${app.given_names || ''} ${app.family_name || ''}`.trim() || '—',
+    email: app.email || '—',
+    visaType: app.visa_stream === 'tourist' ? 'Tourist Stream (Subclass 600)' : (app.visa_stream || '—')
+  }))
+
+  const applications = [...usaApps, ...canApps, ...ukApps, ...schengenApps, ...ausApps].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
 
   return (
     <div className="space-y-8 max-w-[1200px] mx-auto w-full pb-10">

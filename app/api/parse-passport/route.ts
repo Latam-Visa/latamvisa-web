@@ -100,7 +100,8 @@ export async function POST(req: NextRequest) {
   "document_number": "string or null",
   "nationality": "string or null",
   "date_of_birth": "string (DD/MM/YYYY) or null",
-  "date_of_expiry": "string (DD/MM/YYYY) or null"
+  "date_of_expiry": "string (DD/MM/YYYY) or null",
+  "sex": "string (M or F) or null"
 }
 If a field is not visible or unclear, return null for that field.`
 
@@ -160,6 +161,7 @@ If a field is not visible or unclear, return null for that field.`
       date_of_expiry: null,
       place_of_birth: null,
       date_of_issue: null,
+      sex: null,
       issuing_country: null,
       document_type: null
     }
@@ -185,6 +187,7 @@ If a field is not visible or unclear, return null for that field.`
       if (f.documentNumber) { merged.document_number = f.documentNumber; sources.document_number = 'mrz' }
       if (f.nationality) { merged.nationality = f.nationality; sources.nationality = 'mrz' }
       if (f.birthDate) { merged.date_of_birth = formatMrzDate(f.birthDate); sources.date_of_birth = 'mrz' }
+      if (f.sex) { merged.sex = f.sex.replace('<',''); sources.sex = 'mrz' }
       if (f.expirationDate) { merged.date_of_expiry = formatMrzDate(f.expirationDate); sources.date_of_expiry = 'mrz' }
     }
 
@@ -192,7 +195,7 @@ If a field is not visible or unclear, return null for that field.`
     const visionFields = [
       'place_of_birth', 'date_of_issue', 'issuing_country', 
       'full_name', 'surname', 'given_names', 'document_number', 
-      'nationality', 'date_of_birth', 'date_of_expiry'
+      'nationality', 'date_of_birth', 'date_of_expiry', 'sex'
     ]
 
     for (const field of visionFields) {
