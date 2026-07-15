@@ -130,7 +130,6 @@ export function Step2Personal() {
       <FormField 
         label="Número de identificación" 
         name="step2Personal.identificationNumber" 
-        required 
         hint="Tu número de identificación nacional (Cédula, DNI, CURP, etc.)"
         error={errors.step2Personal?.identificationNumber?.message as string}
       >
@@ -140,6 +139,108 @@ export function Step2Personal() {
           placeholder="Ej: 1020304050"
         />
       </FormField>
+
+      {(maritalStatus === 'Casado(a)' || maritalStatus === 'Unión libre') && (
+        <div className="pt-6 border-t border-[#E5E5E5] space-y-6">
+          <h3 className="text-xl font-bold text-[#0A0A0A]">Información de tu pareja / cónyuge</h3>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <FormField 
+              label="Apellidos de tu pareja" 
+              name="step2Personal.spouseSurnames" 
+              required 
+              error={errors.step2Personal?.spouseSurnames?.message as string}
+            >
+              <input
+                {...register('step2Personal.spouseSurnames')}
+                className="w-full bg-[#F5F5F0] border border-[#E5E5E5] rounded-lg px-4 py-3 text-[#0A0A0A] focus:outline-none focus:border-[#C8FF00] focus:ring-2 focus:ring-[#C8FF00] focus:bg-white transition-colors"
+                placeholder="Ej: Pérez Gómez"
+              />
+            </FormField>
+
+            <FormField 
+              label="Nombres de tu pareja" 
+              name="step2Personal.spouseGivenNames" 
+              required 
+              error={errors.step2Personal?.spouseGivenNames?.message as string}
+            >
+              <input
+                {...register('step2Personal.spouseGivenNames')}
+                className="w-full bg-[#F5F5F0] border border-[#E5E5E5] rounded-lg px-4 py-3 text-[#0A0A0A] focus:outline-none focus:border-[#C8FF00] focus:ring-2 focus:ring-[#C8FF00] focus:bg-white transition-colors"
+                placeholder="Ej: María José"
+              />
+            </FormField>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <FormField 
+              label="Fecha de nacimiento de tu pareja" 
+              name="step2Personal.spouseDateOfBirth" 
+              required 
+              error={errors.step2Personal?.spouseDateOfBirth?.message as string}
+            >
+              <input
+                type="date"
+                {...register('step2Personal.spouseDateOfBirth')}
+                className="w-full bg-[#F5F5F0] border border-[#E5E5E5] rounded-lg px-4 py-3 text-[#0A0A0A] focus:outline-none focus:border-[#C8FF00] focus:ring-2 focus:ring-[#C8FF00] focus:bg-white transition-colors [color-scheme:light]"
+              />
+            </FormField>
+
+            <FormField 
+              label="Nacionalidad de tu pareja" 
+              name="step2Personal.spouseNationality" 
+              required 
+              error={errors.step2Personal?.spouseNationality?.message as string}
+            >
+              <select
+                {...register('step2Personal.spouseNationality')}
+                className="w-full bg-[#F5F5F0] border border-[#E5E5E5] rounded-lg px-4 py-3 text-[#0A0A0A] focus:outline-none focus:border-[#C8FF00] focus:ring-2 focus:ring-[#C8FF00] focus:bg-white transition-colors appearance-none"
+              >
+                <option value="">Seleccionar nacionalidad</option>
+                {ALL_COUNTRIES.map(country => (
+                  <option key={country.code} value={country.code}>
+                    {country.flag} {country.name}
+                  </option>
+                ))}
+              </select>
+            </FormField>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <FormField 
+              label="Ciudad de nacimiento" 
+              name="step2Personal.spouseBirthCity" 
+              required 
+              error={errors.step2Personal?.spouseBirthCity?.message as string}
+            >
+              <input
+                {...register('step2Personal.spouseBirthCity')}
+                className="w-full bg-[#F5F5F0] border border-[#E5E5E5] rounded-lg px-4 py-3 text-[#0A0A0A] focus:outline-none focus:border-[#C8FF00] focus:ring-2 focus:ring-[#C8FF00] focus:bg-white transition-colors"
+                placeholder="Ej: Bogotá"
+              />
+            </FormField>
+
+            <FormField 
+              label="País de nacimiento" 
+              name="step2Personal.spouseBirthCountry" 
+              required 
+              error={errors.step2Personal?.spouseBirthCountry?.message as string}
+            >
+              <select
+                {...register('step2Personal.spouseBirthCountry')}
+                className="w-full bg-[#F5F5F0] border border-[#E5E5E5] rounded-lg px-4 py-3 text-[#0A0A0A] focus:outline-none focus:border-[#C8FF00] focus:ring-2 focus:ring-[#C8FF00] focus:bg-white transition-colors appearance-none"
+              >
+                <option value="">Seleccionar país</option>
+                {ALL_COUNTRIES.map(country => (
+                  <option key={country.code} value={country.code}>
+                    {country.flag} {country.name}
+                  </option>
+                ))}
+              </select>
+            </FormField>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

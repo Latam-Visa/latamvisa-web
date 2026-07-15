@@ -349,6 +349,10 @@ export default function TurismoUsaApplication() {
             data={passportData.data}
             sources={passportData.sources || {}}
             onConfirm={(confirmed) => {
+              if (confirmed.first_name || confirmed.last_name) {
+                const fullName = [confirmed.first_name, confirmed.last_name].filter(Boolean).join(' ')
+                if (fullName) setValue('step1Contact.fullName' as any, fullName)
+              }
               if (confirmed.date_of_birth) setValue('step2Personal.dateOfBirth' as any, confirmed.date_of_birth)
               if (confirmed.date_of_issue) setValue('step3Passport.passportIssueDate' as any, confirmed.date_of_issue)
               if (confirmed.date_of_expiry) setValue('step3Passport.passportExpiryDate' as any, confirmed.date_of_expiry)
