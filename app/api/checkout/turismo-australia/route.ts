@@ -1,85 +1,111 @@
-import { NextRequest, NextResponse } from 'next/server';
-import Stripe from 'stripe';
+import { NextResponse } from 'next/server'
+import Stripe from 'stripe'
 
-export const dynamic = 'force-dynamic';
-export const runtime = 'nodejs';
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!)
 
-// Precios de Stripe
-const PRICE_SIN = 'price_1TQd8QJ9ezpBcyYbWD74OnCT';
-const PRICE_CON = 'price_1TQdAAJ9ezpBcyYbGWrzdGvP';
+const PRECIO_SIN = 250 // AUD por persona (sin traducción)
+const PRECIO_CON = 290 // AUD por persona (con traducción)
 
-export async function GET() {
-  try {
-    const secretKey = process.env.STRIPE_SECRET_KEY;
-    if (!secretKey) throw new Error('STRIPE_SECRET_KEY no configurado');
-    const stripe = new Stripe(secretKey);
+// Función centralizada de cálculo
+function calcularPrecio(counts: { sin: number, con: number }) {
+  const totalPersonas = counts.sin + counts.con
+  const subtotal = (counts.sin * PRECIO_SIN) + (counts.con * PRECIO_CON)
+  let porcentajeDescuento = 0
 
-    const [sin, con] = await Promise.all([
-      stripe.prices.retrieve(PRICE_SIN),
-      stripe.prices.retrieve(PRICE_CON)
-    ]);
+  if (totalPersonas === 2) porcentajeDescuento = 0.10
+  else if (totalPersonas >= 3) porcentajeDescuento = 0.15
 
-    return NextResponse.json({
-      sin: (sin.unit_amount || 25000) / 100,
-      con: (con.unit_amount || 29000) / 100
-    });
-  } catch (err) {
-    console.error('Error fetching prices:', err);
-    return NextResponse.json({ sin: 250, con: 290 }); // Fallback
-  }
+  const descuento = Math.round(subtotal * porcentajeDescuento)
+  const total = subtotal - descuento
+
+  return { subtotal, descuento, total, porcentajeDescuento, totalPersonas }
 }
 
-export async function POST(request: NextRequest) {
+// GET → devuelve los precios base (para la UI)
+export async function GET() {
+  return NextResponse.json({ sin: PRECIO_SIN, con: PRECIO_CON })
+}
+
+// POST → crea la sesión de Stripe con precio calculado en el servidor
+export async function POST(req: Request) {
   try {
-    const secretKey = process.env.STRIPE_SECRET_KEY;
-    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
+    const { counts = { sin: 0, con: 0 }, email } = await req.json()
 
-    if (!secretKey || !siteUrl) {
-      return NextResponse.json(
-        { error: 'Server configuration error' },
-        { status: 500 }
-      );
+    // Validaciones
+    const sinCount = Math.max(0, Math.min(10, parseInt(counts.sin) || 0))
+    const conCount = Math.max(0, Math.min(10, parseInt(counts.con) || 0))
+    const totalPersonas = sinCount + conCount
+
+    if (totalPersonas < 1 || totalPersonas > 10) {
+      return NextResponse.json({ error: 'Número de aplicantes inválido' }, { status: 400 })
+    }
+    if (!email || !email.includes('@')) {
+      return NextResponse.json({ error: 'Email inválido' }, { status: 400 })
     }
 
-    const body = await request.json().catch(() => ({}));
-    const { counts = { sin: 0, con: 0 }, email } = body;
-    
-    // Validar cantidades
-    const sinCount = Math.max(0, Math.min(10, parseInt(counts.sin) || 0));
-    const conCount = Math.max(0, Math.min(10, parseInt(counts.con) || 0));
+    // Cálculo de precios
+    const { subtotal, descuento, total, porcentajeDescuento } = calcularPrecio({ sin: sinCount, con: conCount })
 
-    if (sinCount === 0 && conCount === 0) {
-      return NextResponse.json({ error: 'Debes seleccionar al menos una visa' }, { status: 400 });
-    }
+    // Crear sesión de Stripe
+    const line_items: Stripe.Checkout.SessionCreateParams.LineItem[] = []
 
-    const line_items: Stripe.Checkout.SessionCreateParams.LineItem[] = [];
     if (sinCount > 0) {
-      line_items.push({ price: PRICE_SIN, quantity: sinCount });
-    }
-    if (conCount > 0) {
-      line_items.push({ price: PRICE_CON, quantity: conCount });
+      const unitAmountSin = Math.round((PRECIO_SIN * (1 - porcentajeDescuento)) * 100)
+      line_items.push({
+        price_data: {
+          currency: 'aud',
+          product_data: {
+            name: 'Visitor Visa Australia (Sin Traducción)',
+            description: totalPersonas >= 2
+              ? `Asesoría completa (descuento ${Math.round(porcentajeDescuento * 100)}% aplicado)`
+              : 'Asesoría completa Subclass 600',
+          },
+          unit_amount: unitAmountSin,
+        },
+        quantity: sinCount,
+      })
     }
 
-    const stripe = new Stripe(secretKey);
+    if (conCount > 0) {
+      const unitAmountCon = Math.round((PRECIO_CON * (1 - porcentajeDescuento)) * 100)
+      line_items.push({
+        price_data: {
+          currency: 'aud',
+          product_data: {
+            name: 'Visitor Visa Australia (Con Traducción)',
+            description: totalPersonas >= 2
+              ? `Asesoría completa + Traducciones (descuento ${Math.round(porcentajeDescuento * 100)}% aplicado)`
+              : 'Asesoría completa Subclass 600 + Traducciones de documentos',
+          },
+          unit_amount: unitAmountCon,
+        },
+        quantity: conCount,
+      })
+    }
 
     const sessionData: Stripe.Checkout.SessionCreateParams = {
       ui_mode: 'embedded_page',
-      line_items,
       mode: 'payment',
-      return_url: `${siteUrl}/gracias-pago?session_id={CHECKOUT_SESSION_ID}&destino=turismo-australia`,
-      metadata: { destino: 'australia' },
-    };
-
-    if (email && typeof email === 'string' && email.trim() !== '') {
-      sessionData.customer_email = email.trim();
+      customer_email: email,
+      line_items,
+      metadata: {
+        destino: 'australia',
+        aplicantes_sin: String(sinCount),
+        aplicantes_con: String(conCount),
+        total_personas: String(totalPersonas),
+        precio_original: String(subtotal),
+        descuento_aplicado: String(descuento),
+        porcentaje_descuento: String(Math.round(porcentajeDescuento * 100)),
+        total_pagado: String(total),
+      },
+      return_url: `${process.env.NEXT_PUBLIC_APP_URL || process.env.NEXT_PUBLIC_SITE_URL}/gracias?session_id={CHECKOUT_SESSION_ID}`,
     }
 
-    const session = await stripe.checkout.sessions.create(sessionData);
+    const session = await stripe.checkout.sessions.create(sessionData)
 
-    return NextResponse.json({ clientSecret: session.client_secret });
-  } catch (err) {
-    console.error('Stripe error:', err);
-    const message = err instanceof Error ? err.message : 'Unknown error';
-    return NextResponse.json({ error: message }, { status: 500 });
+    return NextResponse.json({ clientSecret: session.client_secret })
+  } catch (err: any) {
+    console.error('Stripe error:', err)
+    return NextResponse.json({ error: err.message || 'Error creando sesión' }, { status: 500 })
   }
 }

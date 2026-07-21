@@ -34,6 +34,21 @@ function StripeEmbeddedCheckout({ counts, email }: { counts: { sin: number, con:
   )
 }
 
+// Función centralizada para calcular el descuento
+function calcularPrecio(counts: { sin: number, con: number }, prices: { sin: number, con: number }) {
+  const totalPersonas = counts.sin + counts.con
+  const subtotal = (counts.sin * prices.sin) + (counts.con * prices.con)
+  let porcentajeDescuento = 0
+
+  if (totalPersonas === 2) porcentajeDescuento = 0.10
+  else if (totalPersonas >= 3) porcentajeDescuento = 0.15
+
+  const descuento = Math.round(subtotal * porcentajeDescuento)
+  const total = subtotal - descuento
+
+  return { subtotal, descuento, total, porcentajeDescuento, totalPersonas }
+}
+
 export default function TurismoAustraliaCheckoutPage() {
   const [counts, setCounts] = useState({ sin: 0, con: 0 })
   const [email, setEmail] = useState('')
@@ -51,11 +66,14 @@ export default function TurismoAustraliaCheckoutPage() {
       .catch(() => setLoadingPrices(false))
   }, [])
 
-  const total = counts.sin * prices.sin + counts.con * prices.con
+  const { subtotal, descuento, total, porcentajeDescuento, totalPersonas } = calcularPrecio(counts, prices)
 
   const updateCount = (type: 'sin' | 'con', delta: number) => {
     setCounts(prev => {
-      const newVal = Math.max(0, Math.min(10, prev[type] + delta))
+      const currentTotal = prev.sin + prev.con
+      // Solo permitir aumentar si no excede 10 en total, y no bajar de 0
+      const newVal = Math.max(0, prev[type] + delta)
+      if (delta > 0 && currentTotal >= 10) return prev
       return { ...prev, [type]: newVal }
     })
     setShowCheckout(false)
@@ -111,7 +129,7 @@ export default function TurismoAustraliaCheckoutPage() {
                       -
                     </button>
                     <span className="font-monument text-sm w-4 text-center">{counts.sin}</span>
-                    <button onClick={() => updateCount('sin', 1)} className="w-8 h-8 flex items-center justify-center rounded bg-white border border-gray-200 text-gray-600 hover:bg-gray-50 font-bold" disabled={counts.sin >= 10}>
+                    <button onClick={() => updateCount('sin', 1)} className="w-8 h-8 flex items-center justify-center rounded bg-white border border-gray-200 text-gray-600 hover:bg-gray-50 font-bold" disabled={totalPersonas >= 10}>
                       +
                     </button>
                   </div>
@@ -130,11 +148,47 @@ export default function TurismoAustraliaCheckoutPage() {
                       -
                     </button>
                     <span className="font-monument text-sm w-4 text-center">{counts.con}</span>
-                    <button onClick={() => updateCount('con', 1)} className="w-8 h-8 flex items-center justify-center rounded bg-white border border-gray-200 text-gray-600 hover:bg-gray-50 font-bold" disabled={counts.con >= 10}>
+                    <button onClick={() => updateCount('con', 1)} className="w-8 h-8 flex items-center justify-center rounded bg-white border border-gray-200 text-gray-600 hover:bg-gray-50 font-bold" disabled={totalPersonas >= 10}>
                       +
                     </button>
                   </div>
                 </div>
+
+                {/* Desglose de precios (solo si hay descuento) */}
+                {totalPersonas >= 2 && (
+                  <div className="p-4 rounded-xl bg-[#C8FF00]/10 border border-[#C8FF00]/40 mt-4">
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="font-funnel text-sm text-[#555555]">Subtotal ({totalPersonas} visas)</span>
+                      <span className="font-funnel text-sm text-[#555555] line-through">A${subtotal}</span>
+                    </div>
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="font-iceland text-xs text-[#5B6A00] uppercase tracking-widest font-bold">
+                        Descuento LATAM VISA ({Math.round(porcentajeDescuento * 100)}%)
+                      </span>
+                      <span className="font-funnel text-sm font-bold text-[#5B6A00]">-A${descuento}</span>
+                    </div>
+                    <div className="border-t border-[#C8FF00]/40 mt-2 pt-2 flex justify-between items-center">
+                      <span className="font-monument text-sm uppercase text-[#111111]">Total</span>
+                      <span className="font-funnel text-lg font-bold text-[#111111]">A${total}</span>
+                    </div>
+                  </div>
+                )}
+
+                {/* Hint para incentivar más aplicantes */}
+                {totalPersonas === 1 && (
+                  <div className="p-3 rounded-lg bg-gray-50 border border-gray-100 mt-4">
+                    <p className="font-funnel text-xs text-[#555555] text-center">
+                      💡 <strong>Aplicas con familia o amigos?</strong> Ahorra <strong>10%</strong> desde 2 aplicantes · <strong>15%</strong> desde 3
+                    </p>
+                  </div>
+                )}
+                {totalPersonas === 2 && (
+                  <div className="p-3 rounded-lg bg-gray-50 border border-gray-100 mt-4">
+                    <p className="font-funnel text-xs text-[#555555] text-center">
+                      💡 Sube a <strong>3 aplicantes</strong> y ahorra <strong>15%</strong> en total
+                    </p>
+                  </div>
+                )}
               </div>
 
               <div className="mt-6 space-y-4">
@@ -221,6 +275,17 @@ export default function TurismoAustraliaCheckoutPage() {
                 ))}
               </ul>
             </div>
+
+            {totalPersonas >= 2 && (
+              <div className="mt-8 p-5 rounded-xl bg-[#C8FF00]/20 border border-[#C8FF00]/60">
+                <p className="font-iceland text-xs text-[#5B6A00] tracking-[0.2em] uppercase font-bold mb-2">
+                  🎉 DESCUENTO APLICADO
+                </p>
+                <p className="font-funnel text-sm text-[#111111]">
+                  Ahorras <strong>A${descuento}</strong> ({Math.round(porcentajeDescuento * 100)}%) por aplicar con {totalPersonas} personas
+                </p>
+              </div>
+            )}
 
             <div className="mt-12 p-5 rounded-xl bg-white/50 backdrop-blur-md border border-white/60 shadow-sm flex items-center gap-4">
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#5B6A00" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0">
