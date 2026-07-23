@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import localFont from 'next/font/local'
 import PostcardHeader from '@/components/postcard/PostcardHeader'
+import PostcardShowcase from '@/components/postcard/PostcardShowcase'
 import PostcardDiagram from '@/components/postcard/PostcardDiagram'
 import PostcardSteps from '@/components/postcard/PostcardSteps'
 import PostcardFooter from '@/components/postcard/PostcardFooter'
@@ -18,13 +19,13 @@ const funnelDisplay = localFont({
 })
 
 export const metadata: Metadata = {
-  title: 'Guía de Envío de Postales — LATAM VISA',
+  title: 'Guía para enviar tu postal — LATAM VISA',
   description:
-    'Aprende paso a paso cómo llenar y enviar tu postal física desde Australia hacia Latinoamérica cumpliendo las normas postales de Australia Post.',
+    'Guía para enviar tu postal a la persona que más amas, en el país que esté. Aprende cómo llenar tu postal física desde Australia cumpliendo con Australia Post.',
   openGraph: {
-    title: 'Guía de Envío de Postales — LATAM VISA',
+    title: 'Guía para enviar tu postal — LATAM VISA',
     description:
-      'Sigue estos 4 pasos rápidos para enviar tu postal desde Australia hasta la puerta de tu casa.',
+      'Guía para enviar tu postal a la persona que más amas, en el país que esté.',
     images: ['/logo.png'],
   },
 }
@@ -32,10 +33,10 @@ export const metadata: Metadata = {
 export default function PostcardPage() {
   return (
     <main
-      className={`${ppMonument.variable} ${funnelDisplay.variable} min-h-screen bg-[#C8FF00] text-[#0D2818] relative overflow-hidden font-funnel selection:bg-[#0D2818] selection:text-[#C8FF00]`}
+      className={`${ppMonument.variable} ${funnelDisplay.variable} min-h-screen bg-[#C8FF00] text-[#0D2818] relative overflow-hidden font-funnel selection:bg-[#0D2818] selection:text-[#C8FF00] pb-12`}
     >
       {/* Paper Texture Noise Overlay */}
-      <div className="fixed inset-0 pointer-events-none z-10 opacity-25 mix-blend-multiply">
+      <div className="fixed inset-0 pointer-events-none z-10 opacity-20 mix-blend-multiply">
         <svg className="w-full h-full">
           <filter id="postcard-paper-noise">
             <feTurbulence
@@ -54,14 +55,10 @@ export default function PostcardPage() {
         </svg>
       </div>
 
-      {/* Decorative Stamp Watermark Background */}
-      <div className="absolute top-10 right-[-50px] sm:right-[-20px] text-[180px] sm:text-[260px] opacity-[0.04] pointer-events-none select-none font-monument">
-        📯
-      </div>
-
-      {/* Content wrapper */}
+      {/* Content Container */}
       <div className="relative z-20 flex flex-col items-center min-h-screen">
         <PostcardHeader />
+        <PostcardShowcase />
         <PostcardDiagram />
         <PostcardSteps />
         <PostcardFooter />
