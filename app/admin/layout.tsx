@@ -1,6 +1,7 @@
 import { logoutAdmin } from './login/actions'
-import { LogOut } from 'lucide-react'
+import { LogOut, Lightbulb } from 'lucide-react'
 import Image from 'next/image'
+import Link from 'next/link'
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -21,7 +22,14 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 | Admin
               </span>
             </div>
-            <div>
+            <div className="flex items-center gap-5">
+              <Link
+                href="/admin/ideas"
+                className="flex items-center gap-2 text-[#525252] hover:text-[#0A0A0A] text-sm font-medium transition-colors"
+              >
+                <Lightbulb className="w-4 h-4" />
+                <span className="hidden sm:inline">Ideas &amp; Tareas</span>
+              </Link>
               <form action={logoutAdmin}>
                 <button type="submit" className="flex items-center gap-2 text-[#525252] hover:text-[#0A0A0A] text-sm font-medium transition-colors">
                   <LogOut className="w-4 h-4" />

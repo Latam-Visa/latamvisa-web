@@ -56,3 +56,30 @@ CREATE TABLE visa_applications_usa (
 
 ALTER TABLE visa_applications_usa ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Allow service role full access visa_applications_usa" ON visa_applications_usa FOR ALL TO service_role USING (true);
+
+-- Crear tabla para el board de Ideas & Tareas del panel de admin
+CREATE TABLE IF NOT EXISTS public.admin_tasks (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  title text NOT NULL,
+  description text,
+  category text NOT NULL DEFAULT 'General',
+  status text NOT NULL DEFAULT 'idea',        -- idea | por_hacer | en_progreso | hecho
+  priority text NOT NULL DEFAULT 'media',     -- alta | media | baja
+  position int NOT NULL DEFAULT 0,            -- orden dentro de cada columna
+  created_at timestamptz NOT NULL DEFAULT now(),
+  updated_at timestamptz NOT NULL DEFAULT now()
+);
+
+ALTER TABLE public.admin_tasks ENABLE ROW LEVEL SECURITY;
+
+-- Sin políticas: no hay lectura/escritura pública. Todo el acceso es server-side
+-- vía la service role key (el service role bypassea RLS por diseño).
+
+INSERT INTO public.admin_tasks (title, category, status, priority) VALUES
+  ('Crear chatbot con opción de hablar con un humano en WhatsApp', 'Chatbot', 'idea', 'alta'),
+  ('Manejar accesos de correos y partes en la parte de admin', 'Admin', 'idea', 'alta'),
+  ('Sueños con LATAM', 'Producto', 'idea', 'media'),
+  ('Crear sección de Voluntariados', 'Producto', 'idea', 'media'),
+  ('Crear sección de Labs', 'Producto', 'idea', 'media'),
+  ('Crear sección de Finanzas', 'Producto', 'idea', 'media'),
+  ('Crear App', 'Producto', 'idea', 'baja');

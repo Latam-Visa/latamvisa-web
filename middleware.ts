@@ -4,7 +4,7 @@ import type { NextRequest } from 'next/server'
 export function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname
 
-  if ((path.startsWith('/admin') && !path.startsWith('/admin/login')) || path.startsWith('/api/finanzas')) {
+  if ((path.startsWith('/admin') && !path.startsWith('/admin/login')) || path.startsWith('/api/finanzas') || path.startsWith('/api/admin')) {
     const cookieValue = request.cookies.get('admin_auth')?.value
     const envPassword = (process.env.ADMIN_PASSWORD || '').trim()
 
@@ -20,5 +20,5 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/admin/:path*', '/api/finanzas/:path*'],
+  matcher: ['/admin/:path*', '/api/finanzas/:path*', '/api/admin/:path*'],
 }
