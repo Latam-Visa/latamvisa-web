@@ -17,9 +17,9 @@ const config: Config = {
         'text-secondary': '#8A8A8A',
       },
       fontFamily: {
-        sans: ['PPMonumentExtended', 'sans-serif'],
-        monument: ['PPMonumentExtended', 'sans-serif'],
-        funnel: ['FunnelDisplay', 'sans-serif'],
+        sans: ['var(--font-monument)', 'PPMonumentExtended', 'sans-serif'],
+        monument: ['var(--font-monument)', 'PPMonumentExtended', 'sans-serif'],
+        funnel: ['var(--font-funnel)', 'FunnelDisplay', 'sans-serif'],
         iceland: ['Iceland', 'sans-serif'],
       },
       keyframes: {

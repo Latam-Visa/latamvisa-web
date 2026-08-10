@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import Script from 'next/script'
 import './globals.css'
 import CustomCursor from '@/components/CustomCursor'
+import { monument, funnel } from './fonts'
 
 export const metadata: Metadata = {
   title: 'LATAM VISA — Asesoría Migratoria Premium para Latinoamericanos',
@@ -32,7 +33,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="en" className={`${monument.variable} ${funnel.variable}`}>
       <head>
         <script
           type="application/ld+json"

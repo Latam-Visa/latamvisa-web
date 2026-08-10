@@ -2,38 +2,48 @@
 @tailwind components;
 @tailwind utilities;
 
+/* These @font-face blocks register the literal family names 'PPMonumentExtended' /
+   'FunnelDisplay' / 'Iceland' because many components use Tailwind arbitrary values
+   like font-[PPMonumentExtended] that hardcode that exact name and bypass the
+   tailwind.config.ts theme (and therefore next/font/local's generated CSS variables
+   in app/fonts.ts, which power font-monument/font-funnel instead). Keep both. */
+
 /* ── Funnel Display ── */
 @font-face {
   font-family: 'FunnelDisplay';
-  src: url('/Funnel_Display/static/FunnelDisplay-Light.ttf') format('truetype');
+  src: url('/fonts/Funnel_Display/static/FunnelDisplay-Light.ttf') format('truetype');
   font-weight: 300;
   font-style: normal;
   font-display: swap;
 }
+
 @font-face {
   font-family: 'FunnelDisplay';
-  src: url('/Funnel_Display/static/FunnelDisplay-Regular.ttf') format('truetype');
+  src: url('/fonts/Funnel_Display/static/FunnelDisplay-Regular.ttf') format('truetype');
   font-weight: 400;
   font-style: normal;
   font-display: swap;
 }
+
 @font-face {
   font-family: 'FunnelDisplay';
-  src: url('/Funnel_Display/static/FunnelDisplay-Medium.ttf') format('truetype');
+  src: url('/fonts/Funnel_Display/static/FunnelDisplay-Medium.ttf') format('truetype');
   font-weight: 500;
   font-style: normal;
   font-display: swap;
 }
+
 @font-face {
   font-family: 'FunnelDisplay';
-  src: url('/Funnel_Display/static/FunnelDisplay-SemiBold.ttf') format('truetype');
+  src: url('/fonts/Funnel_Display/static/FunnelDisplay-SemiBold.ttf') format('truetype');
   font-weight: 600;
   font-style: normal;
   font-display: swap;
 }
+
 @font-face {
   font-family: 'FunnelDisplay';
-  src: url('/Funnel_Display/static/FunnelDisplay-Bold.ttf') format('truetype');
+  src: url('/fonts/Funnel_Display/static/FunnelDisplay-Bold.ttf') format('truetype');
   font-weight: 700;
   font-style: normal;
   font-display: swap;
@@ -42,7 +52,7 @@
 /* ── Iceland ── */
 @font-face {
   font-family: 'Iceland';
-  src: url('/Funnel_Display,Iceland/Iceland/Iceland-Regular.ttf') format('truetype');
+  src: url('/fonts/Iceland/Iceland-Regular.ttf') format('truetype');
   font-weight: 400;
   font-style: normal;
   font-display: swap;
@@ -51,7 +61,7 @@
 /* ── PPMonumentExtended ── */
 @font-face {
   font-family: 'PPMonumentExtended';
-  src: url('/fonts/PPMonumentExtended-Black.otf') format('opentype');
+  src: url('/fonts/PPMonument/PPMonumentExtended-Black.otf') format('opentype');
   font-weight: 900;
   font-style: normal;
   font-display: swap;
@@ -59,7 +69,7 @@
 
 @font-face {
   font-family: 'PPMonumentExtended';
-  src: url('/fonts/PPMonumentExtended-Regular.otf') format('opentype');
+  src: url('/fonts/PPMonument/PPMonumentExtended-Regular.otf') format('opentype');
   font-weight: 400;
   font-style: normal;
   font-display: swap;
@@ -67,7 +77,7 @@
 
 @font-face {
   font-family: 'PPMonumentExtended';
-  src: url('/fonts/PPMonumentExtended-Light.otf') format('opentype');
+  src: url('/fonts/PPMonument/PPMonumentExtended-Light.otf') format('opentype');
   font-weight: 300;
   font-style: normal;
   font-display: swap;
@@ -75,7 +85,7 @@
 
 @font-face {
   font-family: 'PPMonumentExtended';
-  src: url('/fonts/PPMonumentExtended-BlackItalic.otf') format('opentype');
+  src: url('/fonts/PPMonument/PPMonumentExtended-BlackItalic.otf') format('opentype');
   font-weight: 900;
   font-style: italic;
   font-display: swap;
@@ -83,7 +93,7 @@
 
 @font-face {
   font-family: 'PPMonumentExtended';
-  src: url('/fonts/PPMonumentExtended-RegularItalic.otf') format('opentype');
+  src: url('/fonts/PPMonument/PPMonumentExtended-RegularItalic.otf') format('opentype');
   font-weight: 400;
   font-style: italic;
   font-display: swap;
@@ -91,7 +101,7 @@
 
 @font-face {
   font-family: 'PPMonumentExtended';
-  src: url('/fonts/PPMonumentExtended-LightItalic.otf') format('opentype');
+  src: url('/fonts/PPMonument/PPMonumentExtended-LightItalic.otf') format('opentype');
   font-weight: 300;
   font-style: italic;
   font-display: swap;
@@ -185,11 +195,16 @@ body:has(button:hover) .cursor-ring {
 }
 
 /* Hide custom cursor on mobile and touch devices */
-@media (max-width: 768px), (pointer: coarse) {
-  html, body {
+@media (max-width: 768px),
+(pointer: coarse) {
+
+  html,
+  body {
     cursor: auto !important;
   }
-  .cursor-dot, .cursor-ring {
+
+  .cursor-dot,
+  .cursor-ring {
     display: none !important;
   }
 }
@@ -209,9 +224,11 @@ body::before {
 ::-webkit-scrollbar {
   width: 4px;
 }
+
 ::-webkit-scrollbar-track {
   background: var(--bg-primary);
 }
+
 ::-webkit-scrollbar-thumb {
   background: var(--accent-neon);
   border-radius: 2px;
@@ -225,13 +242,23 @@ body::before {
 
 /* Ticker animation */
 @keyframes ticker-left {
-  0% { transform: translateX(0); }
-  100% { transform: translateX(-50%); }
+  0% {
+    transform: translateX(0);
+  }
+
+  100% {
+    transform: translateX(-50%);
+  }
 }
 
 @keyframes ticker-right {
-  0% { transform: translateX(-50%); }
-  100% { transform: translateX(0); }
+  0% {
+    transform: translateX(-50%);
+  }
+
+  100% {
+    transform: translateX(0);
+  }
 }
 
 .animate-ticker-left {
@@ -251,13 +278,11 @@ body::before {
 /* ── Grainy gradient utility classes ─────────────────────────────────── */
 .grainy-bg {
   position: relative;
-  background: radial-gradient(
-    ellipse at 30% 50%,
-    #E8FF7A 0%,
-    #C8FF00 35%,
-    #A8D900 65%,
-    #7DB800 100%
-  );
+  background: radial-gradient(ellipse at 30% 50%,
+      #E8FF7A 0%,
+      #C8FF00 35%,
+      #A8D900 65%,
+      #7DB800 100%);
   isolation: isolate;
 }
 
@@ -274,19 +299,17 @@ body::before {
   z-index: 1;
 }
 
-.grainy-bg > * {
+.grainy-bg>* {
   position: relative;
   z-index: 2;
 }
 
 .grainy-bg-dark {
   position: relative;
-  background: radial-gradient(
-    ellipse at 70% 50%,
-    #1A2E00 0%,
-    #0D1A00 50%,
-    #050505 100%
-  );
+  background: radial-gradient(ellipse at 70% 50%,
+      #1A2E00 0%,
+      #0D1A00 50%,
+      #050505 100%);
   isolation: isolate;
 }
 
@@ -303,7 +326,7 @@ body::before {
   z-index: 1;
 }
 
-.grainy-bg-dark > * {
+.grainy-bg-dark>* {
   position: relative;
   z-index: 2;
 }
@@ -312,15 +335,19 @@ body::before {
   .neon-text {
     color: var(--accent-neon);
   }
+
   .neon-border {
     border-color: rgba(200, 255, 0, 0.3);
   }
+
   .neon-glow {
     box-shadow: 0 0 20px rgba(200, 255, 0, 0.15);
   }
+
   .bg-primary {
     background-color: var(--bg-primary);
   }
+
   .bg-secondary {
     background-color: var(--bg-secondary);
   }
@@ -332,30 +359,38 @@ body::before {
   display: inline-flex;
   overflow: hidden;
 }
+
 .flip-hover-group .char-el {
   transition: transform 2.5s cubic-bezier(0.16, 1, 0.3, 1);
   display: inline-block;
 }
+
 .flip-hover-group .before-layer .char-el {
   transform: translateY(0);
 }
+
 .flip-hover-group .after-layer {
   position: absolute;
   top: 0;
   left: 0;
 }
+
 .flip-hover-group .after-layer .char-el {
   transform: translateY(-100%);
 }
+
 .flip-hover-group .after-layer .char-el:nth-child(even) {
   transform: translateY(100%);
 }
+
 .flip-hover-group:hover .before-layer .char-el {
   transform: translateY(100%);
 }
+
 .flip-hover-group:hover .before-layer .char-el:nth-child(even) {
   transform: translateY(-100%);
 }
+
 .flip-hover-group:hover .after-layer .char-el {
   transform: translateY(0);
 }
