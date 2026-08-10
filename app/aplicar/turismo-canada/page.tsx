@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation'
 import * as z from 'zod'
 import { Loader2, AlertCircle } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
+import { getAge } from '@/lib/dates'
 
 // Reusing USA components for progress and navigation
 import { ProgressBar } from '../turismo-usa/_components/ProgressBar'
@@ -49,7 +50,7 @@ const baseFormSchema = z.object({
 // Cross-step validation (e.g., bank statements required if applicant is >= 18)
 const formSchema = baseFormSchema.superRefine((data, ctx) => {
   if (data.step2.date_of_birth) {
-    const age = new Date().getFullYear() - new Date(data.step2.date_of_birth).getFullYear()
+    const age = getAge(data.step2.date_of_birth)
     if (age >= 18 && !data.step10.doc_bank_statements) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,

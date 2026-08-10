@@ -36,7 +36,7 @@ export async function generateIntentionLetterBg(applicationId: string) {
 
     let travelHistorySummary = "None"
     if (app.travel_history && Array.isArray(app.travel_history) && app.travel_history.length > 0) {
-      travelHistorySummary = app.travel_history.map((t: any) => `${t.country} (${new Date(t.from).getFullYear()})`).join(", ")
+      travelHistorySummary = app.travel_history.map((t: any) => `${t.country} (${(t.from || '').slice(0, 4)})`).join(", ")
     }
 
     let educationSummary = "Not specified"

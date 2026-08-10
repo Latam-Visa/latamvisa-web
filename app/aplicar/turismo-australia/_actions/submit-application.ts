@@ -5,6 +5,7 @@ import { v4 as uuidv4 } from 'uuid'
 import { supabaseAdmin } from '@/lib/supabase/admin'
 import { resend } from '@/lib/resend'
 import { getClientConfirmationEmail } from '@/lib/emails/client-confirmation'
+import { formatCalendarDate } from '@/lib/dates'
 import { generateIntentionLetterBg } from './generate-intention-letter'
 
 export async function submitAustraliaApplication(
@@ -127,7 +128,9 @@ async function executeSubmit(formData: any) {
         country_of_birth: nullify(step3.country_of_birth),
         relationship_status: nullify(step3.relationship_status),
         has_other_names: toBool(step3.has_other_names),
-        other_names_list: deepNullify(step3.other_names_list || []),
+        // La UI captura esto como texto libre (step3.other_names_details), no como
+        // la lista estructurada que sugiere el nombre de la columna en BD.
+        other_names_list: step3.other_names_details ? [nullify(step3.other_names_details)] : deepNullify(step3.other_names_list || []),
         citizen_of_passport_country: toBool(step3.citizen_of_passport_country),
         citizen_other_country: toBool(step3.citizen_other_country),
         other_citizenships: deepNullify(step3.other_citizenships || []),
@@ -237,7 +240,7 @@ async function executeSubmit(formData: any) {
     const adminUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'https://latamvisatravel.com'}/admin/applications/${applicationId}`
     const travelDates = [step7.planned_arrival_date, step7.planned_departure_date]
       .filter(Boolean)
-      .map((d: string) => new Date(d).toLocaleDateString('es-CO', { day: 'numeric', month: 'long', year: 'numeric' }))
+      .map((d: string) => formatCalendarDate(d))
       .join(' — ') || 'No especificadas'
 
     const adminHtml = `

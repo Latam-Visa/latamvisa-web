@@ -3,13 +3,14 @@ import { FormField } from '../../turismo-usa/_components/FormField'
 import { ALL_COUNTRIES } from '@/lib/constants/countries'
 import { RepeatableTable } from './RepeatableTable'
 import { DocumentUploader } from './DocumentUploader'
+import { getAge } from '@/lib/dates'
 
 export function Step10() {
   const { register, formState, watch } = useFormContext()
   const errors = formState.errors as any
 
   const dob = watch('step2.date_of_birth')
-  const age = dob ? new Date().getFullYear() - new Date(dob).getFullYear() : 0
+  const age = dob ? getAge(dob) : 0
   const isMinor = age < 18
 
   const emailValue = watch('step10.email')

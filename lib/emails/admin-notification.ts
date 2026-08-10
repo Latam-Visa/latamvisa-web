@@ -1,5 +1,4 @@
-import { format } from 'date-fns'
-import { es } from 'date-fns/locale'
+import { formatCalendarDate } from '@/lib/dates'
 
 const nationalityFlags: Record<string, string> = {
   'Colombia': '🇨🇴', 'Venezuela': '🇻🇪', 'México': '🇲🇽', 'Peru': '🇵🇪', 'Perú': '🇵🇪',
@@ -18,12 +17,7 @@ function sanitizeWhatsApp(phone: string): string {
 }
 
 function formatDate(dateStr: string | undefined): string {
-  if (!dateStr) return '—'
-  try {
-    return format(new Date(dateStr), "d 'de' MMMM 'de' yyyy", { locale: es })
-  } catch {
-    return dateStr
-  }
+  return formatCalendarDate(dateStr)
 }
 
 export function getAdminNotificationEmail(

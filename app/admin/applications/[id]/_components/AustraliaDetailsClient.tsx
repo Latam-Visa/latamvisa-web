@@ -4,8 +4,7 @@ import { useState } from 'react'
 import { updateApplicationStatus, updateApplicationNotes, deleteApplication } from '../../../_actions/admin-actions'
 import { useRouter } from 'next/navigation'
 import { FileText, Save, Trash2, Loader2, ExternalLink, Copy } from 'lucide-react'
-import { format } from 'date-fns'
-import { es } from 'date-fns/locale'
+import { formatCalendarDate } from '@/lib/dates'
 
 interface SignedPhotoUrls {
   [key: string]: string | string[] | undefined
@@ -28,12 +27,7 @@ function bool(v: any): string {
 }
 
 function fmtDate(d: string | undefined): string {
-  if (!d) return '—'
-  try {
-    return format(new Date(d), "d 'de' MMMM 'de' yyyy", { locale: es })
-  } catch {
-    return d
-  }
+  return formatCalendarDate(d)
 }
 
 function Row({ label, value }: { label: string; value: React.ReactNode }) {

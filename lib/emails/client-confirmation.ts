@@ -1,13 +1,7 @@
-import { format } from 'date-fns'
-import { es } from 'date-fns/locale'
+import { formatCalendarDate } from '@/lib/dates'
 
 function formatDate(dateStr: string | undefined): string {
-  if (!dateStr) return '—'
-  try {
-    return format(new Date(dateStr), "d 'de' MMMM 'de' yyyy", { locale: es })
-  } catch {
-    return dateStr
-  }
+  return formatCalendarDate(dateStr)
 }
 
 export function getClientConfirmationEmail(
