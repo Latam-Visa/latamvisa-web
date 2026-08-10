@@ -21,9 +21,8 @@ export default async function AdminHomePage() {
       <div className="fixed inset-0 -z-10 bg-gradient-to-b from-[#FAFAF7] via-[#FAFAF7] to-[#E9F7D9] pointer-events-none" />
 
       <div className="flex flex-col gap-8 max-w-[1000px] mx-auto w-full pb-10">
-        <div className="flex flex-col gap-1.5">
-          <h1 className="text-3xl sm:text-4xl font-[PPMonumentExtended] text-[#0d2b0d]">Hola, Cristian 👋</h1>
-          <p className="text-sm sm:text-base text-[#6B6B6B] font-funnel">¿Qué quieres gestionar hoy?</p>
+        <div className="flex flex-col">
+          <h1 className="text-3xl sm:text-4xl font-[PPMonumentExtended] text-[#0d2b0d]">Hola Latin@! 👋</h1>
         </div>
 
         <AdminHomeHub solicitudesCount={solicitudesCount} ideasPendingCount={ideasPendingCount} />
