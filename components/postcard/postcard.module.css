@@ -1,0 +1,11 @@
+.glassCard {
+  background-color: #f4f4e8;
+}
+
+@supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
+  .glassCard {
+    background-color: rgba(244, 244, 232, 0.64);
+    backdrop-filter: blur(26px) saturate(140%);
+    -webkit-backdrop-filter: blur(26px) saturate(140%);
+  }
+}
