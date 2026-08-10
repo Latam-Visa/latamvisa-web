@@ -178,7 +178,7 @@ export default async function ApplicationDetailsPage({ params }: { params: { id:
     <div className="space-y-6">
       <div className="flex items-center gap-4">
         <Link
-          href="/admin"
+          href="/admin/solicitudes"
           className="flex items-center justify-center bg-white border border-[#E5E5E5] text-[#0A0A0A] p-2 rounded-lg hover:border-[#0A0A0A] transition-colors"
         >
           <ArrowLeft className="w-5 h-5" />

@@ -126,7 +126,7 @@ export function AustraliaDetailsClient({ application, signedPhotoUrls }: Props) 
       setIsDeleting(true)
       try {
         await deleteApplication(application.id, 'australia')
-        router.push('/admin')
+        router.push('/admin/solicitudes')
       } catch {
         alert('Error al eliminar')
         setIsDeleting(false)

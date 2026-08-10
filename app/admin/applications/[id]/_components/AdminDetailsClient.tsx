@@ -129,7 +129,7 @@ export function AdminDetailsClient({ application, signedPhotoUrls }: Props) {
       setIsDeleting(true)
       try {
         await deleteApplication(application.id)
-        router.push('/admin')
+        router.push('/admin/solicitudes')
       } catch {
         alert('Error al eliminar')
         setIsDeleting(false)

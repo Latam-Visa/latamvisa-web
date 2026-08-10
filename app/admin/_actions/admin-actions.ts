@@ -22,7 +22,7 @@ export async function updateApplicationStatus(id: string, status: string, destin
 
   if (error) throw new Error(error.message)
 
-  revalidatePath('/admin')
+  revalidatePath('/admin/solicitudes')
   revalidatePath(`/admin/applications/${id}`)
 }
 
@@ -35,7 +35,7 @@ export async function updateApplicationNotes(id: string, admin_notes: string, de
 
   if (error) throw new Error(error.message)
 
-  revalidatePath('/admin')
+  revalidatePath('/admin/solicitudes')
   revalidatePath(`/admin/applications/${id}`)
 }
 
@@ -48,7 +48,7 @@ export async function deleteApplication(id: string, destination: Destination = '
 
   if (error) throw new Error(error.message)
 
-  revalidatePath('/admin')
+  revalidatePath('/admin/solicitudes')
 }
 
 export async function getPdfDownloadUrl(pdf_path: string) {
