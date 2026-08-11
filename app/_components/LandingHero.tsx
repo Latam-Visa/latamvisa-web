@@ -33,12 +33,12 @@ export function LandingHero() {
             color="#FFFFFF"
             fontFamily="var(--font-monument)"
             fontWeight={800}
-            warpStrength={0.08}
+            warpStrength={0.14}
             warpScale={1.7}
-            speed={0.55}
-            pointerInfluence={0.42}
-            pointerStrength={0.38}
-            refraction={0.018}
+            speed={0.5}
+            pointerInfluence={0.45}
+            pointerStrength={0.55}
+            refraction={0.035}
             ripple
             letterSpacing="-0.04em"
             lineHeight={0.9}
