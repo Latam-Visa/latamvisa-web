@@ -3,6 +3,7 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
+import WarpText from '@/components/WarpText'
 
 export function LandingHero() {
   return (
@@ -25,11 +26,25 @@ export function LandingHero() {
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
-          className="flex flex-col items-center gap-4 sm:gap-5"
+          className="flex w-full flex-col items-center gap-4 sm:gap-5"
         >
-          <h1 className="font-[PPMonumentExtended] font-black uppercase leading-[0.85] tracking-tight text-white text-[8vw] sm:text-[3.5rem] md:text-[4.2rem] lg:text-[5.5rem] xl:text-[7rem]">
-            LATINOAMÉRICA
-          </h1>
+          <WarpText
+            text="LATINOAMÉRICA"
+            color="#FFFFFF"
+            fontFamily="var(--font-monument)"
+            fontWeight={800}
+            warpStrength={0.08}
+            warpScale={1.7}
+            speed={0.55}
+            pointerInfluence={0.42}
+            pointerStrength={0.38}
+            refraction={0.018}
+            ripple
+            letterSpacing="-0.04em"
+            lineHeight={0.9}
+            fontSize="clamp(3rem, 12vw, 11rem)"
+            style={{ height: 'clamp(140px, 22vw, 340px)', width: '100%' }}
+          />
           <p className="font-funnel max-w-xs text-sm text-white/80 sm:max-w-md sm:text-base md:text-lg">
             El puente entre tus raíces y el mundo
           </p>
