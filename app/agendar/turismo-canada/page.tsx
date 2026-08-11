@@ -83,7 +83,7 @@ export default function TurismoCanadaCheckoutPage() {
       <meta name="description" content="Finaliza el pago de tu asesoría de visa de turismo a Canadá." />
 
       <header className="lg:hidden w-full bg-white pt-8 pb-6 px-6 flex justify-center sticky top-0 z-20 border-b border-gray-100 shadow-sm relative">
-        <Link href="/" className="inline-block hover:opacity-80 transition-opacity">
+        <Link href="/visados" className="inline-block hover:opacity-80 transition-opacity">
           <img src='/logo.png' alt='LATAM VISA' className='h-[105px] w-auto object-contain' />
         </Link>
       </header>
@@ -96,7 +96,7 @@ export default function TurismoCanadaCheckoutPage() {
           <div className="flex-1 flex flex-col w-full max-w-[550px] mx-auto pt-10 lg:pt-16 pb-20">
 
             <header className="hidden lg:flex w-full mb-10 items-center justify-center">
-              <Link href="/" className="inline-block hover:opacity-80 transition-opacity">
+              <Link href="/visados" className="inline-block hover:opacity-80 transition-opacity">
                 <img src='/logo.png' alt='LATAM VISA' className='h-[105px] md:h-[110px] w-auto object-contain' />
               </Link>
             </header>

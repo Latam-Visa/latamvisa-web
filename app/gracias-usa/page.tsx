@@ -34,7 +34,7 @@ export default function GraciasUsa() {
           </a>
           
           <Link 
-            href="/"
+            href="/visados"
             className="w-full sm:w-auto px-8 py-3 bg-white border-2 border-[#0A0A0A] text-[#0A0A0A] font-bold rounded-lg hover:bg-[#0A0A0A] hover:text-white transition-colors"
           >
             Volver al inicio
