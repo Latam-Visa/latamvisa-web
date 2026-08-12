@@ -64,7 +64,7 @@ export default function Navbar() {
     >
       <div className="w-full py-5 relative flex items-center justify-between px-6 md:px-[100px]">
         {/* CENTER: Logo absolutely centered — same position as before */}
-        <Link href="/visados" className="absolute left-1/2 -translate-x-1/2 flex items-center">
+        <Link href="/" className="absolute left-1/2 -translate-x-1/2 flex items-center">
           <Image
             src="/logo.png"
             alt="LATAM VISA"

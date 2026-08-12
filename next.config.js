@@ -14,6 +14,15 @@ const nextConfig = {
       bodySizeLimit: '10mb',
     },
   },
+  async redirects() {
+    return [
+      {
+        source: '/visados',
+        destination: '/',
+        permanent: true,
+      },
+    ]
+  },
 }
 
 module.exports = nextConfig

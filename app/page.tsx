@@ -1,20 +1,55 @@
-import type { Metadata } from 'next'
-import { LandingHero } from './_components/LandingHero'
+'use client'
+import { useSmoothScroll } from '@/hooks/useSmoothScroll'
+import LoadingScreen from '@/components/LoadingScreen'
+import ScrollProgress from '@/components/ScrollProgress'
+import Navbar from '@/components/Navbar'
+import HeroScroll from '@/components/HeroScroll'
+import AboutSection from '@/components/AboutSection'
+import SchoolsTicker from '@/components/SchoolsTicker'
+import ServicesSection from '@/components/ServicesSection'
+import ProcessSection from '@/components/ProcessSection'
+import CountriesSection from '@/components/CountriesSection'
+import EvaluationForm from '@/components/EvaluationForm'
+import TestimonialsSection from '@/components/TestimonialsSection'
+import FAQSection from '@/components/FAQSection'
+import Footer from '@/components/Footer'
+import WhatsAppButton from '@/components/WhatsAppButton'
+import StickyMobileCTA from '@/components/StickyMobileCTA'
 
-export const metadata: Metadata = {
-  title: 'LATAM VISA — Latinoamérica',
-  description: 'El puente entre tus raíces y el mundo. Visas y asesoría migratoria premium para latinoamericanos.',
-  openGraph: {
-    title: 'LATAM VISA — Latinoamérica',
-    description: 'El puente entre tus raíces y el mundo.',
-    url: 'https://www.latamvisatravel.com',
-    siteName: 'LATAM VISA',
-    images: [{ url: '/toto-la-momposina.jpg', width: 1200, height: 1200, alt: 'Totó la Momposina — LATAM VISA' }],
-    locale: 'es_LA',
-    type: 'website',
-  },
-}
+export default function Home() {
+  useSmoothScroll()
 
-export default function LandingPage() {
-  return <LandingHero />
+  return (
+    <>
+      {/* Frame-136 fixed background — subtle behind sections, full at footer */}
+      <div style={{
+        position: 'fixed',
+        inset: 0,
+        zIndex: 0,
+        backgroundImage: 'url(/secuencia-video-principal/ezgif-frame-136.png)',
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        pointerEvents: 'none',
+      }} />
+      <LoadingScreen />
+      <ScrollProgress />
+      <main className="relative z-10 bg-transparent">
+        <Navbar />
+        <HeroScroll />
+        <div style={{ marginTop: '-80vh' }}>
+          <EvaluationForm />
+          <AboutSection />
+          <SchoolsTicker />
+          <ServicesSection />
+          <ProcessSection />
+          <CountriesSection />
+          <TestimonialsSection />
+          <FAQSection />
+          <Footer />
+        </div>
+      </main>
+      <WhatsAppButton />
+      <StickyMobileCTA />
+    </>
+  )
 }

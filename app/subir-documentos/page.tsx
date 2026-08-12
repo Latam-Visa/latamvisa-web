@@ -263,7 +263,7 @@ export default function SubirDocumentos() {
       {/* ── Top Bar ── */}
       <div className="sticky top-0 z-40 bg-white/90 backdrop-blur border-b border-gray-200 px-6 py-5 relative flex items-center justify-between shadow-sm">
         {/* Logo — absolutely centered, same size as main navbar */}
-        <Link href="/visados" className="absolute left-1/2 -translate-x-1/2">
+        <Link href="/" className="absolute left-1/2 -translate-x-1/2">
           <img src="/logo.png" alt="LATAM VISA" className="h-[70px] w-auto object-contain" />
         </Link>
 
@@ -828,7 +828,7 @@ export default function SubirDocumentos() {
                 <span className="text-[#050505] font-bold">{client.email}</span>
               </p>
               <Link
-                href="/visados"
+                href="/"
                 className="inline-block bg-[#C8FF00] text-[#050505] font-black py-4 px-10 rounded-full hover:bg-[#b8ef00] transition-colors text-xs tracking-widest uppercase shadow-md"
                 style={{ fontFamily: "'PPMonumentExtended', sans-serif" }}
               >Volver al inicio</Link>
