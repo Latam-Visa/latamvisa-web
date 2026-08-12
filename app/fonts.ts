@@ -13,6 +13,15 @@ export const monument = localFont({
   display: 'swap',
 })
 
+export const monumentBlack = localFont({
+  src: [
+    { path: '../public/fonts/PPMonument/PPMonumentNormal-Black.otf', weight: '900', style: 'normal' },
+    { path: '../public/fonts/PPMonument/PPMonumentNormal-BlackItalic.otf', weight: '900', style: 'italic' },
+  ],
+  variable: '--font-monument-black',
+  display: 'swap',
+})
+
 export const funnel = localFont({
   src: [
     { path: '../public/fonts/Funnel_Display/static/FunnelDisplay-Light.ttf', weight: '300', style: 'normal' },

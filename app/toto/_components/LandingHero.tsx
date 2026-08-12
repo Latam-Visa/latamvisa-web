@@ -2,7 +2,6 @@
 
 import Image from 'next/image'
 import { motion } from 'framer-motion'
-import WarpText from '@/components/WarpText'
 
 export function LandingHero() {
   return (
@@ -16,9 +15,9 @@ export function LandingHero() {
         className="object-cover object-[center_30%]"
       />
 
-      {/* Scrim so the title stays readable without hiding the photo */}
-      <div className="absolute inset-0 bg-black/35" />
-      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-black/35" />
+      {/* Strong dark scrim — photo reads as a moody near-black backdrop so the neon wordmark pops */}
+      <div className="absolute inset-0 bg-black/70" />
+      <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/45 to-black/60" />
 
       <div className="relative z-10 flex min-h-screen w-full flex-col items-center justify-center text-center">
         <motion.div
@@ -27,23 +26,17 @@ export function LandingHero() {
           transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
           className="w-full"
         >
-          <WarpText
-            text="LATINOAMÉRICA"
-            color="#FFFFFF"
-            fontFamily="var(--font-monument)"
-            fontWeight={800}
-            warpStrength={0.14}
-            warpScale={1.7}
-            speed={0.5}
-            pointerInfluence={0.45}
-            pointerStrength={0.55}
-            refraction={0.035}
-            ripple
-            letterSpacing="-0.04em"
-            lineHeight={0.9}
-            fontSize="clamp(5rem, 24vw, 26rem)"
-            style={{ height: 'clamp(180px, 30vw, 480px)', width: '100%' }}
-          />
+          <h1
+            className="w-full text-center font-black uppercase text-[#C8FF00]"
+            style={{
+              fontFamily: 'var(--font-monument-black)',
+              fontSize: 'clamp(2.75rem, 13vw, 11rem)',
+              letterSpacing: '-0.05em',
+              lineHeight: 0.85,
+            }}
+          >
+            LATINOAMÉRICA
+          </h1>
         </motion.div>
       </div>
 
