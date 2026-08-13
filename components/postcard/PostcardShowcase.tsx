@@ -2,6 +2,7 @@
 
 import { useRef, useState } from 'react'
 import Image from 'next/image'
+import Link from 'next/link'
 import { motion, AnimatePresence, useReducedMotion, useInView, useScroll, useTransform, type Variants } from 'framer-motion'
 import { PenLine, MapPin, Stamp, Mailbox, Heart, ChevronDown, Ruler, type LucideIcon } from 'lucide-react'
 import styles from './postcard.module.css'
@@ -375,6 +376,8 @@ const BURST_SHAPES = [
   { x: 18, y: -50, r: -15, square: true },
 ]
 
+const MotionLink = motion(Link)
+
 function ReviewCTA({ reduce }: { reduce: boolean }) {
   const [burstId, setBurstId] = useState(0)
 
@@ -386,10 +389,8 @@ function ReviewCTA({ reduce }: { reduce: boolean }) {
   }
 
   return (
-    <motion.a
-      href={GOOGLE_REVIEW_URL}
-      target="_blank"
-      rel="noopener noreferrer"
+    <MotionLink
+      href="/viajes"
       onClick={handleClick}
       whileTap={{ scale: 0.97 }}
       initial={{ opacity: 0, y: 20 }}
@@ -398,8 +399,7 @@ function ReviewCTA({ reduce }: { reduce: boolean }) {
       transition={{ duration: reduce ? 0.01 : 0.5, ease: EASE }}
       className="group relative flex min-h-[56px] w-full items-center justify-center gap-2 overflow-hidden rounded-full bg-[#006837] px-6 text-center text-[13.5px] font-bold uppercase tracking-[0.02em] text-white shadow-[0_14px_30px_-10px_rgba(0,104,55,0.6)] sm:px-8 sm:text-[15px] sm:tracking-[0.04em]"
     >
-      <GoogleGlyph size={18} />
-      <span className="whitespace-nowrap transition-transform duration-300 group-active:translate-x-0.5">Escribir mi reseña en Google</span>
+      <span className="whitespace-nowrap transition-transform duration-300 group-active:translate-x-0.5">Y SI VIAJAS A EUROPA</span>
 
       <AnimatePresence>
         {burstId > 0 && (
@@ -417,7 +417,7 @@ function ReviewCTA({ reduce }: { reduce: boolean }) {
           </motion.span>
         )}
       </AnimatePresence>
-    </motion.a>
+    </MotionLink>
   )
 }
 
