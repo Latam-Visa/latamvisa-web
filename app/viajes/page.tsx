@@ -1,5 +1,13 @@
 import type { Metadata } from 'next'
-import { Play } from 'lucide-react'
+import Image from 'next/image'
+import localFont from 'next/font/local'
+
+// Loaded locally (Condensed/Light variant, not the site-wide Extended/static
+// weights from app/fonts.ts), same pattern as app/postcard/page.tsx.
+const ppMonumentCondensedLight = localFont({
+  src: '../../public/fonts/PPMonument/PPMonumentCondensed-Light.otf',
+  display: 'swap',
+})
 
 export const metadata: Metadata = {
   title: 'LATAM TRAVELING — Viajes inteligentes antes de ver a tu gente',
@@ -10,23 +18,30 @@ const destinations = ['Francia', 'Italia', 'España']
 
 export default function ViajesPage() {
   return (
-    <main className="min-h-screen bg-[#FAFAF7] font-funnel">
+    <main className="min-h-screen bg-[#C8FF00] font-funnel">
       <nav className="flex items-center justify-between gap-2 px-5 py-5 sm:px-8 sm:py-6">
-        <span className="text-[11px] font-bold uppercase tracking-wide text-[#2F4A00] sm:text-sm">
+        <span className="text-[11px] font-bold uppercase tracking-wide text-[#1a3300] sm:text-sm">
           Destinos
         </span>
 
-        <span className="inline-flex shrink-0 items-center gap-2 rounded-full border-[1.6px] border-[#1a3300] px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.12em] text-[#1a3300] sm:px-4 sm:py-2 sm:text-xs">
-          <span className="h-2 w-2 shrink-0 bg-[#C8FF00]" aria-hidden />
-          Latam Traveling
-        </span>
+        <Image
+          src="/logo.png"
+          alt="LATAM VISA"
+          width={120}
+          height={28}
+          className="h-6 w-auto sm:h-7"
+          priority
+        />
 
-        <span className="text-right text-[11px] font-bold uppercase tracking-wide text-[#2F4A00] sm:text-sm">
+        <span className="text-right text-[11px] font-bold uppercase tracking-wide text-[#1a3300] sm:text-sm">
           Viaje con amigos
         </span>
       </nav>
 
-      <section className="relative mx-4 mb-8 overflow-hidden rounded-[18px] bg-[#C8FF00] px-6 pb-14 pt-20 sm:mx-8 sm:px-10 sm:pb-20 sm:pt-16">
+      <section
+        className="relative mx-4 mb-4 overflow-hidden rounded-[18px] bg-[#C8FF00] px-6 pb-14 pt-20 sm:mx-8 sm:px-10 sm:pb-20 sm:pt-16"
+        style={{ height: '90vh', minHeight: '520px' }}
+      >
         {/* Video background — #C8FF00 on the section above stays as the fallback
             behind it if the video fails to load or autoplay is blocked. */}
         <video
@@ -48,19 +63,9 @@ export default function ViajesPage() {
           aria-hidden
         />
 
-        <div
-          className="absolute right-4 top-4 z-[2] flex h-11 w-16 flex-col items-center justify-center gap-1 rounded-xl bg-[#0d2b0d] sm:right-8 sm:top-8 sm:h-16 sm:w-24"
-          aria-hidden
-        >
-          <Play className="h-3.5 w-3.5 fill-white text-white sm:h-4 sm:w-4" />
-          <span className="text-[8px] font-medium uppercase tracking-wide text-white/70 sm:text-[10px]">
-            video
-          </span>
-        </div>
-
-        <div className="relative z-[2] mx-auto flex max-w-[620px] flex-col items-center text-center">
-          <span className="text-sm font-bold text-[#FAFAF7]">why ↑ not?</span>
-          <p className="mt-2 text-xs font-semibold uppercase tracking-[0.14em] text-[#3a5200] sm:text-sm">
+        <div className="relative z-[2] mx-auto flex h-full max-w-[620px] flex-col items-center justify-center text-center">
+          <span className="text-sm font-bold text-white">why ↑ not?</span>
+          <p className={`${ppMonumentCondensedLight.className} mt-2 text-xs uppercase tracking-[0.14em] text-white sm:text-sm`}>
             Latinoamérica es el fuego de la hora.
           </p>
           <h1 className="font-monument mt-6 text-[clamp(1.875rem,8vw,5rem)] font-black uppercase leading-[0.92] tracking-tight text-[#FAFAF7]">
