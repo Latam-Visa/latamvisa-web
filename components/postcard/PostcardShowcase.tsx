@@ -397,7 +397,7 @@ function ReviewCTA({ reduce }: { reduce: boolean }) {
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: '-40px' }}
       transition={{ duration: reduce ? 0.01 : 0.5, ease: EASE }}
-      className="group relative flex min-h-[56px] w-full items-center justify-center gap-2 overflow-hidden rounded-full bg-[#006837] px-6 text-center text-[13.5px] font-bold uppercase tracking-[0.02em] text-white shadow-[0_14px_30px_-10px_rgba(0,104,55,0.6)] sm:px-8 sm:text-[15px] sm:tracking-[0.04em]"
+      className="group relative flex min-h-[56px] w-full items-center justify-center gap-2 overflow-hidden rounded-full bg-[#006837] px-6 text-center text-[13.5px] font-bold uppercase tracking-[0.02em] text-white shadow-[0_4px_0_0_#004a24] sm:px-8 sm:text-[15px] sm:tracking-[0.04em]"
     >
       <span className="whitespace-nowrap transition-transform duration-300 group-active:translate-x-0.5">Y SI VIAJAS A EUROPA</span>
 
@@ -606,28 +606,11 @@ export default function PostcardShowcase({
                 Si ese camino te sirvió, cuéntalo. Hay alguien allá afuera con el mismo miedo que tú tenías,
                 buscando exactamente eso: saber que sí se puede.
               </p>
-              <div className="mt-7">
-                <StarRating reduce={reduce} />
-              </div>
             </div>
-          </div>
-
-          <div
-            className="-mx-5 mt-10 flex w-[calc(100%+2.5rem)] snap-x snap-mandatory gap-4 overflow-x-auto px-5 pb-2 sm:-mx-8 sm:w-[calc(100%+4rem)] sm:px-8"
-            style={{ scrollbarWidth: 'none' }}
-          >
-            {reviewPrompts.map((question) => (
-              <ReviewPromptCard key={question} question={question} reduce={reduce} />
-            ))}
           </div>
 
           <div className="mt-10 w-full">
             <ReviewCTA reduce={reduce} />
-          </div>
-
-          <div className="relative mt-4">
-            <TextSafeScrim />
-            <p className="relative z-10 text-[13px] font-medium text-[#006837]">Te toma menos de un minuto.</p>
           </div>
         </div>
 
