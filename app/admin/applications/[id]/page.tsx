@@ -174,6 +174,47 @@ export default async function ApplicationDetailsPage({ params }: { params: { id:
     signedPhotoUrls = { doc_group1_arraigo, doc_group2_fondos, doc_group3_viajes, doc_national_id_url }
   }
 
+  let translatedDocuments: {
+    id: string
+    nombre_original: string
+    nombre_archivo: string
+    status: string
+    created_at: string
+    downloadUrl?: string
+  }[] = []
+
+  if (destination === 'australia') {
+    const { data: translatedRows } = await supabaseAdmin
+      .from('documentos_traducidos')
+      .select('*')
+      .eq('application_id', params.id)
+      .eq('pais', 'australia')
+      .order('created_at', { ascending: false })
+
+    if (translatedRows) {
+      translatedDocuments = await Promise.all(
+        translatedRows.map(async (row) => {
+          let downloadUrl: string | undefined
+          if (row.storage_path) {
+            const { data, error } = await supabaseAdmin
+              .storage
+              .from('documentos-traducidos')
+              .createSignedUrl(row.storage_path, 3600)
+            if (!error && data) downloadUrl = data.signedUrl
+          }
+          return {
+            id: row.id,
+            nombre_original: row.nombre_original,
+            nombre_archivo: row.nombre_archivo,
+            status: row.status || 'completed',
+            created_at: row.created_at,
+            downloadUrl,
+          }
+        })
+      )
+    }
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-4">
@@ -198,7 +239,7 @@ export default async function ApplicationDetailsPage({ params }: { params: { id:
       ) : destination === 'uk' ? (
         <UKDetailsClient application={app} signedPhotoUrls={signedPhotoUrls} />
       ) : destination === 'australia' ? (
-        <AustraliaDetailsClient application={app} signedPhotoUrls={signedPhotoUrls} />
+        <AustraliaDetailsClient application={app} signedPhotoUrls={signedPhotoUrls} translatedDocuments={translatedDocuments} />
       ) : (
         <SchengenDetailsClient application={app} signedPhotoUrls={signedPhotoUrls} />
       )}

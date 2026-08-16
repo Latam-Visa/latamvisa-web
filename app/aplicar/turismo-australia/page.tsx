@@ -1,12 +1,14 @@
 "use client"
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useForm, FormProvider, useWatch } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useRouter } from 'next/navigation'
+import { v4 as uuidv4 } from 'uuid'
 import * as z from 'zod'
 import { Loader2, AlertCircle } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
+import type { TranslatedDoc } from './_components/TranslatedDocsUploader'
 
 // Reusing USA components for progress and navigation
 import { ProgressBar } from '../turismo-usa/_components/ProgressBar'
@@ -63,6 +65,35 @@ type FormData = z.infer<typeof formSchema>
 const TOTAL_STEPS = 14
 const STORAGE_KEY = 'latamvisa-australia-draft'
 
+// Recursively find the first field with a validation error inside a react-hook-form
+// errors object, returning its dot-path (e.g. "step7.will_visit_contacts").
+function getFirstErrorKey(obj: any, prefix = ''): string {
+  for (const key in obj) {
+    if (obj[key]?.message) return prefix ? `${prefix}.${key}` : key
+    if (typeof obj[key] === 'object') {
+      const nested = getFirstErrorKey(obj[key], prefix ? `${prefix}.${key}` : key)
+      if (nested) return nested
+    }
+  }
+  return ''
+}
+
+function scrollAndFocusField(fieldPath: string) {
+  setTimeout(() => {
+    const element = document.querySelector(`[name="${fieldPath}"]`) || document.querySelector(`[name^="${fieldPath}"]`)
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      if (typeof (element as any).focus === 'function') {
+        (element as any).focus({ preventScroll: true })
+      }
+      element.parentElement?.classList.add('animate-[shake_0.5s_ease-in-out]')
+      setTimeout(() => {
+        element.parentElement?.classList.remove('animate-[shake_0.5s_ease-in-out]')
+      }, 500)
+    }
+  }, 100)
+}
+
 export default function TurismoAustraliaApplication() {
   const router = useRouter()
   const [currentStep, setCurrentStep] = useState(0)
@@ -82,6 +113,17 @@ export default function TurismoAustraliaApplication() {
   const [showErrorToast, setShowErrorToast] = useState(false)
   const [showSuccess, setShowSuccess] = useState(false)
 
+  // Stable per-session ID, generated once, used both for translated-doc storage
+  // paths (uploaded ahead of submit) and as the real application row ID, so the
+  // two stay in sync without waiting on the DB insert to know the ID.
+  const applicationIdRef = useRef<string>()
+  if (!applicationIdRef.current) applicationIdRef.current = uuidv4()
+
+  const [translatedDocs, setTranslatedDocs] = useState<TranslatedDoc[]>([])
+  const [translatedDocsUploading, setTranslatedDocsUploading] = useState(false)
+  const [translatedDocsError, setTranslatedDocsError] = useState(false)
+  const [showDocsErrorToast, setShowDocsErrorToast] = useState(false)
+
   const methods = useForm<FormData>({
     resolver: zodResolver(formSchema),
     mode: 'onTouched',
@@ -89,9 +131,7 @@ export default function TurismoAustraliaApplication() {
       step1: { visa_stream: 'tourist', reasons_for_visit: [] },
       step3: { other_names_list: [], other_citizenships: [] },
       step4: { },
-      step5: { travelling_companions: [] },
       step6: { non_accompanying_family: [] },
-      step7: { contacts_in_australia: [] },
       step14: {
         doc_group1_arraigo: [],
         doc_group2_fondos: [],
@@ -165,8 +205,11 @@ export default function TurismoAustraliaApplication() {
       if (currentStep < TOTAL_STEPS) {
         setCurrentStep(s => s + 1)
         window.scrollTo({ top: 0, behavior: 'smooth' })
+      } else if (translatedDocsUploading || translatedDocsError) {
+        setShowDocsErrorToast(true)
+        setTimeout(() => setShowDocsErrorToast(false), 5000)
       } else {
-        methods.handleSubmit(onSubmit)()
+        methods.handleSubmit(onSubmit, onInvalidSubmit)()
       }
     } else {
       setShowErrorToast(true)
@@ -174,34 +217,36 @@ export default function TurismoAustraliaApplication() {
 
       const stepErrors = methods.formState.errors[stepKey]
       if (stepErrors) {
-        const getFirstErrorKey = (obj: any, prefix = ''): string => {
-          for (const key in obj) {
-            if (obj[key]?.message) return prefix ? `${prefix}.${key}` : key
-            if (typeof obj[key] === 'object') {
-              const nested = getFirstErrorKey(obj[key], prefix ? `${prefix}.${key}` : key)
-              if (nested) return nested
-            }
-          }
-          return ''
-        }
-        
         const firstErrorPath = getFirstErrorKey(stepErrors, stepKey)
-        if (firstErrorPath) {
-          setTimeout(() => {
-            const element = document.querySelector(`[name="${firstErrorPath}"]`) || document.querySelector(`[name^="${firstErrorPath}"]`)
-            if (element) {
-              element.scrollIntoView({ behavior: 'smooth', block: 'center' })
-              if (typeof (element as any).focus === 'function') {
-                (element as any).focus({ preventScroll: true })
-              }
-              element.parentElement?.classList.add('animate-[shake_0.5s_ease-in-out]')
-              setTimeout(() => {
-                element.parentElement?.classList.remove('animate-[shake_0.5s_ease-in-out]')
-              }, 500)
-            }
-          }, 100)
-        }
+        if (firstErrorPath) scrollAndFocusField(firstErrorPath)
       }
+    }
+  }
+
+  // Runs when the FINAL submit's full-form validation fails. This is distinct from
+  // handleNext's per-step check: a field from an earlier, already-visited step can
+  // still be invalid (e.g. a stale localStorage draft, or a conditional field that
+  // got cleared), and without this handler react-hook-form silently drops the
+  // submit — no error, no console log, nothing — which is exactly the kind of
+  // "click enviar and nothing happens" bug that's near-impossible to diagnose
+  // remotely from a client's description.
+  const onInvalidSubmit = (errors: any) => {
+    console.error('[FINAL_SUBMIT_VALIDATION_FAILED]', errors)
+
+    let firstInvalidStep = TOTAL_STEPS
+    for (let i = 1; i <= TOTAL_STEPS; i++) {
+      if (errors[`step${i}`]) { firstInvalidStep = i; break }
+    }
+
+    setCurrentStep(firstInvalidStep)
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+    setShowErrorToast(true)
+    setTimeout(() => setShowErrorToast(false), 5000)
+
+    const stepErrors = errors[`step${firstInvalidStep}`]
+    if (stepErrors) {
+      const firstErrorPath = getFirstErrorKey(stepErrors, `step${firstInvalidStep}`)
+      if (firstErrorPath) scrollAndFocusField(firstErrorPath)
     }
   }
 
@@ -214,7 +259,11 @@ export default function TurismoAustraliaApplication() {
     setIsSubmitting(true)
     try {
       const formDataToSend = new FormData()
-      formDataToSend.append('data', JSON.stringify(data))
+      formDataToSend.append('data', JSON.stringify({
+        ...data,
+        applicationId: applicationIdRef.current,
+        translatedDocs,
+      }))
 
       const response = await submitAustraliaApplication(formDataToSend)
 
@@ -470,7 +519,17 @@ export default function TurismoAustraliaApplication() {
       case 11: return <Step11 />
       case 12: return <Step12 />
       case 13: return <Step13 />
-      case 14: return <Step14 />
+      case 14: return (
+        <Step14
+          applicationId={applicationIdRef.current!}
+          translatedDocs={translatedDocs}
+          onTranslatedDocsChange={setTranslatedDocs}
+          onTranslatedDocsUploadStateChange={(isUploading, hasError) => {
+            setTranslatedDocsUploading(isUploading)
+            setTranslatedDocsError(hasError)
+          }}
+        />
+      )
       default: return null
     }
   }
@@ -541,6 +600,17 @@ export default function TurismoAustraliaApplication() {
         <div className="fixed top-24 left-1/2 -translate-x-1/2 z-50 bg-[#FEF2F2] border border-[#DC2626] text-[#DC2626] px-6 py-3 rounded-lg shadow-lg flex items-center gap-2 animate-in fade-in slide-in-from-top-4">
           <AlertCircle className="w-5 h-5" />
           <span className="font-medium">Tienes algunos campos por completar. Revísalos abajo.</span>
+        </div>
+      )}
+
+      {showDocsErrorToast && (
+        <div className="fixed top-24 left-1/2 -translate-x-1/2 z-50 bg-[#FEF2F2] border border-[#DC2626] text-[#DC2626] px-6 py-3 rounded-lg shadow-lg flex items-center gap-2 animate-in fade-in slide-in-from-top-4">
+          <AlertCircle className="w-5 h-5" />
+          <span className="font-medium">
+            {translatedDocsUploading
+              ? 'Espera a que terminen de subirse tus documentos.'
+              : 'Hay documentos con error de subida. Elimínalos o vuelve a intentarlo antes de enviar.'}
+          </span>
         </div>
       )}
 
@@ -625,11 +695,11 @@ export default function TurismoAustraliaApplication() {
             </div>
 
             {currentStep > 0 && (
-              <StepNavigation 
-                currentStep={currentStep} 
-                totalSteps={TOTAL_STEPS} 
-                onBack={handleBack} 
-                isNextDisabled={isSubmitting || isValidating}
+              <StepNavigation
+                currentStep={currentStep}
+                totalSteps={TOTAL_STEPS}
+                onBack={handleBack}
+                isNextDisabled={isSubmitting || isValidating || (currentStep === TOTAL_STEPS && (translatedDocsUploading || translatedDocsError))}
               />
             )}
           </form>

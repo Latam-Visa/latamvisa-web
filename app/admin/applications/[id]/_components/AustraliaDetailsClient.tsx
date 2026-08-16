@@ -3,16 +3,26 @@
 import { useState } from 'react'
 import { updateApplicationStatus, updateApplicationNotes, deleteApplication } from '../../../_actions/admin-actions'
 import { useRouter } from 'next/navigation'
-import { FileText, Save, Trash2, Loader2, ExternalLink, Copy } from 'lucide-react'
+import { FileText, Save, Trash2, Loader2, ExternalLink, Copy, Download } from 'lucide-react'
 import { formatCalendarDate } from '@/lib/dates'
 
 interface SignedPhotoUrls {
   [key: string]: string | string[] | undefined
 }
 
+interface TranslatedDocument {
+  id: string
+  nombre_original: string
+  nombre_archivo: string
+  status: string
+  created_at: string
+  downloadUrl?: string
+}
+
 interface Props {
   application: any
   signedPhotoUrls: SignedPhotoUrls
+  translatedDocuments: TranslatedDocument[]
 }
 
 function val(v: any): string {
@@ -74,7 +84,24 @@ function DocumentLink({ url, label }: { url: string | string[] | undefined; labe
   )
 }
 
-export function AustraliaDetailsClient({ application, signedPhotoUrls }: Props) {
+function translatedStatusBadge(status: string) {
+  const normalized = status || 'processing'
+  const label =
+    normalized === 'completed' ? 'Completado' :
+    normalized === 'failed' ? 'Fallido' :
+    'Procesando'
+  const classes =
+    normalized === 'completed' ? 'bg-[#C8FF00]/20 text-[#5B6A00]' :
+    normalized === 'failed' ? 'bg-red-100 text-red-700' :
+    'bg-blue-100 text-blue-700'
+  return (
+    <span className={`px-2 py-1 text-xs font-bold uppercase tracking-wider rounded ${classes}`}>
+      {label}
+    </span>
+  )
+}
+
+export function AustraliaDetailsClient({ application, signedPhotoUrls, translatedDocuments }: Props) {
   const router = useRouter()
   const s = application || {}
 
@@ -83,8 +110,8 @@ export function AustraliaDetailsClient({ application, signedPhotoUrls }: Props) 
   const [isUpdatingStatus, setIsUpdatingStatus] = useState(false)
   const [isUpdatingNotes, setIsUpdatingNotes] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
-  
-  const [activeTab, setActiveTab] = useState<'datos' | 'cartas'>('datos')
+
+  const [activeTab, setActiveTab] = useState<'datos' | 'cartas' | 'traducidos'>('datos')
   const [aiLetterStatus, setAiLetterStatus] = useState(application.ai_letter_status || 'pending')
   const [aiLetter, setAiLetter] = useState(application.ai_intention_letter || '')
 
@@ -144,6 +171,12 @@ export function AustraliaDetailsClient({ application, signedPhotoUrls }: Props) 
           >
             Cartas
             {aiLetterStatus === 'generating' && <Loader2 className="w-3 h-3 animate-spin text-[#0A0A0A]" />}
+          </button>
+          <button
+            onClick={() => setActiveTab('traducidos')}
+            className={`pb-3 text-sm font-bold transition-colors border-b-2 ${activeTab === 'traducidos' ? 'border-[#C8FF00] text-[#0A0A0A]' : 'border-transparent text-[#888] hover:text-[#0A0A0A]'}`}
+          >
+            Documentos Traducidos
           </button>
         </div>
 
@@ -207,7 +240,7 @@ export function AustraliaDetailsClient({ application, signedPhotoUrls }: Props) 
             </SectionCard>
           </>
 
-        ) : (
+        ) : activeTab === 'cartas' ? (
           <SectionCard title="Carta de Intención">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-3">
@@ -242,6 +275,42 @@ export function AustraliaDetailsClient({ application, signedPhotoUrls }: Props) 
             ) : (
               <div className="p-6 bg-[#FEF2F2] border border-red-200 rounded-xl text-sm text-red-700">
                 Ocurrió un error al generar la carta.
+              </div>
+            )}
+          </SectionCard>
+        ) : (
+          <SectionCard title="Documentos Traducidos">
+            {translatedDocuments.length === 0 ? (
+              <div className="p-6 bg-[#F5F5F0] border border-[#E5E5E5] rounded-xl text-sm text-[#525252] text-center">
+                Aún no hay documentos traducidos para esta solicitud.
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {translatedDocuments.map((doc) => (
+                  <div key={doc.id} className="bg-[#F5F5F0] border border-[#E5E5E5] rounded-xl p-4 flex items-center gap-4">
+                    <div className="w-10 h-10 rounded-lg bg-white border border-[#E5E5E5] shrink-0 flex items-center justify-center">
+                      <FileText className="w-5 h-5 text-[#3D5A00]" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-[#0A0A0A] truncate">{doc.nombre_original}</p>
+                      <p className="text-xs text-[#888] mt-0.5">{fmtDate(doc.created_at)}</p>
+                    </div>
+                    {translatedStatusBadge(doc.status)}
+                    {doc.downloadUrl ? (
+                      <a
+                        href={doc.downloadUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-2 text-sm text-[#0A0A0A] bg-white border border-[#E5E5E5] px-3 py-1.5 rounded-lg hover:border-[#C8FF00] hover:text-[#C8FF00] transition-colors font-medium shrink-0"
+                      >
+                        <Download className="w-4 h-4" />
+                        Descargar
+                      </a>
+                    ) : (
+                      <span className="text-xs text-[#888] shrink-0">Sin archivo</span>
+                    )}
+                  </div>
+                ))}
               </div>
             )}
           </SectionCard>

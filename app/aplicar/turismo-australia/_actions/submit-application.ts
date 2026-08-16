@@ -45,8 +45,14 @@ async function executeSubmit(formData: any) {
   ]))
   const FROM_EMAIL = 'noreply@latamvisatravel.com'
 
-  const applicationId = uuidv4()
-  
+  // The client pre-generates the ID (needed to build storage paths for
+  // documents uploaded ahead of submit) and passes it through; fall back to
+  // a fresh one for any caller that doesn't supply it.
+  const applicationId = formData.applicationId || uuidv4()
+
+  const translatedDocs: { nombre_original: string; storage_path: string }[] =
+    Array.isArray(formData.translatedDocs) ? formData.translatedDocs : []
+
   const toBool = (val: any) => val === 'true' || val === true
   
   const deepNullify = (obj: any): any => {
@@ -232,6 +238,70 @@ async function executeSubmit(formData: any) {
   } catch (error: any) {
     console.error('[DB_INSERT_AUSTRALIA] Error:', error)
     return { success: false, error: 'No pudimos guardar tu aplicación. Intenta en unos minutos.', errorCode: 'DB_INSERT' }
+  }
+
+  // 1b. Notify n8n with signed download URLs for any documents-to-translate
+  // uploaded ahead of submit. Best-effort: a failure here shouldn't fail the
+  // whole application submission, since the row and originals are already saved.
+  if (translatedDocs.length > 0) {
+    try {
+      const webhookUrl = process.env.N8N_DOCS_WEBHOOK_URL
+      if (!webhookUrl) {
+        console.error('[N8N_DOCS_WEBHOOK] N8N_DOCS_WEBHOOK_URL no está configurada.')
+      } else {
+        const documentos = await Promise.all(
+          translatedDocs.map(async (doc) => {
+            const { data, error } = await supabaseAdmin
+              .storage
+              .from('documentos-originales')
+              .createSignedUrl(doc.storage_path, 3600)
+
+            if (error || !data) {
+              console.error('[N8N_DOCS_WEBHOOK] Error generando signed URL:', doc.storage_path, error)
+              return null
+            }
+
+            return {
+              nombre_original: doc.nombre_original,
+              signed_url: data.signedUrl,
+              storage_path: doc.storage_path,
+            }
+          })
+        )
+
+        const validDocumentos = documentos.filter(Boolean)
+
+        if (validDocumentos.length > 0) {
+          // n8n isn't guaranteed to be up/reachable yet, so this call must never
+          // stall the request: an explicit timeout ensures a hung endpoint can't
+          // block the response back to the client (a plain fetch with no signal
+          // would otherwise wait indefinitely, risking the platform killing the
+          // whole function before the success response — and the DB row/emails
+          // below — ever complete).
+          try {
+            const res = await fetch(webhookUrl, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                application_id: applicationId,
+                pais: 'australia',
+                documentos: validDocumentos,
+              }),
+              signal: AbortSignal.timeout(8000),
+            })
+            if (!res.ok) {
+              console.error('[N8N_DOCS_WEBHOOK] non-OK response:', res.status, await res.text().catch(() => ''))
+            } else {
+              console.log('[N8N_DOCS_WEBHOOK] sent', validDocumentos.length, 'documento(s)')
+            }
+          } catch (fetchError: any) {
+            console.error('[N8N_DOCS_WEBHOOK] fetch failed or timed out:', fetchError?.message || fetchError)
+          }
+        }
+      }
+    } catch (error: any) {
+      console.error('[N8N_DOCS_WEBHOOK] failed:', error)
+    }
   }
 
   // 2. Send internal admin notification email

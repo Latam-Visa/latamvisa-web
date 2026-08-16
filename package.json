@@ -33,6 +33,7 @@
     "ogl": "^1.0.11",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
+    "react-dropzone": "^20.1.0",
     "react-hook-form": "^7.76.0",
     "recharts": "^3.9.0",
     "resend": "^6.12.3",
