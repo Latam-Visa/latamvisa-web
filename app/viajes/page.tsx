@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import Image from 'next/image'
+import Link from 'next/link'
 import localFont from 'next/font/local'
 
 // Loaded locally (Condensed/Light variant, not the site-wide Extended/static
@@ -19,19 +20,21 @@ const destinations = ['Francia', 'Italia', 'España']
 export default function ViajesPage() {
   return (
     <main className="min-h-screen bg-[#C8FF00] font-funnel">
-      <nav className="flex items-center justify-between gap-2 px-5 py-5 sm:px-8 sm:py-6">
+      <nav className="relative flex items-center justify-between gap-2 px-5 py-5 sm:px-8 sm:py-6">
         <span className="text-[11px] font-bold uppercase tracking-wide text-[#1a3300] sm:text-sm">
           Destinos
         </span>
 
-        <Image
-          src="/logo.png"
-          alt="LATAM VISA"
-          width={120}
-          height={28}
-          className="h-6 w-auto sm:h-7"
-          priority
-        />
+        <Link href="/" className="absolute left-1/2 flex -translate-x-1/2 items-center">
+          <Image
+            src="/logo.png"
+            alt="LATAM VISA"
+            width={300}
+            height={84}
+            className="h-11 w-auto object-contain sm:h-12"
+            priority
+          />
+        </Link>
 
         <span className="text-right text-[11px] font-bold uppercase tracking-wide text-[#1a3300] sm:text-sm">
           Viaje con amigos
@@ -63,16 +66,21 @@ export default function ViajesPage() {
           aria-hidden
         />
 
-        <div className="relative z-[2] mx-auto flex h-full max-w-[620px] flex-col items-center justify-center text-center">
-          <span className="text-sm font-bold text-white">why ↑ not?</span>
-          <p className={`${ppMonumentCondensedLight.className} mt-2 text-xs uppercase tracking-[0.14em] text-white sm:text-sm`}>
-            Latinoamérica es el fuego de la hora.
-          </p>
-          <h1 className="font-monument mt-6 text-[clamp(1.875rem,8vw,5rem)] font-black uppercase leading-[0.92] tracking-tight text-[#FAFAF7]">
-            Haz un viaje inteligente antes de ver a tu gente…
+        <div className="relative z-[2] mx-auto flex h-full w-full flex-col items-center justify-center text-center">
+          <div className="mx-auto flex max-w-[620px] flex-col items-center">
+            <span className="text-sm font-bold text-white">why ↑ not?</span>
+            <p className={`${ppMonumentCondensedLight.className} mt-2 text-xs uppercase tracking-[0.14em] text-white sm:text-sm`}>
+              Latinoamérica es el fuego de la hora.
+            </p>
+          </div>
+
+          <h1 className="font-monument mt-6 w-full whitespace-nowrap text-[clamp(1.1rem,6.4vw,6.5rem)] font-black uppercase leading-[0.92] tracking-tight">
+            <span className="text-white">LATAM</span>
+            <span className="text-[#C8FF00]">X</span>
+            <span className="text-white">EUROPA</span>
           </h1>
 
-          <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
+          <div className="mt-8 flex max-w-[620px] flex-wrap items-center justify-center gap-3">
             {destinations.map((destination) => (
               <span
                 key={destination}
