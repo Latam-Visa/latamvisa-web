@@ -6,7 +6,7 @@ import { Eye, Clock, CheckCircle, XCircle, Loader2 } from 'lucide-react'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
 
-interface Application {
+export interface Application {
   id: string
   created_at: string
   status: string
