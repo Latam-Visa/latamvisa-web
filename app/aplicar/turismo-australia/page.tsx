@@ -115,7 +115,9 @@ export default function TurismoAustraliaApplication() {
 
   // Stable per-session ID, generated once, used both for translated-doc storage
   // paths (uploaded ahead of submit) and as the real application row ID, so the
-  // two stay in sync without waiting on the DB insert to know the ID.
+  // two stay in sync without waiting on the DB insert to know the ID. Restored
+  // from the draft below if one exists, so a mid-session reload doesn't orphan
+  // files already uploaded under the old ID.
   const applicationIdRef = useRef<string>()
   if (!applicationIdRef.current) applicationIdRef.current = uuidv4()
 
@@ -161,24 +163,35 @@ export default function TurismoAustraliaApplication() {
     }
   }, [])
 
-  // Autosave
+  // Autosave — includes translatedDocs/applicationId alongside the form fields
+  // so a reload mid-session doesn't orphan files already uploaded to Storage:
+  // without this, the draft-restore flow silently drops the reference to them
+  // (the form fields come back untouched, masking that the docs list is gone).
   const formValues = useWatch({ control: methods.control })
   useEffect(() => {
     const timeout = setTimeout(() => {
       if (Object.keys(formValues).length > 0) {
         localStorage.setItem(STORAGE_KEY, JSON.stringify({
           step: currentStep,
-          data: formValues
+          data: formValues,
+          translatedDocs,
+          applicationId: applicationIdRef.current,
         }))
       }
     }, 500)
     return () => clearTimeout(timeout)
-  }, [formValues, currentStep])
+  }, [formValues, currentStep, translatedDocs])
 
   const handleLoadDraft = () => {
     if (draftData && draftData.data) {
       methods.reset(draftData.data)
       setCurrentStep(draftData.step || 1)
+    }
+    if (Array.isArray(draftData?.translatedDocs)) {
+      setTranslatedDocs(draftData.translatedDocs)
+    }
+    if (draftData?.applicationId) {
+      applicationIdRef.current = draftData.applicationId
     }
     setShowDraftModal(false)
   }
@@ -258,6 +271,7 @@ export default function TurismoAustraliaApplication() {
   const onSubmit = async (data: any) => {
     setIsSubmitting(true)
     try {
+      console.error('[N8N_DOCS_WEBHOOK] client onSubmit — translatedDocs:', translatedDocs.length, JSON.stringify(translatedDocs), 'applicationId:', applicationIdRef.current)
       const formDataToSend = new FormData()
       formDataToSend.append('data', JSON.stringify({
         ...data,

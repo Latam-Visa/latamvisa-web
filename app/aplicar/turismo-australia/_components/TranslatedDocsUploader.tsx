@@ -33,6 +33,24 @@ export function TranslatedDocsUploader({ applicationId, value, onChange, onUploa
   const valueRef = useRef(value)
   valueRef.current = value
 
+  // Seeds the visible list from a restored draft (value is populated on mount
+  // from localStorage, but items — local upload-attempt tracking — starts
+  // empty) so an already-uploaded doc doesn't silently disappear from view
+  // after a page reload, even though it was never dropped from the array
+  // that actually reaches submit.
+  useEffect(() => {
+    if (value.length > 0) {
+      setItems((prev) => {
+        const knownPaths = new Set(prev.map((item) => item.id))
+        const restored = value
+          .filter((doc) => !knownPaths.has(doc.storage_path))
+          .map((doc) => ({ id: doc.storage_path, name: doc.nombre_original, status: 'success' as const }))
+        return restored.length > 0 ? [...prev, ...restored] : prev
+      })
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
   useEffect(() => {
     const isUploading = items.some((item) => item.status === 'uploading')
     const hasError = items.some((item) => item.status === 'error')
