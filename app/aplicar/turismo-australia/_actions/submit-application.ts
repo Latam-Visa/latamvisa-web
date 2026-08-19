@@ -13,11 +13,7 @@ export async function submitAustraliaApplication(
 ): Promise<{ success: boolean; applicationId?: string; error?: string; errorCode?: string; digest?: string }> {
 
   try {
-    const rawDataString = formDataInput.get('data') as string
-    const formData = JSON.parse(rawDataString)
-    console.log('[N8N_DOCS_WEBHOOK][SERVER] raw parsed formData top-level keys:', Object.keys(formData))
-    console.log('[N8N_DOCS_WEBHOOK][SERVER] formData.translatedDocs (exact key read) =', JSON.stringify(formData.translatedDocs))
-    console.log('[N8N_DOCS_WEBHOOK][SERVER] formData.applicationId =', formData.applicationId)
+    const formData = JSON.parse(formDataInput.get('data') as string)
     return await executeSubmit(formData)
   } catch (error: any) {
     console.error('[GLOBAL_CATCH] Error:', error.message, error.stack)
@@ -49,15 +45,7 @@ async function executeSubmit(formData: any) {
   ]))
   const FROM_EMAIL = 'noreply@latamvisatravel.com'
 
-  // The client pre-generates the ID (needed to build storage paths for
-  // documents uploaded ahead of submit) and passes it through; fall back to
-  // a fresh one for any caller that doesn't supply it.
-  const applicationId = formData.applicationId || uuidv4()
-
-  const translatedDocs: { nombre_original: string; storage_path: string }[] =
-    Array.isArray(formData.translatedDocs) ? formData.translatedDocs : []
-
-  console.error('[N8N_DOCS_WEBHOOK] translatedDocs received:', translatedDocs.length, JSON.stringify(translatedDocs))
+  const applicationId = uuidv4()
 
   const toBool = (val: any) => val === 'true' || val === true
   
@@ -246,31 +234,46 @@ async function executeSubmit(formData: any) {
     return { success: false, error: 'No pudimos guardar tu aplicación. Intenta en unos minutos.', errorCode: 'DB_INSERT' }
   }
 
-  // 1b. Notify n8n with signed download URLs for any documents-to-translate
-  // uploaded ahead of submit. Best-effort: a failure here shouldn't fail the
-  // whole application submission, since the row and originals are already saved.
-  if (translatedDocs.length > 0) {
+  // 1b. Notify n8n with signed download URLs for every document uploaded across
+  // the three support-document groups — language detection + translation happens
+  // in n8n, the client doesn't choose what to translate. Best-effort: a failure
+  // here shouldn't fail the whole application submission, since the row and the
+  // originals are already saved.
+  const docGroups: { paths: string[]; grupo: string }[] = [
+    { paths: Array.isArray(step14.doc_group1_arraigo) ? step14.doc_group1_arraigo : [], grupo: 'arraigo' },
+    { paths: Array.isArray(step14.doc_group2_fondos) ? step14.doc_group2_fondos : [], grupo: 'fondos' },
+    { paths: Array.isArray(step14.doc_group3_viajes) ? step14.doc_group3_viajes : [], grupo: 'viajes' },
+  ]
+  const allDocPaths = docGroups.flatMap((g) => g.paths.map((path: string) => ({ path, grupo: g.grupo })))
+
+  console.error('[N8N_DOCS_WEBHOOK] documentos received:', allDocPaths.length, JSON.stringify(allDocPaths))
+
+  if (allDocPaths.length > 0) {
     try {
       const webhookUrl = process.env.N8N_DOCS_WEBHOOK_URL
       if (!webhookUrl) {
         console.error('[N8N_DOCS_WEBHOOK] N8N_DOCS_WEBHOOK_URL no está configurada.')
       } else {
         const documentos = await Promise.all(
-          translatedDocs.map(async (doc) => {
+          allDocPaths.map(async ({ path, grupo }) => {
             const { data, error } = await supabaseAdmin
               .storage
-              .from('documentos-originales')
-              .createSignedUrl(doc.storage_path, 3600)
+              .from('visa-applications')
+              .createSignedUrl(path, 3600)
 
             if (error || !data) {
-              console.error('[N8N_DOCS_WEBHOOK] Error generando signed URL:', doc.storage_path, error)
+              console.error('[N8N_DOCS_WEBHOOK] Error generando signed URL:', path, error)
               return null
             }
 
             return {
-              nombre_original: doc.nombre_original,
+              // The storage filename is a generated UUID, not the client's original
+              // filename — DocumentUploader (by design, unchanged here) never
+              // persists the original name past the upload step, only the path.
+              nombre_original: path.split('/').pop() || path,
+              grupo,
               signed_url: data.signedUrl,
-              storage_path: doc.storage_path,
+              storage_path: path,
             }
           })
         )

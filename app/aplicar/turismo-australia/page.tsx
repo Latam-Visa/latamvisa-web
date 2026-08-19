@@ -1,14 +1,12 @@
 "use client"
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import { useForm, FormProvider, useWatch } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useRouter } from 'next/navigation'
-import { v4 as uuidv4 } from 'uuid'
 import * as z from 'zod'
 import { Loader2, AlertCircle } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
-import type { TranslatedDoc } from './_components/TranslatedDocsUploader'
 
 // Reusing USA components for progress and navigation
 import { ProgressBar } from '../turismo-usa/_components/ProgressBar'
@@ -113,19 +111,6 @@ export default function TurismoAustraliaApplication() {
   const [showErrorToast, setShowErrorToast] = useState(false)
   const [showSuccess, setShowSuccess] = useState(false)
 
-  // Stable per-session ID, generated once, used both for translated-doc storage
-  // paths (uploaded ahead of submit) and as the real application row ID, so the
-  // two stay in sync without waiting on the DB insert to know the ID. Restored
-  // from the draft below if one exists, so a mid-session reload doesn't orphan
-  // files already uploaded under the old ID.
-  const applicationIdRef = useRef<string>()
-  if (!applicationIdRef.current) applicationIdRef.current = uuidv4()
-
-  const [translatedDocs, setTranslatedDocs] = useState<TranslatedDoc[]>([])
-  const [translatedDocsUploading, setTranslatedDocsUploading] = useState(false)
-  const [translatedDocsError, setTranslatedDocsError] = useState(false)
-  const [showDocsErrorToast, setShowDocsErrorToast] = useState(false)
-
   const methods = useForm<FormData>({
     resolver: zodResolver(formSchema),
     mode: 'onTouched',
@@ -163,35 +148,24 @@ export default function TurismoAustraliaApplication() {
     }
   }, [])
 
-  // Autosave — includes translatedDocs/applicationId alongside the form fields
-  // so a reload mid-session doesn't orphan files already uploaded to Storage:
-  // without this, the draft-restore flow silently drops the reference to them
-  // (the form fields come back untouched, masking that the docs list is gone).
+  // Autosave
   const formValues = useWatch({ control: methods.control })
   useEffect(() => {
     const timeout = setTimeout(() => {
       if (Object.keys(formValues).length > 0) {
         localStorage.setItem(STORAGE_KEY, JSON.stringify({
           step: currentStep,
-          data: formValues,
-          translatedDocs,
-          applicationId: applicationIdRef.current,
+          data: formValues
         }))
       }
     }, 500)
     return () => clearTimeout(timeout)
-  }, [formValues, currentStep, translatedDocs])
+  }, [formValues, currentStep])
 
   const handleLoadDraft = () => {
     if (draftData && draftData.data) {
       methods.reset(draftData.data)
       setCurrentStep(draftData.step || 1)
-    }
-    if (Array.isArray(draftData?.translatedDocs)) {
-      setTranslatedDocs(draftData.translatedDocs)
-    }
-    if (draftData?.applicationId) {
-      applicationIdRef.current = draftData.applicationId
     }
     setShowDraftModal(false)
   }
@@ -218,11 +192,7 @@ export default function TurismoAustraliaApplication() {
       if (currentStep < TOTAL_STEPS) {
         setCurrentStep(s => s + 1)
         window.scrollTo({ top: 0, behavior: 'smooth' })
-      } else if (translatedDocsUploading || translatedDocsError) {
-        setShowDocsErrorToast(true)
-        setTimeout(() => setShowDocsErrorToast(false), 5000)
       } else {
-        console.log('[N8N_DOCS_WEBHOOK][CLIENT][PAGE] Enviar clicked — translatedDocs at click time:', JSON.stringify(translatedDocs), 'applicationId:', applicationIdRef.current)
         methods.handleSubmit(onSubmit, onInvalidSubmit)()
       }
     } else {
@@ -272,15 +242,8 @@ export default function TurismoAustraliaApplication() {
   const onSubmit = async (data: any) => {
     setIsSubmitting(true)
     try {
-      console.error('[N8N_DOCS_WEBHOOK] client onSubmit — translatedDocs:', translatedDocs.length, JSON.stringify(translatedDocs), 'applicationId:', applicationIdRef.current)
-      const payload = {
-        ...data,
-        applicationId: applicationIdRef.current,
-        translatedDocs,
-      }
-      console.log('[N8N_DOCS_WEBHOOK][CLIENT][PAGE] payload key "translatedDocs" =', JSON.stringify(payload.translatedDocs), '| payload key "applicationId" =', payload.applicationId)
       const formDataToSend = new FormData()
-      formDataToSend.append('data', JSON.stringify(payload))
+      formDataToSend.append('data', JSON.stringify(data))
 
       const response = await submitAustraliaApplication(formDataToSend)
 
@@ -536,20 +499,7 @@ export default function TurismoAustraliaApplication() {
       case 11: return <Step11 />
       case 12: return <Step12 />
       case 13: return <Step13 />
-      case 14: return (
-        <Step14
-          applicationId={applicationIdRef.current!}
-          translatedDocs={translatedDocs}
-          onTranslatedDocsChange={(docs) => {
-            console.log('[N8N_DOCS_WEBHOOK][CLIENT][PAGE] onTranslatedDocsChange received:', JSON.stringify(docs))
-            setTranslatedDocs(docs)
-          }}
-          onTranslatedDocsUploadStateChange={(isUploading, hasError) => {
-            setTranslatedDocsUploading(isUploading)
-            setTranslatedDocsError(hasError)
-          }}
-        />
-      )
+      case 14: return <Step14 />
       default: return null
     }
   }
@@ -620,17 +570,6 @@ export default function TurismoAustraliaApplication() {
         <div className="fixed top-24 left-1/2 -translate-x-1/2 z-50 bg-[#FEF2F2] border border-[#DC2626] text-[#DC2626] px-6 py-3 rounded-lg shadow-lg flex items-center gap-2 animate-in fade-in slide-in-from-top-4">
           <AlertCircle className="w-5 h-5" />
           <span className="font-medium">Tienes algunos campos por completar. Revísalos abajo.</span>
-        </div>
-      )}
-
-      {showDocsErrorToast && (
-        <div className="fixed top-24 left-1/2 -translate-x-1/2 z-50 bg-[#FEF2F2] border border-[#DC2626] text-[#DC2626] px-6 py-3 rounded-lg shadow-lg flex items-center gap-2 animate-in fade-in slide-in-from-top-4">
-          <AlertCircle className="w-5 h-5" />
-          <span className="font-medium">
-            {translatedDocsUploading
-              ? 'Espera a que terminen de subirse tus documentos.'
-              : 'Hay documentos con error de subida. Elimínalos o vuelve a intentarlo antes de enviar.'}
-          </span>
         </div>
       )}
 
@@ -719,7 +658,7 @@ export default function TurismoAustraliaApplication() {
                 currentStep={currentStep}
                 totalSteps={TOTAL_STEPS}
                 onBack={handleBack}
-                isNextDisabled={isSubmitting || isValidating || (currentStep === TOTAL_STEPS && (translatedDocsUploading || translatedDocsError))}
+                isNextDisabled={isSubmitting || isValidating}
               />
             )}
           </form>

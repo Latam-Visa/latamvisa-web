@@ -1,14 +1,6 @@
 import { DocumentUploader } from './DocumentUploader'
-import { TranslatedDocsUploader, type TranslatedDoc } from './TranslatedDocsUploader'
 
-interface Step14Props {
-  applicationId: string
-  translatedDocs: TranslatedDoc[]
-  onTranslatedDocsChange: (docs: TranslatedDoc[]) => void
-  onTranslatedDocsUploadStateChange: (isUploading: boolean, hasError: boolean) => void
-}
-
-export function Step14({ applicationId, translatedDocs, onTranslatedDocsChange, onTranslatedDocsUploadStateChange }: Step14Props) {
+export function Step14() {
   return (
     <div className="space-y-8">
       <div className="bg-[#F5F5F0] p-6 rounded-xl border border-[#E5E5E5] space-y-6">
@@ -67,21 +59,6 @@ export function Step14({ applicationId, translatedDocs, onTranslatedDocsChange, 
             />
           </div>
 
-        </div>
-      </div>
-
-      <div className="bg-[#F5F5F0] p-6 rounded-xl border border-[#E5E5E5] space-y-4">
-        <h3 className="text-lg font-medium text-[#0A0A0A] mb-2">Traducción de Documentos</h3>
-        <p className="text-sm text-[#525252] mb-4">
-          Si necesitas que traduzcamos oficialmente algún documento (certificados, extractos, etc.), súbelo aquí en PDF.
-        </p>
-        <div className="bg-white p-6 rounded-xl border border-[#E5E5E5]">
-          <TranslatedDocsUploader
-            applicationId={applicationId}
-            value={translatedDocs}
-            onChange={onTranslatedDocsChange}
-            onUploadStateChange={onTranslatedDocsUploadStateChange}
-          />
         </div>
       </div>
     </div>
