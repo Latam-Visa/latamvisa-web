@@ -106,7 +106,9 @@ export function TranslatedDocsUploader({ applicationId, value, onChange, onUploa
 
           if (uploadError) throw uploadError
 
-          uploadedDocs.push({ nombre_original: file.name, storage_path: target.path })
+          const uploadedDoc = { nombre_original: file.name, storage_path: target.path }
+          uploadedDocs.push(uploadedDoc)
+          console.log('[N8N_DOCS_WEBHOOK][CLIENT][UPLOADER] file uploaded OK:', JSON.stringify(uploadedDoc))
           setItems((prev) => prev.map((item) => (item.id === itemId ? { ...item, status: 'success' } : item)))
         } catch (err: any) {
           console.error('[TRANSLATED_DOCS_UPLOAD]', err)
@@ -117,7 +119,9 @@ export function TranslatedDocsUploader({ applicationId, value, onChange, onUploa
       }
 
       if (uploadedDocs.length > 0) {
-        onChange([...valueRef.current, ...uploadedDocs])
+        const nextValue = [...valueRef.current, ...uploadedDocs]
+        console.log('[N8N_DOCS_WEBHOOK][CLIENT][UPLOADER] calling onChange with:', JSON.stringify(nextValue))
+        onChange(nextValue)
       }
     } catch (err: any) {
       console.error('[TRANSLATED_DOCS_PREP]', err)

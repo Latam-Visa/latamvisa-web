@@ -222,6 +222,7 @@ export default function TurismoAustraliaApplication() {
         setShowDocsErrorToast(true)
         setTimeout(() => setShowDocsErrorToast(false), 5000)
       } else {
+        console.log('[N8N_DOCS_WEBHOOK][CLIENT][PAGE] Enviar clicked — translatedDocs at click time:', JSON.stringify(translatedDocs), 'applicationId:', applicationIdRef.current)
         methods.handleSubmit(onSubmit, onInvalidSubmit)()
       }
     } else {
@@ -272,12 +273,14 @@ export default function TurismoAustraliaApplication() {
     setIsSubmitting(true)
     try {
       console.error('[N8N_DOCS_WEBHOOK] client onSubmit — translatedDocs:', translatedDocs.length, JSON.stringify(translatedDocs), 'applicationId:', applicationIdRef.current)
-      const formDataToSend = new FormData()
-      formDataToSend.append('data', JSON.stringify({
+      const payload = {
         ...data,
         applicationId: applicationIdRef.current,
         translatedDocs,
-      }))
+      }
+      console.log('[N8N_DOCS_WEBHOOK][CLIENT][PAGE] payload key "translatedDocs" =', JSON.stringify(payload.translatedDocs), '| payload key "applicationId" =', payload.applicationId)
+      const formDataToSend = new FormData()
+      formDataToSend.append('data', JSON.stringify(payload))
 
       const response = await submitAustraliaApplication(formDataToSend)
 
@@ -537,7 +540,10 @@ export default function TurismoAustraliaApplication() {
         <Step14
           applicationId={applicationIdRef.current!}
           translatedDocs={translatedDocs}
-          onTranslatedDocsChange={setTranslatedDocs}
+          onTranslatedDocsChange={(docs) => {
+            console.log('[N8N_DOCS_WEBHOOK][CLIENT][PAGE] onTranslatedDocsChange received:', JSON.stringify(docs))
+            setTranslatedDocs(docs)
+          }}
           onTranslatedDocsUploadStateChange={(isUploading, hasError) => {
             setTranslatedDocsUploading(isUploading)
             setTranslatedDocsError(hasError)

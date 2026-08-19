@@ -13,7 +13,11 @@ export async function submitAustraliaApplication(
 ): Promise<{ success: boolean; applicationId?: string; error?: string; errorCode?: string; digest?: string }> {
 
   try {
-    const formData = JSON.parse(formDataInput.get('data') as string)
+    const rawDataString = formDataInput.get('data') as string
+    const formData = JSON.parse(rawDataString)
+    console.log('[N8N_DOCS_WEBHOOK][SERVER] raw parsed formData top-level keys:', Object.keys(formData))
+    console.log('[N8N_DOCS_WEBHOOK][SERVER] formData.translatedDocs (exact key read) =', JSON.stringify(formData.translatedDocs))
+    console.log('[N8N_DOCS_WEBHOOK][SERVER] formData.applicationId =', formData.applicationId)
     return await executeSubmit(formData)
   } catch (error: any) {
     console.error('[GLOBAL_CATCH] Error:', error.message, error.stack)
