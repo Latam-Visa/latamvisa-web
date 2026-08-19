@@ -53,6 +53,8 @@ async function executeSubmit(formData: any) {
   const translatedDocs: { nombre_original: string; storage_path: string }[] =
     Array.isArray(formData.translatedDocs) ? formData.translatedDocs : []
 
+  console.error('[N8N_DOCS_WEBHOOK] translatedDocs received:', translatedDocs.length, JSON.stringify(translatedDocs))
+
   const toBool = (val: any) => val === 'true' || val === true
   
   const deepNullify = (obj: any): any => {
@@ -279,6 +281,7 @@ async function executeSubmit(formData: any) {
           // whole function before the success response — and the DB row/emails
           // below — ever complete).
           try {
+            console.error('[N8N_DOCS_WEBHOOK] ABOUT TO POST TO N8N. url=', webhookUrl, 'docs=', validDocumentos.length)
             const res = await fetch(webhookUrl, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
@@ -292,10 +295,10 @@ async function executeSubmit(formData: any) {
             if (!res.ok) {
               console.error('[N8N_DOCS_WEBHOOK] non-OK response:', res.status, await res.text().catch(() => ''))
             } else {
-              console.log('[N8N_DOCS_WEBHOOK] sent', validDocumentos.length, 'documento(s)')
+              console.error('[N8N_DOCS_WEBHOOK] sent OK, status=', res.status, validDocumentos.length, 'documento(s)')
             }
           } catch (fetchError: any) {
-            console.error('[N8N_DOCS_WEBHOOK] fetch failed or timed out:', fetchError?.message || fetchError)
+            console.error('[N8N_DOCS_WEBHOOK] fetch failed or timed out:', fetchError?.name, fetchError?.message || fetchError)
           }
         }
       }
