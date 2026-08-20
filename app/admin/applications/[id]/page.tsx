@@ -9,6 +9,12 @@ import Link from 'next/link'
 import { ArrowLeft } from 'lucide-react'
 
 export const dynamic = 'force-dynamic'
+// Same fix as the solicitudes list: force-dynamic re-renders the route per
+// request but doesn't disable Next's fetch-level Data Cache for third-party
+// clients like supabase-js — without this, a page visited before n8n finishes
+// inserting documentos_traducidos rows can keep serving that stale (empty)
+// snapshot indefinitely, even though the DB has since been updated.
+export const fetchCache = 'force-no-store'
 
 async function getSignedPhotoUrl(bucket: string, path: string | string[] | null | undefined): Promise<string | string[] | undefined> {
   if (!path) return undefined
