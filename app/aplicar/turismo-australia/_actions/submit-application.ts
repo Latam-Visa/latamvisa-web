@@ -259,7 +259,10 @@ async function executeSubmit(formData: any) {
             const { data, error } = await supabaseAdmin
               .storage
               .from('visa-applications')
-              .createSignedUrl(path, 3600)
+              // 24h, not 1h: the n8n translation pipeline can take longer than an
+              // hour to download + translate + merge each PDF, and a 1h expiry was
+              // causing "exp claim timestamp check failed" mid-pipeline.
+              .createSignedUrl(path, 86400)
 
             if (error || !data) {
               console.error('[N8N_DOCS_WEBHOOK] Error generando signed URL:', path, error)
