@@ -4,6 +4,7 @@ import imageCompression from 'browser-image-compression'
 import { UploadCloud, Image as ImageIcon, Trash2, RefreshCw, AlertCircle, ChevronDown, ChevronUp } from 'lucide-react'
 import { FormField } from './FormField'
 import { getUploadUrl } from '../_actions/upload-url'
+import { sanitizePdfFile } from '@/lib/pdf-sanitize'
 
 interface PhotoUploaderProps {
   name: string
@@ -56,8 +57,11 @@ export function PhotoUploader({ name, label, hint, required, specsList }: PhotoU
           fileType: 'image/jpeg'
         }
         uploadFile = await imageCompression(file, options)
+      } else {
+        uploadFile = await sanitizePdfFile(file)
       }
-      
+
+
       // Get signed URL
       const { success, url, path, error } = await getUploadUrl(uploadFile.type)
       if (!success || !url || !path) {

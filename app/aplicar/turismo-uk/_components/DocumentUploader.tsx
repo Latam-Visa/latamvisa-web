@@ -4,6 +4,7 @@ import imageCompression from 'browser-image-compression'
 import { UploadCloud, File as FileIcon, Trash2, RefreshCw, ChevronDown, ChevronUp } from 'lucide-react'
 import { FormField } from '../../turismo-usa/_components/FormField' // Reuse USA form field
 import { getUploadUrl } from '../_actions/get-upload-url'
+import { sanitizePdfFile } from '@/lib/pdf-sanitize'
 
 interface DocumentUploaderProps {
   name: string
@@ -56,8 +57,10 @@ export function DocumentUploader({ name, label, hint, required, specsList, multi
           fileType: 'image/jpeg'
         }
         fileToUpload = await imageCompression(file, options)
+      } else if (file.type === 'application/pdf') {
+        fileToUpload = await sanitizePdfFile(file)
       }
-      
+
       // Get signed URL
       const { success, url, path, error } = await getUploadUrl(fileToUpload.type)
       if (!success || !url || !path) {

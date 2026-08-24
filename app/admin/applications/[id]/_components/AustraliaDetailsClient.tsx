@@ -292,7 +292,7 @@ export function AustraliaDetailsClient({ application, signedPhotoUrls, translate
                       <FileText className="w-5 h-5 text-[#3D5A00]" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-[#0A0A0A] truncate">{doc.nombre_original}</p>
+                      <p className="text-sm font-medium text-[#0A0A0A] truncate">{doc.nombre_archivo || doc.nombre_original}</p>
                       <p className="text-xs text-[#888] mt-0.5">{fmtDate(doc.created_at)}</p>
                     </div>
                     {translatedStatusBadge(doc.status)}

@@ -4,6 +4,7 @@ import { useFormContext } from 'react-hook-form'
 import { FormField } from '../../turismo-usa/_components/FormField'
 import { Loader2 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
+import { sanitizePdfFile } from '@/lib/pdf-sanitize'
 import { PassportConfirmModal } from '../components/PassportConfirmModal'
 
 export function Step3() {
@@ -39,9 +40,10 @@ export function Step3() {
         const supabase = createClient()
         const fileExt = file.name.split('.').pop()
         const fileName = `australia/nid_scan_${Date.now()}.${fileExt}`
+        const fileToUpload = file.type === 'application/pdf' ? await sanitizePdfFile(file) : file
         const { data: uploadData } = await supabase.storage
           .from('visa-applications')
-          .upload(fileName, file, { upsert: true })
+          .upload(fileName, fileToUpload, { upsert: true, contentType: fileToUpload.type })
         if (uploadData) {
           setValue('step3.doc_national_id_url', uploadData.path)
         }

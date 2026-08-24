@@ -8,6 +8,7 @@ import * as z from 'zod'
 import { Loader2, AlertCircle } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { getAge } from '@/lib/dates'
+import { sanitizePdfFile } from '@/lib/pdf-sanitize'
 
 // Reusing USA components for progress and navigation
 import { ProgressBar } from '../turismo-usa/_components/ProgressBar'
@@ -261,9 +262,10 @@ export default function TurismoCanadaApplication() {
         const supabase = createClient()
         const fileExt = file.name.split('.').pop()
         const fileName = `canada/passport_scan_${Date.now()}.${fileExt}`
+        const fileToUpload = file.type === 'application/pdf' ? await sanitizePdfFile(file) : file
         const { data: uploadData } = await supabase.storage
           .from('visa-applications')
-          .upload(fileName, file, { upsert: true })
+          .upload(fileName, fileToUpload, { upsert: true, contentType: fileToUpload.type })
         if (uploadData) {
           setValue('step0_passport_url' as any, uploadData.path)
           setPassportFileUrl(uploadData.path)
