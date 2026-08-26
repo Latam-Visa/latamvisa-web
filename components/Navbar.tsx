@@ -18,9 +18,10 @@ export default function Navbar() {
   const [overLight, setOverLight] = useState(pathname !== '/agendar') // true = white text (dark/sky bg), false = dark text (light bg)
 
   useEffect(() => {
-    // #servicios is the first opaque section — once it enters the viewport we leave the sky zone
-    // #contacto is the footer which shows the clouds background again
-    let serviciosAbove = false // true once servicios has scrolled above the viewport top
+    // '#servicios' marks the hero-end on the homepage; '#viajes-hero-end' does the
+    // same for /viajes's scroll-scrubbed hero — whichever exists on the current
+    // page is used. #contacto is the footer which shows the clouds background again.
+    let heroEndAbove = false // true once the hero-end marker has scrolled above the viewport top
 
     const updateColor = () => {
       const vh = window.innerHeight
@@ -28,17 +29,17 @@ export default function Navbar() {
 
       const overHero = scrollY < vh * 0.5
 
-      const serviciosEl = document.getElementById('servicios')
+      const heroEndEl = document.getElementById('servicios') || document.getElementById('viajes-hero-end')
 
-      // Servicios is above the viewport (we've scrolled past it)
-      if (serviciosEl) {
-        serviciosAbove = serviciosEl.getBoundingClientRect().bottom < 0
+      // Hero-end marker is above the viewport (we've scrolled past it)
+      if (heroEndEl) {
+        heroEndAbove = heroEndEl.getBoundingClientRect().bottom < 0
       }
 
       // Are we in the footer (clouds) zone?
-      // Sky/clouds visible: over hero, or between hero and servicios
+      // Sky/clouds visible: over hero, or between hero and hero-end marker
       const inSkyZone = overHero ||
-        (!serviciosAbove && !overHero && (!serviciosEl || serviciosEl.getBoundingClientRect().top > vh))
+        (!heroEndAbove && !overHero && (!heroEndEl || heroEndEl.getBoundingClientRect().top > vh))
 
       setOverLight(pathname === '/agendar' ? false : inSkyZone)
     }
@@ -54,12 +55,22 @@ export default function Navbar() {
 
   const barColor = overLight ? 'bg-white' : 'bg-[#111111]'
 
+  // Scoped to /viajes only, so the homepage's always-transparent header (except
+  // /agendar) stays pixel-identical — /viajes's hero needs a real transparent
+  // -> solid transition once scrolled past, which no other page currently does.
+  const headerBgClass =
+    pathname === '/agendar'
+      ? 'bg-white/60 backdrop-blur-xl border-b border-white/40'
+      : pathname === '/viajes' && !overLight
+        ? 'bg-[#FAFAF7]/95 backdrop-blur-md border-b border-[#E5E5E5]'
+        : ''
+
   return (
     <motion.header
       initial={{ y: -80, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-      className="fixed top-0 left-0 right-0 z-50 transition-all duration-700 pointer-events-auto"
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-700 pointer-events-auto ${headerBgClass}`}
       style={{}}
     >
       <div className="w-full py-5 relative flex items-center justify-between px-6 md:px-[100px]">
