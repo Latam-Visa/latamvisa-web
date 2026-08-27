@@ -17,6 +17,22 @@ export default function Navbar() {
   const pathname = usePathname()
   const [overLight, setOverLight] = useState(pathname !== '/agendar') // true = white text (dark/sky bg), false = dark text (light bg)
 
+  // Scoped to /viajes only — the homepage's nav (links + logo) stays exactly as
+  // it was before. #servicios/#proceso/#paises/#contacto are homepage anchors
+  // that don't exist on /viajes, so the first slot is swapped for a page-
+  // appropriate "Viajes" link there instead of leaving a dead anchor link.
+  const currentNavLinks = pathname === '/viajes'
+    ? [{ label: 'Viajes', href: '/viajes' }, ...navLinks.slice(1)]
+    : navLinks
+
+  // The travel logo is a "knockout" mark — a solid white card with the plane
+  // + wordmark cut out as transparency — designed to sit over a photo/video,
+  // not over the navbar's own near-white solid background. So it only
+  // replaces the standard logo while still in the transparent/over-hero
+  // state; once scrolled past (solid bg), it reverts to the normal logo for
+  // legibility.
+  const useTravelLogo = pathname === '/viajes' && overLight
+
   useEffect(() => {
     // '#servicios' marks the hero-end on the homepage; '#viajes-hero-end' does the
     // same for /viajes's scroll-scrubbed hero — whichever exists on the current
@@ -76,20 +92,31 @@ export default function Navbar() {
       <div className="w-full py-5 relative flex items-center justify-between px-6 md:px-[100px]">
         {/* CENTER: Logo absolutely centered — same position as before */}
         <Link href="/" className="absolute left-1/2 -translate-x-1/2 flex items-center">
-          <Image
-            src="/logo.png"
-            alt="LATAM VISA"
-            width={300}
-            height={84}
-            className="h-[70px] w-auto object-contain"
-            priority
-          />
+          {useTravelLogo ? (
+            <Image
+              src="/logo-lt-travel.png"
+              alt="LATAM Travel"
+              width={985}
+              height={145}
+              className="h-9 w-auto object-contain"
+              priority
+            />
+          ) : (
+            <Image
+              src="/logo.png"
+              alt="LATAM VISA"
+              width={300}
+              height={84}
+              className="h-[70px] w-auto object-contain"
+              priority
+            />
+          )}
         </Link>
 
         {/* LEFT: Nav Links */}
         <div className="flex items-center gap-10">
           <nav className="hidden md:flex items-center gap-10">
-            {navLinks.map((link) => (
+            {currentNavLinks.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
@@ -139,7 +166,7 @@ export default function Navbar() {
           animate={{ opacity: 1, y: 0 }}
           className="md:hidden bg-[#FAFAFA]/95 backdrop-blur-md border-t border-[#E0E0E0] px-6 py-8 flex flex-col gap-6"
         >
-          {navLinks.map((link) => (
+          {currentNavLinks.map((link) => (
             <Link
               key={link.href}
               href={link.href}

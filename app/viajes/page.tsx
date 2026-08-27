@@ -3,8 +3,8 @@ import Navbar from '@/components/Navbar'
 import TravelHeroScroll from '@/components/TravelHeroScroll'
 
 export const metadata: Metadata = {
-  title: 'LATAM TRAVELING — Un viaje, dos mundos',
-  description: 'Escala en Europa antes de llegar a casa. Dos vacaciones en un solo viaje con LATAM TRAVELING.',
+  title: 'Viajes | LATAM VISA Travel — dos mundos en un solo viaje',
+  description: 'Aprovecha tu escala en Europa antes de llegar a casa. Nosotros nos encargamos de todo — visas, vuelos y el itinerario.',
 }
 
 export default function ViajesPage() {

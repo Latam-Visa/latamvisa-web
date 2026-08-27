@@ -21,12 +21,16 @@ export default function TravelHeroScroll() {
   const spacerRef = useRef<HTMLDivElement>(null)
   const fixedRef = useRef<HTMLDivElement>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
+  const coverTextRef = useRef<HTMLDivElement>(null)
   const doorTextRef = useRef<HTMLDivElement>(null)
   const cloudsTextRef = useRef<HTMLDivElement>(null)
   const caribeTextRef = useRef<HTMLDivElement>(null)
   const currentFrameRef = useRef(0)
   const spacerOffsetRef = useRef(0)
   const framesRef = useRef<HTMLImageElement[]>([])
+  // Cover intro is a one-time state, not a scroll-position zone — once the user
+  // scrolls past it, it stays hidden even if they scroll back up to progress 0.
+  const coverDismissedRef = useRef(false)
 
   /* ── Resolve prefers-reduced-motion before anything renders the scroll rig ── */
   useEffect(() => {
@@ -172,6 +176,18 @@ export default function TravelHeroScroll() {
         canvasRef.current.style.display = 'block'
       }
 
+      /* ZONE 0 — cover (0–0.15): full "portada" intro, visible from the first
+         pixel, fades out between 0.05 and 0.15 and never comes back — once
+         dismissed it stays hidden even if the user scrolls back up, since it's
+         a one-time entrance rather than a scroll-position zone like the rest. */
+      if (progress > 0.15) coverDismissedRef.current = true
+      if (coverTextRef.current) {
+        const op = coverDismissedRef.current ? 0 : fadeZone(progress, 0, 0, 0.05, 0.15)
+        coverTextRef.current.style.opacity = String(op)
+        coverTextRef.current.style.transform = `translateY(${(1 - op) * -20}px)`
+        coverTextRef.current.style.pointerEvents = op > 0.5 ? 'auto' : 'none'
+      }
+
       /* ZONE 1 — puerta (0–0.45): "Un viaje, dos mundos" */
       if (doorTextRef.current) {
         const op = fadeZone(progress, 0, 0.08, 0.37, 0.45)
@@ -232,6 +248,50 @@ export default function TravelHeroScroll() {
     textShadow: '0 1px 10px rgba(0,0,0,0.6)',
   }
 
+  /* Cover-state headline runs a size step down from the per-zone headline —
+     it needs to sit alongside a paragraph, CTA and card in the same viewport
+     without the zones' single-message breathing room. */
+  const coverHeadlineStyle: React.CSSProperties = {
+    ...headlineStyle,
+    fontSize: isMobile ? 'clamp(24px, 7.5vw, 32px)' : 'clamp(32px, 3.6vw, 54px)',
+  }
+
+  const coverCtaStyle: React.CSSProperties = {
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: '10px',
+    marginTop: '22px',
+    border: 'none',
+    backgroundColor: '#b5e533',
+    color: '#006837',
+    height: '46px',
+    padding: '0 26px',
+    borderRadius: '100px',
+    fontFamily: "'FunnelDisplay', sans-serif",
+    fontSize: '13px',
+    fontWeight: 700,
+    letterSpacing: '0.08em',
+    textDecoration: 'none',
+    whiteSpace: 'nowrap',
+    transition: 'transform 0.3s ease, box-shadow 0.3s ease',
+    textTransform: 'uppercase',
+    boxShadow: '0 8px 24px -8px rgba(181,229,51,0.6)',
+    cursor: 'pointer',
+  }
+
+  // Matches /postcard's frosted-glass card language (cream tint + saturated
+  // blur), adapted for sitting over a photo instead of a light page bg.
+  const glassCardStyle: React.CSSProperties = {
+    width: '240px',
+    borderRadius: '20px',
+    border: '1px solid rgba(255,255,255,0.5)',
+    backgroundColor: 'rgba(244,244,232,0.72)',
+    backdropFilter: 'blur(20px) saturate(140%)',
+    WebkitBackdropFilter: 'blur(20px) saturate(140%)',
+    boxShadow: '0 14px 32px -14px rgba(0,0,0,0.45)',
+    overflow: 'hidden',
+  }
+
   const ctaStyle: React.CSSProperties = {
     display: 'inline-flex',
     alignItems: 'center',
@@ -259,7 +319,7 @@ export default function TravelHeroScroll() {
   if (reducedMotionResolved && reducedMotion) {
     return (
       <section
-        aria-label="Un viaje, dos mundos: escala en Europa antes de llegar a casa"
+        aria-label="Viajes: un viaje, dos mundos — escala en Europa antes de llegar a casa"
         style={{ position: 'relative', width: '100%', minHeight: '100vh', overflow: 'hidden', backgroundColor: '#050505' }}
       >
         {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -270,6 +330,10 @@ export default function TravelHeroScroll() {
         />
         <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(0,0,0,0.35) 0%, rgba(0,0,0,0.15) 40%, rgba(0,0,0,0.55) 100%)' }} />
         <div style={{ position: 'relative', zIndex: 1, padding: `120px ${hPad} 80px`, display: 'flex', flexDirection: 'column', gap: '56px' }}>
+          <div>
+            <h1 style={coverHeadlineStyle}>Abre la puerta a tu próximo viaje</h1>
+            <p style={subStyle}>Detrás de cada puerta hay dos mundos: una escala en Europa y el regreso a casa en Latinoamérica. Nosotros nos encargamos de todo — visas, vuelos y el itinerario.</p>
+          </div>
           <div>
             <h1 style={headlineStyle}>Un viaje, dos mundos</h1>
             <p style={subStyle}>Descubre cómo tu vuelo de vuelta a casa puede convertirse en la mitad de una aventura.</p>
@@ -293,7 +357,7 @@ export default function TravelHeroScroll() {
   }
 
   return (
-    <section aria-label="Un viaje, dos mundos: escala en Europa antes de llegar a casa" style={{ position: 'relative' }}>
+    <section aria-label="Viajes: un viaje, dos mundos — escala en Europa antes de llegar a casa" style={{ position: 'relative' }}>
       {/* Spacer — drives scroll distance across the whole frame sequence */}
       <div ref={spacerRef} style={{ height: '500vh', background: '#050505' }} />
       {/* Marker for Navbar's scroll-zone detection — mirrors the #servicios pattern used on the home hero.
@@ -338,6 +402,75 @@ export default function TravelHeroScroll() {
             background: 'linear-gradient(180deg, rgba(0,0,0,0.30) 0%, rgba(0,0,0,0.05) 30%, rgba(0,0,0,0.10) 60%, rgba(0,0,0,0.50) 100%)',
           }}
         />
+
+        {/* ZONE 0 — cover: full "portada" intro state, visible from the first
+            pixel (opacity:1 by default below, confirmed/adjusted by the scroll
+            handler on mount). Fades out for good by progress 0.15 — see
+            coverDismissedRef in the scroll handler. Sits above ZONE 1 (zIndex 4
+            vs 3) since their fade windows briefly overlap around 0.05–0.15. */}
+        <div
+          ref={coverTextRef}
+          data-zone="cover"
+          style={{ position: 'absolute', inset: 0, zIndex: 4, opacity: 1, pointerEvents: 'auto' }}
+        >
+          {/* Headline — top-left, its right edge reaches toward the door's left edge.
+              Mobile wraps naturally into 2-3 lines instead of a forced break, which
+              at the mobile font size lands on 2 lines on its own. */}
+          <div style={{ position: 'absolute', top: isMobile ? '96px' : '20vh', left: hPad, maxWidth: isMobile ? '90%' : '46vw' }}>
+            <h1 style={coverHeadlineStyle}>{isMobile ? 'Abre la puerta a tu próximo viaje' : <>Abre la puerta a<br />tu próximo viaje</>}</h1>
+          </div>
+
+          {/* Paragraph + solid CTA — bottom-left */}
+          <div style={{ position: 'absolute', bottom: isMobile ? '168px' : '10vh', left: hPad, maxWidth: isMobile ? 'calc(100% - 48px)' : '500px' }}>
+            <p
+              style={{
+                ...subStyle,
+                fontSize: isMobile ? 'clamp(10.5px, 3vw, 12px)' : 'clamp(14px, 1.05vw, 16px)',
+                margin: 0,
+                display: '-webkit-box',
+                WebkitLineClamp: 3,
+                WebkitBoxOrient: 'vertical' as const,
+                overflow: 'hidden',
+              }}
+            >
+              Detrás de cada puerta hay dos mundos: una escala en Europa y el regreso a casa en Latinoamérica. Nosotros nos encargamos de todo — visas, vuelos y el itinerario.
+            </p>
+            <button
+              type="button"
+              onClick={() => window.scrollBy({ top: window.innerHeight * 2.2, behavior: 'smooth' })}
+              style={coverCtaStyle}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'translateY(-2px)'
+                e.currentTarget.style.boxShadow = '0 12px 28px -8px rgba(181,229,51,0.75)'
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'translateY(0)'
+                e.currentTarget.style.boxShadow = '0 8px 24px -8px rgba(181,229,51,0.6)'
+              }}
+            >
+              Explora destinos
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M5 12h14M12 5l7 7-7 7" />
+              </svg>
+            </button>
+          </div>
+
+          {/* Destination teaser card — bottom-right, glassmorphism (matches /postcard), hidden below md */}
+          {!isMobile && (
+            <div style={{ position: 'absolute', bottom: '10vh', right: hPad, ...glassCardStyle }}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={frameSrc(34)} alt="" style={{ width: '100%', height: '120px', objectFit: 'cover', display: 'block' }} />
+              <div style={{ padding: '14px 16px' }}>
+                <p style={{ fontFamily: "'FunnelDisplay', sans-serif", fontSize: '13px', fontWeight: 700, color: '#006837', margin: 0 }}>
+                  Escala en Europa · 7 días
+                </p>
+                <p style={{ fontFamily: "'FunnelDisplay', sans-serif", fontSize: '11px', fontWeight: 500, color: 'rgba(0,104,55,0.65)', margin: '2px 0 0', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+                  Próximamente
+                </p>
+              </div>
+            </div>
+          )}
+        </div>
 
         {/* ZONE 1 — puerta */}
         <div
