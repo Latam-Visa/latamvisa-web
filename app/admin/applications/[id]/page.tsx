@@ -185,6 +185,7 @@ export default async function ApplicationDetailsPage({ params }: { params: { id:
     nombre_original: string
     nombre_archivo: string
     status: string
+    motivo: string | null
     created_at: string
     downloadUrl?: string
   }[] = []
@@ -202,17 +203,24 @@ export default async function ApplicationDetailsPage({ params }: { params: { id:
         translatedRows.map(async (row) => {
           let downloadUrl: string | undefined
           if (row.storage_path) {
+            // Each row's own `bucket` says where its file actually lives:
+            // 'documentos-traducidos' for the merged translation, or
+            // 'visa-applications' for the client's original (passports, visas,
+            // and anything that failed translation). Hardcoding the former
+            // left originals with no signed URL at all.
+            const bucket = row.bucket || 'documentos-traducidos'
             const { data, error } = await supabaseAdmin
               .storage
-              .from('documentos-traducidos')
-              .createSignedUrl(row.storage_path, 3600)
+              .from(bucket)
+              .createSignedUrl(row.storage_path, 3600, { download: row.nombre_archivo })
             if (!error && data) downloadUrl = data.signedUrl
           }
           return {
             id: row.id,
             nombre_original: row.nombre_original,
             nombre_archivo: row.nombre_archivo,
-            status: row.status || 'completed',
+            status: row.status || 'traducido',
+            motivo: row.motivo,
             created_at: row.created_at,
             downloadUrl,
           }
