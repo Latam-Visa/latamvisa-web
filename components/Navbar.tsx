@@ -12,6 +12,13 @@ const navLinks = [
   { label: 'Contacto', href: '#contacto' },
 ]
 
+// Single source of truth for the logo chip's box size — both logo.png and
+// logo-lt-travel.png are cropped with matching internal padding ratios (see
+// public/logo-lt-travel.png's regeneration), so sharing this exact token
+// keeps their visible ink height identical without a page-specific magic
+// number. Change it once here and both navbars scale together.
+const LOGO_BOX_CLASSNAME = 'h-[70px] w-auto object-contain'
+
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false)
   const pathname = usePathname()
@@ -97,8 +104,8 @@ export default function Navbar() {
               src="/logo-lt-travel.png"
               alt="LATAM Travel"
               width={985}
-              height={145}
-              className="h-9 w-auto object-contain"
+              height={455}
+              className={LOGO_BOX_CLASSNAME}
               priority
             />
           ) : (
@@ -107,7 +114,7 @@ export default function Navbar() {
               alt="LATAM VISA"
               width={300}
               height={84}
-              className="h-[70px] w-auto object-contain"
+              className={LOGO_BOX_CLASSNAME}
               priority
             />
           )}
