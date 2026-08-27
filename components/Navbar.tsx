@@ -32,27 +32,36 @@ export default function Navbar() {
     ? [{ label: 'Viajes', href: '/viajes' }, ...navLinks.slice(1)]
     : navLinks
 
-  // The travel logo is a "knockout" mark — a solid white card with the plane
-  // + wordmark cut out as transparency — designed to sit over a photo/video,
-  // not over the navbar's own near-white solid background. So it only
-  // replaces the standard logo while still in the transparent/over-hero
-  // state; once scrolled past (solid bg), it reverts to the normal logo for
-  // legibility.
-  const useTravelLogo = pathname === '/viajes' && overLight
+  // /viajes only ever shows the LOGO LT knockout mark — LATAM VISA's standard
+  // logo has no place on this page, in either navbar state.
+  const useTravelLogo = pathname === '/viajes'
 
   useEffect(() => {
-    // '#servicios' marks the hero-end on the homepage; '#viajes-hero-end' does the
-    // same for /viajes's scroll-scrubbed hero — whichever exists on the current
-    // page is used. #contacto is the footer which shows the clouds background again.
-    let heroEndAbove = false // true once the hero-end marker has scrolled above the viewport top
+    let heroEndAbove = false // true once the homepage hero-end marker has scrolled above the viewport top
 
     const updateColor = () => {
       const vh = window.innerHeight
       const scrollY = window.scrollY
 
+      // /viajes has its own fixed-position scroll-scrub hero (TravelHeroScroll)
+      // pinned for the full 500vh spacer. The homepage's "over hero" heuristic
+      // below (scrollY < vh*0.5) fires the moment the caribe zone reaches full
+      // opacity — hundreds of vh before the hero rig actually stops being
+      // visible — which flipped the navbar solid while the caribe scene was
+      // still on screen. #viajes-hero-end is a 0-height marker placed right
+      // after the spacer, so its top crossing the viewport top is the exact
+      // moment TravelHeroScroll's fixed rig goes invisible; nothing from the
+      // hero renders past that point, so that's the only correct trigger.
+      if (pathname === '/viajes') {
+        const heroEndEl = document.getElementById('viajes-hero-end')
+        const pastHero = heroEndEl ? heroEndEl.getBoundingClientRect().top <= 0 : false
+        setOverLight(!pastHero)
+        return
+      }
+
       const overHero = scrollY < vh * 0.5
 
-      const heroEndEl = document.getElementById('servicios') || document.getElementById('viajes-hero-end')
+      const heroEndEl = document.getElementById('servicios')
 
       // Hero-end marker is above the viewport (we've scrolled past it)
       if (heroEndEl) {
@@ -78,14 +87,29 @@ export default function Navbar() {
 
   const barColor = overLight ? 'bg-white' : 'bg-[#111111]'
 
+  // Bright frames (the nubes zone especially — white text over near-white
+  // clouds) got thin against the translucent bar. A subtle shadow only in
+  // that state — same trick the hero's own copy already uses — restores
+  // separation without pushing the bar toward solid.
+  const navTextStyle: React.CSSProperties | undefined =
+    pathname === '/viajes' && overLight ? { textShadow: '0 1px 6px rgba(0,0,0,0.5)' } : undefined
+
   // Scoped to /viajes only, so the homepage's always-transparent header (except
-  // /agendar) stays pixel-identical — /viajes's hero needs a real transparent
-  // -> solid transition once scrolled past, which no other page currently does.
+  // /agendar) stays pixel-identical. /viajes never goes fully opaque while its
+  // hero video is on screen — a soft glass tint keeps the bar readable without
+  // competing with the video, and only becomes the solid cream bar once
+  // scrolled past the whole 500vh hero. bg-white/15 (under the bg-white/20
+  // ceiling) plus navTextStyle's shadow above is what it took for links to
+  // stay legible over the brightest cloud frames. Both classes carry the same
+  // backdrop-blur-md so only the background/border actually cross-fades via
+  // the header's own transition-all.
   const headerBgClass =
     pathname === '/agendar'
       ? 'bg-white/60 backdrop-blur-xl border-b border-white/40'
-      : pathname === '/viajes' && !overLight
-        ? 'bg-[#FAFAF7]/95 backdrop-blur-md border-b border-[#E5E5E5]'
+      : pathname === '/viajes'
+        ? overLight
+          ? 'bg-white/15 backdrop-blur-md'
+          : 'bg-[#FAFAF7]/95 backdrop-blur-md border-b border-[#E5E5E5]'
         : ''
 
   return (
@@ -128,7 +152,7 @@ export default function Navbar() {
                 key={link.href}
                 href={link.href}
                 className={`transition-colors duration-500 ${textClass}`}
-                style={{ fontFamily: "'PPMonumentExtended', sans-serif", fontSize: '11px', fontWeight: 700 }}
+                style={{ fontFamily: "'PPMonumentExtended', sans-serif", fontSize: '11px', fontWeight: 700, ...navTextStyle }}
               >
                 {link.label}
               </Link>
@@ -141,14 +165,14 @@ export default function Navbar() {
           <a
             href="tel:+61426779734"
             className={`transition-colors duration-500 ${textClass}`}
-            style={{ fontFamily: "'PPMonumentExtended', sans-serif", fontSize: '11px', fontWeight: 700 }}
+            style={{ fontFamily: "'PPMonumentExtended', sans-serif", fontSize: '11px', fontWeight: 700, ...navTextStyle }}
           >
             +61 426 779 734
           </a>
           <a
             href="mailto:future@latamvisas.com.au"
             className={`transition-colors duration-500 ${textClass}`}
-            style={{ fontFamily: '"PPMonumentExtended", sans-serif', fontSize: '10px', fontWeight: 700 }}
+            style={{ fontFamily: '"PPMonumentExtended", sans-serif', fontSize: '10px', fontWeight: 700, ...navTextStyle }}
           >
             future@latamvisas.com.au
           </a>
