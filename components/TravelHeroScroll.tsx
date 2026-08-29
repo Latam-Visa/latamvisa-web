@@ -49,11 +49,33 @@ export default function TravelHeroScroll() {
     return () => window.removeEventListener('resize', check)
   }, [])
 
+  const isReady = (img: HTMLImageElement | undefined): img is HTMLImageElement =>
+    !!img && img.complete && img.naturalWidth > 0
+
+  /* Nearest *loaded* frame to `index`, searching outward in both directions.
+     Without this, drawFrame simply bailed whenever the exact frame hadn't
+     arrived yet, leaving the canvas showing whatever was drawn last — on a
+     throttled connection that reads as the hero freezing mid-scroll for
+     seconds at a time (measured: only 32 of 159 frames land within 6s at
+     1.6Mbps). Falling back to the closest frame we do have keeps the
+     sequence moving — slightly choppier, never stuck. */
+  const nearestLoadedFrame = (index: number): HTMLImageElement | undefined => {
+    const frames = framesRef.current
+    if (isReady(frames[index])) return frames[index]
+    for (let d = 1; d < TOTAL_FRAMES; d++) {
+      const before = frames[index - d]
+      if (isReady(before)) return before
+      const after = frames[index + d]
+      if (isReady(after)) return after
+    }
+    return undefined
+  }
+
   /* ── Canvas draw — scale-to-cover, centered (keeps door/subject centered on any aspect ratio) ── */
   const drawFrame = (index: number) => {
     const canvas = canvasRef.current
-    const img = framesRef.current[index]
-    if (!canvas || !img || !img.complete || !img.naturalWidth) return
+    const img = nearestLoadedFrame(index)
+    if (!canvas || !img) return
     const ctx = canvas.getContext('2d')
     if (!ctx) return
     const cw = canvas.width, ch = canvas.height
@@ -82,17 +104,57 @@ export default function TravelHeroScroll() {
     const images: HTMLImageElement[] = new Array(TOTAL_FRAMES)
 
     const loadFrame = (i: number) => {
+      if (images[i]) return
       const img = new window.Image()
       img.src = frameSrc(i)
-      img.onload = () => { if (i === currentFrameRef.current) drawFrame(i) }
+      // Any newly-arrived frame can improve what's on screen right now: if the
+      // canvas is currently showing a fallback (nearestLoadedFrame) because the
+      // exact frame wasn't ready, this redraw swaps in the better match.
+      img.onload = () => drawFrame(currentFrameRef.current)
       images[i] = img
     }
 
     loadFrame(0)
     framesRef.current = images
 
+    /* How many of the 160 frames to actually fetch. The full sequence is ~15MB;
+       on a slow connection it simply cannot arrive in time (measured: 32 of 159
+       frames in 6s at 1.6Mbps), so requesting all of them just wastes the
+       user's data and bandwidth on frames they'll never see. Stride N fetches
+       every Nth frame instead — a coarser but complete animation, at a
+       fraction of the payload. nearestLoadedFrame covers the gaps.
+       navigator.connection is Chromium-only; elsewhere we assume a fast
+       connection, which is the pre-existing behavior. */
+    const strideForConnection = () => {
+      const conn = (navigator as any).connection
+      if (!conn) return 1
+      if (conn.saveData) return 8                                  // ~20 frames, ~2MB
+      const t = conn.effectiveType
+      if (t === 'slow-2g' || t === '2g') return 8
+      if (t === '3g') return 4                                     // ~40 frames, ~4MB
+      return 1
+    }
+
+    let started = false
     const loadRest = () => {
-      for (let i = 1; i < TOTAL_FRAMES; i++) loadFrame(i)
+      if (started) return
+      started = true
+      const minStride = strideForConnection()
+
+      /* Load in coarse-to-fine passes rather than straight index order.
+         Requests are served roughly in the order they're issued, so a single
+         1,2,3…160 pass means the tail of the sequence arrives last — scrubbing
+         to the caribe ending on a slow link showed a mid-sequence frame for
+         seconds (measured: canvas stuck on one frame from progress 0.4 to the
+         end). Passing over the whole range coarsely first (every 16th, then
+         8th, 4th…) means every part of the timeline has *something* close
+         almost immediately, and detail fills in after. loadFrame dedupes, so
+         later passes only fetch what earlier ones didn't. */
+      loadFrame(TOTAL_FRAMES - 1) // caribe ending — the closing CTA sits on it
+      for (let stride = 16; stride >= minStride; stride = Math.floor(stride / 2)) {
+        for (let i = 1; i < TOTAL_FRAMES; i += stride) loadFrame(i)
+        if (stride === minStride) break
+      }
     }
 
     window.addEventListener('scroll', loadRest, { passive: true, once: true })
