@@ -7,6 +7,7 @@ import Image from 'next/image'
 
 const navLinks = [
   { label: 'Servicios', href: '#servicios' },
+  { label: 'Viajes', href: '/viajes' },
   { label: 'Proceso', href: '#proceso' },
   { label: 'Países', href: '#paises' },
   { label: 'Contacto', href: '#contacto' },
@@ -150,7 +151,7 @@ export default function Navbar() {
 
         {/* LEFT: Nav Links */}
         <div className="flex items-center gap-10">
-          <nav className="hidden xl:flex items-center gap-10">
+          <nav className="hidden xl:flex items-center gap-6">
             {currentNavLinks.map((link) => (
               <Link
                 key={link.href}

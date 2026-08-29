@@ -140,7 +140,7 @@ export default function Footer() {
 
           <div className="flex gap-8 md:gap-14 flex-wrap md:ml-auto items-start">
             <NavCol label="Servicios" delay={0.1}>
-              <Link href="#servicios" className={linkClass} style={{ color: '#1A2A00' }}>Planeación de Viajes</Link>
+              <Link href="/viajes" className={linkClass} style={{ color: '#1A2A00' }}>Planeación de Viajes</Link>
               <Link href="#servicios" className={linkClass} style={{ color: '#1A2A00' }}>Representación Educativa</Link>
               <Link href="#evaluacion" className={linkClass} style={{ color: '#1A2A00' }}>Evalúa tu Perfil</Link>
             </NavCol>
