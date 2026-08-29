@@ -25,12 +25,16 @@ export default function Navbar() {
   const [overLight, setOverLight] = useState(pathname !== '/agendar') // true = white text (dark/sky bg), false = dark text (light bg)
 
   // Scoped to /viajes only — the homepage's nav (links + logo) stays exactly as
-  // it was before. #servicios/#proceso/#paises/#contacto are homepage anchors
-  // that don't exist on /viajes, so the first slot is swapped for a page-
-  // appropriate "Viajes" link there instead of leaving a dead anchor link.
-  const currentNavLinks = pathname === '/viajes'
-    ? [{ label: 'Viajes', href: '/viajes' }, ...navLinks.slice(1)]
-    : navLinks
+  // it was before. The homepage's #servicios/#proceso/#paises/#contacto anchors
+  // don't exist on /viajes, so this page gets its own set pointing at the real
+  // sections DestinosSection renders (#proceso, #destinos, #contacto).
+  const travelNavLinks = [
+    { label: 'Viajes', href: '/viajes' },
+    { label: 'Proceso', href: '/viajes#proceso' },
+    { label: 'Destinos', href: '/viajes#destinos' },
+    { label: 'Contacto', href: '/viajes#contacto' },
+  ]
+  const currentNavLinks = pathname === '/viajes' ? travelNavLinks : navLinks
 
   // /viajes only ever shows the LOGO LT knockout mark — LATAM VISA's standard
   // logo has no place on this page, in either navbar state.
@@ -217,12 +221,12 @@ export default function Navbar() {
             </a>
           </div>
           <Link
-            href="#evaluacion"
+            href={pathname === '/viajes' ? '/viajes#contacto' : '#evaluacion'}
             onClick={() => setMenuOpen(false)}
             className="mt-2 px-5 py-3 rounded-full text-xs tracking-widest uppercase bg-[#C8FF00] text-[#050505] font-bold text-center shadow-[0_4px_16px_rgba(200,255,0,0.35)] hover:bg-white hover:text-[#111111] hover:shadow-[0_4px_12px_rgba(0,0,0,0.10)] transition-all duration-300"
             style={{ fontFamily: "'FunnelDisplay', sans-serif" }}
           >
-            Evalúa tu Perfil →
+            {pathname === '/viajes' ? 'Hablar por WhatsApp →' : 'Evalúa tu Perfil →'}
           </Link>
         </motion.div>
       )}

@@ -138,6 +138,18 @@ export default function TravelHeroScroll() {
       return Math.max(0, 1 - (progress - holdEnd) / (end - holdEnd))
     }
 
+    // pointerEvents:'none' stops clicks/taps on a hidden zone, but it does NOT
+    // remove its links/buttons from keyboard Tab order — a keyboard user can
+    // still land focus on an invisible "Cotiza tu viaje" or "Explora destinos"
+    // with no visual sign of where the focus went. Toggling tabIndex alongside
+    // pointerEvents keeps hidden zones out of the tab sequence entirely.
+    const setZoneInteractive = (el: HTMLDivElement, interactive: boolean) => {
+      el.style.pointerEvents = interactive ? 'auto' : 'none'
+      el.querySelectorAll<HTMLElement>('a, button').forEach((node) => {
+        node.tabIndex = interactive ? 0 : -1
+      })
+    }
+
     const update = () => {
       ticking = false
       const spacer = spacerRef.current
@@ -185,7 +197,7 @@ export default function TravelHeroScroll() {
         const op = coverDismissedRef.current ? 0 : fadeZone(progress, 0, 0, 0.05, 0.15)
         coverTextRef.current.style.opacity = String(op)
         coverTextRef.current.style.transform = `translateY(${(1 - op) * -20}px)`
-        coverTextRef.current.style.pointerEvents = op > 0.5 ? 'auto' : 'none'
+        setZoneInteractive(coverTextRef.current, op > 0.5)
       }
 
       /* ZONE 1 — puerta (0–0.45): "Un viaje, dos mundos" */
@@ -193,7 +205,7 @@ export default function TravelHeroScroll() {
         const op = fadeZone(progress, 0, 0.08, 0.37, 0.45)
         doorTextRef.current.style.opacity = String(op)
         doorTextRef.current.style.transform = `translateY(${(1 - op) * 16}px)`
-        doorTextRef.current.style.pointerEvents = op > 0.5 ? 'auto' : 'none'
+        setZoneInteractive(doorTextRef.current, op > 0.5)
       }
 
       /* ZONE 2 — nubes (~0.6–0.8): campaign message */
@@ -201,7 +213,7 @@ export default function TravelHeroScroll() {
         const op = fadeZone(progress, 0.60, 0.06, 0.74, 0.80)
         cloudsTextRef.current.style.opacity = String(op)
         cloudsTextRef.current.style.transform = `translateY(${(1 - op) * 16}px)`
-        cloudsTextRef.current.style.pointerEvents = op > 0.5 ? 'auto' : 'none'
+        setZoneInteractive(cloudsTextRef.current, op > 0.5)
       }
 
       /* ZONE 3 — caribe final (0.85–1): closing line + CTA. Fades in only — it's the
@@ -212,7 +224,7 @@ export default function TravelHeroScroll() {
         const op = progress < 0.85 ? 0 : Math.min(1, (progress - 0.85) / 0.07)
         caribeTextRef.current.style.opacity = String(op)
         caribeTextRef.current.style.transform = `translateY(${(1 - op) * 16}px)`
-        caribeTextRef.current.style.pointerEvents = op > 0.5 ? 'auto' : 'none'
+        setZoneInteractive(caribeTextRef.current, op > 0.5)
       }
     }
 
@@ -332,10 +344,10 @@ export default function TravelHeroScroll() {
         <div style={{ position: 'relative', zIndex: 1, padding: `120px ${hPad} 80px`, display: 'flex', flexDirection: 'column', gap: '56px' }}>
           <div>
             <h1 style={coverHeadlineStyle}>Abre la puerta a tu próximo viaje</h1>
-            <p style={subStyle}>Detrás de cada puerta hay dos mundos: una escala en Europa y el regreso a casa en Latinoamérica. Nosotros nos encargamos de todo — visas, vuelos y el itinerario.</p>
+            <p style={subStyle}>Detrás de cada puerta hay dos mundos: una escala en Europa y el regreso a casa en Latinoamérica. Itinerario, vuelos y hospedaje, con claridad de principio a fin.</p>
           </div>
           <div>
-            <h1 style={headlineStyle}>Un viaje, dos mundos</h1>
+            <h2 style={headlineStyle}>Un viaje, dos mundos</h2>
             <p style={subStyle}>Descubre cómo tu vuelo de vuelta a casa puede convertirse en la mitad de una aventura.</p>
           </div>
           <div>
@@ -433,11 +445,14 @@ export default function TravelHeroScroll() {
                 overflow: 'hidden',
               }}
             >
-              Detrás de cada puerta hay dos mundos: una escala en Europa y el regreso a casa en Latinoamérica. Nosotros nos encargamos de todo — visas, vuelos y el itinerario.
+              Detrás de cada puerta hay dos mundos: una escala en Europa y el regreso a casa en Latinoamérica. Itinerario, vuelos y hospedaje, con claridad de principio a fin.
             </p>
-            <button
-              type="button"
-              onClick={() => window.scrollBy({ top: window.innerHeight * 2.2, behavior: 'smooth' })}
+            <a
+              href="#destinos"
+              onClick={(e) => {
+                e.preventDefault()
+                document.getElementById('destinos')?.scrollIntoView({ behavior: 'smooth' })
+              }}
               style={coverCtaStyle}
               onMouseEnter={(e) => {
                 e.currentTarget.style.transform = 'translateY(-2px)'
@@ -452,7 +467,7 @@ export default function TravelHeroScroll() {
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M5 12h14M12 5l7 7-7 7" />
               </svg>
-            </button>
+            </a>
           </div>
 
           {/* Destination teaser card — bottom-right, glassmorphism (matches /postcard), hidden below md */}
@@ -479,7 +494,7 @@ export default function TravelHeroScroll() {
           style={{ position: 'absolute', inset: 0, zIndex: 3, opacity: 0, pointerEvents: 'none', display: 'flex', alignItems: isMobile ? 'flex-end' : 'center' }}
         >
           <div style={{ paddingLeft: hPad, paddingRight: isMobile ? hPad : 0, paddingBottom: isMobile ? '72px' : 0, maxWidth: isMobile ? '100%' : '640px' }}>
-            <h1 style={headlineStyle}>Un viaje, dos mundos</h1>
+            <h2 style={headlineStyle}>Un viaje, dos mundos</h2>
             <p style={subStyle}>Descubre cómo tu vuelo de vuelta a casa puede convertirse en la mitad de una aventura.</p>
           </div>
         </div>
