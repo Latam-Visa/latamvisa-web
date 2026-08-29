@@ -135,14 +135,24 @@ export function Step4Travel() {
           />
         </FormField>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <FormField label="Código postal" name="step4Travel.accommodation.0.zip" required>
+          <FormField
+            label="Código postal"
+            name="step4Travel.accommodation.0.zip"
+            required
+            error={(errors.step4Travel?.accommodation as any)?.[0]?.zip?.message as string}
+          >
             <input
               {...register('step4Travel.accommodation.0.zip')}
               className="w-full bg-[#F5F5F0] border border-[#E5E5E5] rounded-lg px-4 py-3 text-[#0A0A0A] focus:outline-none focus:border-[#C8FF00] focus:ring-2 focus:ring-[#C8FF00] focus:bg-white transition-colors"
               placeholder="Ej: 33132"
             />
           </FormField>
-          <FormField label="Teléfono del lugar" name="step4Travel.accommodation.0.phone" required>
+          <FormField
+            label="Teléfono del lugar"
+            name="step4Travel.accommodation.0.phone"
+            required
+            error={(errors.step4Travel?.accommodation as any)?.[0]?.phone?.message as string}
+          >
             <input
               {...register('step4Travel.accommodation.0.phone')}
               className="w-full bg-[#F5F5F0] border border-[#E5E5E5] rounded-lg px-4 py-3 text-[#0A0A0A] focus:outline-none focus:border-[#C8FF00] focus:ring-2 focus:ring-[#C8FF00] focus:bg-white transition-colors"
@@ -185,18 +195,38 @@ export function Step4Travel() {
       {tripPaidBy === 'Otra persona' && (
         <div className="bg-[#F5F5F0] p-6 rounded-xl border border-[#E5E5E5] space-y-4">
           <h3 className="text-[#C8FF00] font-medium text-sm uppercase tracking-wider mb-2">Detalles de quien paga</h3>
-          <FormField label="Nombre completo" name="step4Travel.payerName" required>
+          <FormField
+            label="Nombre completo"
+            name="step4Travel.payerName"
+            required
+            error={errors.step4Travel?.payerName?.message as string}
+          >
             <input {...register('step4Travel.payerName')} className="w-full bg-[#F5F5F0] border border-[#E5E5E5] rounded-lg px-4 py-3 text-[#0A0A0A] focus:outline-none focus:border-[#C8FF00] focus:ring-2 focus:ring-[#C8FF00] focus:bg-white transition-colors" />
           </FormField>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <FormField label="Teléfono" name="step4Travel.payerPhone" required>
+            <FormField
+              label="Teléfono"
+              name="step4Travel.payerPhone"
+              required
+              error={errors.step4Travel?.payerPhone?.message as string}
+            >
               <input {...register('step4Travel.payerPhone')} className="w-full bg-[#F5F5F0] border border-[#E5E5E5] rounded-lg px-4 py-3 text-[#0A0A0A] focus:outline-none focus:border-[#C8FF00] focus:ring-2 focus:ring-[#C8FF00] focus:bg-white transition-colors" />
             </FormField>
-            <FormField label="Email" name="step4Travel.payerEmail" required>
+            <FormField
+              label="Email"
+              name="step4Travel.payerEmail"
+              required
+              error={errors.step4Travel?.payerEmail?.message as string}
+            >
               <input type="email" {...register('step4Travel.payerEmail')} className="w-full bg-[#F5F5F0] border border-[#E5E5E5] rounded-lg px-4 py-3 text-[#0A0A0A] focus:outline-none focus:border-[#C8FF00] focus:ring-2 focus:ring-[#C8FF00] focus:bg-white transition-colors" />
             </FormField>
           </div>
-          <FormField label="Relación contigo" name="step4Travel.payerRelationship" required>
+          <FormField
+            label="Relación contigo"
+            name="step4Travel.payerRelationship"
+            required
+            error={errors.step4Travel?.payerRelationship?.message as string}
+          >
             <select {...register('step4Travel.payerRelationship')} className="w-full bg-[#F5F5F0] border border-[#E5E5E5] rounded-lg px-4 py-3 text-[#0A0A0A] focus:outline-none focus:border-[#C8FF00] focus:ring-2 focus:ring-[#C8FF00] focus:bg-white transition-colors appearance-none">
               <option value="">Seleccionar...</option>
               <option value="Padre">Padre</option>

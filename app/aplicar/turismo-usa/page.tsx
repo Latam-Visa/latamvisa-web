@@ -41,6 +41,67 @@ type FormData = z.infer<typeof formSchema>
 const TOTAL_STEPS = 8
 const STORAGE_KEY = 'usa_visa_application_draft'
 
+// Índice = número de paso (el 0 no se valida)
+const STEP_KEYS = [
+  'step1Contact',
+  'step1Contact',
+  'step2Personal',
+  'step3Passport',
+  'step4Travel',
+  'step5VisaHistory',
+  'step6Family',
+  'step7Work',
+  'step8Additional',
+] as const
+
+// Etiquetas legibles para el resumen de errores. Si un campo no está acá,
+// se muestra el nombre "humanizado" para que NUNCA quede un error invisible.
+const FIELD_LABELS: Record<string, string> = {
+  usaVisaType: 'Primera solicitud o renovación',
+  arrivalDate: 'Fecha de llegada a USA',
+  departureDate: 'Fecha de salida de USA',
+  citiesToVisit: 'Ciudades que quieres visitar',
+  touristPlaces: 'Lugares turísticos',
+  place: 'Lugar turístico',
+  accommodation: 'Dónde te vas a quedar',
+  address: 'Dirección completa',
+  zip: 'Código postal',
+  phone: 'Teléfono del lugar',
+  tripPaidBy: 'Quién paga el viaje',
+  payerName: 'Nombre de quien paga',
+  payerPhone: 'Teléfono de quien paga',
+  payerEmail: 'Email de quien paga',
+  payerRelationship: 'Relación con quien paga',
+  travelsWithOthers: '¿Viajas con más personas?',
+  travelCompanions: 'Acompañantes',
+  fullName: 'Nombre completo',
+  relationship: 'Relación',
+}
+
+const humanizeField = (path: string) => {
+  const last = path.split('.').filter(p => !/^\d+$/.test(p)).pop() || path
+  if (FIELD_LABELS[last]) return FIELD_LABELS[last]
+  return last
+    .replace(/([A-Z])/g, ' $1')
+    .replace(/^./, c => c.toUpperCase())
+    .trim()
+}
+
+// Aplana el árbol de errores de react-hook-form a una lista plana.
+// Esto garantiza que un error en un campo que NO se renderiza igual se vea.
+const flattenErrors = (node: any, prefix = ''): { path: string; message: string }[] => {
+  if (!node || typeof node !== 'object') return []
+  if (typeof node.message === 'string' && node.message.length > 0) {
+    return [{ path: prefix, message: node.message }]
+  }
+  const out: { path: string; message: string }[] = []
+  for (const key of Object.keys(node)) {
+    if (key === 'ref' || key === 'type' || key === 'types') continue
+    out.push(...flattenErrors(node[key], prefix ? `${prefix}.${key}` : key))
+  }
+  return out
+}
+
 export const maxDuration = 60;
 
 export default function TurismoUsaApplication() {
@@ -132,15 +193,7 @@ export default function TurismoUsaApplication() {
     }
 
     setIsValidating(true)
-    let stepKey: keyof FormData = 'step1Contact'
-    if (currentStep === 1) stepKey = 'step1Contact'
-    else if (currentStep === 2) stepKey = 'step2Personal'
-    else if (currentStep === 3) stepKey = 'step3Passport'
-    else if (currentStep === 4) stepKey = 'step4Travel'
-    else if (currentStep === 5) stepKey = 'step5VisaHistory'
-    else if (currentStep === 6) stepKey = 'step6Family'
-    else if (currentStep === 7) stepKey = 'step7Work'
-    else if (currentStep === 8) stepKey = 'step8Additional'
+    const stepKey = (STEP_KEYS[currentStep] || 'step1Contact') as keyof FormData
 
     const isStepValid = await methods.trigger(stepKey)
     setIsValidating(false)
@@ -428,6 +481,13 @@ export default function TurismoUsaApplication() {
     }
   }
 
+  // Resumen de errores del paso actual (red de seguridad: si un campo con error
+  // no está renderizado, igual aparece acá y el usuario no queda trabado sin saber por qué)
+  const currentStepKey = currentStep > 0 ? STEP_KEYS[currentStep] : null
+  const stepErrorList = currentStepKey
+    ? flattenErrors((methods.formState.errors as any)?.[currentStepKey])
+    : []
+
   return (
     <div className="min-h-screen bg-[#FAFAF7] text-[#0A0A0A] pt-12 md:pt-20 pb-20 selection:bg-[#C8FF00]/30 overflow-x-hidden">
       
@@ -499,8 +559,44 @@ export default function TurismoUsaApplication() {
               {renderStep()}
             </div>
 
+            {currentStep > 0 && stepErrorList.length > 0 && (
+              <div className="bg-[#FEF2F2] border border-[#DC2626] rounded-xl p-5">
+                <div className="flex items-center gap-2 mb-3">
+                  <AlertCircle className="w-5 h-5 text-[#DC2626] shrink-0" />
+                  <p className="font-bold text-[#DC2626]">
+                    {stepErrorList.length === 1
+                      ? 'Falta 1 campo por corregir'
+                      : `Faltan ${stepErrorList.length} campos por corregir`}
+                  </p>
+                </div>
+                <ul className="space-y-1.5">
+                  {stepErrorList.map(err => (
+                    <li key={err.path} className="text-sm text-[#7F1D1D] flex gap-2">
+                      <span aria-hidden>•</span>
+                      <span>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const el = document.querySelector(`[name="${currentStepKey}.${err.path}"]`)
+                              || document.querySelector(`[name^="${currentStepKey}.${err.path}"]`)
+                            el?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+                            ;(el as HTMLElement | null)?.focus?.()
+                          }}
+                          className="font-semibold underline underline-offset-2 hover:text-[#DC2626]"
+                        >
+                          {humanizeField(err.path)}
+                        </button>
+                        {': '}
+                        {err.message}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
             {currentStep > 0 && (
-              <StepNavigation 
+              <StepNavigation
                 currentStep={currentStep} 
                 totalSteps={TOTAL_STEPS} 
                 onBack={handleBack} 

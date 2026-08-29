@@ -93,9 +93,14 @@ export const step3Schema = z.object({
   }
 })
 
+// OJO: los nombres deben coincidir EXACTAMENTE con los campos que registra
+// Step4Travel.tsx (accommodation.0.address / .zip / .phone). `type` quedó del
+// diseño viejo y ya no se renderiza, por eso va opcional.
 export const accommodationSchema = z.object({
-  type: requiredString,
-  address: requiredString
+  type: z.string().optional(),
+  address: requiredString,
+  zip: requiredString,
+  phone: requiredString
 })
 
 export const travelCompanionSchema = z.object({
@@ -109,8 +114,14 @@ export const step4Schema = z.object({
   departureDate: requiredDate,
   citiesToVisit: z.array(z.string()).min(1, 'Debes ingresar al menos una ciudad').or(z.string().min(10, 'Por favor especifica con más detalle (min 10 caracteres)')),
   touristPlaces: z.array(z.object({ place: requiredString })).min(1, 'Debes ingresar al menos un lugar'),
-  accommodation: z.array(accommodationSchema).min(1, 'Debe haber al menos un lugar de alojamiento').or(z.any()), // Simplified for now since prompt asks for 3 fields in a group
+  accommodation: z.array(accommodationSchema).min(1, 'Debe haber al menos un lugar de alojamiento'),
   tripPaidBy: requiredString,
+  // Campos reales del bloque "Detalles de quien paga" en Step4Travel.tsx
+  payerName: z.string().optional(),
+  payerPhone: z.string().optional(),
+  payerEmail: z.string().optional(),
+  payerRelationship: z.string().optional(),
+  // Legacy: ya no se renderiza. Se deja opcional para no romper borradores viejos.
   tripPayerDetails: z.string().optional(),
   travelsWithOthers: z.enum(['true', 'false'], { error: 'Debes responder esta pregunta' }),
   travelCompanions: z.array(travelCompanionSchema).optional(),
@@ -128,12 +139,21 @@ export const step4Schema = z.object({
       })
     }
   }
-  if (data.tripPaidBy === 'Otra persona' && !data.tripPayerDetails?.trim()) {
-    ctx.addIssue({
-      code: z.ZodIssueCode.custom,
-      message: 'Debes proporcionar los detalles de quién paga',
-      path: ['tripPayerDetails']
-    })
+  if (data.tripPaidBy === 'Otra persona') {
+    if (!data.payerName?.trim()) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Escribe el nombre completo de quien paga', path: ['payerName'] })
+    }
+    if (!data.payerPhone?.trim()) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Escribe el teléfono de quien paga', path: ['payerPhone'] })
+    }
+    if (!data.payerEmail?.trim()) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Escribe el email de quien paga', path: ['payerEmail'] })
+    } else if (!z.string().email().safeParse(data.payerEmail.trim()).success) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Email inválido', path: ['payerEmail'] })
+    }
+    if (!data.payerRelationship?.trim()) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Selecciona la relación contigo', path: ['payerRelationship'] })
+    }
   }
   if (data.travelsWithOthers === 'true' && (!data.travelCompanions || data.travelCompanions.length === 0)) {
     ctx.addIssue({
