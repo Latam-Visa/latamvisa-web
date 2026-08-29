@@ -5,12 +5,24 @@ import { FRAME_EXT, FRAME_PREFIX, TOTAL_FRAMES } from '@/lib/constants'
 
 export default function HeroScroll() {
   const [isMobile, setIsMobile] = useState(false)
+  const [reducedMotion, setReducedMotion] = useState(false)
+  const [reducedMotionResolved, setReducedMotionResolved] = useState(false)
 
   useEffect(() => {
     const check = () => setIsMobile(window.innerWidth < 768)
     check()
     window.addEventListener('resize', check)
     return () => window.removeEventListener('resize', check)
+  }, [])
+
+  /* ── Resolve prefers-reduced-motion before the scroll rig mounts ── */
+  useEffect(() => {
+    const mq = window.matchMedia('(prefers-reduced-motion: reduce)')
+    setReducedMotion(mq.matches)
+    setReducedMotionResolved(true)
+    const handler = (e: MediaQueryListEvent) => setReducedMotion(e.matches)
+    mq.addEventListener('change', handler)
+    return () => mq.removeEventListener('change', handler)
   }, [])
 
   const spacerRef = useRef<HTMLDivElement>(null)
@@ -33,20 +45,59 @@ export default function HeroScroll() {
   /* ── Sync isMobile to ref so scroll handler can read it ── */
   useEffect(() => { isMobileRef.current = isMobile }, [isMobile])
 
-  /* ── Preload all frames ── */
+  /* ── Preload: frame 1 immediately (first paint), the other 135 only once
+     the user actually starts scrolling. Loading all 137 frames (~8.9MB)
+     unconditionally on mount — as this used to do — competes with the
+     page's own critical resources for bandwidth in the first second of
+     load, on every visit to the homepage. Same fix already proven on
+     TravelHeroScroll's identical rig; scroll is a reasonable trigger since
+     frames only need to be ready by the time the user reaches them. ── */
   useEffect(() => {
-    const images: HTMLImageElement[] = []
-    let loaded = 0
-    for (let i = 1; i <= TOTAL_FRAMES; i++) {
-      const img = new window.Image()
+    if (!reducedMotionResolved || reducedMotion) return
+
+    const frameSrc = (i: number) => {
       // frame-001 is PNG (higher resolution), rest are JPG
       const ext = i === 1 ? '.png' : FRAME_EXT
-      img.src = `${FRAME_PREFIX}${String(i).padStart(3, '0')}${ext}`
-      img.onload = () => { loaded++; if (loaded === 1) drawFrame(0) }
-      images.push(img)
+      return `${FRAME_PREFIX}${String(i).padStart(3, '0')}${ext}`
     }
+
+    const images: HTMLImageElement[] = new Array(TOTAL_FRAMES)
+    const loadFrame = (i: number) => {
+      const img = new window.Image()
+      img.src = frameSrc(i)
+      img.onload = () => { if (i - 1 === currentFrameRef.current) drawFrame(i - 1) }
+      images[i - 1] = img
+    }
+
+    loadFrame(1)
     framesRef.current = images
-  }, [])
+
+    let started = false
+    const loadRest = () => {
+      if (started) return
+      started = true
+      for (let i = 2; i <= TOTAL_FRAMES; i++) loadFrame(i)
+    }
+
+    // This page runs useSmoothScroll (Lenis), which fires a real 'scroll'
+    // event of its own during initialization — confirmed via a raw listener:
+    // scrollY jumps to ~1400px and immediately back to 0 on load, with no
+    // user input at all. A plain once-scroll trigger fires on that, defeating
+    // the whole point of deferring the load. wheel/touchstart/scroll-relevant
+    // keydown are genuine user-input events Lenis never synthesizes, so they
+    // don't false-trigger the way 'scroll' does here.
+    const scrollKeys = ['ArrowDown', 'ArrowUp', 'PageDown', 'PageUp', ' ', 'Home', 'End']
+    const onKeydown = (e: KeyboardEvent) => { if (scrollKeys.includes(e.key)) loadRest() }
+    const opts = { passive: true, once: true } as const
+    window.addEventListener('wheel', loadRest, opts)
+    window.addEventListener('touchstart', loadRest, opts)
+    window.addEventListener('keydown', onKeydown, opts)
+    return () => {
+      window.removeEventListener('wheel', loadRest)
+      window.removeEventListener('touchstart', loadRest)
+      window.removeEventListener('keydown', onKeydown)
+    }
+  }, [reducedMotionResolved, reducedMotion])
 
   /* ── Canvas draw ── */
   const drawFrame = (index: number) => {
@@ -67,6 +118,7 @@ export default function HeroScroll() {
 
   /* ── Canvas resize ── */
   useEffect(() => {
+    if (reducedMotion) return
     const resize = () => {
       const canvas = canvasRef.current
       if (!canvas) return
@@ -77,20 +129,22 @@ export default function HeroScroll() {
     resize()
     window.addEventListener('resize', resize)
     return () => window.removeEventListener('resize', resize)
-  }, [])
+  }, [reducedMotion])
 
   /* ── Cache spacer offset ── */
   useEffect(() => {
+    if (reducedMotion) return
     const cacheOffset = () => {
       if (spacerRef.current) spacerOffsetRef.current = spacerRef.current.offsetTop
     }
     cacheOffset()
     window.addEventListener('resize', cacheOffset)
     return () => window.removeEventListener('resize', cacheOffset)
-  }, [])
+  }, [reducedMotion])
 
   /* ── Scroll handler ── */
   useEffect(() => {
+    if (reducedMotion) return
     let ticking = false
     const update = () => {
       ticking = false
@@ -217,7 +271,7 @@ export default function HeroScroll() {
     window.addEventListener('scroll', onScroll, { passive: true })
     requestAnimationFrame(update)
     return () => window.removeEventListener('scroll', onScroll)
-  }, [])
+  }, [reducedMotion])
 
   const statementText = "LATAM VISA® existe porque ningún latino debería planear a ciegas su gran proyecto hacia Australia. Conocemos las mejores instituciones y el camino exacto porque lo vivimos primero. Tu consultoría en educación y viajes diseñada por latinos, para latinos — desde la elección de tu programa hasta tu llegada, de principio a fin y sin letra pequeña."
   const statementWords = statementText.split(' ')
@@ -233,7 +287,7 @@ export default function HeroScroll() {
     letterSpacing: '-0.03em',
     display: 'block',
     color: '#FFFFFF',
-    textShadow: '0 2px 16px rgba(0,0,0,0.6)',
+    textShadow: '0 2px 16px rgba(188, 188, 188, 0.6)',
   }
 
   const labelStyle: React.CSSProperties = {
@@ -243,6 +297,75 @@ export default function HeroScroll() {
     letterSpacing: '0.25em',
     textTransform: 'uppercase' as const,
     color: 'rgba(255,255,255,0.4)',
+  }
+
+  /* ── prefers-reduced-motion: static frame 1, all copy stacked and always
+     visible, no scroll-scrub rig. Mirrors the same fallback already proven
+     on TravelHeroScroll — same reasoning: this hero previously had no
+     reduced-motion handling at all, on the homepage's own entry point. ── */
+  if (reducedMotionResolved && reducedMotion) {
+    return (
+      <section
+        aria-label="LATAM VISA: Latinos sin fronteras"
+        // 180vh, not 100vh: app/page.tsx pulls the section after the hero up
+        // by -80vh (marginTop), calibrated for the animated version's long
+        // fade-out. This branch has no such fade — without the extra 80vh of
+        // clearance, EvaluationForm's card was overlapping this hero's own
+        // copy (confirmed via screenshot at 1280px).
+        style={{ position: 'relative', width: '100%', minHeight: '180vh', overflow: 'hidden', backgroundColor: '#050505' }}
+      >
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={`${FRAME_PREFIX}001.png`}
+          alt=""
+          style={{ position: 'absolute', inset: '-1px', width: 'calc(100% + 2px)', height: 'calc(100% + 2px)', objectFit: 'cover' }}
+        />
+        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(5,5,5,0.55) 0%, rgba(5,5,5,0.25) 35%, rgba(5,5,5,0.7) 100%)' }} />
+        <div style={{ position: 'relative', zIndex: 1, padding: `120px ${hPad} 80px`, display: 'flex', flexDirection: 'column', gap: '40px' }}>
+          <div>
+            <span style={headlineBase}>Latinos</span>
+            <span style={headlineBase}>Sin fronteras</span>
+          </div>
+          <div style={{ maxWidth: '480px' }}>
+            <div
+              style={{
+                fontFamily: "'PPMonumentExtended', sans-serif",
+                fontSize: isMobile ? '13px' : '17px',
+                fontWeight: 500,
+                fontStyle: 'italic',
+                color: 'rgba(255,255,255,0.95)',
+                lineHeight: 1.45,
+                marginBottom: '12px',
+              }}
+            >
+              Donde termina tu zona de confort, empieza tu historia
+            </div>
+            <p style={{ fontFamily: "'PPMonumentExtended', sans-serif", fontSize: '13px', fontWeight: 350, color: 'rgba(255,255,255,0.7)', lineHeight: 1.7, margin: 0 }}>
+              Somos la generación que no pide permiso para soñar en grande. Conectamos culturas, abrimos caminos y demostramos que ser latino es llevar un incendio en el alma y una fiesta en los pies.
+            </p>
+          </div>
+          <p style={{ fontFamily: "'PPMonumentExtended', sans-serif", fontWeight: 700, fontSize: 'clamp(14px, 2vw, 20px)', lineHeight: 1.4, color: 'rgba(255,255,255,0.85)', maxWidth: '640px', margin: 0 }}>
+            {statementText}
+          </p>
+          <span style={headlineBase}>El mundo nos espera</span>
+          <a
+            href="#evaluacion"
+            style={{
+              display: 'inline-flex', alignItems: 'center', gap: '10px', alignSelf: 'flex-start',
+              border: '1px solid rgba(255,255,255,0.50)', backgroundColor: 'transparent', color: '#FFFFFF',
+              height: '38px', padding: '0 20px', borderRadius: '100px',
+              fontFamily: "'FunnelDisplay', sans-serif", fontSize: '10px', fontWeight: 600, letterSpacing: '0.12em',
+              textDecoration: 'none', whiteSpace: 'nowrap', textTransform: 'uppercase' as const,
+            }}
+          >
+            Evalúa tu perfil
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M5 12h14M12 5l7 7-7 7" />
+            </svg>
+          </a>
+        </div>
+      </section>
+    )
   }
 
   return (
@@ -267,7 +390,7 @@ export default function HeroScroll() {
         {/* Frame-001 fallback — visible while canvas hasn't drawn yet */}
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src="/Sec1/ezgif-frame-001.png"
+          src="/secuencia-video-principal/ezgif-frame-001.png"
           alt=""
           style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 }}
         />
