@@ -4,9 +4,8 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { CONTACT } from '@/lib/constants'
 
-/* /viajes — editorial white layout: a stack of full-bleed destination cards,
-   each revealed through a pixel-mosaic dissolve as it scrolls into view.
-   Deliberately plain: white page, black type, the photography carries it. */
+/* /viajes — editorial white layout: full-width destination posters, each
+   revealed through a pixel-mosaic dissolve as it scrolls into view. */
 
 type Destino = {
   slug: string
@@ -27,21 +26,19 @@ const whatsappHref = (msg: string) =>
 
 const MONO: React.CSSProperties = {
   fontFamily: "'FunnelDisplay', sans-serif",
-  fontSize: '11px',
   fontWeight: 700,
-  letterSpacing: '0.16em',
+  letterSpacing: '0.14em',
   textTransform: 'uppercase',
 }
 
-/* ── One destination card ───────────────────────────────────────────────
-   The mosaic is a grid of solid white cells sitting on top of the photo.
-   Each cell gets a random threshold; as the card scrolls up through the
-   viewport, cells whose threshold is below the current progress are hidden,
-   so the image dissolves in block by block instead of fading.
+const HEADER_H = 78
 
-   Only the cells that actually change state are touched on each frame
-   (cells are pre-sorted by threshold and we track how many are revealed),
-   so a scroll tick writes a handful of styles, not the whole grid. */
+/* ── One destination poster ─────────────────────────────────────────────
+   The mosaic is a grid of solid white cells over the photo. Each cell gets a
+   random threshold; as the card rises through the viewport, cells below the
+   current progress are hidden, so the image dissolves in block by block.
+   Cells are pre-sorted by threshold and only the ones that change state are
+   written per frame, so a scroll tick touches a handful of styles. */
 function DestinoCard({ destino, index }: { destino: Destino; index: number }) {
   const wrapRef = useRef<HTMLDivElement>(null)
   const cellsRef = useRef<HTMLDivElement[]>([])
@@ -63,7 +60,6 @@ function DestinoCard({ destino, index }: { destino: Destino; index: number }) {
     return () => mq.removeEventListener('change', handler)
   }, [])
 
-  // Stable shuffled reveal order — regenerated only if the grid size changes.
   if (orderRef.current.length !== TOTAL) {
     const order = Array.from({ length: TOTAL }, (_, i) => i)
     for (let i = order.length - 1; i > 0; i--) {
@@ -76,7 +72,6 @@ function DestinoCard({ destino, index }: { destino: Destino; index: number }) {
   useEffect(() => {
     if (!resolved) return
 
-    // Reduced motion: no dissolve, just show the photo.
     if (reducedMotion) {
       cellsRef.current.forEach((c) => { if (c) c.style.opacity = '0' })
       return
@@ -91,9 +86,8 @@ function DestinoCard({ destino, index }: { destino: Destino; index: number }) {
       const vh = window.innerHeight
       // 0 when the card's top edge is at the bottom of the viewport, 1 by the
       // time it has risen to ~45% of the viewport. The window has to close
-      // well before the card reaches the top, otherwise a card that's already
-      // comfortably on screen (e.g. the first one at rest) sits permanently at
-      // ~94% and keeps a scatter of white cells stuck over the photo.
+      // well before the card reaches the top, otherwise a card already
+      // comfortably on screen sits at ~94% and keeps white cells stuck on it.
       const progress = Math.max(0, Math.min(1, (vh - rect.top) / (vh * 0.55)))
 
       const target = Math.round(progress * TOTAL)
@@ -125,19 +119,13 @@ function DestinoCard({ destino, index }: { destino: Destino; index: number }) {
   }, [resolved, reducedMotion, TOTAL])
 
   return (
-    <article ref={wrapRef} style={{ marginBottom: '18px' }}>
-      {/* Labels above the image, mirroring the reference layout */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '10px', gap: '12px' }}>
-        <span style={{ ...MONO, color: '#111111' }}>{destino.kicker}</span>
-        <span style={{ ...MONO, color: '#9a9a9a' }}>{String(index + 1).padStart(2, '0')}</span>
-      </div>
-
+    <article ref={wrapRef} style={{ marginBottom: '56px' }}>
       <div style={{ position: 'relative', width: '100%', aspectRatio: '3 / 4', overflow: 'hidden', backgroundColor: '#FFFFFF' }}>
         <Image
           src={`/viajes-destinos/${destino.slug}.webp`}
           alt={`${destino.country} — escala en Europa`}
           fill
-          sizes="(max-width: 767px) 100vw, (max-width: 1279px) 50vw, 33vw"
+          sizes="(max-width: 900px) 100vw, 860px"
           style={{ objectFit: 'cover' }}
           priority={index === 0}
         />
@@ -162,18 +150,33 @@ function DestinoCard({ destino, index }: { destino: Destino; index: number }) {
           ))}
         </div>
 
-        {/* Country title, bottom-left over the photo */}
+        {/* Labels sit on the photo, as in the reference layout */}
+        <div
+          style={{
+            position: 'absolute', top: 0, left: 0, right: 0, zIndex: 2,
+            display: 'flex', justifyContent: 'space-between', alignItems: 'baseline',
+            padding: '18px 20px', gap: '12px',
+          }}
+        >
+          <span style={{ ...MONO, fontSize: 'clamp(13px, 3.6vw, 17px)', color: '#FFFFFF', textShadow: '0 1px 12px rgba(0,0,0,0.5)' }}>
+            {destino.kicker}
+          </span>
+          <span style={{ ...MONO, fontSize: 'clamp(13px, 3.6vw, 17px)', color: '#FFFFFF', textShadow: '0 1px 12px rgba(0,0,0,0.5)' }}>
+            {String(index + 1).padStart(2, '0')}
+          </span>
+        </div>
+
         <h3
           style={{
-            position: 'absolute', left: '20px', right: '20px', bottom: '18px',
+            position: 'absolute', left: '20px', right: '20px', bottom: '20px',
             margin: 0, zIndex: 2,
             fontFamily: "'PPMonumentExtended', sans-serif",
             fontWeight: 900,
-            fontSize: 'clamp(30px, 8vw, 56px)',
-            lineHeight: 0.95,
+            fontSize: 'clamp(38px, 11vw, 78px)',
+            lineHeight: 0.92,
             letterSpacing: '-0.03em',
             color: '#FFFFFF',
-            textShadow: '0 2px 24px rgba(0,0,0,0.45)',
+            textShadow: '0 2px 26px rgba(0,0,0,0.45)',
           }}
         >
           {destino.country}
@@ -183,11 +186,11 @@ function DestinoCard({ destino, index }: { destino: Destino; index: number }) {
       <p
         style={{
           fontFamily: "'FunnelDisplay', sans-serif",
-          fontSize: '14px',
+          fontSize: '15px',
           lineHeight: 1.55,
           color: 'rgba(17,17,17,0.62)',
-          margin: '12px 0 0',
-          maxWidth: '38ch',
+          margin: '14px 0 0',
+          maxWidth: '42ch',
         }}
       >
         {destino.line}
@@ -197,6 +200,23 @@ function DestinoCard({ destino, index }: { destino: Destino; index: number }) {
 }
 
 export default function DestinosSection() {
+  const [menuOpen, setMenuOpen] = useState(false)
+
+  // Close the dropdown on Escape — a menu you can't dismiss by keyboard is a
+  // trap for anyone not using a pointer.
+  useEffect(() => {
+    if (!menuOpen) return
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setMenuOpen(false) }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [menuOpen])
+
+  const menuLinks = [
+    { label: 'Destinos', href: '#destinos' },
+    { label: 'Contacto', href: '#contacto' },
+    { label: 'LATAM VISA', href: '/' },
+  ]
+
   return (
     <div style={{ backgroundColor: '#FFFFFF', color: '#111111', minHeight: '100vh' }}>
       {/* ── Header ──
@@ -206,118 +226,171 @@ export default function DestinosSection() {
           away to top:-600px). A fixed bar plus a spacer behaves correctly. */}
       <header
         style={{
-          position: 'fixed', top: 0, left: 0, right: 0, zIndex: 30,
-          backgroundColor: 'rgba(255,255,255,0.92)',
+          position: 'fixed', top: 0, left: 0, right: 0, zIndex: 40,
+          backgroundColor: 'rgba(255,255,255,0.94)',
           backdropFilter: 'blur(10px)',
           WebkitBackdropFilter: 'blur(10px)',
           display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-          padding: '16px 20px',
+          padding: '18px 20px',
         }}
       >
-        <Link href="/" aria-label="LATAM VISA — inicio" style={{ display: 'flex', alignItems: 'center' }}>
-          <Image src="/logo.png" alt="LATAM VISA" width={300} height={84} className="h-7 w-auto object-contain" priority />
+        <Link href="/" aria-label="LATAM TRAVEL — inicio" style={{ display: 'flex', alignItems: 'center' }}>
+          <Image
+            src="/logo-lt-travel-dark.png"
+            alt="LATAM TRAVEL"
+            width={961}
+            height={121}
+            className="h-[30px] md:h-[34px] w-auto object-contain"
+            priority
+          />
         </Link>
-        <a href="#contacto" style={{ ...MONO, color: '#111111', textDecoration: 'none' }}>
-          Contacto
-        </a>
-      </header>
-      <div style={{ height: '60px' }} aria-hidden />
 
-      {/* ── Intro ── */}
-      <section style={{ padding: '48px 20px 40px', maxWidth: '1200px', margin: '0 auto' }}>
-        <p
+        <button
+          type="button"
+          onClick={() => setMenuOpen((v) => !v)}
+          aria-expanded={menuOpen}
+          aria-controls="travel-menu"
           style={{
-            fontFamily: "'FunnelDisplay', sans-serif",
-            fontSize: 'clamp(16px, 4.4vw, 22px)',
-            fontWeight: 500,
-            lineHeight: 1.45,
+            ...MONO,
+            fontSize: 'clamp(15px, 4.2vw, 19px)',
             color: '#111111',
-            margin: 0,
-            maxWidth: '40ch',
+            background: 'none',
+            border: 'none',
+            padding: '4px 2px',
+            cursor: 'pointer',
           }}
         >
-          Tu vuelo de vuelta a casa puede tener una escala en Europa.
-          Nosotros te ayudamos a planearla con calma: itinerario, vuelos y
-          hospedaje, sin letra pequeña.
-        </p>
-      </section>
+          {menuOpen ? 'Cerrar' : 'Menú'}
+        </button>
+      </header>
 
-      {/* ── Destinos ── */}
-      <section id="destinos" style={{ padding: '0 20px 64px', maxWidth: '1200px', margin: '0 auto' }}>
-        {/* 1 column on phones, 2 on wider screens — 4 cards land as a balanced
-            2×2 instead of the orphan row a 3-up grid leaves. */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-7 md:gap-10">
-          {DESTINOS.map((d, i) => (
-            <DestinoCard key={d.slug} destino={d} index={i} />
+      {/* Dropdown panel */}
+      {menuOpen && (
+        <div
+          id="travel-menu"
+          style={{
+            position: 'fixed', top: `${HEADER_H}px`, left: 0, right: 0, zIndex: 39,
+            backgroundColor: '#FFFFFF',
+            borderBottom: '1px solid #E5E5E5',
+            padding: '10px 20px 26px',
+            display: 'flex', flexDirection: 'column', gap: '4px',
+          }}
+        >
+          {menuLinks.map((l) => (
+            <Link
+              key={l.href}
+              href={l.href}
+              onClick={() => setMenuOpen(false)}
+              style={{
+                fontFamily: "'PPMonumentExtended', sans-serif",
+                fontWeight: 900,
+                fontSize: 'clamp(24px, 7vw, 34px)',
+                letterSpacing: '-0.02em',
+                color: '#111111',
+                textDecoration: 'none',
+                padding: '8px 0',
+              }}
+            >
+              {l.label}
+            </Link>
           ))}
-        </div>
-      </section>
-
-      {/* ── Cierre ── */}
-      <section
-        id="contacto"
-        style={{ padding: '0 20px 80px', maxWidth: '1200px', margin: '0 auto' }}
-      >
-        <div style={{ borderTop: '1px solid #E5E5E5', paddingTop: '40px' }}>
-          <p
+          <a
+            href={whatsappHref('Hola, quiero saber más sobre las escalas en Europa.')}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={() => setMenuOpen(false)}
             style={{
-              fontFamily: "'PPMonumentExtended', sans-serif",
-              fontWeight: 900,
-              fontSize: 'clamp(26px, 7vw, 56px)',
-              lineHeight: 1.05,
-              letterSpacing: '-0.03em',
-              color: '#111111',
-              margin: 0,
-              maxWidth: '18ch',
+              marginTop: '14px',
+              display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '10px',
+              backgroundColor: '#b5e533', color: '#006837',
+              height: '50px', borderRadius: '100px', textDecoration: 'none',
+              ...MONO, fontSize: '13px',
             }}
           >
-            Tu pasaporte no te define; tu plan, tu claridad y tu historia sí.
-          </p>
+            WhatsApp
+          </a>
+        </div>
+      )}
 
-          <div style={{ marginTop: '28px', display: 'flex', flexWrap: 'wrap', gap: '12px' }}>
-            <a
-              href={whatsappHref('Hola, quiero que me avisen primero cuando abra el programa de escalas en Europa.')}
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{
-                display: 'inline-flex', alignItems: 'center', gap: '10px',
-                backgroundColor: '#b5e533', color: '#006837',
-                height: '48px', padding: '0 26px', borderRadius: '100px',
-                textDecoration: 'none', ...MONO, fontSize: '12px',
-              }}
-            >
-              Avísenme primero
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M5 12h14M12 5l7 7-7 7" />
-              </svg>
-            </a>
-            <a
-              href={whatsappHref('Hola, tengo una pregunta sobre el programa de escalas en Europa.')}
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{
-                display: 'inline-flex', alignItems: 'center', gap: '10px',
-                border: '1px solid #D4D4D4', backgroundColor: 'transparent', color: '#111111',
-                height: '48px', padding: '0 26px', borderRadius: '100px',
-                textDecoration: 'none', ...MONO, fontSize: '12px',
-              }}
-            >
-              Hablar por WhatsApp
-            </a>
-          </div>
+      <div style={{ height: `${HEADER_H}px` }} aria-hidden />
 
+      <div style={{ maxWidth: '860px', margin: '0 auto', padding: '0 20px' }}>
+        {/* ── Intro ── */}
+        <section style={{ padding: '36px 0 44px' }}>
           <p
             style={{
               fontFamily: "'FunnelDisplay', sans-serif",
-              fontSize: '12px',
-              color: 'rgba(17,17,17,0.45)',
-              marginTop: '40px',
+              fontSize: 'clamp(17px, 4.6vw, 23px)',
+              fontWeight: 500,
+              lineHeight: 1.45,
+              color: '#111111',
+              margin: 0,
+              maxWidth: '40ch',
             }}
           >
-            © 2026 LATAM VISA® — Consultoría de viajes. No prestamos servicios de índole migratoria oficial.
+            Tu vuelo de vuelta a casa puede tener una escala en Europa.
+            Nosotros te ayudamos a planearla con calma: itinerario, vuelos y
+            hospedaje, sin letra pequeña.
           </p>
-        </div>
-      </section>
+        </section>
+
+        {/* ── Destinos ── */}
+        <section id="destinos" style={{ scrollMarginTop: `${HEADER_H + 12}px` }}>
+          {DESTINOS.map((d, i) => (
+            <DestinoCard key={d.slug} destino={d} index={i} />
+          ))}
+        </section>
+
+        {/* ── Footer ── */}
+        <footer id="contacto" style={{ scrollMarginTop: `${HEADER_H + 12}px`, paddingBottom: '72px' }}>
+          <Image
+            src="/logo-lt-travel-dark.png"
+            alt="LATAM TRAVEL"
+            width={961}
+            height={121}
+            style={{ width: '100%', height: 'auto', display: 'block' }}
+          />
+
+          <div style={{ borderTop: '1px solid #111111', margin: '34px 0 40px' }} />
+
+          <div
+            style={{
+              fontFamily: "'FunnelDisplay', sans-serif",
+              fontSize: '15px',
+              lineHeight: 1.75,
+              color: '#111111',
+            }}
+          >
+            <p style={{ margin: 0 }}>LATAM VISA® — Consultoría de viajes</p>
+            <p style={{ margin: 0, color: 'rgba(17,17,17,0.6)' }}>Brisbane, Australia · Atendemos toda Latinoamérica</p>
+
+            <p style={{ margin: '22px 0 0' }}>
+              <a href={`mailto:${CONTACT.email}`} style={{ color: '#111111', textDecoration: 'underline', textUnderlineOffset: '3px' }}>
+                {CONTACT.email}
+              </a>
+            </p>
+            <p style={{ margin: '10px 0 0' }}>
+              <a href={whatsappHref('Hola, tengo una pregunta sobre el programa de escalas en Europa.')} target="_blank" rel="noopener noreferrer" style={{ color: '#111111', textDecoration: 'underline', textUnderlineOffset: '3px' }}>
+                {CONTACT.whatsapp}
+              </a>
+            </p>
+
+            <div style={{ display: 'flex', gap: '20px', margin: '26px 0 0' }}>
+              <a href="https://www.instagram.com/latamvisausa/" target="_blank" rel="noopener noreferrer" style={{ ...MONO, fontSize: '13px', color: '#111111', textDecoration: 'underline', textUnderlineOffset: '3px' }}>IG</a>
+              <a href="https://www.facebook.com/profile.php?id=61563009909169" target="_blank" rel="noopener noreferrer" style={{ ...MONO, fontSize: '13px', color: '#111111', textDecoration: 'underline', textUnderlineOffset: '3px' }}>FB</a>
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', margin: '34px 0 0' }}>
+              <Link href="#destinos" style={{ ...MONO, fontSize: '13px', color: '#111111', textDecoration: 'underline', textUnderlineOffset: '3px' }}>Destinos</Link>
+              <Link href="/" style={{ ...MONO, fontSize: '13px', color: '#111111', textDecoration: 'underline', textUnderlineOffset: '3px' }}>LATAM VISA</Link>
+            </div>
+
+            <p style={{ margin: '38px 0 0', fontSize: '12px', color: 'rgba(17,17,17,0.45)' }}>
+              © 2026 LATAM VISA® — No prestamos servicios de índole migratoria oficial.
+            </p>
+          </div>
+        </footer>
+      </div>
     </div>
   )
 }
