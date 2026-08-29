@@ -1,6 +1,4 @@
 import type { Metadata } from 'next'
-import Navbar from '@/components/Navbar'
-import TravelHeroScroll from '@/components/TravelHeroScroll'
 import DestinosSection from '@/components/travel/DestinosSection'
 
 export const metadata: Metadata = {
@@ -16,11 +14,12 @@ export const metadata: Metadata = {
   },
 }
 
+// The scroll-scrub hero (components/TravelHeroScroll.tsx) is intentionally no
+// longer rendered here — this page moved to the simpler white editorial layout.
+// The component is left in the repo so the previous treatment can be restored.
 export default function ViajesPage() {
   return (
-    <main className="min-h-screen bg-[#050505]">
-      <Navbar />
-      <TravelHeroScroll />
+    <main className="min-h-screen bg-white">
       <DestinosSection />
     </main>
   )
