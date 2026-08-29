@@ -124,7 +124,7 @@ export default function Navbar() {
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-700 pointer-events-auto ${headerBgClass}`}
       style={{}}
     >
-      <div className="w-full py-5 relative flex items-center justify-between px-6 md:px-[100px]">
+      <div className="w-full py-5 relative flex items-center justify-between px-6 xl:px-[100px]">
         {/* CENTER: Logo absolutely centered — same position as before */}
         <Link href="/" className="absolute left-1/2 -translate-x-1/2 flex items-center">
           {useTravelLogo ? (
@@ -150,7 +150,7 @@ export default function Navbar() {
 
         {/* LEFT: Nav Links */}
         <div className="flex items-center gap-10">
-          <nav className="hidden md:flex items-center gap-10">
+          <nav className="hidden xl:flex items-center gap-10">
             {currentNavLinks.map((link) => (
               <Link
                 key={link.href}
@@ -165,7 +165,7 @@ export default function Navbar() {
         </div>
 
         {/* RIGHT: Contact info */}
-        <div className="hidden md:flex items-center gap-10">
+        <div className="hidden xl:flex items-center gap-10">
           <a
             href="tel:+61426779734"
             className={`transition-colors duration-500 ${textClass}`}
@@ -185,7 +185,7 @@ export default function Navbar() {
         {/* Mobile Menu Toggle */}
         <button
           onClick={() => setMenuOpen(!menuOpen)}
-          className="md:hidden flex flex-col gap-1.5 p-2 -mt-1"
+          className="xl:hidden flex flex-col gap-1.5 p-2 -mt-1"
           aria-label="Menú"
         >
           <span className={`block h-px w-6 transition-all duration-300 ${barColor} ${menuOpen ? 'rotate-45 translate-y-2' : ''}`} />
@@ -199,7 +199,7 @@ export default function Navbar() {
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="md:hidden bg-[#FAFAFA]/95 backdrop-blur-md border-t border-[#E0E0E0] px-6 py-8 flex flex-col gap-6"
+          className="xl:hidden bg-[#FAFAFA]/95 backdrop-blur-md border-t border-[#E0E0E0] px-6 py-8 flex flex-col gap-6"
         >
           {currentNavLinks.map((link) => (
             <Link
