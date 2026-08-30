@@ -1,26 +1,49 @@
 import type { Metadata } from 'next'
-import DestinosSection from '@/components/travel/DestinosSection'
+import Navbar from '@/components/Navbar'
+import Footer from '@/components/Footer'
+import HeroViajes from '@/components/viajes/HeroViajes'
+import LaIdea from '@/components/viajes/LaIdea'
+import ComparativoVuelos from '@/components/viajes/ComparativoVuelos'
+import DestinosEuropa from '@/components/viajes/DestinosEuropa'
+import CotizaTuTrip from '@/components/viajes/CotizaTuTrip'
+import CTAWhatsApp from '@/components/viajes/CTAWhatsApp'
 
 export const metadata: Metadata = {
-  title: 'Viajes | LATAM VISA Travel — dos mundos en un solo viaje',
-  description: 'Planea tu escala en Europa antes de llegar a casa. Itinerario, vuelos y hospedaje en un solo lugar, con claridad de principio a fin.',
+  title: 'Dos Vacaciones | Haz escala en Europa camino a Latam — LATAM VISA',
+  description:
+    'Si viajas de Australia a Latinoamérica en diciembre, tu vuelo puede hacer escala en Europa. Te ayudamos a planear las dos: rutas, fechas e itinerario, sin letra pequeña.',
   openGraph: {
-    title: 'Viajes | LATAM VISA Travel',
-    description: 'Planea tu escala en Europa antes de llegar a casa.',
+    title: 'Dos Vacaciones — una pa’ Europa, otra pa’ Latam',
+    description:
+      'Haz escala en Europa camino a Latinoamérica. Planeamos rutas, fechas e itinerario contigo.',
     url: 'https://www.latamvisatravel.com/viajes',
-    siteName: 'LATAM VISA Travel',
+    siteName: 'LATAM VISA',
     locale: 'es_LA',
     type: 'website',
   },
+  alternates: { canonical: 'https://www.latamvisatravel.com/viajes' },
 }
 
-// The scroll-scrub hero (components/TravelHeroScroll.tsx) is intentionally no
-// longer rendered here — this page moved to the simpler white editorial layout.
-// The component is left in the repo so the previous treatment can be restored.
+/* Campaña "Dos Vacaciones" (LATAM VISA x Europa).
+   The previous editorial treatment lives on in components/travel/, just no
+   longer rendered here, so it can be restored if this campaign wraps. */
 export default function ViajesPage() {
   return (
-    <main className="min-h-screen bg-white">
-      <DestinosSection />
-    </main>
+    <>
+      <Navbar />
+      <main className="min-h-screen bg-white">
+        <HeroViajes />
+        {/* Navbar watches this marker to switch from its transparent-over-hero
+            state to the solid bar. Without it the bar stays translucent with
+            white text over the white sections below — unreadable. */}
+        <div id="viajes-hero-end" style={{ height: 0 }} aria-hidden />
+        <LaIdea />
+        <ComparativoVuelos />
+        <DestinosEuropa />
+        <CotizaTuTrip />
+        <CTAWhatsApp />
+      </main>
+      <Footer />
+    </>
   )
 }

@@ -28,18 +28,24 @@ export default function Navbar() {
   // Scoped to /viajes only — the homepage's nav (links + logo) stays exactly as
   // it was before. The homepage's #servicios/#proceso/#paises/#contacto anchors
   // don't exist on /viajes, so this page gets its own set pointing at the real
-  // sections DestinosSection renders (#proceso, #destinos, #contacto).
+  // sections the "Dos Vacaciones" campaign renders.
   const travelNavLinks = [
     { label: 'Viajes', href: '/viajes' },
-    { label: 'Proceso', href: '/viajes#proceso' },
+    { label: 'La idea', href: '/viajes#la-idea' },
     { label: 'Destinos', href: '/viajes#destinos' },
-    { label: 'Contacto', href: '/viajes#contacto' },
+    { label: 'Cotiza', href: '/viajes#cotiza' },
   ]
   const currentNavLinks = pathname === '/viajes' ? travelNavLinks : navLinks
 
-  // /viajes only ever shows the LOGO LT knockout mark — LATAM VISA's standard
-  // logo has no place on this page, in either navbar state.
+  // /viajes only ever shows the LATAM TRAVEL mark — LATAM VISA's standard logo
+  // has no place on this page, in either navbar state. Two cuts of the same
+  // mark: the knockout (white, cut-out letters) reads over the hero sky, and
+  // the dark cut is needed once the bar turns solid cream, where a white
+  // knockout would simply vanish.
+  // Both cuts share logo-lt-travel.png's exact canvas (985x455, same internal
+  // padding ratio), so LOGO_BOX_CLASSNAME sizes them identically.
   const useTravelLogo = pathname === '/viajes'
+  const travelLogoSrc = overLight ? '/logo-lt-travel.png' : '/logo-lt-travel-dark-nav.png'
 
   useEffect(() => {
     let heroEndAbove = false // true once the homepage hero-end marker has scrolled above the viewport top
@@ -130,7 +136,7 @@ export default function Navbar() {
         <Link href="/" className="absolute left-1/2 -translate-x-1/2 flex items-center">
           {useTravelLogo ? (
             <Image
-              src="/logo-lt-travel.png"
+              src={travelLogoSrc}
               alt="LATAM Travel"
               width={985}
               height={455}
