@@ -1,113 +1,81 @@
 'use client'
-import { Reveal } from '@/components/Reveal'
-import { KICKER, CAMPAIGN } from './campaign'
+import { useRef } from 'react'
+import { useReveal } from './useReveal'
 
-/* Comparativo de rutas — PLACEHOLDER (paso 3).
-   Structure only: two route rows, so the real data can drop straight in.
-   Deliberately no prices or durations yet — inventing numbers here would be a
-   promise we can't keep. On mobile this stays as stacked cards rather than a
-   table, which never reads well on a 390px screen. */
+/* 03 — Comparativo de vuelos. PLACEHOLDER.
+   Solo la estructura: dos rutas enfrentadas. Sin tiempos ni precios — los
+   datos reales entran después, e inventarlos aquí sería prometer algo que
+   todavía no podemos sostener. */
 
-type Ruta = {
-  etiqueta: string
-  titulo: string
-  escalas: string[]
-  nota: string
-  destacada?: boolean
-}
-
-const RUTAS: Ruta[] = [
-  {
-    etiqueta: 'La de siempre',
-    titulo: 'Australia → Latam directo',
-    escalas: ['Sídney / Brisbane', 'Conexión de unas horas', 'Bogotá / Lima / Santiago'],
-    nota: 'Datos por confirmar',
-  },
-  {
-    etiqueta: 'La de dos vacaciones',
-    titulo: 'Australia → Europa → Latam',
-    escalas: ['Sídney / Brisbane', 'Unos días en Europa', 'Bogotá / Lima / Santiago'],
-    nota: 'Datos por confirmar',
-    destacada: true,
-  },
+const RUTAS = [
+  { etiqueta: 'La de siempre', titulo: 'Australia → Latam', escalas: ['Sídney / Brisbane', 'Conexión de horas', 'Bogotá / Lima / Santiago'] },
+  { etiqueta: 'La de dos vacaciones', titulo: 'Australia → Europa → Latam', escalas: ['Sídney / Brisbane', 'Unos días en Europa', 'Bogotá / Lima / Santiago'], destacada: true },
 ]
 
 export default function ComparativoVuelos() {
+  const ref = useRef<HTMLElement>(null)
+  useReveal(ref)
+
   return (
     <section
       id="vuelos"
+      ref={ref}
       aria-labelledby="vuelos-title"
-      className="scroll-mt-24 px-6 py-20 md:px-[100px] md:py-28"
-      style={{ backgroundColor: CAMPAIGN.subtle }}
+      className="viajes-section"
+      style={{ backgroundColor: 'var(--viajes-sky)', color: 'var(--viajes-ink)' }}
     >
-      <div className="mx-auto max-w-[1100px]">
-        <Reveal>
-          <p className={KICKER}>Las rutas</p>
-        </Reveal>
+      <p className="viajes-label" data-reveal style={{ opacity: 0, color: 'rgba(11,42,74,0.6)' }}>
+        02 / Las rutas
+      </p>
 
-        <Reveal delay={0.06}>
-          <h2
-            id="vuelos-title"
-            className="mt-3 max-w-[18ch] font-monument font-black text-[#111111]"
-            style={{ fontSize: 'clamp(26px, 6.4vw, 46px)', lineHeight: 1.04, letterSpacing: '-0.025em' }}
+      <h2
+        id="vuelos-title"
+        className="viajes-display mt-10"
+        data-reveal
+        style={{ opacity: 0, maxWidth: '13ch' }}
+      >
+        Mira cómo se ve tu vuelo
+      </h2>
+
+      <div className="mt-14 grid grid-cols-1 gap-6 md:grid-cols-2 md:gap-10" style={{ maxWidth: '1000px' }}>
+        {RUTAS.map((ruta) => (
+          <article
+            key={ruta.titulo}
+            data-reveal
+            style={{
+              opacity: 0,
+              backgroundColor: 'var(--viajes-paper)',
+              border: ruta.destacada ? '2px solid var(--viajes-ink)' : '1px solid rgba(11,42,74,0.18)',
+              borderRadius: '18px',
+              padding: '28px',
+            }}
           >
-            Compara cómo se ve tu vuelo
-          </h2>
-        </Reveal>
-
-        <Reveal delay={0.12}>
-          <p className="mt-5 max-w-[46ch] font-funnel text-[15px] leading-relaxed text-[#111111]/65 md:text-[17px]">
-            {/* Placeholder — el cuadro comparativo real va en el paso 3 */}
-            Acá va el comparativo de rutas, con tiempos y escalas reales.
-          </p>
-        </Reveal>
-
-        <div className="mt-10 grid grid-cols-1 gap-5 md:mt-14 md:grid-cols-2 md:gap-7">
-          {RUTAS.map((ruta, i) => (
-            <Reveal key={ruta.titulo} delay={0.08 * i}>
-              <article
-                className="h-full rounded-2xl p-6 md:p-8"
-                style={{
-                  backgroundColor: CAMPAIGN.card,
-                  border: ruta.destacada ? `2px solid ${CAMPAIGN.lime}` : `1px solid ${CAMPAIGN.border}`,
-                }}
-              >
-                <span
-                  className="inline-flex rounded-full px-3 py-1 font-funnel text-[10px] font-bold uppercase tracking-[0.14em]"
-                  style={
-                    ruta.destacada
-                      ? { backgroundColor: CAMPAIGN.lime, color: CAMPAIGN.forest }
-                      : { backgroundColor: CAMPAIGN.subtle, color: '#111111' }
-                  }
-                >
-                  {ruta.etiqueta}
-                </span>
-
-                <h3 className="mt-4 font-monument text-[18px] font-bold leading-tight text-[#111111] md:text-[22px]">
-                  {ruta.titulo}
-                </h3>
-
-                <ol className="mt-5 flex flex-col gap-3">
-                  {ruta.escalas.map((escala) => (
-                    <li key={escala} className="flex items-start gap-3">
-                      <span
-                        aria-hidden
-                        className="mt-[7px] h-2 w-2 shrink-0 rounded-full"
-                        style={{ backgroundColor: ruta.destacada ? CAMPAIGN.forest : '#C4C4C4' }}
-                      />
-                      <span className="font-funnel text-[14px] leading-relaxed text-[#111111]/75">{escala}</span>
-                    </li>
-                  ))}
-                </ol>
-
-                <p className="mt-6 font-funnel text-[12px] uppercase tracking-[0.1em] text-[#111111]/40">
-                  {ruta.nota}
-                </p>
-              </article>
-            </Reveal>
-          ))}
-        </div>
+            <p className="viajes-label" style={{ color: 'rgba(11,42,74,0.6)' }}>{ruta.etiqueta}</p>
+            <p
+              className="mt-4"
+              style={{
+                fontFamily: 'var(--font-viajes-display), sans-serif',
+                fontSize: 'clamp(1.4rem, 4.5vw, 2rem)',
+                lineHeight: 1,
+                textTransform: 'uppercase',
+              }}
+            >
+              {ruta.titulo}
+            </p>
+            <ol className="mt-6 flex flex-col gap-3">
+              {ruta.escalas.map((escala) => (
+                <li key={escala} className="viajes-body" style={{ fontSize: '15px' }}>
+                  {escala}
+                </li>
+              ))}
+            </ol>
+          </article>
+        ))}
       </div>
+
+      <p className="viajes-label mt-10" data-reveal style={{ opacity: 0, color: 'rgba(11,42,74,0.45)' }}>
+        Datos por confirmar
+      </p>
     </section>
   )
 }

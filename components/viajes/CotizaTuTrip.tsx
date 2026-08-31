@@ -1,89 +1,85 @@
 'use client'
-import { Reveal } from '@/components/Reveal'
-import { KICKER, CAMPAIGN, BTN_PRIMARY, whatsappHref, WHATSAPP_MESSAGE } from './campaign'
+import { useRef } from 'react'
+import { useReveal } from './useReveal'
+import { WHATSAPP_HREF } from './whatsapp'
 
-/* Cotiza tu trip — PLACEHOLDER.
-   Field shells only: no state, no submit handler, no endpoint yet. Inputs are
-   disabled on purpose so nobody types into a form that goes nowhere; the
-   WhatsApp link below is the working path in the meantime. */
+/* 05 — Cotiza tu trip. PLACEHOLDER.
+   Campos deshabilitados a propósito: no hay estado ni endpoint todavía, y un
+   formulario que acepta texto y no lo manda a ningún lado es peor que uno
+   que dice claramente que aún no está listo. La ruta que sí funciona es
+   WhatsApp, justo debajo. */
 
-const CAMPOS = [
-  { label: 'Tu nombre', placeholder: 'Ej: Camila' },
-  { label: 'Desde qué ciudad sales', placeholder: 'Ej: Brisbane' },
-  { label: 'A qué país de Latam vas', placeholder: 'Ej: Colombia' },
-  { label: 'Fechas aproximadas', placeholder: 'Ej: diciembre — enero' },
-]
+const CAMPOS = ['Tu nombre', 'Desde qué ciudad sales', 'A qué país de Latam vas', 'Fechas aproximadas']
 
 export default function CotizaTuTrip() {
+  const ref = useRef<HTMLElement>(null)
+  useReveal(ref)
+
   return (
     <section
       id="cotiza"
+      ref={ref}
       aria-labelledby="cotiza-title"
-      className="scroll-mt-24 px-6 py-20 md:px-[100px] md:py-28"
-      style={{ backgroundColor: CAMPAIGN.subtle }}
+      className="viajes-section"
+      style={{ backgroundColor: 'var(--viajes-sky)', color: 'var(--viajes-ink)' }}
     >
-      <div className="mx-auto max-w-[1100px]">
-        <Reveal>
-          <p className={KICKER}>Cotiza tu trip</p>
-        </Reveal>
+      <p className="viajes-label" data-reveal style={{ opacity: 0, color: 'rgba(11,42,74,0.6)' }}>
+        04 / Cotiza tu trip
+      </p>
 
-        <Reveal delay={0.06}>
-          <h2
-            id="cotiza-title"
-            className="mt-3 max-w-[18ch] font-monument font-black text-[#111111]"
-            style={{ fontSize: 'clamp(26px, 6.4vw, 46px)', lineHeight: 1.04, letterSpacing: '-0.025em' }}
-          >
-            Cuéntanos tu viaje y te armamos el plan
-          </h2>
-        </Reveal>
+      <h2
+        id="cotiza-title"
+        className="viajes-display mt-10"
+        data-reveal
+        style={{ opacity: 0, maxWidth: '14ch' }}
+      >
+        Cuéntanos y armamos el plan
+      </h2>
 
-        <Reveal delay={0.12}>
-          <p className="mt-5 max-w-[46ch] font-funnel text-[15px] leading-relaxed text-[#111111]/65 md:text-[17px]">
-            {/* Placeholder — el formulario real se conecta más adelante */}
-            El formulario todavía no está conectado. Por ahora escríbenos por
-            WhatsApp y lo hacemos ahí mismo.
-          </p>
-        </Reveal>
+      <form
+        data-reveal
+        aria-label="Cotización de Euro Trip (próximamente)"
+        onSubmit={(e) => e.preventDefault()}
+        className="mt-12"
+        style={{
+          opacity: 0,
+          maxWidth: '760px',
+          backgroundColor: 'var(--viajes-paper)',
+          borderRadius: '18px',
+          padding: '28px',
+        }}
+      >
+        <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+          {CAMPOS.map((campo) => (
+            <label key={campo} className="flex flex-col gap-2">
+              <span className="viajes-label" style={{ color: 'rgba(11,42,74,0.65)' }}>{campo}</span>
+              <input
+                type="text"
+                disabled
+                className="viajes-body"
+                style={{
+                  height: '52px',
+                  padding: '0 16px',
+                  borderRadius: '10px',
+                  border: '1px solid rgba(11,42,74,0.18)',
+                  backgroundColor: 'rgba(168,200,232,0.22)',
+                  color: 'var(--viajes-ink)',
+                  cursor: 'not-allowed',
+                  maxWidth: 'none',
+                }}
+              />
+            </label>
+          ))}
+        </div>
 
-        <Reveal delay={0.16}>
-          <form
-            aria-label="Cotización de Euro Trip (próximamente)"
-            className="mt-10 rounded-2xl p-6 md:mt-12 md:p-8"
-            style={{ backgroundColor: CAMPAIGN.card, border: `1px solid ${CAMPAIGN.border}` }}
-            onSubmit={(e) => e.preventDefault()}
-          >
-            <div className="grid grid-cols-1 gap-5 md:grid-cols-2 md:gap-6">
-              {CAMPOS.map((campo) => (
-                <label key={campo.label} className="flex flex-col gap-2">
-                  <span className="font-funnel text-[13px] font-semibold text-[#111111]/75">
-                    {campo.label}
-                  </span>
-                  <input
-                    type="text"
-                    disabled
-                    placeholder={campo.placeholder}
-                    className="h-12 w-full rounded-lg px-4 font-funnel text-[15px] text-[#111111] placeholder:text-[#111111]/35 disabled:cursor-not-allowed"
-                    style={{ backgroundColor: CAMPAIGN.subtle, border: `1px solid ${CAMPAIGN.border}` }}
-                  />
-                </label>
-              ))}
-            </div>
+        <p className="viajes-label mt-7" style={{ color: 'rgba(11,42,74,0.45)' }}>
+          Formulario en construcción
+        </p>
 
-            <p className="mt-6 font-funnel text-[12px] uppercase tracking-[0.1em] text-[#111111]/40">
-              Formulario en construcción
-            </p>
-
-            <a
-              href={whatsappHref(WHATSAPP_MESSAGE)}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={`${BTN_PRIMARY} mt-5 w-full sm:w-auto`}
-            >
-              Cotizar por WhatsApp
-            </a>
-          </form>
-        </Reveal>
-      </div>
+        <a href={WHATSAPP_HREF} target="_blank" rel="noopener noreferrer" className="viajes-cta mt-5">
+          Cotizar por WhatsApp
+        </a>
+      </form>
     </section>
   )
 }
