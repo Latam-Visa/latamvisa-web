@@ -16,21 +16,32 @@ const WhatsAppIcon = ({ size = 18 }: { size?: number }) => (
 export default function ViajesShell({ children }: { children: React.ReactNode }) {
   useLenis()
 
-  /* Two of the brief's rules collide on the last screen: WhatsApp must always
-     be reachable on mobile, but neon is capped at one accent per screen — and
-     the closing section is itself a neon CTA. Hiding the floating button once
-     that section is on screen satisfies both, and it's redundant there
-     anyway: the real CTA is right in front of the user. */
-  const [fabHidden, setFabHidden] = useState(false)
+  /* El flotante se esconde en dos pantallas concretas:
+     - #hero, porque en móvil se montaba encima del CTA circular (medido:
+       13px de solape a 390px) y porque el hero ya tiene su propia llamada.
+     - #contacto, que es en sí un CTA neón: dejarlo sería un segundo acento
+       neón en la misma pantalla, y además redundante.
+     En todo el resto del scroll sigue visible. */
+  const [fabHidden, setFabHidden] = useState(true)
 
   useEffect(() => {
-    const target = document.getElementById('contacto')
-    if (!target) return
+    const targets = ['hero', 'contacto']
+      .map((id) => document.getElementById(id))
+      .filter((el): el is HTMLElement => !!el)
+    if (!targets.length) return
+
+    const visible = new Set<Element>()
     const io = new IntersectionObserver(
-      ([entry]) => setFabHidden(entry.isIntersecting),
+      (entries) => {
+        entries.forEach((e) => {
+          if (e.isIntersecting) visible.add(e.target)
+          else visible.delete(e.target)
+        })
+        setFabHidden(visible.size > 0)
+      },
       { threshold: 0.25 },
     )
-    io.observe(target)
+    targets.forEach((t) => io.observe(t))
     return () => io.disconnect()
   }, [])
 

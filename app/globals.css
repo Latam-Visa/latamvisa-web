@@ -422,9 +422,20 @@ body::before {
   font-weight: 400;
   /* Anton ships a single heavy weight */
   font-size: clamp(3rem, 9vw, 11rem);
-  line-height: 0.9;
+  /* 1.02, no 0.9: con 0.9 los acentos y signos altos (Ó, Í, ¿, Ñ) quedaban
+     por encima de la caja de línea y los wrappers overflow:hidden de
+     SplitText se los comían por arriba. */
+  line-height: 1.02;
   letter-spacing: -0.01em;
   text-transform: uppercase;
+}
+
+/* Los wrappers de línea que crea SplitText recortan por arriba. Este colchón
+   les devuelve el alto que necesitan los diacríticos sin mover el texto. */
+.viajes-root .split-line,
+.viajes-root [data-split-line] {
+  padding-top: 0.14em;
+  margin-top: -0.14em;
 }
 
 /* Mobile-first: el display baja de escala, no es escritorio encogido */
@@ -499,4 +510,73 @@ body::before {
 .viajes-line-mask {
   overflow: hidden;
   display: block;
+}
+
+/* ── HERO /viajes ────────────────────────────────────────────────── */
+
+/* Wordmark: el elemento más grande de la página. line-height 0.82 aprieta las
+   dos líneas, y el padding-top compensado evita que ese apretón recorte
+   acentos si algún día el wordmark los lleva. */
+.viajes-wordmark {
+  font-family: var(--font-viajes-display), 'Arial Narrow', sans-serif;
+  font-weight: 900;
+  font-size: clamp(3.5rem, 13vw, 12rem);
+  line-height: 0.82;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  color: #FFFFFF;
+  text-align: center;
+  /* 0.82 aprieta tanto la caja de línea que las tildes de la primera línea
+     se salen por arriba. 0.14em no alcanzaba a este tamaño; 0.24em sí cubre
+     el acento más alto de PPMonumentCondensed. El margin negativo devuelve
+     el hueco para que el bloque no se desplace. */
+  padding-top: 0.24em;
+  margin-top: -0.24em;
+}
+
+.viajes-hero-edge {
+  font-family: var(--font-viajes-display), 'Arial Narrow', sans-serif;
+  font-weight: 900;
+  font-size: clamp(1rem, 2.2vw, 2rem);
+  line-height: 1.05;
+  text-transform: uppercase;
+  color: #FFFFFF;
+}
+
+/* CTA circular — el trazo se dibuja con stroke-dashoffset al entrar en vista */
+.viajes-ring circle {
+  stroke-dasharray: var(--ring-len);
+  stroke-dashoffset: var(--ring-len);
+  transition: stroke-dashoffset 1.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.viajes-ring[data-drawn='true'] circle {
+  stroke-dashoffset: 0;
+}
+
+.viajes-ring-fill {
+  background-color: transparent;
+  transition: background-color 0.35s ease;
+}
+
+.viajes-ring-cta:hover .viajes-ring-fill {
+  background-color: rgba(255, 255, 255, 0.12);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .viajes-ring circle {
+    transition: none;
+    stroke-dashoffset: 0;
+  }
+}
+
+/* Tamaño del CTA circular: 280px, 200px en móvil */
+.viajes-root {
+  --ring-size: 280px;
+}
+
+@media (max-width: 767px) {
+  .viajes-root {
+    --ring-size: 200px;
+  }
 }

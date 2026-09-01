@@ -14,6 +14,20 @@ import { useEffect } from 'react'
    alone, so the page falls back to plain native scrolling. Components read
    the same media query to decide whether to animate at all. */
 
+/* Module-scoped handle so overlays can freeze the page. Setting
+   overflow:hidden on <body> is not enough on its own: Lenis drives scroll
+   from wheel/touch events on window, so it keeps moving the page behind a
+   locked body unless it's actually stopped. */
+let activeLenis: import('@studio-freight/lenis').default | null = null
+
+export function stopLenis() {
+  activeLenis?.stop()
+}
+
+export function startLenis() {
+  activeLenis?.start()
+}
+
 export function useLenis(enabled = true) {
   useEffect(() => {
     if (!enabled) return
@@ -38,6 +52,7 @@ export function useLenis(enabled = true) {
       gsapRef = gsap
 
       lenis = new Lenis({ lerp: 0.09, smoothWheel: true })
+      activeLenis = lenis
 
       lenis.on('scroll', ScrollTrigger.update)
 
@@ -54,6 +69,7 @@ export function useLenis(enabled = true) {
       cancelled = true
       if (gsapRef && tickerFn) gsapRef.ticker.remove(tickerFn)
       lenis?.destroy()
+      if (activeLenis === lenis) activeLenis = null
     }
   }, [enabled])
 }
