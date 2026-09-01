@@ -144,7 +144,7 @@ export default function HeroViajes() {
             width={961}
             height={121}
             priority
-            className="h-7 w-auto object-contain md:h-10"
+            className="h-3.5 w-auto object-contain md:h-5"
           />
         </Link>
 
