@@ -75,6 +75,8 @@ export default function HeroViajes() {
 
   const menuBtnRef = useRef<HTMLButtonElement>(null)
   const ringRef = useRef<SVGSVGElement>(null)
+  const line1Ref = useRef<HTMLSpanElement>(null)
+  const line2Ref = useRef<HTMLSpanElement>(null)
 
   useEffect(() => {
     const seen = sessionStorage.getItem(INTRO_FLAG) === '1'
@@ -84,6 +86,47 @@ export default function HeroViajes() {
 
   useEffect(() => {
     if (introDone) sessionStorage.setItem(INTRO_FLAG, '1')
+  }, [introDone])
+
+  /* ScrambleText sobre el wordmark, en cuanto el hero queda a la vista.
+     ScrambleTextPlugin viene en el propio paquete gsap (build de Club, igual
+     que SplitText), así que se importa de ahí y no del CDN — una dependencia
+     externa menos y misma versión que el resto de la animación. */
+  useEffect(() => {
+    if (!introDone) return
+    const l1 = line1Ref.current
+    const l2 = line2Ref.current
+    if (!l1 || !l2) return
+    if (prefersReducedMotion()) return // el HTML ya trae el texto final
+
+    let cancelled = false
+    let tl: gsap.core.Timeline | null = null
+
+    const run = async () => {
+      const [{ gsap }, mod] = await Promise.all([
+        import('gsap'),
+        import('gsap/ScrambleTextPlugin'),
+      ])
+      if (cancelled) return
+
+      const ScrambleTextPlugin = (mod as any).ScrambleTextPlugin ?? (mod as any).default
+      gsap.registerPlugin(ScrambleTextPlugin)
+
+      tl = gsap.timeline()
+      tl.to(l1, { duration: 1.1, scrambleText: { text: 'Latam', chars: 'upperCase', speed: 0.5 } })
+        .to(l2, { duration: 1.1, scrambleText: { text: 'Travel', chars: 'upperCase', speed: 0.5 } }, 0.18)
+    }
+
+    run()
+
+    return () => {
+      cancelled = true
+      tl?.kill()
+      // El plugin reescribe el contenido mientras corre; si desmontamos a
+      // media animación hay que dejar el texto definitivo, no el revuelto.
+      if (l1) l1.textContent = 'Latam'
+      if (l2) l2.textContent = 'Travel'
+    }
   }, [introDone])
 
   // El anillo se dibuja al entrar en viewport
@@ -176,10 +219,12 @@ export default function HeroViajes() {
 
         {/* CENTRO — wordmark + línea de borde a borde */}
         <div className="absolute inset-x-0 z-10" style={{ top: '26%' }}>
+          {/* El texto final va en el HTML: si el JS no corre o hay
+              reduced-motion, el wordmark se lee igual. El scramble solo lo
+              reescribe encima. */}
           <h1 className="viajes-wordmark">
-            Latam
-            <br />
-            Travel
+            <span ref={line1Ref} className="block">Latam</span>
+            <span ref={line2Ref} className="block">Travel</span>
           </h1>
 
           <div
