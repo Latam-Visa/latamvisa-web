@@ -1,6 +1,7 @@
 'use client'
 import { useRef } from 'react'
 import { useReveal } from './useReveal'
+import { useScramble } from './useScramble'
 import { WHATSAPP_HREF } from './whatsapp'
 
 /* 05 — Cotiza tu trip. PLACEHOLDER.
@@ -14,6 +15,7 @@ const CAMPOS = ['Tu nombre', 'Desde qué ciudad sales', 'A qué país de Latam v
 export default function CotizaTuTrip() {
   const ref = useRef<HTMLElement>(null)
   useReveal(ref)
+  useScramble(ref)
 
   return (
     <section
@@ -23,7 +25,7 @@ export default function CotizaTuTrip() {
       className="viajes-section"
       style={{ backgroundColor: 'var(--viajes-sky)', color: 'var(--viajes-ink)' }}
     >
-      <p className="viajes-label" data-reveal style={{ opacity: 0, color: 'rgba(11,42,74,0.6)' }}>
+      <p className="viajes-label" data-reveal data-scramble style={{ opacity: 0, color: 'rgba(11,42,74,0.6)' }}>
         04 / Cotiza tu trip
       </p>
 
@@ -31,6 +33,7 @@ export default function CotizaTuTrip() {
         id="cotiza-title"
         className="viajes-display mt-10"
         data-reveal
+        data-scramble
         style={{ opacity: 0, maxWidth: '14ch' }}
       >
         Cuéntanos y armamos el plan
@@ -52,7 +55,7 @@ export default function CotizaTuTrip() {
         <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
           {CAMPOS.map((campo) => (
             <label key={campo} className="flex flex-col gap-2">
-              <span className="viajes-label" style={{ color: 'rgba(11,42,74,0.65)' }}>{campo}</span>
+              <span className="viajes-label" data-scramble style={{ color: 'rgba(11,42,74,0.65)' }}>{campo}</span>
               <input
                 type="text"
                 disabled
@@ -72,12 +75,12 @@ export default function CotizaTuTrip() {
           ))}
         </div>
 
-        <p className="viajes-label mt-7" style={{ color: 'rgba(11,42,74,0.45)' }}>
+        <p className="viajes-label mt-7" data-scramble style={{ color: 'rgba(11,42,74,0.45)' }}>
           Formulario en construcción
         </p>
 
         <a href={WHATSAPP_HREF} target="_blank" rel="noopener noreferrer" className="viajes-cta mt-5">
-          Cotizar por WhatsApp
+          <span data-scramble>Cotizar por WhatsApp</span>
         </a>
       </form>
     </section>

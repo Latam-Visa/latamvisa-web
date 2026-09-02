@@ -1,12 +1,14 @@
 'use client'
 import { useRef } from 'react'
 import { useReveal } from './useReveal'
+import { useScramble } from './useScramble'
 
 /* 02 — La idea. Fondo papel, una sola frase grande. Nada más en pantalla. */
 
 export default function LaIdea() {
   const ref = useRef<HTMLElement>(null)
   useReveal(ref)
+  useScramble(ref)
 
   return (
     <section
@@ -18,7 +20,7 @@ export default function LaIdea() {
     >
       {/* starts hidden; useReveal fades it to full and the muted tone comes
           from the colour, not opacity, so the reveal can't fight it */}
-      <p className="viajes-label" data-reveal style={{ opacity: 0, color: 'rgba(11,42,74,0.55)' }}>
+      <p className="viajes-label" data-reveal data-scramble style={{ opacity: 0, color: 'rgba(11,42,74,0.55)' }}>
         01 / La idea
       </p>
 
@@ -26,6 +28,7 @@ export default function LaIdea() {
         id="la-idea-title"
         className="viajes-display mt-10"
         data-reveal
+        data-scramble
         style={{ opacity: 0, maxWidth: '16ch' }}
       >
         Vas pa&apos; Latam… pero puedes hacer una parada en Europa.

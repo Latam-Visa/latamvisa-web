@@ -4,6 +4,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { prefersReducedMotion } from '@/lib/lenis'
 import MenuOverlay from './MenuOverlay'
+import { useScramble } from './useScramble'
 
 /* 01 — Hero. Estructura tomada de la referencia (intro breve, wordmark
    gigante centrado, línea de borde a borde, CTA circular), con marca propia. */
@@ -77,6 +78,11 @@ export default function HeroViajes() {
   const ringRef = useRef<SVGSVGElement>(null)
   const line1Ref = useRef<HTMLSpanElement>(null)
   const line2Ref = useRef<HTMLSpanElement>(null)
+  const sectionRef = useRef<HTMLElement>(null)
+
+  // El wordmark corre su propia timeline; este hook cubre el resto de
+  // textos del hero (bordes y CTA circular).
+  useScramble(sectionRef)
 
   useEffect(() => {
     const seen = sessionStorage.getItem(INTRO_FLAG) === '1'
@@ -112,9 +118,11 @@ export default function HeroViajes() {
       const ScrambleTextPlugin = (mod as any).ScrambleTextPlugin ?? (mod as any).default
       gsap.registerPlugin(ScrambleTextPlugin)
 
+      // Mitad de velocidad que la primera versión: el doble de duración y
+      // los caracteres cambiando a la mitad de ritmo.
       tl = gsap.timeline()
-      tl.to(l1, { duration: 1.1, scrambleText: { text: 'Latam', chars: 'upperCase', speed: 0.5 } })
-        .to(l2, { duration: 1.1, scrambleText: { text: 'Travel', chars: 'upperCase', speed: 0.5 } }, 0.18)
+      tl.to(l1, { duration: 2.2, scrambleText: { text: 'Latam', chars: 'upperCase', speed: 0.25 } })
+        .to(l2, { duration: 2.2, scrambleText: { text: 'Travel', chars: 'upperCase', speed: 0.25 } }, 0.36)
     }
 
     run()
@@ -151,6 +159,7 @@ export default function HeroViajes() {
       {introResolved && !introDone && <Intro onDone={() => setIntroDone(true)} />}
 
       <section
+        ref={sectionRef}
         id="hero"
         aria-label="LATAM Travel — 1 viaje, 2 vacaciones"
         className="relative w-full overflow-hidden"
@@ -231,8 +240,8 @@ export default function HeroViajes() {
             className="mt-6 flex items-baseline justify-between"
             style={{ paddingLeft: '32px', paddingRight: '32px' }}
           >
-            <span className="viajes-hero-edge">1 viaje</span>
-            <span className="viajes-hero-edge">2 vacaciones</span>
+            <span className="viajes-hero-edge" data-scramble>1 viaje</span>
+            <span className="viajes-hero-edge" data-scramble>2 vacaciones</span>
           </div>
         </div>
 
@@ -262,9 +271,8 @@ export default function HeroViajes() {
               className="viajes-label relative text-center"
               style={{ color: '#FFFFFF', fontSize: '12px', letterSpacing: '0.15em', lineHeight: 1.7 }}
             >
-              Mira países
-              <br />
-              disponibles
+              <span className="block" data-scramble>Mira países</span>
+              <span className="block" data-scramble>disponibles</span>
             </span>
           </span>
         </a>

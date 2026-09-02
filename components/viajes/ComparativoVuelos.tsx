@@ -1,6 +1,7 @@
 'use client'
 import { useRef } from 'react'
 import { useReveal } from './useReveal'
+import { useScramble } from './useScramble'
 
 /* 03 — Comparativo de vuelos. PLACEHOLDER.
    Solo la estructura: dos rutas enfrentadas. Sin tiempos ni precios — los
@@ -15,6 +16,7 @@ const RUTAS = [
 export default function ComparativoVuelos() {
   const ref = useRef<HTMLElement>(null)
   useReveal(ref)
+  useScramble(ref)
 
   return (
     <section
@@ -24,7 +26,7 @@ export default function ComparativoVuelos() {
       className="viajes-section"
       style={{ backgroundColor: 'var(--viajes-sky)', color: 'var(--viajes-ink)' }}
     >
-      <p className="viajes-label" data-reveal style={{ opacity: 0, color: 'rgba(11,42,74,0.6)' }}>
+      <p className="viajes-label" data-reveal data-scramble style={{ opacity: 0, color: 'rgba(11,42,74,0.6)' }}>
         02 / Las rutas
       </p>
 
@@ -32,6 +34,7 @@ export default function ComparativoVuelos() {
         id="vuelos-title"
         className="viajes-display mt-10"
         data-reveal
+        data-scramble
         style={{ opacity: 0, maxWidth: '13ch' }}
       >
         Mira cómo se ve tu vuelo
@@ -50,9 +53,10 @@ export default function ComparativoVuelos() {
               padding: '28px',
             }}
           >
-            <p className="viajes-label" style={{ color: 'rgba(11,42,74,0.6)' }}>{ruta.etiqueta}</p>
+            <p className="viajes-label" data-scramble style={{ color: 'rgba(11,42,74,0.6)' }}>{ruta.etiqueta}</p>
             <p
               className="mt-4"
+              data-scramble
               style={{
                 fontFamily: 'var(--font-viajes-display), sans-serif',
                 fontSize: 'clamp(1.4rem, 4.5vw, 2rem)',
@@ -64,7 +68,7 @@ export default function ComparativoVuelos() {
             </p>
             <ol className="mt-6 flex flex-col gap-3">
               {ruta.escalas.map((escala) => (
-                <li key={escala} className="viajes-body" style={{ fontSize: '15px' }}>
+                <li key={escala} className="viajes-body" data-scramble="body" style={{ fontSize: '15px' }}>
                   {escala}
                 </li>
               ))}
@@ -73,7 +77,7 @@ export default function ComparativoVuelos() {
         ))}
       </div>
 
-      <p className="viajes-label mt-10" data-reveal style={{ opacity: 0, color: 'rgba(11,42,74,0.45)' }}>
+      <p className="viajes-label mt-10" data-reveal data-scramble style={{ opacity: 0, color: 'rgba(11,42,74,0.45)' }}>
         Datos por confirmar
       </p>
     </section>
