@@ -47,9 +47,8 @@ function Intro({ onDone }: { onDone: () => void }) {
       style={{ backgroundColor: 'var(--viajes-ink)' }}
     >
       <p className="viajes-wordmark" style={{ fontSize: 'clamp(2.5rem, 9vw, 7rem)' }}>
-        Latam
-        <br />
-        Travel
+        <span className="block" data-scramble>Latam</span>
+        <span className="block" data-scramble>Travel</span>
       </p>
 
       {/* línea de 1px que crece desde el centro hacia abajo */}
@@ -60,7 +59,7 @@ function Intro({ onDone }: { onDone: () => void }) {
       />
 
       <p className="viajes-label" style={{ color: '#FFFFFF', opacity: 0.8, letterSpacing: '0.2em', textAlign: 'center' }}>
-        LATAM Travel — 1 viaje, 2 vacaciones.
+        <span data-scramble>LATAM Travel — 1 viaje, 2 vacaciones.</span>
       </p>
     </div>
   )
@@ -118,11 +117,11 @@ export default function HeroViajes() {
       const ScrambleTextPlugin = (mod as any).ScrambleTextPlugin ?? (mod as any).default
       gsap.registerPlugin(ScrambleTextPlugin)
 
-      // Mitad de velocidad que la primera versión: el doble de duración y
-      // los caracteres cambiando a la mitad de ritmo.
+      // Mismo ritmo que useScramble: la resolución izquierda-a-derecha se
+      // lee letra por letra al alargar el tween y bajar `speed`.
       tl = gsap.timeline()
-      tl.to(l1, { duration: 2.2, scrambleText: { text: 'Latam', chars: 'upperCase', speed: 0.25 } })
-        .to(l2, { duration: 2.2, scrambleText: { text: 'Travel', chars: 'upperCase', speed: 0.25 } }, 0.36)
+      tl.to(l1, { duration: 3, scrambleText: { text: 'Latam', chars: 'upperCase', speed: 0.15 } })
+        .to(l2, { duration: 3, scrambleText: { text: 'Travel', chars: 'upperCase', speed: 0.15 } }, 0.45)
     }
 
     run()
@@ -218,7 +217,7 @@ export default function HeroViajes() {
             minHeight: '44px',
           }}
         >
-          Menú
+          <span data-scramble>Menú</span>
           <svg width="4" height="16" viewBox="0 0 4 16" fill="currentColor" aria-hidden>
             <circle cx="2" cy="2" r="1.6" />
             <circle cx="2" cy="8" r="1.6" />
@@ -237,8 +236,10 @@ export default function HeroViajes() {
           </h1>
 
           <div
+            /* "un poco más centrados": se separan de los bordes. El padding
+               crece con el ancho en vez de quedarse en los 32px del borde. */
             className="mt-6 flex items-baseline justify-between"
-            style={{ paddingLeft: '32px', paddingRight: '32px' }}
+            style={{ paddingLeft: 'clamp(20px, 7vw, 140px)', paddingRight: 'clamp(20px, 7vw, 140px)' }}
           >
             <span className="viajes-hero-edge" data-scramble>1 viaje</span>
             <span className="viajes-hero-edge" data-scramble>2 vacaciones</span>

@@ -520,7 +520,7 @@ body::before {
 .viajes-wordmark {
   font-family: var(--font-viajes-display), 'Arial Narrow', sans-serif;
   font-weight: 900;
-  font-size: clamp(3.5rem, 13vw, 12rem);
+  font-size: clamp(4rem, 16vw, 15rem);
   line-height: 0.82;
   letter-spacing: -0.02em;
   text-transform: uppercase;
@@ -537,7 +537,12 @@ body::before {
 .viajes-hero-edge {
   font-family: var(--font-viajes-display), 'Arial Narrow', sans-serif;
   font-weight: 900;
-  font-size: clamp(1rem, 2.2vw, 2rem);
+  /* 3x el tamaño original (era clamp(1rem, 2.2vw, 2rem)) en el tramo fluido
+     y en el máximo: 95px a 1440px, contra los ~32px de antes.
+     Se recortan respecto al 3x inicial: a 95px competían con el wordmark.
+     El wordmark tiene que seguir siendo el elemento más grande de la
+     página, así que estos se quedan claramente por debajo. */
+  font-size: clamp(1.5rem, 4.4vw, 4rem);
   line-height: 1.05;
   text-transform: uppercase;
   color: #FFFFFF;

@@ -13,10 +13,18 @@ import { prefersReducedMotion } from '@/lib/lenis'
    data-scramble="body" usa minúsculas para los párrafos; el resto va en
    mayúsculas, que es como se pintan display y label. */
 
-const DURATION = 2.2
-const SPEED = 0.25
+/* Un poco más lento que la tanda anterior (era 2.2 / 0.25).
+   ScrambleText resuelve el string de izquierda a derecha a lo largo del
+   tween: alargar la duración y bajar `speed` hace que ese avance se lea
+   letra por letra en vez de como un bloque que se aclara de golpe. */
+const DURATION = 3
+const SPEED = 0.15
 
-export function useScramble(scopeRef: RefObject<HTMLElement>) {
+/* `retrigger` re-ejecuta el efecto cuando el contenido del scope aparece
+   después del montaje. El overlay del menú, por ejemplo, devuelve null
+   mientras está cerrado: sin esto el ref sigue en null la primera vez y el
+   scramble no se dispararía nunca al abrirlo. */
+export function useScramble(scopeRef: RefObject<HTMLElement>, retrigger?: unknown) {
   useEffect(() => {
     const scope = scopeRef.current
     if (!scope) return
@@ -72,5 +80,5 @@ export function useScramble(scopeRef: RefObject<HTMLElement>) {
       tweens.forEach((t) => t.kill())
       originals.forEach((text, el) => { el.textContent = text })
     }
-  }, [scopeRef])
+  }, [scopeRef, retrigger])
 }

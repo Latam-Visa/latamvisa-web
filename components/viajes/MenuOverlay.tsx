@@ -2,6 +2,7 @@
 import { useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { stopLenis, startLenis } from '@/lib/lenis'
+import { useScramble } from './useScramble'
 
 /* Overlay del menú a pantalla completa.
    Accesibilidad: role="dialog" + aria-modal, cierra con Escape, el foco entra
@@ -27,6 +28,9 @@ export default function MenuOverlay({
   returnFocusTo?: React.RefObject<HTMLElement>
 }) {
   const panelRef = useRef<HTMLDivElement>(null)
+
+  // Los links entran revueltos igual que el resto de la página
+  useScramble(panelRef, open)
 
   useEffect(() => {
     if (!open) return
@@ -125,7 +129,7 @@ export default function MenuOverlay({
               padding: '6px 0',
             }}
           >
-            {link.label}
+            <span data-scramble>{link.label}</span>
           </Link>
         ))}
       </nav>
