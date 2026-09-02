@@ -48,7 +48,7 @@ function Intro({ onDone }: { onDone: () => void }) {
     >
       <p className="viajes-wordmark" style={{ fontSize: 'clamp(2.5rem, 9vw, 7rem)' }}>
         <span className="block" data-scramble>Latam</span>
-        <span className="block" data-scramble>Travel</span>
+        <span className="viajes-script block" data-scramble style={{ fontSize: '1.15em', lineHeight: 0.95 }}>Travel</span>
       </p>
 
       {/* línea de 1px que crece desde el centro hacia abajo */}
@@ -213,6 +213,7 @@ export default function HeroViajes() {
             background: 'none',
             border: 'none',
             cursor: 'pointer',
+            fontSize: '22px', // el doble del label base (11px)
             letterSpacing: '0.2em',
             minHeight: '44px',
           }}
@@ -226,13 +227,13 @@ export default function HeroViajes() {
         </button>
 
         {/* CENTRO — wordmark + línea de borde a borde */}
-        <div className="absolute inset-x-0 z-10" style={{ top: '26%' }}>
+        <div className="absolute inset-x-0 z-10" style={{ top: '11%' }}>
           {/* El texto final va en el HTML: si el JS no corre o hay
               reduced-motion, el wordmark se lee igual. El scramble solo lo
               reescribe encima. */}
           <h1 className="viajes-wordmark">
             <span ref={line1Ref} className="block">Latam</span>
-            <span ref={line2Ref} className="block">Travel</span>
+            <span ref={line2Ref} className="viajes-script block" style={{ fontSize: '1.15em', lineHeight: 0.95 }}>Travel</span>
           </h1>
 
           <div
@@ -241,8 +242,8 @@ export default function HeroViajes() {
             className="mt-6 flex items-baseline justify-between"
             style={{ paddingLeft: 'clamp(20px, 7vw, 140px)', paddingRight: 'clamp(20px, 7vw, 140px)' }}
           >
-            <span className="viajes-hero-edge" data-scramble>1 viaje</span>
-            <span className="viajes-hero-edge" data-scramble>2 vacaciones</span>
+            <span className="viajes-hero-edge viajes-script" data-scramble>1 viaje</span>
+            <span className="viajes-hero-edge viajes-script" data-scramble>2 vacaciones</span>
           </div>
         </div>
 

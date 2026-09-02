@@ -1,4 +1,5 @@
 import localFont from 'next/font/local'
+import { Playball } from 'next/font/google'
 
 /* Display de la campaña: PPMonumentCondensed, el corte estrecho de la propia
    tipografía de marca. Los archivos ya estaban en public/fonts/PPMonument
@@ -18,5 +19,19 @@ export const viajesDisplay = localFont({
     { path: '../../public/fonts/PPMonument/PPMonumentCondensed-Black.otf', weight: '900', style: 'normal' },
   ],
   variable: '--font-viajes-display',
+  display: 'swap',
+})
+
+/* Script de la campaña. Playball trae un único peso (400) y es una cursiva
+   de rótulo: contrasta con la condensada sin competir por el mismo registro.
+   Se usa en la palabra "Travel", en "1 viaje / 2 vacaciones" y en los
+   acentos editoriales del resto de la página.
+
+   Va en caja mixta a propósito: una script en MAYÚSCULAS pierde los enlaces
+   entre letras, que es justo lo que la hace legible. */
+export const viajesScript = Playball({
+  subsets: ['latin'],
+  weight: '400',
+  variable: '--font-viajes-script',
   display: 'swap',
 })

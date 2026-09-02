@@ -585,3 +585,15 @@ body::before {
     --ring-size: 200px;
   }
 }
+
+/* ── Script de la campaña (Playball) ──────────────────────────────────
+   Sin uppercase: una cursiva en mayúsculas pierde los enlaces entre
+   letras. El tamaño se sube un punto porque la altura de x de Playball
+   es menor que la de la condensada, y a igual font-size se veía más
+   pequeña de lo que debería. */
+.viajes-script {
+  font-family: var(--font-viajes-script), 'Brush Script MT', cursive;
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0;
+}

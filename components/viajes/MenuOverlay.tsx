@@ -114,7 +114,7 @@ export default function MenuOverlay({
         </button>
       </div>
 
-      <nav className="flex flex-1 flex-col justify-center" style={{ padding: '0 32px 64px' }}>
+      <nav className="flex flex-1 flex-col justify-center overflow-y-auto" style={{ padding: '0 32px 64px' }}>
         {LINKS.map((link) => (
           <Link
             key={link.href}
@@ -122,8 +122,11 @@ export default function MenuOverlay({
             onClick={onClose}
             className="viajes-wordmark"
             style={{
-              fontSize: 'clamp(2rem, 7vw, 4.5rem)',
-              lineHeight: 1.06,
+              // El doble que antes (era clamp(2rem, 7vw, 4.5rem)). A este
+              // tamaño los seis links ya no caben en una pantalla, por eso
+              // el <nav> permite scroll.
+              fontSize: 'clamp(4rem, 14vw, 9rem)',
+              lineHeight: 1.02,
               textAlign: 'left',
               textDecoration: 'none',
               padding: '6px 0',

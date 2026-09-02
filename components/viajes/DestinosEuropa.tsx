@@ -46,14 +46,15 @@ export default function DestinosEuropa() {
                 Foto pendiente
               </span>
             </div>
+            {/* Los nombres de destino van en script, igual que "Travel" en el
+                hero: los nombres propios y evocadores llevan la cursiva, la
+                copia estructural se queda en la condensada. */}
             <p
-              className="mt-4"
+              className="viajes-script mt-4"
               data-scramble
               style={{
-                fontFamily: 'var(--font-viajes-display), sans-serif',
-                fontSize: 'clamp(1.5rem, 5vw, 2.2rem)',
-                lineHeight: 1,
-                textTransform: 'uppercase',
+                fontSize: 'clamp(1.9rem, 6vw, 2.8rem)',
+                lineHeight: 1.1,
               }}
             >
               {nombre}

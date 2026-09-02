@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { viajesDisplay } from './fonts'
+import { viajesDisplay, viajesScript } from './fonts'
 import ViajesShell from '@/components/viajes/ViajesShell'
 import HeroViajes from '@/components/viajes/HeroViajes'
 import LaIdea from '@/components/viajes/LaIdea'
@@ -31,7 +31,7 @@ export const metadata: Metadata = {
    de vuelta al sitio vive en el link "Viajes" del nav principal. */
 export default function ViajesPage() {
   return (
-    <main className={`viajes-root ${viajesDisplay.variable}`}>
+    <main className={`viajes-root ${viajesDisplay.variable} ${viajesScript.variable}`}>
       <ViajesShell>
         <HeroViajes />
         <LaIdea />
