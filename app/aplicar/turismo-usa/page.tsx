@@ -57,6 +57,7 @@ const STEP_KEYS = [
 // Etiquetas legibles para el resumen de errores. Si un campo no está acá,
 // se muestra el nombre "humanizado" para que NUNCA quede un error invisible.
 const FIELD_LABELS: Record<string, string> = {
+  currentJobStartDate: 'Fecha de inicio de trabajo y/o estudios',
   usaVisaType: 'Primera solicitud o renovación',
   arrivalDate: 'Fecha de llegada a USA',
   departureDate: 'Fecha de salida de USA',

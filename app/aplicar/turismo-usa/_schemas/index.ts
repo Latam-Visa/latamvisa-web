@@ -218,6 +218,9 @@ export const step7Schema = z.object({
   currentEmployerZip: requiredString,
   currentEmployerPhone: requiredString,
   currentEmployerEmail: z.string().optional(),
+  // Fecha de inicio del trabajo/estudio ACTUAL. No confundir con
+  // previousJobStartDate, que es la del empleo anterior.
+  currentJobStartDate: requiredDate,
   monthlySalaryUsd: requiredString,
   currentJobResponsibilities: z.string().min(10, 'Por favor detalla más tus responsabilidades (min 10 caracteres)'),
   hadPreviousJob: z.enum(['true', 'false']).optional(),

@@ -35,6 +35,16 @@ export function Step7Work() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <FormField
+          label="Fecha de inicio de trabajo y/o inicio de estudios"
+          name="step7Work.currentJobStartDate"
+          required
+          hint="Desde cuándo estás en tu trabajo o estudio actual"
+          error={errors.step7Work?.currentJobStartDate?.message as string}
+        >
+          <input type="date" {...register('step7Work.currentJobStartDate')} className="w-full bg-[#F5F5F0] border border-[#E5E5E5] rounded-lg px-4 py-3 text-[#0A0A0A] focus:outline-none focus:border-[#C8FF00] [color-scheme:light]" />
+        </FormField>
+
         <FormField label="Salario mensual aproximado en USD" name="step7Work.monthlySalaryUsd" required error={errors.step7Work?.monthlySalaryUsd?.message as string}>
           <input type="number" min="0" {...register('step7Work.monthlySalaryUsd')} className="w-full bg-[#F5F5F0] border border-[#E5E5E5] rounded-lg px-4 py-3 text-[#0A0A0A] focus:outline-none focus:border-[#C8FF00]" placeholder="Ej: 1500" />
         </FormField>

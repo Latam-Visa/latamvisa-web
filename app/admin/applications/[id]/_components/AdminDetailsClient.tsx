@@ -312,6 +312,7 @@ export function AdminDetailsClient({ application, signedPhotoUrls }: Props) {
           <Row label="CP empleador" value={val(w.currentEmployerZip)} />
           <Row label="Tel. empleador" value={val(w.currentEmployerPhone)} />
           <Row label="Email empleador" value={val(w.currentEmployerEmail)} />
+          <Row label="Inicio trabajo/estudios" value={fmtDate(w.currentJobStartDate)} />
           <Row label="Salario mensual USD" value={w.monthlySalaryUsd ? `USD ${w.monthlySalaryUsd}` : '—'} />
           <Row label="Responsabilidades" value={val(w.currentJobResponsibilities)} />
           <Row label="¿Trabajo anterior?" value={bool(w.hadPreviousJob)} />
