@@ -534,19 +534,6 @@ body::before {
   margin-top: -0.24em;
 }
 
-.viajes-hero-edge {
-  font-family: var(--font-viajes-display), 'Arial Narrow', sans-serif;
-  font-weight: 900;
-  /* 3x el tamaño original (era clamp(1rem, 2.2vw, 2rem)) en el tramo fluido
-     y en el máximo: 95px a 1440px, contra los ~32px de antes.
-     Se recortan respecto al 3x inicial: a 95px competían con el wordmark.
-     El wordmark tiene que seguir siendo el elemento más grande de la
-     página, así que estos se quedan claramente por debajo. */
-  font-size: clamp(1.5rem, 4.4vw, 4rem);
-  line-height: 1.05;
-  text-transform: uppercase;
-  color: #FFFFFF;
-}
 
 /* CTA circular — el trazo se dibuja con stroke-dashoffset al entrar en vista */
 .viajes-ring circle {
@@ -596,4 +583,72 @@ body::before {
   font-weight: 400;
   text-transform: none;
   letter-spacing: 0;
+}
+
+/* ── Hero de /viajes: proporciones de la referencia (ERA Residence) ──────
+   Clases propias del hero para no arrastrar a la intro ni al overlay de
+   menú, que comparten .viajes-wordmark con su propio tamaño. */
+
+/* El título manda: "LATAM" mide 2.005em de ancho en PPMonumentCondensed-Black
+   (medido sobre el OTF), menos 0.10em del tracking negativo -> ~1.905em.
+   A 47vw eso da ~90% del ancho de la ventana en cualquier tamaño, que es la
+   proporción de "RESIDENCE" en la referencia. El tope en rem evita que en
+   pantallas ultra anchas crezca sin control. */
+.viajes-hero-title {
+  /* "LATAM" mide 1.905em de ancho (2.005em de tinta menos 0.10em del
+     tracking negativo), medido sobre el OTF. A 47vw eso da ~88% del ancho
+     de la ventana, que es la proporción del título en la referencia.
+
+     Pero la referencia usa una palabra de 9 letras y la nuestra tiene 5:
+     a igual ancho, nuestra altura de mayúscula es el doble. En un desktop
+     apaisado, 47vw deja el título ocupando media pantalla de alto y se
+     come las etiquetas laterales y el CTA circular. Por eso el alto manda
+     cuando la ventana es ancha y baja: 42svh es el máximo que deja el
+     bloque terminando por encima del 47% de la altura.
+     En móvil (alto y estrecho) gana el 47vw y se ve el ancho completo. */
+  font-size: clamp(4rem, min(47vw, 42vh), 56rem);
+  font-size: clamp(4rem, min(47vw, 42svh), 56rem);
+  white-space: nowrap;
+}
+
+/* La script se mete debajo del título a un tercio de su altura visual.
+   Antes iba a 1.15em (más grande que el propio título): ese era el
+   desajuste principal contra la referencia. */
+.viajes-hero-script {
+  display: block;
+  font-size: 0.32em;
+  line-height: 0.9;
+  letter-spacing: 0;
+  /* solapa ligeramente con la línea de arriba, como "Estepona" bajo
+     "RESIDENCE"; el padding devuelve el aire que necesitan las mayúsculas
+     de la script para no recortarse. */
+  margin-top: -0.39em;
+  padding-top: 0.12em;
+}
+
+/* Etiquetas laterales: escala de rótulo, no de título. Van a la misma
+   altura, ancladas a los tercios laterales. */
+.viajes-hero-edge {
+  position: absolute;
+  top: 55%;
+  font-size: clamp(1.25rem, 3.5vw, 2.5rem);
+  line-height: 1.05;
+  text-transform: uppercase;
+  color: #FFFFFF;
+}
+
+.viajes-hero-edge--left {
+  left: 20%;
+  text-align: left;
+}
+
+.viajes-hero-edge--right {
+  right: 20%;
+  text-align: right;
+}
+
+/* En móvil el 20% deja las dos etiquetas chocando en el centro. */
+@media (max-width: 767px) {
+  .viajes-hero-edge--left { left: 8%; }
+  .viajes-hero-edge--right { right: 8%; }
 }

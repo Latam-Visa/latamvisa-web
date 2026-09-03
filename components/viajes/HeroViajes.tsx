@@ -185,7 +185,7 @@ export default function HeroViajes() {
           href="/"
           aria-label="LATAM Travel — inicio"
           className="absolute left-0 top-0 z-20 flex items-center"
-          style={{ padding: '32px' }}
+          style={{ padding: 'clamp(28px, 3.3vw, 48px)' }}
         >
           {/* Recorte ajustado a la placa: el PNG con padding rendía solo
               ~10.6px de marca visible dentro de una caja de 40px. */}
@@ -195,7 +195,7 @@ export default function HeroViajes() {
             width={961}
             height={121}
             priority
-            className="h-3.5 w-auto object-contain md:h-5"
+            className="h-3 w-auto object-contain md:h-[17px]"
           />
         </Link>
 
@@ -208,7 +208,9 @@ export default function HeroViajes() {
           aria-expanded={menuOpen}
           className="viajes-label absolute right-0 top-0 z-20 flex items-center gap-2"
           style={{
-            padding: '32px',
+            padding: 'clamp(28px, 3.3vw, 48px)',
+            fontFamily: 'var(--font-viajes-display), "Arial Narrow", sans-serif',
+            fontWeight: 900,
             color: '#FFFFFF',
             background: 'none',
             border: 'none',
@@ -226,26 +228,20 @@ export default function HeroViajes() {
           </svg>
         </button>
 
-        {/* CENTRO — wordmark + línea de borde a borde */}
-        <div className="absolute inset-x-0 z-10" style={{ top: '11%' }}>
+        {/* CENTRO — wordmark */}
+        <div className="absolute inset-x-0 z-10" style={{ top: '9%' }}>
           {/* El texto final va en el HTML: si el JS no corre o hay
               reduced-motion, el wordmark se lee igual. El scramble solo lo
               reescribe encima. */}
-          <h1 className="viajes-wordmark">
+          <h1 className="viajes-wordmark viajes-hero-title">
             <span ref={line1Ref} className="block">Latam</span>
-            <span ref={line2Ref} className="viajes-script block" style={{ fontSize: '1.15em', lineHeight: 0.95 }}>Travel</span>
+            <span ref={line2Ref} className="viajes-script viajes-hero-script">Travel</span>
           </h1>
-
-          <div
-            /* "un poco más centrados": se separan de los bordes. El padding
-               crece con el ancho en vez de quedarse en los 32px del borde. */
-            className="mt-6 flex items-baseline justify-between"
-            style={{ paddingLeft: 'clamp(20px, 7vw, 140px)', paddingRight: 'clamp(20px, 7vw, 140px)' }}
-          >
-            <span className="viajes-hero-edge viajes-script" data-scramble>1 viaje</span>
-            <span className="viajes-hero-edge viajes-script" data-scramble>2 vacaciones</span>
-          </div>
         </div>
+
+        {/* Etiquetas laterales, a la misma altura y en los tercios */}
+        <span className="viajes-hero-edge viajes-hero-edge--left viajes-script z-10" data-scramble>1 viaje</span>
+        <span className="viajes-hero-edge viajes-hero-edge--right viajes-script z-10" data-scramble>2 vacaciones</span>
 
         {/* CTA circular en la mitad inferior */}
         <a
