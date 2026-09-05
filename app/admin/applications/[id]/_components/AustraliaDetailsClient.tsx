@@ -3,21 +3,13 @@
 import { useState } from 'react'
 import { updateApplicationStatus, updateApplicationNotes, deleteApplication } from '../../../_actions/admin-actions'
 import { useRouter } from 'next/navigation'
-import { FileText, Save, Trash2, Loader2, ExternalLink, Copy, Download } from 'lucide-react'
+import { Save, Trash2, Loader2, ExternalLink, Copy } from 'lucide-react'
 import { formatCalendarDate } from '@/lib/dates'
+import { TranslatedDocuments } from '../../../_components/TranslatedDocuments'
+import type { TranslatedDocument } from '@/lib/traducciones/shared'
 
 interface SignedPhotoUrls {
   [key: string]: string | string[] | undefined
-}
-
-interface TranslatedDocument {
-  id: string
-  nombre_original: string
-  nombre_archivo: string
-  status: string
-  motivo: string | null
-  created_at: string
-  downloadUrl?: string
 }
 
 interface Props {
@@ -81,67 +73,6 @@ function DocumentLink({ url, label }: { url: string | string[] | undefined; labe
           </a>
         ))}
       </div>
-    </div>
-  )
-}
-
-// Unknown/null statuses (old rows predating this column) read as 'traducido'.
-function normalizeDocStatus(status: string): 'traducido' | 'no_traducido' | 'error' {
-  return status === 'no_traducido' || status === 'error' ? status : 'traducido'
-}
-
-function translatedStatusBadge(status: string) {
-  const normalized = normalizeDocStatus(status)
-  const label =
-    normalized === 'traducido' ? 'Traducido' :
-    normalized === 'no_traducido' ? 'Original' :
-    'Error'
-  const classes =
-    normalized === 'traducido' ? 'bg-[#C8FF00]/20 text-[#5B6A00]' :
-    normalized === 'no_traducido' ? 'bg-[#E9EEF2] text-[#4B5A66]' :
-    'bg-red-100 text-red-700'
-  return (
-    <span className={`px-2 py-1 text-xs font-bold uppercase tracking-wider rounded shrink-0 ${classes}`}>
-      {label}
-    </span>
-  )
-}
-
-const DOC_STATUS_SECTIONS: { key: 'traducido' | 'no_traducido' | 'error'; title: string; showMotivo: boolean }[] = [
-  { key: 'traducido', title: 'Traducidos', showMotivo: false },
-  { key: 'no_traducido', title: 'No traducidos', showMotivo: true },
-  { key: 'error', title: 'Con error', showMotivo: true },
-]
-
-function DocumentRow({ doc, sectionKey }: { doc: TranslatedDocument; sectionKey: 'traducido' | 'no_traducido' | 'error' }) {
-  const showMotivo = sectionKey !== 'traducido' && !!doc.motivo
-  return (
-    <div className="bg-[#F5F5F0] border border-[#E5E5E5] rounded-xl p-4 flex flex-wrap items-center gap-3 sm:gap-4">
-      <div className="w-10 h-10 rounded-lg bg-white border border-[#E5E5E5] shrink-0 flex items-center justify-center">
-        <FileText className="w-5 h-5 text-[#3D5A00]" />
-      </div>
-      <div className="flex-1 min-w-0 basis-full sm:basis-0">
-        <p className="text-sm font-medium text-[#0A0A0A] break-words">{doc.nombre_archivo || doc.nombre_original}</p>
-        {showMotivo && (
-          <p className={`text-xs mt-0.5 break-words ${sectionKey === 'error' ? 'text-red-700' : 'text-[#888]'}`}>
-            {doc.motivo}
-          </p>
-        )}
-      </div>
-      {translatedStatusBadge(doc.status)}
-      {doc.downloadUrl ? (
-        <a
-          href={doc.downloadUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex items-center gap-2 text-sm text-[#0A0A0A] bg-white border border-[#E5E5E5] px-3 py-1.5 rounded-lg hover:border-[#C8FF00] hover:text-[#C8FF00] transition-colors font-medium shrink-0"
-        >
-          <Download className="w-4 h-4" />
-          Descargar
-        </a>
-      ) : (
-        <span className="text-xs text-[#888] shrink-0">Sin archivo</span>
-      )}
     </div>
   )
 }
@@ -325,30 +256,7 @@ export function AustraliaDetailsClient({ application, signedPhotoUrls, translate
           </SectionCard>
         ) : (
           <SectionCard title="Documentos">
-            {translatedDocuments.length === 0 ? (
-              <div className="p-6 bg-[#F5F5F0] border border-[#E5E5E5] rounded-xl text-sm text-[#525252] text-center">
-                Aún no hay documentos para esta solicitud.
-              </div>
-            ) : (
-              <div className="space-y-6">
-                {DOC_STATUS_SECTIONS.map((section) => {
-                  const docs = translatedDocuments.filter((d) => normalizeDocStatus(d.status) === section.key)
-                  if (docs.length === 0) return null
-                  return (
-                    <div key={section.key}>
-                      <h4 className="text-sm font-bold text-[#0A0A0A] mb-3">
-                        {section.title} <span className="text-[#888] font-medium">({docs.length})</span>
-                      </h4>
-                      <div className="space-y-3">
-                        {docs.map((doc) => (
-                          <DocumentRow key={doc.id} doc={doc} sectionKey={section.key} />
-                        ))}
-                      </div>
-                    </div>
-                  )
-                })}
-              </div>
-            )}
+            <TranslatedDocuments documents={translatedDocuments} />
           </SectionCard>
         )}
       </div>

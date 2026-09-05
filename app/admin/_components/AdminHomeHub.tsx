@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import dynamic from 'next/dynamic'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
-import { ClipboardList, Lightbulb, ArrowRight, type LucideIcon } from 'lucide-react'
+import { ClipboardList, Lightbulb, Languages, ArrowRight, type LucideIcon } from 'lucide-react'
 
 const Antigravity = dynamic(() => import('@/components/Antigravity'), { ssr: false })
 
@@ -25,6 +25,7 @@ function useIsDesktop() {
 interface AdminHomeHubProps {
   solicitudesCount: number
   ideasPendingCount: number
+  traduccionesCount: number
 }
 
 interface HubCardData {
@@ -36,7 +37,7 @@ interface HubCardData {
   countLabel: string
 }
 
-export function AdminHomeHub({ solicitudesCount, ideasPendingCount }: AdminHomeHubProps) {
+export function AdminHomeHub({ solicitudesCount, ideasPendingCount, traduccionesCount }: AdminHomeHubProps) {
   const cards: HubCardData[] = [
     {
       href: '/admin/solicitudes',
@@ -54,10 +55,18 @@ export function AdminHomeHub({ solicitudesCount, ideasPendingCount }: AdminHomeH
       count: ideasPendingCount,
       countLabel: 'pendientes',
     },
+    {
+      href: '/admin/traducciones',
+      icon: Languages,
+      title: 'Traducciones',
+      subtitle: 'Traduce documentos que llegan por fuera del formulario',
+      count: traduccionesCount,
+      countLabel: traduccionesCount === 1 ? 'traducción' : 'traducciones',
+    },
   ]
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-6">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
       {cards.map((card, index) => (
         <HubCard key={card.href} card={card} index={index} />
       ))}

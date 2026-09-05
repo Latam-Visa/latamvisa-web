@@ -7,6 +7,8 @@ import { SchengenDetailsClient } from './_components/SchengenDetailsClient'
 import { AustraliaDetailsClient } from './_components/AustraliaDetailsClient'
 import Link from 'next/link'
 import { ArrowLeft } from 'lucide-react'
+import { signTranslatedRows } from '@/lib/traducciones/dispatch'
+import type { TranslatedDocument } from '@/lib/traducciones/shared'
 
 export const dynamic = 'force-dynamic'
 // Same fix as the solicitudes list: force-dynamic re-renders the route per
@@ -180,15 +182,7 @@ export default async function ApplicationDetailsPage({ params }: { params: { id:
     signedPhotoUrls = { doc_group1_arraigo, doc_group2_fondos, doc_group3_viajes, doc_national_id_url }
   }
 
-  let translatedDocuments: {
-    id: string
-    nombre_original: string
-    nombre_archivo: string
-    status: string
-    motivo: string | null
-    created_at: string
-    downloadUrl?: string
-  }[] = []
+  let translatedDocuments: TranslatedDocument[] = []
 
   if (destination === 'australia') {
     const { data: translatedRows } = await supabaseAdmin
@@ -198,35 +192,9 @@ export default async function ApplicationDetailsPage({ params }: { params: { id:
       .eq('pais', 'australia')
       .order('created_at', { ascending: false })
 
-    if (translatedRows) {
-      translatedDocuments = await Promise.all(
-        translatedRows.map(async (row) => {
-          let downloadUrl: string | undefined
-          if (row.storage_path) {
-            // Each row's own `bucket` says where its file actually lives:
-            // 'documentos-traducidos' for the merged translation, or
-            // 'visa-applications' for the client's original (passports, visas,
-            // and anything that failed translation). Hardcoding the former
-            // left originals with no signed URL at all.
-            const bucket = row.bucket || 'documentos-traducidos'
-            const { data, error } = await supabaseAdmin
-              .storage
-              .from(bucket)
-              .createSignedUrl(row.storage_path, 3600, { download: row.nombre_archivo })
-            if (!error && data) downloadUrl = data.signedUrl
-          }
-          return {
-            id: row.id,
-            nombre_original: row.nombre_original,
-            nombre_archivo: row.nombre_archivo,
-            status: row.status || 'traducido',
-            motivo: row.motivo,
-            created_at: row.created_at,
-            downloadUrl,
-          }
-        })
-      )
-    }
+    // El firmado por bucket vive en lib/traducciones/dispatch: cada fila dice
+    // en su columna `bucket` si el archivo es la traducción o el original.
+    if (translatedRows) translatedDocuments = await signTranslatedRows(translatedRows)
   }
 
   return (
