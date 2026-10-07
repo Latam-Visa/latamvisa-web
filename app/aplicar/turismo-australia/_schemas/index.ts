@@ -3,7 +3,7 @@ import * as z from 'zod'
 
 const booleanRadio = z.preprocess(
   (val) => val === 'true' || val === true ? true : val === 'false' || val === false ? false : val,
-  z.boolean({ required_error: "Requerido", invalid_type_error: "Requerido" })
+  z.boolean({ error: "Requerido" })
 );
 
 
@@ -50,6 +50,7 @@ export const step3Schema = z.object({
   country_of_birth: z.string().min(1, "Requerido"),
   relationship_status: z.string().min(1, "Requerido"),
   has_other_names: booleanRadio,
+  other_names_details: z.string().optional(),
   other_names_list: z.array(z.object({
     family_name: z.string(), given_names: z.string()
   })).optional(),

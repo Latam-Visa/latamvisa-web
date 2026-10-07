@@ -13,7 +13,12 @@ export async function POST(req: Request) {
 
     const supabase = getServiceSupabase();
 
-    const options = [];
+    // ── Fase 1: traer curso + colegio de cada courseId del escenario ──────────
+    // Se hace en dos fases porque la tarifa de visa (Cambio 3) depende de TODOS
+    // los cursos del escenario a la vez: si cualquiera de ellos es VET/vocacional
+    // (qual_level distinto de "ELICOS"), el escenario completo paga la tarifa
+    // estándar, no solo el curso VET individual.
+    const fetched: Array<{ course: any; school: any }> = [];
 
     for (const courseId of courseIds) {
       // 1. Fetch course details
@@ -50,6 +55,17 @@ export async function POST(req: Request) {
         return NextResponse.json({ error: `School not found for code: ${course.school_code}` }, { status: 400 });
       }
 
+      fetched.push({ course, school });
+    }
+
+    // ── Fase 2: clasificar el escenario completo (ELICOS puro vs. incluye VET) ─
+    const isElicos = (course: any) => (course.qual_level || '').trim().toUpperCase() === 'ELICOS';
+    const scenarioHasVet = fetched.some(({ course }) => !isElicos(course));
+    const visaFeeBase = scenarioHasVet ? QUOTE.VISA_500_FEE_VET_AUD : QUOTE.VISA_500_FEE_ELICOS_AUD;
+
+    const options = [];
+
+    for (const { course, school } of fetched) {
       // 3. Compute durationYears
       let durationYears = 0;
       if (course.duration_terms) {
@@ -62,7 +78,7 @@ export async function POST(req: Request) {
       } else if (course.duration_weeks) {
         durationYears = course.duration_weeks / 52;
       } else {
-        return NextResponse.json({ error: `Cannot determine duration for course: ${courseId}` }, { status: 400 });
+        return NextResponse.json({ error: `Cannot determine duration for course: ${course.id}` }, { status: 400 });
       }
 
       // 4. Compute block A (Paid)
@@ -80,17 +96,17 @@ export async function POST(req: Request) {
       }
       
       const oshcTotal = Math.round(QUOTE.OSHC_AUD_YEAR_SINGLE * durationYears);
-      const visaBase = QUOTE.VISA_500_FEE_AUD;
-      
+      const visaBase = visaFeeBase;
+
       const needsMedical = (durationYears * 12) > QUOTE.MEDICAL_REQUIRED_MONTHS;
-      
+
       let visaSurcharge = 0;
       let medicalOnshoreAUD = 0;
       let biometricsCOP = 0;
       let medicalCOP = 0;
 
       if (studentType === 'offshore') {
-        visaSurcharge = Math.round(QUOTE.VISA_500_FEE_AUD * QUOTE.VISA_CARD_SURCHARGE_PCT / 100);
+        visaSurcharge = Math.round(visaFeeBase * QUOTE.VISA_CARD_SURCHARGE_PCT / 100);
         biometricsCOP = QUOTE.CO_BIOMETRICS_COP;
         medicalCOP = needsMedical ? QUOTE.CO_MEDICAL_EXAM_COP : 0;
       } else {

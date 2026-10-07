@@ -28,13 +28,14 @@ type FormData = {
   situacion_libre: string
   // Shared
   ubicacion: string
+  codigo_referido: string
 }
 
 const INITIAL: FormData = {
   nombre: '', tipo_visa: '', pais_origen: '', edad: '', email: '', acepta: false,
   pais_destino: '', tiempo_estadia: '', viajes_previos: '', pasaporte: '', situacion_actual: '',
   student_type: '', que_estudiar: '', nivel_ingles: '', tiempo_estudio: '', situacion_laboral: '', situacion_libre: '',
-  ubicacion: ''
+  ubicacion: '', codigo_referido: ''
 }
 
 // Steps: 0=nombre, 1=tipo_visa, 2=pais_origen, 3=edad, 4-8=branch(5), 9=ubicacion(turismo), 10=email(turismo) → total 11 (or 12 for estudiante)
@@ -44,7 +45,7 @@ function getLabel(step: number, visa: VisaType): string {
   if (step === 1) return '¿Qué tipo de visa te interesa?'
   if (step === 2) return '¿De qué país eres?'
   if (step === 3) return '¿Cuántos años tienes?'
-  
+
   if (visa === 'turismo') {
     if (step === 4) return '¿A qué país quieres viajar?'
     if (step === 5) return '¿Cuánto tiempo planeas quedarte?'
@@ -54,7 +55,7 @@ function getLabel(step: number, visa: VisaType): string {
     if (step === 9) return '¿Dónde te encuentras ahora?'
     if (step === 10) return 'Tu correo electrónico'
   }
-  
+
   if (visa === 'estudiante') {
     if (step === 4) return '¿Dónde te encuentras ahora?'
     if (step === 5) return '¿Qué quieres estudiar en Australia?'
@@ -73,7 +74,7 @@ function getDynamicPlaceholder(data: FormData): string {
 
   const isOffshore = data.student_type === 'offshore';
   const isOnshore = data.student_type === 'onshore';
-  
+
   const wantsEnglish = data.que_estudiar === 'Inglés general' || data.que_estudiar === 'Inglés + curso técnico VET' || data.que_estudiar === 'Ambos';
   const wantsVET = data.que_estudiar === 'Inglés + curso técnico VET' || data.que_estudiar === 'Ambos';
   const isBasicEnglish = data.nivel_ingles === 'Básico' || data.nivel_ingles === 'No hablo inglés';
@@ -85,7 +86,7 @@ function getDynamicPlaceholder(data: FormData): string {
   if (isOffshore && isWorking && wantsEnglish && !wantsVET) {
     return `Ej: Soy${originText} y actualmente trabajo, pero quiero hacer una pausa para perfeccionar mi inglés. Busco vivir la experiencia de estar en otro país y abrirme nuevas puertas laborales a mi regreso.`;
   }
-  
+
   // 2: Offshore + English + Basic (Starting from scratch)
   if (isOffshore && wantsEnglish && isBasicEnglish) {
     return `Ej: Soy${originText} y me gustaría estudiar inglés porque ampliaría mis oportunidades laborales en el futuro. Quiero vivir la experiencia de estar en otro país, aprender desde cero y conocer otras culturas.`;
@@ -115,21 +116,25 @@ function getDynamicPlaceholder(data: FormData): string {
   return "Ej: Viajo con mi pareja y nuestro objetivo es estudiar y trabajar en Australia...";
 }
 
-function RadioOption({ value, selected, onSelect }: { value: string; selected: boolean; onSelect: () => void }) {
+function RadioOption({ value, label, desc, selected, onSelect }: { value: string; label?: string; desc?: string; selected: boolean; onSelect: () => void }) {
   return (
     <button
       type="button"
       onClick={onSelect}
-      className={`relative w-full text-left px-4 py-2.5 border transition-all duration-200 font-monument font-medium text-xs md:text-[12px] rounded-lg ${
-        selected
-          ? 'border-[#C8FF00] bg-[#C8FF00]/15 text-[#2F4A00] shadow-[0_4px_16px_rgba(200,255,0,0.15)] -translate-y-[1px]'
-          : 'border-black/10 bg-white/50 text-[#6B7280] hover:bg-white/80 hover:border-[#C8FF00]/50 hover:-translate-y-[1px]'
-      }`}
+      className={`relative w-full text-left px-4 py-2.5 border transition-all duration-200 font-monument font-medium text-xs md:text-[12px] rounded-lg ${selected
+        ? 'border-[#C8FF00] bg-[#C8FF00]/15 text-[#2F4A00] shadow-[0_4px_16px_rgba(200,255,0,0.15)] -translate-y-[1px]'
+        : 'border-black/10 bg-white/50 text-[#6B7280] hover:bg-white/80 hover:border-[#C8FF00]/50 hover:-translate-y-[1px]'
+        }`}
     >
       <span className={`mr-2.5 inline-block w-3 h-3 rounded-full border-2 flex-shrink-0 relative align-middle transition-colors ${selected ? 'border-[#C8FF00] bg-transparent' : 'border-black/20 bg-transparent'}`}>
         {selected && <span className="absolute inset-0 m-auto w-1.5 h-1.5 bg-[#C8FF00] rounded-full" />}
       </span>
-      {value}
+      {label || value}
+      {desc && (
+        <span className="block mt-0.5 ml-[22px] font-iceland font-normal text-[10.5px] leading-snug text-[#9CA3AF]">
+          {desc}
+        </span>
+      )}
     </button>
   )
 }
@@ -139,11 +144,10 @@ function VisaCard({ label, desc, icon, selected, onSelect }: { label: string; de
     <button
       type="button"
       onClick={onSelect}
-      className={`relative w-full text-left px-4 py-3.5 border rounded-xl transition-all duration-200 ${
-        selected
-          ? 'border-[#C8FF00] bg-[#C8FF00]/15 shadow-[0_4px_20px_rgba(200,255,0,0.15)] -translate-y-[1px]'
-          : 'border-black/10 bg-white/50 hover:bg-white/80 hover:border-[#C8FF00]/50 hover:-translate-y-[1px]'
-      }`}
+      className={`relative w-full text-left px-4 py-3.5 border rounded-xl transition-all duration-200 ${selected
+        ? 'border-[#C8FF00] bg-[#C8FF00]/15 shadow-[0_4px_20px_rgba(200,255,0,0.15)] -translate-y-[1px]'
+        : 'border-black/10 bg-white/50 hover:bg-white/80 hover:border-[#C8FF00]/50 hover:-translate-y-[1px]'
+        }`}
     >
       <div className="flex items-center gap-3">
         {icon && <span className="text-xl">{icon}</span>}
@@ -164,6 +168,25 @@ export default function EvaluationForm() {
   const [data, setData] = useState<FormData>(INITIAL)
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle')
   const [direction, setDirection] = useState(1)
+  const [showVetInfo, setShowVetInfo] = useState(false)
+  const [codeStatus, setCodeStatus] = useState<'idle' | 'checking' | 'valid' | 'invalid'>('idle')
+  const [codeInfo, setCodeInfo] = useState<{ code: string; influencer: string; discount_pct: number } | null>(null)
+
+  const validateCode = async (raw: string) => {
+    const clean = raw.trim()
+    if (!clean) { setCodeStatus('idle'); setCodeInfo(null); return }
+    setCodeStatus('checking')
+    try {
+      const res = await fetch('/api/validate-referral', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code: clean }),
+      })
+      const json = await res.json()
+      if (json.valid) { setCodeStatus('valid'); setCodeInfo(json) }
+      else { setCodeStatus('invalid'); setCodeInfo(null) }
+    } catch { setCodeStatus('invalid'); setCodeInfo(null) }
+  }
 
   const TOTAL_STEPS = data.tipo_visa === 'estudiante' ? 12 : 11;
 
@@ -175,7 +198,7 @@ export default function EvaluationForm() {
     if (step === 1) return data.tipo_visa !== ''
     if (step === 2) return data.pais_origen !== ''
     if (step === 3) return data.edad !== ''
-    
+
     if (data.tipo_visa === 'turismo') {
       if (step === 4) return data.pais_destino !== ''
       if (step === 5) return data.tiempo_estadia !== ''
@@ -185,7 +208,7 @@ export default function EvaluationForm() {
       if (step === 9) return data.ubicacion !== ''
       if (step === 10) return data.email.trim() !== '' && data.acepta
     }
-    
+
     if (data.tipo_visa === 'estudiante') {
       if (step === 4) return data.student_type !== ''
       if (step === 5) return data.que_estudiar !== ''
@@ -206,9 +229,9 @@ export default function EvaluationForm() {
 
   const handleSubmit = async () => {
     setStatus('loading')
-    
+
     const final_student_type = data.tipo_visa === 'estudiante' && data.student_type !== ''
-      ? data.student_type 
+      ? data.student_type
       : (data.ubicacion.startsWith('En Australia') ? 'onshore' : 'offshore')
     const payload = { ...data, edad: Number(data.edad), fecha: new Date().toISOString(), fuente: 'latamvisa.com', student_type: final_student_type }
     try {
@@ -246,9 +269,10 @@ export default function EvaluationForm() {
 
   return (
     <section id="evaluacion" className="py-14 lg:py-24 px-6 relative z-10 -mt-[1px]" style={{ background: 'transparent' }}>
-      
+
       {/* Estilos para el borde animado usando CSS Modules o inline <style> */}
-      <style dangerouslySetInnerHTML={{__html: `
+      <style dangerouslySetInnerHTML={{
+        __html: `
         @keyframes borderBreathing {
           0% { background-position: 0% 50%; }
           50% { background-position: 100% 50%; }
@@ -370,7 +394,7 @@ export default function EvaluationForm() {
                 </div>
 
                 {/* Form content */}
-                <div className="p-4 sm:p-5 flex-1 flex flex-col justify-center relative overflow-hidden" style={{ minHeight: '280px' }}>
+                <div className="p-4 sm:p-5 flex-1 flex flex-col justify-center relative overflow-y-auto" style={{ minHeight: '280px' }}>
                   <AnimatePresence mode="popLayout" custom={direction}>
 
                     {status === 'loading' && (
@@ -381,12 +405,40 @@ export default function EvaluationForm() {
                     )}
 
                     {status === 'success' && (
-                      <motion.div key="success" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="flex flex-col items-center justify-center gap-5 text-center absolute inset-0 px-6">
-                        <div className="w-20 h-20 bg-white/70 backdrop-blur-md rounded-full flex items-center justify-center text-4xl shadow-[0_20px_40px_rgba(200,255,0,0.2)] border border-white/50">📩</div>
-                        <h3 className="font-monument font-black text-2xl md:text-3xl text-[#0d2b0d]">¡Todo listo{greeting}!</h3>
-                        <p className="font-iceland text-[#2F4A00] font-bold text-sm leading-relaxed max-w-[280px]">
-                          Revisa tu correo en los próximos minutos. Te enviamos un análisis preliminar de tu ruta óptima.
+                      <motion.div key="success" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="flex flex-col items-center justify-center text-center absolute inset-0 px-5 py-4">
+                        <div className="w-[52px] h-[52px] bg-white rounded-full flex items-center justify-center text-[24px] shadow-[0_10px_28px_rgba(47,74,0,0.12)] border-2 border-[#C8FF00] flex-shrink-0">📩</div>
+
+                        <h3 className="font-monument font-black text-[21px] md:text-[24px] text-[#0d2b0d] mt-3 leading-[1.05]">
+                          ¡Todo listo{greeting}!
+                        </h3>
+
+                        <p className="font-funnel font-medium text-[#2F4A00] text-[13.5px] md:text-[14px] leading-[1.5] max-w-[330px] mt-2">
+                          Revisa tu correo en los próximos minutos. Te enviamos un análisis
+                          preliminar de tu ruta óptima.
                         </p>
+
+                        {codeStatus === 'valid' && codeInfo && (
+                          <div className="w-full max-w-[350px] mt-4">
+                            <div className="h-px bg-[#2F4A00]/15 mb-3.5" />
+
+                            <div className="rounded-xl bg-white/80 backdrop-blur-sm border border-[#2F4A00]/12 border-l-4 border-l-[#C8FF00] px-4 py-3 text-left shadow-[0_5px_18px_rgba(47,74,0,0.06)]">
+                              <p className="font-monument font-black text-[13px] text-[#0d2b0d] leading-tight">
+                                Descuento de {codeInfo.influencer} aplicado
+                              </p>
+                              <p className="font-funnel font-medium text-[12.5px] text-[#2F4A00] leading-[1.45] mt-1">
+                                Tu sesión de planeación de <b>USD $59</b> queda{' '}
+                                {codeInfo.discount_pct === 100 ? <b>100% gratis</b> : <b>con {codeInfo.discount_pct}% de descuento</b>}.
+                              </p>
+                            </div>
+
+                            <a
+                              href={`/agendar?code=${encodeURIComponent(codeInfo.code)}`}
+                              className="block w-full mt-3 px-5 py-3 bg-[#C8FF00] text-[#0d2b0d] border-2 border-[#0d2b0d]/85 font-monument font-black text-[11.5px] uppercase tracking-[0.08em] text-center rounded-xl shadow-[0_5px_0_rgba(13,43,13,0.85)] hover:-translate-y-[2px] hover:shadow-[0_7px_0_rgba(13,43,13,0.85)] active:translate-y-[2px] active:shadow-[0_2px_0_rgba(13,43,13,0.85)] transition-all"
+                            >
+                              Agendar mi sesión gratis →
+                            </a>
+                          </div>
+                        )}
                       </motion.div>
                     )}
 
@@ -419,25 +471,25 @@ export default function EvaluationForm() {
                           />
                         )}
 
-                      {/* Step 1 — Tipo de visa */}
-                      {step === 1 && (
-                        <div className="flex flex-col gap-3">
-                          <VisaCard
-                            label="Visa de Turismo"
-                            desc="Viajar, visitar o explorar un nuevo país"
-                            icon=""
-                            selected={data.tipo_visa === 'turismo'}
-                            onSelect={() => { setData({ ...data, tipo_visa: 'turismo' }); setTimeout(() => navigate(1), 150) }}
-                          />
-                          <VisaCard
-                            label="Visa de Estudiante"
-                            desc="Estudiar inglés, cursos técnicos o carreras en Australia"
-                            icon=""
-                            selected={data.tipo_visa === 'estudiante'}
-                            onSelect={() => { setData({ ...data, tipo_visa: 'estudiante' }); setTimeout(() => navigate(1), 150) }}
-                          />
-                        </div>
-                      )}
+                        {/* Step 1 — Tipo de visa */}
+                        {step === 1 && (
+                          <div className="flex flex-col gap-3">
+                            <VisaCard
+                              label="Visa de Turismo"
+                              desc="Viajar, visitar o explorar un nuevo país"
+                              icon=""
+                              selected={data.tipo_visa === 'turismo'}
+                              onSelect={() => { setData({ ...data, tipo_visa: 'turismo' }); setTimeout(() => navigate(1), 150) }}
+                            />
+                            <VisaCard
+                              label="Visa de Estudiante"
+                              desc="Estudiar inglés, cursos técnicos o carreras en Australia"
+                              icon=""
+                              selected={data.tipo_visa === 'estudiante'}
+                              onSelect={() => { setData({ ...data, tipo_visa: 'estudiante' }); setTimeout(() => navigate(1), 150) }}
+                            />
+                          </div>
+                        )}
 
                         {/* Step 2 — País origen (ambas ramas) */}
                         {step === 2 && (
@@ -466,121 +518,175 @@ export default function EvaluationForm() {
                           />
                         )}
 
-                      {/* TURISMO — Step 4: País destino */}
-                      {step === 4 && data.tipo_visa === 'turismo' && (
-                        <div className="grid grid-cols-2 gap-2">
-                          {['Australia', 'Japón', 'Inglaterra', 'Canadá', 'Estados Unidos', 'Nueva Zelanda'].map(opt => (
-                            <RadioOption key={opt} value={opt} selected={data.pais_destino === opt} onSelect={() => setData({ ...data, pais_destino: opt })} />
-                          ))}
-                        </div>
-                      )}
+                        {/* TURISMO — Step 4: País destino */}
+                        {step === 4 && data.tipo_visa === 'turismo' && (
+                          <div className="grid grid-cols-2 gap-2">
+                            {['Australia', 'Japón', 'Inglaterra', 'Canadá', 'Estados Unidos', 'Nueva Zelanda'].map(opt => (
+                              <RadioOption key={opt} value={opt} selected={data.pais_destino === opt} onSelect={() => setData({ ...data, pais_destino: opt })} />
+                            ))}
+                          </div>
+                        )}
 
-                      {/* TURISMO — Step 5: Tiempo estadía */}
-                      {step === 5 && data.tipo_visa === 'turismo' && (
-                        <div className="flex flex-col gap-2">
-                          {['Menos de 1 mes', '1 a 3 meses', '3 a 6 meses', 'Más de 6 meses'].map(opt => (
-                            <RadioOption key={opt} value={opt} selected={data.tiempo_estadia === opt} onSelect={() => setData({ ...data, tiempo_estadia: opt })} />
-                          ))}
-                        </div>
-                      )}
+                        {/* TURISMO — Step 5: Tiempo estadía */}
+                        {step === 5 && data.tipo_visa === 'turismo' && (
+                          <div className="flex flex-col gap-2">
+                            {['Menos de 1 mes', '1 a 3 meses', '3 a 6 meses', 'Más de 6 meses'].map(opt => (
+                              <RadioOption key={opt} value={opt} selected={data.tiempo_estadia === opt} onSelect={() => setData({ ...data, tiempo_estadia: opt })} />
+                            ))}
+                          </div>
+                        )}
 
-                      {/* TURISMO — Step 6: Viajes previos */}
-                      {step === 6 && data.tipo_visa === 'turismo' && (
-                        <div className="flex flex-col gap-2">
-                          {['Nunca', '1 o 2 veces', 'Varias veces'].map(opt => (
-                            <RadioOption key={opt} value={opt} selected={data.viajes_previos === opt} onSelect={() => setData({ ...data, viajes_previos: opt })} />
-                          ))}
-                        </div>
-                      )}
+                        {/* TURISMO — Step 6: Viajes previos */}
+                        {step === 6 && data.tipo_visa === 'turismo' && (
+                          <div className="flex flex-col gap-2">
+                            {['Nunca', '1 o 2 veces', 'Varias veces'].map(opt => (
+                              <RadioOption key={opt} value={opt} selected={data.viajes_previos === opt} onSelect={() => setData({ ...data, viajes_previos: opt })} />
+                            ))}
+                          </div>
+                        )}
 
-                      {/* TURISMO — Step 7: Pasaporte */}
-                      {step === 7 && data.tipo_visa === 'turismo' && (
-                        <div className="flex flex-col gap-2">
-                          {['Sí, vigente', 'Vence en menos de 6 meses', 'En trámite', 'No tengo'].map(opt => (
-                            <RadioOption key={opt} value={opt} selected={data.pasaporte === opt} onSelect={() => setData({ ...data, pasaporte: opt })} />
-                          ))}
-                        </div>
-                      )}
+                        {/* TURISMO — Step 7: Pasaporte */}
+                        {step === 7 && data.tipo_visa === 'turismo' && (
+                          <div className="flex flex-col gap-2">
+                            {['Sí, vigente', 'Vence en menos de 6 meses', 'En trámite', 'No tengo'].map(opt => (
+                              <RadioOption key={opt} value={opt} selected={data.pasaporte === opt} onSelect={() => setData({ ...data, pasaporte: opt })} />
+                            ))}
+                          </div>
+                        )}
 
-                      {/* TURISMO — Step 8: Situación actual */}
-                      {step === 8 && data.tipo_visa === 'turismo' && (
-                        <div className="flex flex-col gap-2">
-                          {['Trabajo', 'Estudio', 'Trabajo y estudio', 'Ninguna'].map(opt => (
-                            <RadioOption key={opt} value={opt} selected={data.situacion_actual === opt} onSelect={() => setData({ ...data, situacion_actual: opt })} />
-                          ))}
-                        </div>
-                      )}
+                        {/* TURISMO — Step 8: Situación actual */}
+                        {step === 8 && data.tipo_visa === 'turismo' && (
+                          <div className="flex flex-col gap-2">
+                            {['Trabajo', 'Estudio', 'Trabajo y estudio', 'Ninguna'].map(opt => (
+                              <RadioOption key={opt} value={opt} selected={data.situacion_actual === opt} onSelect={() => setData({ ...data, situacion_actual: opt })} />
+                            ))}
+                          </div>
+                        )}
 
-                      {/* TURISMO — Step 9: Ubicación */}
-                      {step === 9 && data.tipo_visa === 'turismo' && (
-                        <div className="flex flex-col gap-2">
-                          {['En Australia (renovando visa)', 'Fuera de Australia (aplicando desde afuera)'].map(opt => (
-                            <RadioOption key={opt} value={opt} selected={data.ubicacion === opt} onSelect={() => setData({ ...data, ubicacion: opt })} />
-                          ))}
-                        </div>
-                      )}
+                        {/* TURISMO — Step 9: Ubicación */}
+                        {step === 9 && data.tipo_visa === 'turismo' && (
+                          <div className="flex flex-col gap-2">
+                            {['En Australia (renovando visa)', 'Fuera de Australia (aplicando desde afuera)'].map(opt => (
+                              <RadioOption key={opt} value={opt} selected={data.ubicacion === opt} onSelect={() => setData({ ...data, ubicacion: opt })} />
+                            ))}
+                          </div>
+                        )}
 
-                      {/* ESTUDIANTE — Step 4: Dónde te encuentras (student_type) */}
-                      {step === 4 && data.tipo_visa === 'estudiante' && (
-                        <div className="flex flex-col gap-2">
-                          {[
-                            { label: 'Estoy fuera de Australia', value: 'offshore' },
-                            { label: 'Ya estoy en Australia', value: 'onshore' }
-                          ].map(opt => (
-                            <RadioOption 
-                              key={opt.value} 
-                              value={opt.label} 
-                              selected={data.student_type === opt.value} 
-                              onSelect={() => setData({ ...data, student_type: opt.value })} 
-                            />
-                          ))}
-                        </div>
-                      )}
+                        {/* ESTUDIANTE — Step 4: Dónde te encuentras (student_type) */}
+                        {step === 4 && data.tipo_visa === 'estudiante' && (
+                          <div className="flex flex-col gap-2">
+                            {[
+                              { label: 'Estoy fuera de Australia', value: 'offshore' },
+                              { label: 'Ya estoy en Australia', value: 'onshore' }
+                            ].map(opt => (
+                              <RadioOption
+                                key={opt.value}
+                                value={opt.label}
+                                selected={data.student_type === opt.value}
+                                onSelect={() => setData({ ...data, student_type: opt.value })}
+                              />
+                            ))}
+                          </div>
+                        )}
 
-                      {/* ESTUDIANTE — Step 5: Qué estudiar */}
-                      {step === 5 && data.tipo_visa === 'estudiante' && (
-                        <div className="flex flex-col gap-2">
-                          {['Inglés general', 'Inglés + curso técnico VET', 'Ambos', 'Todavía explorando'].map(opt => (
-                            <RadioOption key={opt} value={opt} selected={data.que_estudiar === opt} onSelect={() => setData({ ...data, que_estudiar: opt })} />
-                          ))}
-                        </div>
-                      )}
+                        {/* ESTUDIANTE — Step 5: Qué estudiar */}
+                        {step === 5 && data.tipo_visa === 'estudiante' && (
+                          <div className="flex flex-col gap-2">
+                            {[
+                              { value: 'Inglés general', label: 'Inglés general', desc: 'Solo curso de inglés' },
+                              { value: 'Inglés + curso técnico VET', label: 'Inglés + carrera técnica (VET)', desc: 'Diplomas y certificados oficiales australianos' },
+                              { value: 'Ambos', label: 'Ambos', desc: 'Quiero combinar inglés y carrera técnica' },
+                              { value: 'Todavía explorando', label: 'Todavía explorando', desc: 'Aún no lo tengo claro, quiero asesoría' },
+                            ].map(opt => (
+                              <RadioOption
+                                key={opt.value}
+                                value={opt.value}
+                                label={opt.label}
+                                desc={opt.desc}
+                                selected={data.que_estudiar === opt.value}
+                                onSelect={() => setData({ ...data, que_estudiar: opt.value })}
+                              />
+                            ))}
 
-                      {/* ESTUDIANTE — Step 6: Nivel inglés */}
-                      {step === 6 && data.tipo_visa === 'estudiante' && (
-                        <div className="flex flex-col gap-2">
-                          {['No hablo inglés', 'Básico', 'Intermedio', 'Avanzado'].map(opt => (
-                            <RadioOption key={opt} value={opt} selected={data.nivel_ingles === opt} onSelect={() => setData({ ...data, nivel_ingles: opt })} />
-                          ))}
-                        </div>
-                      )}
+                            <button
+                              type="button"
+                              onClick={() => setShowVetInfo(v => !v)}
+                              className="mt-1 self-center font-iceland font-bold text-[13px] text-[#2F4A00] underline underline-offset-2 hover:text-[#0d2b0d] transition-colors"
+                            >
+                              {showVetInfo ? '▾ Ocultar' : '▸ ¿Qué es un curso VET?'}
+                            </button>
 
-                      {/* ESTUDIANTE — Step 7: Tiempo estudio */}
-                      {step === 7 && data.tipo_visa === 'estudiante' && (
-                        <div className="flex flex-col gap-2">
-                          {['1 a 3 meses', '3 a 6 meses', '6 meses a 1 año', 'Más de 1 año'].map(opt => (
-                            <RadioOption key={opt} value={opt} selected={data.tiempo_estudio === opt} onSelect={() => setData({ ...data, tiempo_estudio: opt })} />
-                          ))}
-                        </div>
-                      )}
+                            <AnimatePresence>
+                              {showVetInfo && (
+                                <motion.div
+                                  initial={{ opacity: 0, height: 0 }}
+                                  animate={{ opacity: 1, height: 'auto' }}
+                                  exit={{ opacity: 0, height: 0 }}
+                                  transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+                                  className="overflow-hidden"
+                                >
+                                  <div className="rounded-lg border border-[#C8FF00]/40 bg-white/60 backdrop-blur-sm p-3.5">
+                                    <p className="font-iceland text-[14px] md:text-[15px] leading-[1.65] text-[#0d2b0d]">
+                                      <b>VET</b> (Vocational Education and Training) son estudios técnicos oficiales del sistema australiano, registrados en CRICOS. Son prácticos, más cortos y más económicos que una universidad.
+                                    </p>
+                                    <p className="font-monument font-black uppercase text-[10.5px] tracking-widest text-[#2F4A00] mt-4 mb-2">
+                                      Áreas disponibles
+                                    </p>
+                                    <div className="flex flex-wrap gap-1.5">
+                                      {['Hospitalidad y turismo', 'Negocios y liderazgo', 'Cocina y pastelería', 'Cuidado de personas', 'Tecnología (IT)', 'Automotriz', 'Construcción y oficios'].map(area => (
+                                        <span key={area} className="font-iceland text-[12px] px-2.5 py-1.5 rounded-full bg-[#C8FF00]/20 text-[#2F4A00] border border-[#C8FF00]/30">
+                                          {area}
+                                        </span>
+                                      ))}
+                                    </div>
+                                    <p className="font-monument font-black uppercase text-[10.5px] tracking-widest text-[#2F4A00] mt-4 mb-2">
+                                      Colegios aliados
+                                    </p>
+                                    <p className="font-iceland text-[13px] leading-[1.6] text-[#6B7280]">
+                                      Macallan College · Canterbury Technical Institute (CTI) · Lexis Training · ANCE · ANIBT · CTA
+                                    </p>
+                                  </div>
+                                </motion.div>
+                              )}
+                            </AnimatePresence>
+                          </div>
+                        )}
 
-                      {/* ESTUDIANTE — Step 8: Pasaporte */}
-                      {step === 8 && data.tipo_visa === 'estudiante' && (
-                        <div className="flex flex-col gap-2">
-                          {['Sí, vigente', 'Vence pronto', 'En trámite', 'No tengo'].map(opt => (
-                            <RadioOption key={opt} value={opt} selected={data.pasaporte === opt} onSelect={() => setData({ ...data, pasaporte: opt })} />
-                          ))}
-                        </div>
-                      )}
+                        {/* ESTUDIANTE — Step 6: Nivel inglés */}
+                        {step === 6 && data.tipo_visa === 'estudiante' && (
+                          <div className="flex flex-col gap-2">
+                            {['No hablo inglés', 'Básico', 'Intermedio', 'Avanzado'].map(opt => (
+                              <RadioOption key={opt} value={opt} selected={data.nivel_ingles === opt} onSelect={() => setData({ ...data, nivel_ingles: opt })} />
+                            ))}
+                          </div>
+                        )}
 
-                      {/* ESTUDIANTE — Step 9: Situación laboral */}
-                      {step === 9 && data.tipo_visa === 'estudiante' && (
-                        <div className="flex flex-col gap-2">
-                          {['Sí, tiempo completo', 'Sí, medio tiempo', 'No', 'Soy estudiante'].map(opt => (
-                            <RadioOption key={opt} value={opt} selected={data.situacion_laboral === opt} onSelect={() => setData({ ...data, situacion_laboral: opt })} />
-                          ))}
-                        </div>
-                      )}
+                        {/* ESTUDIANTE — Step 7: Tiempo estudio */}
+                        {step === 7 && data.tipo_visa === 'estudiante' && (
+                          <div className="flex flex-col gap-2">
+                            {['1 a 3 meses', '3 a 6 meses', '6 meses a 1 año', 'Más de 1 año'].map(opt => (
+                              <RadioOption key={opt} value={opt} selected={data.tiempo_estudio === opt} onSelect={() => setData({ ...data, tiempo_estudio: opt })} />
+                            ))}
+                          </div>
+                        )}
+
+                        {/* ESTUDIANTE — Step 8: Pasaporte */}
+                        {step === 8 && data.tipo_visa === 'estudiante' && (
+                          <div className="flex flex-col gap-2">
+                            {['Sí, vigente', 'Vence pronto', 'En trámite', 'No tengo'].map(opt => (
+                              <RadioOption key={opt} value={opt} selected={data.pasaporte === opt} onSelect={() => setData({ ...data, pasaporte: opt })} />
+                            ))}
+                          </div>
+                        )}
+
+                        {/* ESTUDIANTE — Step 9: Situación laboral */}
+                        {step === 9 && data.tipo_visa === 'estudiante' && (
+                          <div className="flex flex-col gap-2">
+                            {['Sí, tiempo completo', 'Sí, medio tiempo', 'No', 'Soy estudiante'].map(opt => (
+                              <RadioOption key={opt} value={opt} selected={data.situacion_laboral === opt} onSelect={() => setData({ ...data, situacion_laboral: opt })} />
+                            ))}
+                          </div>
+                        )}
 
                         {/* ESTUDIANTE — Step 10: Situación libre */}
                         {step === 10 && data.tipo_visa === 'estudiante' && (
@@ -619,6 +725,35 @@ export default function EvaluationForm() {
                                 <span className="text-[#6B7280] font-normal">No garantizamos la aprobación de visas.</span>
                               </span>
                             </label>
+
+                            <div className="pt-1">
+                              <label className="font-monument font-black text-[13px] text-[#2F4A00] block mb-2">
+                                ¿Tienes un código de descuento? <span className="font-iceland font-normal text-[11px] text-[#9CA3AF]">(opcional)</span>
+                              </label>
+                              <input
+                                type="text"
+                                placeholder="Ej: camilo"
+                                value={data.codigo_referido}
+                                onChange={e => { setData({ ...data, codigo_referido: e.target.value }); setCodeStatus('idle'); setCodeInfo(null) }}
+                                onBlur={e => validateCode(e.target.value)}
+                                onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); validateCode((e.target as HTMLInputElement).value) } }}
+                                className={`w-full bg-white/70 backdrop-blur-sm border text-[#0d2b0d] px-4 py-2.5 font-monument font-medium text-[13px] focus:outline-none transition-all rounded-lg placeholder-[#6B7280] ${
+                                  codeStatus === 'valid' ? 'border-[#C8FF00] bg-[#C8FF00]/10' : codeStatus === 'invalid' ? 'border-red-300' : 'focus:border-[#C8FF00]'
+                                }`}
+                                style={codeStatus === 'idle' ? { borderColor: 'rgba(0,0,0,0.1)' } : undefined}
+                              />
+                              {codeStatus === 'checking' && (
+                                <p className="font-iceland text-[12px] text-[#6B7280] mt-1.5">Verificando código...</p>
+                              )}
+                              {codeStatus === 'valid' && codeInfo && (
+                                <p className="font-iceland font-bold text-[12px] text-[#2F4A00] mt-1.5">
+                                  ✓ Código de {codeInfo.influencer} aplicado — tu asesoría queda {codeInfo.discount_pct === 100 ? '100% gratis' : `con ${codeInfo.discount_pct}% de descuento`}
+                                </p>
+                              )}
+                              {codeStatus === 'invalid' && (
+                                <p className="font-iceland text-[12px] text-red-500 mt-1.5">Ese código no es válido o ya expiró.</p>
+                              )}
+                            </div>
                           </div>
                         )}
 
@@ -633,8 +768,7 @@ export default function EvaluationForm() {
                     {step > 0 && (
                       <button
                         onClick={() => navigate(-1)}
-                        className="px-4 py-2.5 font-monument font-bold text-[10px] uppercase tracking-widest transition-all rounded-lg hover:-translate-y-0.5 border"
-                        style={{ borderColor: 'rgba(0,0,0,0.1)', color: '#0d2b0d', background: 'rgba(255,255,255,0.5)' }}
+                        className="px-6 py-3 bg-white/70 backdrop-blur-sm border-2 border-[#0d2b0d]/20 text-[#2F4A00] font-monument font-bold text-[11px] uppercase tracking-widest hover:bg-white transition-colors rounded-xl"
                       >
                         Volver
                       </button>
@@ -643,7 +777,11 @@ export default function EvaluationForm() {
                       <button
                         onClick={() => { if (step < TOTAL_STEPS - 1) navigate(1); else handleSubmit() }}
                         disabled={!canNext()}
-                        className="flex-1 px-5 py-2.5 bg-[#111111] text-[#C8FF00] font-monument font-black text-[10px] uppercase tracking-widest hover:scale-[1.02] active:scale-[0.98] hover:shadow-[0_0_15px_rgba(200,255,0,0.2)] transition-all rounded-lg disabled:opacity-30 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none"
+                        className={`flex-1 px-6 py-4 font-monument font-black text-[11px] uppercase tracking-widest rounded-xl transition-all border-2 ${
+                          canNext()
+                            ? 'bg-[#C8FF00] text-[#0d2b0d] border-[#0d2b0d]/85 shadow-[0_5px_0_rgba(13,43,13,0.85)] hover:-translate-y-[2px] hover:shadow-[0_7px_0_rgba(13,43,13,0.85)] active:translate-y-[2px] active:shadow-[0_2px_0_rgba(13,43,13,0.85)]'
+                            : 'bg-[#C8FF00]/25 text-[#0d2b0d]/35 border-[#0d2b0d]/15 cursor-not-allowed'
+                        }`}
                       >
                         {step < TOTAL_STEPS - 1 ? 'Continuar' : 'Enviar'}
                       </button>

@@ -3,7 +3,7 @@ export const CONTACT = {
   whatsapp: '+61 426 779 734',
 }
 
-export const FRAME_PREFIX  = '/Sec1/ezgif-frame-'
+export const FRAME_PREFIX  = '/secuencia-video-principal/ezgif-frame-'
 export const FRAME_EXT     = '.jpg'
 export const TOTAL_FRAMES  = 136
 

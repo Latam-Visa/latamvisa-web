@@ -6,13 +6,38 @@ import { FONT_FACE_CSS, LOGO_NEON_DATA_URI } from '@/lib/pdf-assets';
 const PRICING_START = '<!-- PRICING_PAGE_TEMPLATE_START -->';
 const PRICING_END = '<!-- PRICING_PAGE_TEMPLATE_END -->';
 
+// Duración de curso, solo para mostrar: "36 semanas" → "8 meses". Si el texto
+// no trae "semana(s)" (ya viene en meses/años, ej. "1 año 6 meses"), se deja intacto.
+function weeksTextToMonths(text: string | undefined | null): string {
+  if (!text) return text || '';
+  const match = text.match(/(\d+)\s*semanas?/i);
+  if (!match) return text;
+  const weeks = parseInt(match[1], 10);
+  const months = Math.round(weeks / 4.345);
+  return text.replace(match[0], `${months} ${months === 1 ? 'mes' : 'meses'}`);
+}
+
+// Texto de cara al cliente únicamente — "VET" → "VOCACIONAL". No toca nombres
+// de variables ni valores guardados en base de datos, solo lo que se imprime.
+function toClientLabel(text: string | undefined | null): string {
+  if (!text) return text || '';
+  return text.replace(/\bVET\b/g, 'VOCACIONAL');
+}
+
 function fillPricingPage(pageHtml: string, params: {
   nombre: string; edad: string | number; pais: string; nivelIngles: string;
   pasaporte: string; ciudadLlegada: string; studentType: string;
   cotizacion: any; stages: any[]; optionLabel: string;
+  // Campos opcionales de promoción — si no vienen, el comportamiento es idéntico al actual.
+  promoBanner?: string;
+  extrasGratis?: string[];
+  planPagosCustom?: Array<{ cuando: string; concepto: string; monto: number }>;
 }) {
   let html = pageHtml;
-  const { nombre, edad, pais, nivelIngles, pasaporte, ciudadLlegada, studentType, cotizacion, stages, optionLabel } = params;
+  const {
+    nombre, edad, pais, nivelIngles, pasaporte, ciudadLlegada, studentType, cotizacion, stages, optionLabel,
+    promoBanner, extrasGratis, planPagosCustom,
+  } = params;
 
   html = html.replace(/Preparado para <b>.*?<\/b> · Ruta de estudio en Australia/, `Preparado para <b>${nombre}</b> · Ruta de estudio en Australia`);
   html = html.replace(/<span class="htag">.*?<\/span>/, `<span class="htag">${optionLabel} · DESDE ${pais.toUpperCase()} · ${ciudadLlegada.toUpperCase()}</span>`);
@@ -32,14 +57,16 @@ function fillPricingPage(pageHtml: string, params: {
 
   let stagesHtml = (stages || []).map((s: any, i: number) => `
       <div class="stage">
-        <div class="stag">Etapa ${i + 1} · ${s.tag}</div>
-        <div class="sname">${s.name}</div>
-        <div class="smeta">CRICOS ${s.cricos || 'N/A'} · ${s.duration} · ${s.extra || ''}</div>
+        <div class="stag">Etapa ${i + 1} · ${toClientLabel(s.tag)}</div>
+        <div class="sname">${toClientLabel(s.name)}</div>
+        <div class="smeta">CRICOS ${s.cricos || 'N/A'} · ${weeksTextToMonths(s.duration)} · ${toClientLabel(s.extra) || ''}</div>
       </div>
     `).join('');
 
   const schoolName = cotizacion?.course?.school || 'Australia';
-  const newRuta = `<div class="h2">Tu ruta — ${optionLabel} · ${schoolName} (${ciudadLlegada})</div>\n      ` + stagesHtml + '\n\n      ';
+  // PROMO opcional: banner arriba de "Lo que inviertes" — no-op si no viene promoBanner.
+  const promoBannerHtml = promoBanner ? `\n      <div class="promo-banner">${promoBanner}</div>` : '';
+  const newRuta = `<div class="h2">Tu ruta — ${optionLabel} · ${schoolName} (${ciudadLlegada})</div>\n      ` + stagesHtml + promoBannerHtml + '\n\n      ';
 
   html = html.substring(0, idxRutaStart) + newRuta + html.substring(idxInviertesStart);
 
@@ -47,16 +74,22 @@ function fillPricingPage(pageHtml: string, params: {
   const idxColR = html.indexOf('<div class="col-r">');
 
   const materialText = cotizacion.blockA.material > 0 ? `AUD ${cotizacion.blockA.material.toLocaleString('de-DE')}` : 'Incluido';
-  const durationText = stages && stages.length > 0 ? ` (${stages[0].duration})` : '';
+  const durationText = stages && stages.length > 0 ? ` (${weeksTextToMonths(stages[0].duration)})` : '';
+
+  // PROMO opcional: filas "GRATIS" adicionales en el desglose — suman 0 al total.
+  const extrasGratisHtml = (extrasGratis && extrasGratis.length > 0)
+    ? extrasGratis.map((item) => `<div class="irow"><span>${item}</span><span class="amt free">GRATIS</span></div>`).join('')
+    : '';
 
   const inviertesHtml = `
       <div class="itable">
         <div class="irow"><span>Matrícula${durationText}</span><span class="amt">AUD ${cotizacion.blockA.tuition.toLocaleString('de-DE')}</span></div>
         <div class="irow"><span>Materiales</span><span class="amt">${materialText}</span></div>
-        <div class="irow"><span>Inscripción / admin</span><span class="amt">AUD ${cotizacion.blockA.enrolment.toLocaleString('de-DE')}</span></div>
+        <div class="irow"><span>Reserva de cupo + inscripción</span><span class="amt">AUD ${cotizacion.blockA.enrolment.toLocaleString('de-DE')}</span></div>
         <div class="irow"><span>OSHC · seguro médico</span><span class="amt">AUD ${cotizacion.blockA.oshcTotal.toLocaleString('de-DE')}</span></div>
         <div class="irow"><span>Visa Subclass 500 (incl. recargo)</span><span class="amt">AUD ${cotizacion.blockA.visaTotal.toLocaleString('de-DE')}</span></div>
         ${studentType === 'onshore' && cotizacion.blockA.medicalOnshoreAUD ? `<div class="irow"><span>Examen Médico (Australia)</span><span class="amt">AUD ${cotizacion.blockA.medicalOnshoreAUD.toLocaleString('de-DE')}</span></div>` : ''}
+        ${extrasGratisHtml}
       </div>
       <div class="total"><span>TOTAL</span><span>AUD ${cotizacion.blockA.subtotalAUD.toLocaleString('de-DE')}</span></div>
       ${studentType === 'offshore' && cotizacion.localCostsCOP ? `<div class="cop">+ Costos locales en ${pais} (aparte): Biometría VFS ~COP ${cotizacion.localCostsCOP.biometrics.toLocaleString('es-CO')} · Examen médico ~COP ${cotizacion.localCostsCOP.medical.toLocaleString('es-CO')}</div>` : ''}
@@ -67,43 +100,55 @@ function fillPricingPage(pageHtml: string, params: {
   const idxPagosStart = html.indexOf('<table class="ptable">');
   const idxPagosEnd = html.indexOf('</table>') + 8;
 
-  const tuitionMaterial = cotizacion.blockA.tuition + cotizacion.blockA.material;
-  const hoy = cotizacion.blockA.enrolment;
-  const plus5 = cotizacion.blockA.visaTotal + (studentType === 'onshore' ? (cotizacion.blockA.medicalOnshoreAUD || 0) : 0);
-  const plus10 = cotizacion.blockA.oshcTotal;
-
-  let plus15 = tuitionMaterial;
-  let cuota6 = 0, cuota9 = 0, cuota12 = 0, cuota15 = 0;
-  const hasCuotas = stages && stages.length > 1;
-
-  if (hasCuotas) {
-      plus15 = Math.round((tuitionMaterial * 0.38) / 100) * 100;
-      const remaining = tuitionMaterial - plus15;
-      const baseCuota = Math.round((remaining / 4) / 100) * 100;
-      cuota6 = baseCuota;
-      cuota9 = baseCuota;
-      cuota12 = baseCuota;
-      cuota15 = remaining - (baseCuota * 3);
-  }
-
   let pagosHtml = `
       <table class="ptable">
         <thead><tr><th>Cuándo</th><th>Concepto</th><th>Monto</th></tr></thead>
         <tbody>
+  `;
+
+  // PROMO opcional: si viene planPagosCustom, se usa TAL CUAL (ya viene pre-calculado
+  // para sumar el total) en vez del plan auto-calculado de abajo.
+  if (planPagosCustom && planPagosCustom.length > 0) {
+    pagosHtml += planPagosCustom.map((row) => `
+          <tr><td class="pw">${row.cuando}</td><td>${row.concepto}</td><td class="amt">AUD ${Number(row.monto).toLocaleString('de-DE')}</td></tr>
+    `).join('');
+  } else {
+    const tuitionMaterial = cotizacion.blockA.tuition + cotizacion.blockA.material;
+    const hoy = cotizacion.blockA.enrolment;
+    const plus5 = cotizacion.blockA.visaTotal + (studentType === 'onshore' ? (cotizacion.blockA.medicalOnshoreAUD || 0) : 0);
+    const plus10 = cotizacion.blockA.oshcTotal;
+
+    let plus15 = tuitionMaterial;
+    let cuota6 = 0, cuota9 = 0, cuota12 = 0, cuota15 = 0;
+    const hasCuotas = stages && stages.length > 1;
+
+    if (hasCuotas) {
+        plus15 = Math.round((tuitionMaterial * 0.38) / 100) * 100;
+        const remaining = tuitionMaterial - plus15;
+        const baseCuota = Math.round((remaining / 4) / 100) * 100;
+        cuota6 = baseCuota;
+        cuota9 = baseCuota;
+        cuota12 = baseCuota;
+        cuota15 = remaining - (baseCuota * 3);
+    }
+
+    pagosHtml += `
           <tr><td class="pw">Hoy</td><td>Reserva de cupo + inscripción</td><td class="amt">AUD ${hoy.toLocaleString('de-DE')}</td></tr>
           <tr><td class="pw">+5 días</td><td>Visa Subclass 500${studentType === 'onshore' && cotizacion.blockA.medicalOnshoreAUD ? ' + Examen Médico' : ''}</td><td class="amt">AUD ${plus5.toLocaleString('de-DE')}</td></tr>
           <tr><td class="pw">+10 días</td><td>OSHC · seguro médico</td><td class="amt">AUD ${plus10.toLocaleString('de-DE')}</td></tr>
           <tr><td class="pw">+15 días</td><td>${hasCuotas ? 'Matrícula Etapa 1' : 'Matrícula completa + materiales'}</td><td class="amt">AUD ${plus15.toLocaleString('de-DE')}</td></tr>
-  `;
+    `;
 
-  if (hasCuotas) {
-    pagosHtml += `
+    if (hasCuotas) {
+      pagosHtml += `
           <tr><td class="pw">Mes 6</td><td>Etapa 2 · cuota 1</td><td class="amt">AUD ${cuota6.toLocaleString('de-DE')}</td></tr>
           <tr><td class="pw">Mes 9</td><td>Etapa 2 · cuota 2</td><td class="amt">AUD ${cuota9.toLocaleString('de-DE')}</td></tr>
           <tr><td class="pw">Mes 12</td><td>Etapa 2 · cuota 3</td><td class="amt">AUD ${cuota12.toLocaleString('de-DE')}</td></tr>
           <tr><td class="pw">Mes 15</td><td>Etapa 2 · cuota final</td><td class="amt">AUD ${cuota15.toLocaleString('de-DE')}</td></tr>
-    `;
+      `;
+    }
   }
+
   pagosHtml += `</tbody></table>`;
 
   html = html.substring(0, idxPagosStart) + pagosHtml + html.substring(idxPagosEnd);
@@ -159,15 +204,18 @@ export async function POST(req: Request) {
     const after = fullHtml.substring(endIdx); // incluye la página de ruta, intacta
 
     // 3. Clonar la página de precios una vez por cada opción recibida
-    const defaultLabels = ['OPCIÓN 1 · SOLO INGLÉS', 'OPCIÓN 2 · INGLÉS + VET'];
+    const defaultLabels = ['OPCIÓN 1 · SOLO INGLÉS', 'OPCIÓN 2 · INGLÉS + VOCACIONAL'];
     const pricingPages = opciones.map((opt: any, i: number) => {
-      const label = opt.label || defaultLabels[i] || `OPCIÓN ${i + 1}`;
+      const label = toClientLabel(opt.label || defaultLabels[i] || `OPCIÓN ${i + 1}`);
       return fillPricingPage(pricingBlockRaw, {
         nombre, edad, pais, nivelIngles, pasaporte, ciudadLlegada,
         studentType: studentType || 'offshore',
         cotizacion: opt.cotizacion,
         stages: opt.stages,
         optionLabel: label,
+        promoBanner: opt.promoBanner,
+        extrasGratis: opt.extrasGratis,
+        planPagosCustom: opt.planPagosCustom,
       });
     }).join('\n');
 

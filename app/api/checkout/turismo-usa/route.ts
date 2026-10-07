@@ -1,9 +1,11 @@
 import { NextResponse } from 'next/server'
 import Stripe from 'stripe'
+import { CHECKOUT_CONFIG } from '@/lib/checkout-config'
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!)
 
-const PRECIO_BASE = 190  // AUD por persona
+const config = CHECKOUT_CONFIG.usa
+const PRECIO_BASE = config.precioSin // AUD por persona
 
 // Función centralizada de cálculo (misma lógica que el frontend)
 function calcularPrecio(aplicantes: number) {
@@ -51,14 +53,14 @@ export async function POST(req: Request) {
       line_items: [
         {
           price_data: {
-            currency: 'aud',
+            currency: config.currency,
             product_data: {
               name: aplicantes === 1
-                ? 'Expediente Turismo USA'
-                : `Expediente Turismo USA — ${aplicantes} aplicantes`,
+                ? config.titulo
+                : `${config.titulo} — ${aplicantes} aplicantes`,
               description: aplicantes >= 2
-                ? `Asesoría completa DS-160 y agendamiento consular para ${aplicantes} personas (descuento ${Math.round(porcentajeDescuento * 100)}% aplicado)`
-                : 'Asesoría completa para preparación de formulario DS-160 y agendamiento de cita consular',
+                ? `Asesoría completa para ${aplicantes} personas (descuento ${Math.round(porcentajeDescuento * 100)}% aplicado)`
+                : 'Asesoría completa',
             },
             unit_amount: precioUnitarioFinal,
           },
@@ -73,7 +75,7 @@ export async function POST(req: Request) {
         porcentaje_descuento: String(Math.round(porcentajeDescuento * 100)),
         total_pagado: String(total),
       },
-      return_url: `${process.env.NEXT_PUBLIC_APP_URL}/gracias?session_id={CHECKOUT_SESSION_ID}`,
+      return_url: `${process.env.NEXT_PUBLIC_APP_URL || process.env.NEXT_PUBLIC_SITE_URL}/gracias?session_id={CHECKOUT_SESSION_ID}`,
     })
 
     return NextResponse.json({ clientSecret: session.client_secret })

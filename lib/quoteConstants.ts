@@ -1,5 +1,9 @@
 export const QUOTE = {
-  VISA_500_FEE_AUD: 2000,
+  // Vigente desde el 1 de julio de 2026.
+  // Tarifa concesional ELICOS: escenarios de SOLO inglés (ningún curso VET/vocacional).
+  VISA_500_FEE_ELICOS_AUD: 2050,
+  // Tarifa estándar: escenarios que incluyen cualquier curso VET/vocacional (con o sin inglés).
+  VISA_500_FEE_VET_AUD: 2500,
   VISA_CARD_SURCHARGE_PCT: 1.4,
   LIVING_COST_AUD_YEAR: 29710,
   OSHC_AUD_YEAR_SINGLE: 600,

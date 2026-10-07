@@ -1,27 +1,32 @@
 'use client'
 
-import { useCallback, useState } from 'react'
+import { useCallback, useState, useEffect } from 'react'
 import Link from 'next/link'
 import { loadStripe } from '@stripe/stripe-js'
 import { EmbeddedCheckoutProvider, EmbeddedCheckout } from '@stripe/react-stripe-js'
+import { CHECKOUT_CONFIG } from '@/lib/checkout-config'
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!)
+const config = CHECKOUT_CONFIG.japon
 
-function StripeEmbeddedCheckout({ conTraduccion }: { conTraduccion: boolean }) {
+function StripeEmbeddedCheckout({ counts, email }: { counts: { sin: number, con: number }, email: string }) {
   const fetchClientSecret = useCallback(() => {
     return fetch('/api/checkout/turismo-japon', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ conTraduccion }),
+      body: JSON.stringify({ counts, email }),
     })
       .then(res => res.json())
-      .then(data => data.clientSecret)
-  }, [conTraduccion])
+      .then(data => {
+        if (data.error) throw new Error(data.error)
+        return data.clientSecret
+      })
+  }, [counts, email])
 
   return (
     <div id="checkout" className="w-full">
       <EmbeddedCheckoutProvider
-        key={String(conTraduccion)}
+        key={`${counts.sin}-${counts.con}-${email}`}
         stripe={stripePromise}
         options={{ fetchClientSecret }}
       >
@@ -31,8 +36,56 @@ function StripeEmbeddedCheckout({ conTraduccion }: { conTraduccion: boolean }) {
   )
 }
 
+// Función centralizada para calcular el descuento
+function calcularPrecio(counts: { sin: number, con: number }, prices: { sin: number, con: number }) {
+  const totalPersonas = counts.sin + counts.con
+  const subtotal = (counts.sin * prices.sin) + (counts.con * prices.con)
+  let porcentajeDescuento = 0
+
+  if (totalPersonas === 2) porcentajeDescuento = 0.10
+  else if (totalPersonas >= 3) porcentajeDescuento = 0.15
+
+  const descuento = Math.round(subtotal * porcentajeDescuento)
+  const total = subtotal - descuento
+
+  return { subtotal, descuento, total, porcentajeDescuento, totalPersonas }
+}
+
 export default function TurismoJaponCheckoutPage() {
-  const [conTraduccion, setConTraduccion] = useState(false)
+  const [counts, setCounts] = useState({ sin: 0, con: 0 })
+  const [email, setEmail] = useState('')
+  const [prices, setPrices] = useState({ sin: config.precioSin, con: config.precioCon! })
+  const [showCheckout, setShowCheckout] = useState(false)
+  const [loadingPrices, setLoadingPrices] = useState(true)
+
+  useEffect(() => {
+    fetch('/api/checkout/turismo-japon')
+      .then(res => res.json())
+      .then(data => {
+        if (data.sin && data.con) setPrices(data)
+        setLoadingPrices(false)
+      })
+      .catch(() => setLoadingPrices(false))
+  }, [])
+
+  const { subtotal, descuento, total, porcentajeDescuento, totalPersonas } = calcularPrecio(counts, prices)
+
+  const updateCount = (type: 'sin' | 'con', delta: number) => {
+    setCounts(prev => {
+      const currentTotal = prev.sin + prev.con
+      // Solo permitir aumentar si no excede 10 en total, y no bajar de 0
+      const newVal = Math.max(0, prev[type] + delta)
+      if (delta > 0 && currentTotal >= 10) return prev
+      return { ...prev, [type]: newVal }
+    })
+    setShowCheckout(false)
+  }
+
+  const handlePay = () => {
+    if (total > 0 && email.trim()) {
+      setShowCheckout(true)
+    }
+  }
 
   return (
     <>
@@ -58,45 +111,123 @@ export default function TurismoJaponCheckoutPage() {
               </Link>
             </header>
 
-            {/* Toggle de Traducción */}
+            {/* Selector de Visas */}
             <div className="mb-8 p-5 rounded-xl bg-white/60 backdrop-blur-sm border border-gray-100">
               <h3 className="font-iceland text-xs text-[#5B6A00] tracking-[0.2em] uppercase font-bold mb-4">
-                ¿NECESITAS TRADUCCIÓN DE DOCUMENTOS?
+                SELECCIONA LAS VISAS QUE NECESITAS
               </h3>
-              <div className="grid grid-cols-2 gap-3">
+
+              <div className="space-y-4">
+                {/* Sin traducción */}
+                <div className="flex items-center justify-between p-4 rounded-xl border border-gray-200 bg-white">
+                  <div>
+                    <div className="font-monument text-sm uppercase text-[#111111] mb-1">Sin traducción</div>
+                    <div className="font-funnel text-base font-bold text-[#5B6A00]">
+                      {loadingPrices ? '...' : `A$${prices.sin}`} c/u
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3 bg-gray-50 rounded-lg p-1 border border-gray-100">
+                    <button onClick={() => updateCount('sin', -1)} className="w-8 h-8 flex items-center justify-center rounded bg-white border border-gray-200 text-gray-600 hover:bg-gray-50 font-bold" disabled={counts.sin === 0}>
+                      -
+                    </button>
+                    <span className="font-monument text-sm w-4 text-center">{counts.sin}</span>
+                    <button onClick={() => updateCount('sin', 1)} className="w-8 h-8 flex items-center justify-center rounded bg-white border border-gray-200 text-gray-600 hover:bg-gray-50 font-bold" disabled={totalPersonas >= 10}>
+                      +
+                    </button>
+                  </div>
+                </div>
+
+                {/* Con traducción */}
+                <div className="flex items-center justify-between p-4 rounded-xl border border-gray-200 bg-white">
+                  <div>
+                    <div className="font-monument text-sm uppercase text-[#111111] mb-1">Con traducción</div>
+                    <div className="font-funnel text-base font-bold text-[#5B6A00]">
+                      {loadingPrices ? '...' : `A$${prices.con}`} c/u
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3 bg-gray-50 rounded-lg p-1 border border-gray-100">
+                    <button onClick={() => updateCount('con', -1)} className="w-8 h-8 flex items-center justify-center rounded bg-white border border-gray-200 text-gray-600 hover:bg-gray-50 font-bold" disabled={counts.con === 0}>
+                      -
+                    </button>
+                    <span className="font-monument text-sm w-4 text-center">{counts.con}</span>
+                    <button onClick={() => updateCount('con', 1)} className="w-8 h-8 flex items-center justify-center rounded bg-white border border-gray-200 text-gray-600 hover:bg-gray-50 font-bold" disabled={totalPersonas >= 10}>
+                      +
+                    </button>
+                  </div>
+                </div>
+
+                {/* Desglose de precios (solo si hay descuento) */}
+                {totalPersonas >= 2 && (
+                  <div className="p-4 rounded-xl bg-[#C8FF00]/10 border border-[#C8FF00]/40 mt-4">
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="font-funnel text-sm text-[#555555]">Subtotal ({totalPersonas} visas)</span>
+                      <span className="font-funnel text-sm text-[#555555] line-through">A${subtotal}</span>
+                    </div>
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="font-iceland text-xs text-[#5B6A00] uppercase tracking-widest font-bold">
+                        Descuento LATAM VISA ({Math.round(porcentajeDescuento * 100)}%)
+                      </span>
+                      <span className="font-funnel text-sm font-bold text-[#5B6A00]">-A${descuento}</span>
+                    </div>
+                    <div className="border-t border-[#C8FF00]/40 mt-2 pt-2 flex justify-between items-center">
+                      <span className="font-monument text-sm uppercase text-[#111111]">Total</span>
+                      <span className="font-funnel text-lg font-bold text-[#111111]">A${total}</span>
+                    </div>
+                  </div>
+                )}
+
+                {/* Hint para incentivar más aplicantes */}
+                {totalPersonas === 1 && (
+                  <div className="p-3 rounded-lg bg-gray-50 border border-gray-100 mt-4">
+                    <p className="font-funnel text-xs text-[#555555] text-center">
+                      💡 <strong>Aplicas con familia o amigos?</strong> Ahorra <strong>10%</strong> desde 2 aplicantes · <strong>15%</strong> desde 3
+                    </p>
+                  </div>
+                )}
+                {totalPersonas === 2 && (
+                  <div className="p-3 rounded-lg bg-gray-50 border border-gray-100 mt-4">
+                    <p className="font-funnel text-xs text-[#555555] text-center">
+                      💡 Sube a <strong>3 aplicantes</strong> y ahorra <strong>15%</strong> en total
+                    </p>
+                  </div>
+                )}
+              </div>
+
+              <div className="mt-6 space-y-4">
+                <div>
+                  <label className="block font-iceland text-xs text-[#5B6A00] tracking-[0.2em] uppercase font-bold mb-2">Correo electrónico del pagador</label>
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => { setEmail(e.target.value); setShowCheckout(false); }}
+                    placeholder="tu@email.com"
+                    className="w-full p-4 rounded-xl border border-gray-200 bg-white font-funnel text-sm outline-none focus:border-[#C8FF00]"
+                  />
+                </div>
+
                 <button
-                  onClick={() => setConTraduccion(false)}
-                  className={`p-4 rounded-xl border-2 transition-all text-left ${!conTraduccion ? 'bg-[#C8FF00] border-[#5B6A00]' : 'bg-white border-gray-200'}`}
+                  onClick={handlePay}
+                  disabled={total === 0 || !email.trim() || showCheckout}
+                  className="w-full p-4 rounded-xl font-monument uppercase tracking-wide text-sm transition-all disabled:opacity-50 bg-[#C8FF00] text-[#111111] hover:bg-[#b3e600]"
                 >
-                  <div className="font-iceland text-[10px] uppercase tracking-widest text-[#5B6A00] font-bold mb-1">No necesito</div>
-                  <div className="font-monument text-sm uppercase text-[#111111] mb-2">Sin traducción</div>
-                  <div className="font-funnel text-base font-bold text-[#111111]">A$150</div>
-                </button>
-                <button
-                  onClick={() => setConTraduccion(true)}
-                  className={`p-4 rounded-xl border-2 transition-all text-left ${conTraduccion ? 'bg-[#C8FF00] border-[#5B6A00]' : 'bg-white border-gray-200'}`}
-                >
-                  <div className="font-iceland text-[10px] uppercase tracking-widest text-[#5B6A00] font-bold mb-1">Sí necesito</div>
-                  <div className="font-monument text-sm uppercase text-[#111111] mb-2">Con traducción</div>
-                  <div className="font-funnel text-base font-bold text-[#111111]">A$190 <span className="text-xs text-[#5B6A00]">(+A$40)</span></div>
+                  Pagar A${total}
                 </button>
               </div>
-              <p className="font-funnel text-xs text-[#666666] mt-3">
-                💡 Si tus documentos ya están en inglés, no necesitas traducción.
-              </p>
             </div>
 
-            <div className="relative w-full min-h-[500px]">
-              <div className="absolute inset-0 flex flex-col items-center pt-24 z-0 pointer-events-none gap-4">
-                <div className="w-8 h-8 md:w-10 md:h-10 border-[3px] border-[#C8FF00]/30 border-t-[#C8FF00] rounded-full animate-spin"></div>
-                <span className="font-iceland text-xs md:text-sm text-[#777777] uppercase tracking-widest animate-pulse">
-                  Conectando checkout seguro...
-                </span>
+            {showCheckout && (
+              <div className="relative w-full min-h-[500px]">
+                <div className="absolute inset-0 flex flex-col items-center pt-24 z-0 pointer-events-none gap-4">
+                  <div className="w-8 h-8 md:w-10 md:h-10 border-[3px] border-[#C8FF00]/30 border-t-[#C8FF00] rounded-full animate-spin"></div>
+                  <span className="font-iceland text-xs md:text-sm text-[#777777] uppercase tracking-widest animate-pulse">
+                    Conectando checkout seguro...
+                  </span>
+                </div>
+                <div className="relative z-10 w-full min-h-[500px]">
+                  <StripeEmbeddedCheckout counts={counts} email={email} />
+                </div>
               </div>
-              <div className="relative z-10 w-full min-h-[500px]">
-                <StripeEmbeddedCheckout conTraduccion={conTraduccion} />
-              </div>
-            </div>
+            )}
           </div>
 
           <footer className="py-6 border-t border-gray-50 flex flex-wrap gap-4 text-[11px] uppercase font-iceland tracking-widest text-[#999999] mt-auto">
@@ -116,14 +247,14 @@ export default function TurismoJaponCheckoutPage() {
                 HONORARIOS DE AGENCIA
               </span>
               <h1 className="font-monument font-black text-2xl sm:text-3xl lg:text-[32px] uppercase tracking-tight text-[#111111] mb-2 leading-none">
-                Temporary Visitor Visa
+                {config.titulo}
               </h1>
             </div>
 
             <p className="font-funnel font-bold text-2xl sm:text-3xl text-[#111111] mb-8 flex items-center justify-start gap-4">
-              AUD ${conTraduccion ? 190 : 150}
+              AUD ${total > 0 ? total : prices.sin}
               <span className="font-iceland text-[10px] sm:text-xs text-[#5B6A00] tracking-widest uppercase border border-[#5B6A00]/40 bg-white/40 rounded px-2 py-0.5 leading-[1.2] flex items-center h-fit">
-                PAGO ÚNICO
+                {total > 0 ? 'TOTAL' : 'DESDE'}
               </span>
             </p>
 
@@ -132,13 +263,7 @@ export default function TurismoJaponCheckoutPage() {
                 RESUMEN DE INCLUSIÓN
               </h2>
               <ul className="space-y-3">
-                {[
-                  'Formulario de aplicación completo',
-                  'Itinerario detallado del viaje',
-                  'Carta de propósito',
-                  'Revisión de soportes financieros',
-                  'Guía para embajada japonesa',
-                ].map((item, idx) => (
+                {config.bullets.map((item, idx) => (
                   <li key={idx} className="flex items-center gap-4 group">
                     <span className="shrink-0 w-1.5 h-1.5 rounded-full" style={{ backgroundColor: '#BC002D', boxShadow: '0 0 4px rgba(188,0,45,0.3)' }}></span>
                     <span className="font-funnel font-medium text-[#111111] text-sm leading-relaxed tracking-wide">{item}</span>
@@ -146,6 +271,17 @@ export default function TurismoJaponCheckoutPage() {
                 ))}
               </ul>
             </div>
+
+            {totalPersonas >= 2 && (
+              <div className="mt-8 p-5 rounded-xl bg-[#C8FF00]/20 border border-[#C8FF00]/60">
+                <p className="font-iceland text-xs text-[#5B6A00] tracking-[0.2em] uppercase font-bold mb-2">
+                  🎉 DESCUENTO APLICADO
+                </p>
+                <p className="font-funnel text-sm text-[#111111]">
+                  Ahorras <strong>A${descuento}</strong> ({Math.round(porcentajeDescuento * 100)}%) por aplicar con {totalPersonas} personas
+                </p>
+              </div>
+            )}
 
             <div className="mt-12 p-5 rounded-xl bg-white/50 backdrop-blur-md border border-white/60 shadow-sm flex items-center gap-4">
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#5B6A00" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0">

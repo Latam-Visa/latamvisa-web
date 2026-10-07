@@ -4,8 +4,10 @@ import { useCallback, useState, useEffect } from 'react'
 import Link from 'next/link'
 import { loadStripe } from '@stripe/stripe-js'
 import { EmbeddedCheckoutProvider, EmbeddedCheckout } from '@stripe/react-stripe-js'
+import { CHECKOUT_CONFIG } from '@/lib/checkout-config'
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!)
+const config = CHECKOUT_CONFIG.usa
 
 function StripeEmbeddedCheckout({ aplicantes, email }: { aplicantes: number, email: string }) {
   const fetchClientSecret = useCallback(() => {
@@ -51,7 +53,7 @@ function calcularPrecio(precioBase: number, aplicantes: number) {
 export default function TurismoUsaCheckoutPage() {
   const [aplicantes, setAplicantes] = useState(1)
   const [email, setEmail] = useState('')
-  const [precioBase, setPrecioBase] = useState(190)
+  const [precioBase, setPrecioBase] = useState(config.precioSin)
   const [showCheckout, setShowCheckout] = useState(false)
   const [loadingPrices, setLoadingPrices] = useState(true)
 
@@ -91,7 +93,7 @@ export default function TurismoUsaCheckoutPage() {
 
       <main className="min-h-screen lg:min-h-0 lg:h-screen lg:overflow-hidden bg-white text-[#111111] flex flex-col-reverse lg:flex-row w-full font-funnel selection:bg-[#111111] selection:text-[#C8FF00]">
 
-        {/* ═══ COLUMNA IZQUIERDA: PAGO (55%) ═══ */}
+        {/* ═══ COLUMNA IZQUIERDA: PAGO (55%) — un solo contador, sin traducción ═══ */}
         <section className="w-full lg:w-[55%] lg:h-screen lg:overflow-y-auto flex flex-col relative px-4 sm:px-8 lg:px-12 xl:px-[10%]">
 
           <div className="flex-1 flex flex-col w-full max-w-[550px] mx-auto pt-10 lg:pt-16 pb-20">
@@ -112,7 +114,7 @@ export default function TurismoUsaCheckoutPage() {
                 {/* Selector de aplicantes */}
                 <div className="flex items-center justify-between p-4 rounded-xl border border-gray-200 bg-white">
                   <div>
-                    <div className="font-monument text-sm uppercase text-[#111111] mb-1">Asesoría Visa USA</div>
+                    <div className="font-monument text-sm uppercase text-[#111111] mb-1">{config.subtitulo}</div>
                     <div className="font-funnel text-base font-bold text-[#5B6A00]">
                       {loadingPrices ? '...' : `A$${precioBase}`} c/u
                     </div>
@@ -219,7 +221,7 @@ export default function TurismoUsaCheckoutPage() {
                 HONORARIOS DE AGENCIA
               </span>
               <h1 className="font-monument font-black text-2xl sm:text-3xl lg:text-[32px] uppercase tracking-tight text-[#111111] mb-2 leading-none">
-                Asesoría Visado USA
+                {config.titulo}
               </h1>
             </div>
 
@@ -235,14 +237,7 @@ export default function TurismoUsaCheckoutPage() {
                 RESUMEN DE INCLUSIÓN
               </h2>
               <ul className="space-y-3">
-                {[
-                  'Evaluación estratégica de perfil',
-                  'Creación de perfil consular',
-                  'Llenado completo del formulario DS-160',
-                  'Guía de pago de aranceles (MRV)',
-                  'Agendamiento de citas consulares',
-                  'Sesión de preparación para entrevista',
-                ].map((item, idx) => (
+                {config.bullets.map((item, idx) => (
                   <li key={idx} className="flex items-center gap-4 group">
                     <span className="shrink-0 w-1.5 h-1.5 rounded-full" style={{ backgroundColor: '#B22234', boxShadow: '0 0 4px rgba(178,34,52,0.3)' }}></span>
                     <span className="font-funnel font-medium text-[#111111] text-sm leading-relaxed tracking-wide">{item}</span>

@@ -4,27 +4,29 @@ import { useCallback, useState, useEffect } from 'react'
 import Link from 'next/link'
 import { loadStripe } from '@stripe/stripe-js'
 import { EmbeddedCheckoutProvider, EmbeddedCheckout } from '@stripe/react-stripe-js'
+import { CHECKOUT_CONFIG } from '@/lib/checkout-config'
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!)
+const config = CHECKOUT_CONFIG.canada
 
-function StripeEmbeddedCheckout({ aplicantes, email }: { aplicantes: number, email: string }) {
+function StripeEmbeddedCheckout({ counts, email }: { counts: { sin: number, con: number }, email: string }) {
   const fetchClientSecret = useCallback(() => {
     return fetch('/api/checkout/turismo-canada', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ aplicantes, email }),
+      body: JSON.stringify({ counts, email }),
     })
       .then(res => res.json())
       .then(data => {
         if (data.error) throw new Error(data.error)
         return data.clientSecret
       })
-  }, [aplicantes, email])
+  }, [counts, email])
 
   return (
     <div id="checkout" className="w-full">
       <EmbeddedCheckoutProvider
-        key={`${aplicantes}-${email}`}
+        key={`${counts.sin}-${counts.con}-${email}`}
         stripe={stripePromise}
         options={{ fetchClientSecret }}
       >
@@ -34,24 +36,25 @@ function StripeEmbeddedCheckout({ aplicantes, email }: { aplicantes: number, ema
   )
 }
 
-// Función centralizada para calcular el descuento (fuente única de verdad)
-function calcularPrecio(precioBase: number, aplicantes: number) {
-  const subtotal = precioBase * aplicantes
+// Función centralizada para calcular el descuento
+function calcularPrecio(counts: { sin: number, con: number }, prices: { sin: number, con: number }) {
+  const totalPersonas = counts.sin + counts.con
+  const subtotal = (counts.sin * prices.sin) + (counts.con * prices.con)
   let porcentajeDescuento = 0
 
-  if (aplicantes === 2) porcentajeDescuento = 0.10
-  else if (aplicantes >= 3) porcentajeDescuento = 0.15
+  if (totalPersonas === 2) porcentajeDescuento = 0.10
+  else if (totalPersonas >= 3) porcentajeDescuento = 0.15
 
   const descuento = Math.round(subtotal * porcentajeDescuento)
   const total = subtotal - descuento
 
-  return { subtotal, descuento, total, porcentajeDescuento }
+  return { subtotal, descuento, total, porcentajeDescuento, totalPersonas }
 }
 
 export default function TurismoCanadaCheckoutPage() {
-  const [aplicantes, setAplicantes] = useState(1)
+  const [counts, setCounts] = useState({ sin: 0, con: 0 })
   const [email, setEmail] = useState('')
-  const [precioBase, setPrecioBase] = useState(290)
+  const [prices, setPrices] = useState({ sin: config.precioSin, con: config.precioCon! })
   const [showCheckout, setShowCheckout] = useState(false)
   const [loadingPrices, setLoadingPrices] = useState(true)
 
@@ -59,16 +62,22 @@ export default function TurismoCanadaCheckoutPage() {
     fetch('/api/checkout/turismo-canada')
       .then(res => res.json())
       .then(data => {
-        if (data.precio) setPrecioBase(data.precio)
+        if (data.sin && data.con) setPrices(data)
         setLoadingPrices(false)
       })
       .catch(() => setLoadingPrices(false))
   }, [])
 
-  const { subtotal, descuento, total, porcentajeDescuento } = calcularPrecio(precioBase, aplicantes)
+  const { subtotal, descuento, total, porcentajeDescuento, totalPersonas } = calcularPrecio(counts, prices)
 
-  const updateAplicantes = (delta: number) => {
-    setAplicantes(prev => Math.max(1, Math.min(10, prev + delta)))
+  const updateCount = (type: 'sin' | 'con', delta: number) => {
+    setCounts(prev => {
+      const currentTotal = prev.sin + prev.con
+      // Solo permitir aumentar si no excede 10 en total, y no bajar de 0
+      const newVal = Math.max(0, prev[type] + delta)
+      if (delta > 0 && currentTotal >= 10) return prev
+      return { ...prev, [type]: newVal }
+    })
     setShowCheckout(false)
   }
 
@@ -77,6 +86,7 @@ export default function TurismoCanadaCheckoutPage() {
       setShowCheckout(true)
     }
   }
+
   return (
     <>
       <title>Visa Turismo Canadá | Checkout Seguro</title>
@@ -101,37 +111,56 @@ export default function TurismoCanadaCheckoutPage() {
               </Link>
             </header>
 
-            {/* Selector de Aplicantes */}
+            {/* Selector de Visas */}
             <div className="mb-8 p-5 rounded-xl bg-white/60 backdrop-blur-sm border border-gray-100">
               <h3 className="font-iceland text-xs text-[#5B6A00] tracking-[0.2em] uppercase font-bold mb-4">
-                ¿CUÁNTOS APLICANTES?
+                SELECCIONA LAS VISAS QUE NECESITAS
               </h3>
 
               <div className="space-y-4">
-                {/* Selector de aplicantes */}
+                {/* Sin traducción */}
                 <div className="flex items-center justify-between p-4 rounded-xl border border-gray-200 bg-white">
                   <div>
-                    <div className="font-monument text-sm uppercase text-[#111111] mb-1">Asesoría Visa Canadá</div>
+                    <div className="font-monument text-sm uppercase text-[#111111] mb-1">Sin traducción</div>
                     <div className="font-funnel text-base font-bold text-[#5B6A00]">
-                      {loadingPrices ? '...' : `A$${precioBase}`} c/u
+                      {loadingPrices ? '...' : `A$${prices.sin}`} c/u
                     </div>
                   </div>
                   <div className="flex items-center gap-3 bg-gray-50 rounded-lg p-1 border border-gray-100">
-                    <button onClick={() => updateAplicantes(-1)} className="w-8 h-8 flex items-center justify-center rounded bg-white border border-gray-200 text-gray-600 hover:bg-gray-50 font-bold" disabled={aplicantes === 1}>
+                    <button onClick={() => updateCount('sin', -1)} className="w-8 h-8 flex items-center justify-center rounded bg-white border border-gray-200 text-gray-600 hover:bg-gray-50 font-bold" disabled={counts.sin === 0}>
                       -
                     </button>
-                    <span className="font-monument text-sm w-4 text-center">{aplicantes}</span>
-                    <button onClick={() => updateAplicantes(1)} className="w-8 h-8 flex items-center justify-center rounded bg-white border border-gray-200 text-gray-600 hover:bg-gray-50 font-bold" disabled={aplicantes >= 10}>
+                    <span className="font-monument text-sm w-4 text-center">{counts.sin}</span>
+                    <button onClick={() => updateCount('sin', 1)} className="w-8 h-8 flex items-center justify-center rounded bg-white border border-gray-200 text-gray-600 hover:bg-gray-50 font-bold" disabled={totalPersonas >= 10}>
+                      +
+                    </button>
+                  </div>
+                </div>
+
+                {/* Con traducción */}
+                <div className="flex items-center justify-between p-4 rounded-xl border border-gray-200 bg-white">
+                  <div>
+                    <div className="font-monument text-sm uppercase text-[#111111] mb-1">Con traducción</div>
+                    <div className="font-funnel text-base font-bold text-[#5B6A00]">
+                      {loadingPrices ? '...' : `A$${prices.con}`} c/u
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3 bg-gray-50 rounded-lg p-1 border border-gray-100">
+                    <button onClick={() => updateCount('con', -1)} className="w-8 h-8 flex items-center justify-center rounded bg-white border border-gray-200 text-gray-600 hover:bg-gray-50 font-bold" disabled={counts.con === 0}>
+                      -
+                    </button>
+                    <span className="font-monument text-sm w-4 text-center">{counts.con}</span>
+                    <button onClick={() => updateCount('con', 1)} className="w-8 h-8 flex items-center justify-center rounded bg-white border border-gray-200 text-gray-600 hover:bg-gray-50 font-bold" disabled={totalPersonas >= 10}>
                       +
                     </button>
                   </div>
                 </div>
 
                 {/* Desglose de precios (solo si hay descuento) */}
-                {aplicantes >= 2 && (
-                  <div className="p-4 rounded-xl bg-[#C8FF00]/10 border border-[#C8FF00]/40">
+                {totalPersonas >= 2 && (
+                  <div className="p-4 rounded-xl bg-[#C8FF00]/10 border border-[#C8FF00]/40 mt-4">
                     <div className="flex justify-between items-center mb-2">
-                      <span className="font-funnel text-sm text-[#555555]">Subtotal ({aplicantes} × A${precioBase})</span>
+                      <span className="font-funnel text-sm text-[#555555]">Subtotal ({totalPersonas} visas)</span>
                       <span className="font-funnel text-sm text-[#555555] line-through">A${subtotal}</span>
                     </div>
                     <div className="flex justify-between items-center mb-2">
@@ -148,15 +177,15 @@ export default function TurismoCanadaCheckoutPage() {
                 )}
 
                 {/* Hint para incentivar más aplicantes */}
-                {aplicantes === 1 && (
-                  <div className="p-3 rounded-lg bg-gray-50 border border-gray-100">
+                {totalPersonas === 1 && (
+                  <div className="p-3 rounded-lg bg-gray-50 border border-gray-100 mt-4">
                     <p className="font-funnel text-xs text-[#555555] text-center">
                       💡 <strong>Aplicas con familia o amigos?</strong> Ahorra <strong>10%</strong> desde 2 aplicantes · <strong>15%</strong> desde 3
                     </p>
                   </div>
                 )}
-                {aplicantes === 2 && (
-                  <div className="p-3 rounded-lg bg-gray-50 border border-gray-100">
+                {totalPersonas === 2 && (
+                  <div className="p-3 rounded-lg bg-gray-50 border border-gray-100 mt-4">
                     <p className="font-funnel text-xs text-[#555555] text-center">
                       💡 Sube a <strong>3 aplicantes</strong> y ahorra <strong>15%</strong> en total
                     </p>
@@ -195,7 +224,7 @@ export default function TurismoCanadaCheckoutPage() {
                   </span>
                 </div>
                 <div className="relative z-10 w-full min-h-[500px]">
-                  <StripeEmbeddedCheckout aplicantes={aplicantes} email={email} />
+                  <StripeEmbeddedCheckout counts={counts} email={email} />
                 </div>
               </div>
             )}
@@ -218,14 +247,14 @@ export default function TurismoCanadaCheckoutPage() {
                 HONORARIOS DE AGENCIA
               </span>
               <h1 className="font-monument font-black text-2xl sm:text-3xl lg:text-[32px] uppercase tracking-tight text-[#111111] mb-2 leading-none">
-                Temporary Resident Visa
+                {config.titulo}
               </h1>
             </div>
 
             <p className="font-funnel font-bold text-2xl sm:text-3xl text-[#111111] mb-8 flex items-center justify-start gap-4">
-              AUD ${total > 0 ? total : precioBase}
+              AUD ${total > 0 ? total : prices.sin}
               <span className="font-iceland text-[10px] sm:text-xs text-[#5B6A00] tracking-widest uppercase border border-[#5B6A00]/40 bg-white/40 rounded px-2 py-0.5 leading-[1.2] flex items-center h-fit">
-                {aplicantes > 1 ? 'TOTAL' : 'PAGO ÚNICO'}
+                {total > 0 ? 'TOTAL' : 'DESDE'}
               </span>
             </p>
 
@@ -234,13 +263,7 @@ export default function TurismoCanadaCheckoutPage() {
                 RESUMEN DE INCLUSIÓN
               </h2>
               <ul className="space-y-3">
-                {[
-                  'Aplicación profesional',
-                  'Traducción de documentos incluida',
-                  'Organización de biométricos',
-                  'Carta de intención profesional',
-                  'Soporte personalizado',
-                ].map((item, idx) => (
+                {config.bullets.map((item, idx) => (
                   <li key={idx} className="flex items-center gap-4 group">
                     <span className="shrink-0 w-1.5 h-1.5 rounded-full" style={{ backgroundColor: '#D52B1E', boxShadow: '0 0 4px rgba(213,43,30,0.3)' }}></span>
                     <span className="font-funnel font-medium text-[#111111] text-sm leading-relaxed tracking-wide">{item}</span>
@@ -249,13 +272,13 @@ export default function TurismoCanadaCheckoutPage() {
               </ul>
             </div>
 
-            {aplicantes >= 2 && (
-              <div className="mt-8 p-5 rounded-xl bg-[#FF0000]/10 border border-[#FF0000]/30">
-                <p className="font-iceland text-xs text-[#FF0000] tracking-[0.2em] uppercase font-bold mb-2 flex items-center gap-2">
-                  <span>🍁</span> DESCUENTO APLICADO
+            {totalPersonas >= 2 && (
+              <div className="mt-8 p-5 rounded-xl bg-[#C8FF00]/20 border border-[#C8FF00]/60">
+                <p className="font-iceland text-xs text-[#5B6A00] tracking-[0.2em] uppercase font-bold mb-2">
+                  🎉 DESCUENTO APLICADO
                 </p>
                 <p className="font-funnel text-sm text-[#111111]">
-                  Ahorras <strong>A${descuento}</strong> ({Math.round(porcentajeDescuento * 100)}%) por aplicar con {aplicantes} personas
+                  Ahorras <strong>A${descuento}</strong> ({Math.round(porcentajeDescuento * 100)}%) por aplicar con {totalPersonas} personas
                 </p>
               </div>
             )}

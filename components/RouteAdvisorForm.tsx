@@ -282,7 +282,7 @@ export default function RouteAdvisorForm() {
   }
 
   return (
-    <div className={`relative min-h-screen bg-[url('/Sec1/ezgif-frame-001.png')] bg-cover bg-center bg-no-repeat flex items-center justify-center p-4 md:p-8 ${inter.className}`}>
+    <div className={`relative min-h-screen bg-[url('/secuencia-video-principal/ezgif-frame-001.png')] bg-cover bg-center bg-no-repeat flex items-center justify-center p-4 md:p-8 ${inter.className}`}>
       {/* Real Glassmorphism Card */}
       <div className="w-full max-w-4xl mx-auto bg-white/10 backdrop-blur-xl border border-white/20 rounded-[2rem] shadow-2xl overflow-hidden flex flex-col justify-center min-h-[500px]">
         {renderContent()}
