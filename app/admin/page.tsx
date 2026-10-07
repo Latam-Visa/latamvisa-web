@@ -4,7 +4,7 @@ import { AdminHomeHub } from './_components/AdminHomeHub'
 export const dynamic = 'force-dynamic'
 
 export default async function AdminHomePage() {
-  const [usaRes, canRes, ukRes, schengenRes, ausRes, pendingIdeasRes, traduccionesRes] = await Promise.all([
+  const [usaRes, canRes, ukRes, schengenRes, ausRes, pendingIdeasRes, traduccionesRes, cotizacionesRes] = await Promise.all([
     supabaseAdmin.from('visa_applications_usa').select('id', { count: 'exact', head: true }),
     supabaseAdmin.from('visa_applications_canada').select('id', { count: 'exact', head: true }),
     supabaseAdmin.from('visa_applications_uk').select('id', { count: 'exact', head: true }),
@@ -12,6 +12,11 @@ export default async function AdminHomePage() {
     supabaseAdmin.from('aplicaciones_turismo_australia').select('id', { count: 'exact', head: true }),
     supabaseAdmin.from('admin_tasks').select('id', { count: 'exact', head: true }).neq('status', 'hecho'),
     supabaseAdmin.from('lotes_traduccion').select('id', { count: 'exact', head: true }),
+    supabaseAdmin
+      .from('cotizaciones')
+      .select('id', { count: 'exact', head: true })
+      .eq('estado', 'pendiente')
+      .gt('vence_el', new Date().toISOString()),
   ])
 
   const solicitudesCount = [usaRes, canRes, ukRes, schengenRes, ausRes].reduce((sum, r) => sum + (r.count || 0), 0)
@@ -29,7 +34,12 @@ export default async function AdminHomePage() {
           <h1 className="text-3xl sm:text-4xl font-[PPMonumentExtended] text-[#0d2b0d]">Hola Latin@! 👋</h1>
         </div>
 
-        <AdminHomeHub solicitudesCount={solicitudesCount} ideasPendingCount={ideasPendingCount} traduccionesCount={traduccionesCount} />
+        <AdminHomeHub
+          solicitudesCount={solicitudesCount}
+          ideasPendingCount={ideasPendingCount}
+          traduccionesCount={traduccionesCount}
+          cotizacionesPendientesCount={cotizacionesRes.count || 0}
+        />
       </div>
     </div>
   )

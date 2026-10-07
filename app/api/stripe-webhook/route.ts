@@ -2,6 +2,7 @@ import { headers } from 'next/headers'
 import { NextResponse } from 'next/server'
 import Stripe from 'stripe'
 import { Resend } from 'resend'
+import { supabaseAdmin } from '@/lib/supabase/admin'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
@@ -42,6 +43,39 @@ export async function POST(req: Request) {
     } catch (err: any) {
       console.error(`Webhook signature verification failed: ${err.message}`)
       return NextResponse.json({ error: `Webhook Error: ${err.message}` }, { status: 400 })
+    }
+
+    // Cotizaciones de /pagar/[token]. Van antes del flujo de /agendar y salen
+    // aquí mismo: ese flujo le enviaría un correo de "Canadá" a cualquier
+    // sesión sin producto reconocido.
+    if (
+      (event.type === 'checkout.session.completed' || event.type === 'checkout.session.async_payment_succeeded') &&
+      (event.data.object as Stripe.Checkout.Session).metadata?.tipo === 'cotizacion'
+    ) {
+      const session = event.data.object as Stripe.Checkout.Session
+      const cotizacionId = session.metadata?.cotizacion_id
+
+      if (session.payment_status === 'paid' && cotizacionId) {
+        // Idempotente: el filtro por estado hace que un evento repetido no
+        // actualice nada (ni pise pagada_el).
+        const { data: actualizadas, error } = await supabaseAdmin
+          .from('cotizaciones')
+          .update({ estado: 'pagada', pagada_el: new Date().toISOString() })
+          .eq('id', cotizacionId)
+          .eq('estado', 'pendiente')
+          .select('id')
+
+        if (error) {
+          console.error('[COTIZACION] Error marcando como pagada:', error)
+          // 500 para que Stripe reintente el evento.
+          return NextResponse.json({ error: 'No se pudo actualizar la cotización' }, { status: 500 })
+        }
+        if (!actualizadas?.length) {
+          console.warn(`[COTIZACION] Pago ${session.id} sin cotización pendiente que actualizar (${cotizacionId}); ya pagada o anulada.`)
+        }
+      }
+
+      return NextResponse.json({ received: true }, { status: 200 })
     }
 
     if (event.type === 'checkout.session.completed') {

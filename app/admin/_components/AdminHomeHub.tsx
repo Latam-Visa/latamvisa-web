@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import dynamic from 'next/dynamic'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
-import { ClipboardList, Lightbulb, Languages, ArrowRight, type LucideIcon } from 'lucide-react'
+import { ClipboardList, Lightbulb, Languages, Receipt, ArrowRight, type LucideIcon } from 'lucide-react'
 
 const Antigravity = dynamic(() => import('@/components/Antigravity'), { ssr: false })
 
@@ -26,6 +26,7 @@ interface AdminHomeHubProps {
   solicitudesCount: number
   ideasPendingCount: number
   traduccionesCount: number
+  cotizacionesPendientesCount: number
 }
 
 interface HubCardData {
@@ -37,7 +38,7 @@ interface HubCardData {
   countLabel: string
 }
 
-export function AdminHomeHub({ solicitudesCount, ideasPendingCount, traduccionesCount }: AdminHomeHubProps) {
+export function AdminHomeHub({ solicitudesCount, ideasPendingCount, traduccionesCount, cotizacionesPendientesCount }: AdminHomeHubProps) {
   const cards: HubCardData[] = [
     {
       href: '/admin/solicitudes',
@@ -62,6 +63,14 @@ export function AdminHomeHub({ solicitudesCount, ideasPendingCount, traducciones
       subtitle: 'Traduce documentos que llegan por fuera del formulario',
       count: traduccionesCount,
       countLabel: traduccionesCount === 1 ? 'traducción' : 'traducciones',
+    },
+    {
+      href: '/admin/cotizaciones',
+      icon: Receipt,
+      title: 'Cotizaciones',
+      subtitle: 'Crea links de pago para clientes de convenios',
+      count: cotizacionesPendientesCount,
+      countLabel: 'por pagar',
     },
   ]
 
