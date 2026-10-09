@@ -71,119 +71,121 @@ async function executeSubmit(formData: any) {
   const step8 = formData.step8 || {}
   const step9 = formData.step9 || {}
 
+  const insertData = {
+    id: applicationId,
+    status: 'pending',
+    
+    // Identidad
+    surname: nullify(step1.surname),
+    surname_at_birth: nullify(step1.surname_at_birth),
+    first_names: nullify(step1.first_names),
+    date_of_birth: nullify(step1.date_of_birth),
+    place_of_birth: nullify(step1.place_of_birth),
+    country_of_birth: nullify(step1.country_of_birth),
+    current_nationality: nullify(step1.current_nationality),
+    nationality_at_birth: nullify(step1.nationality_at_birth),
+    other_nationalities: nullify(step1.other_nationalities),
+    sex: nullify(step1.sex),
+    civil_status: nullify(step1.civil_status),
+    civil_status_other: nullify(step1.civil_status_other),
+    parental_authority_name: nullify(step1.parental_authority_name),
+    parental_authority_address: nullify(step1.parental_authority_address),
+    national_id_number: nullify(step1.national_id_number),
+
+    // Documento
+    travel_document_type: nullify(step2.travel_document_type),
+    travel_document_other: nullify(step2.travel_document_other),
+    passport_number: nullify(step2.passport_number),
+    passport_issue_date: nullify(step2.passport_issue_date),
+    passport_expiry_date: nullify(step2.passport_expiry_date),
+    passport_issuing_country: nullify(step2.passport_issuing_country),
+
+    // Contacto/residencia/ocupación
+    home_address: nullify(step3.home_address),
+    home_email: nullify(step3.home_email),
+    home_phone: nullify(step3.home_phone),
+    residence_other_country: nullify(step3.residence_other_country),
+    residence_permit_number: nullify(step3.residence_permit_number),
+    residence_permit_valid_until: nullify(step3.residence_permit_valid_until),
+    current_occupation: nullify(step3.current_occupation),
+    employer_name: nullify(step3.employer_name),
+    employer_address: nullify(step3.employer_address),
+    employer_phone: nullify(step3.employer_phone),
+
+    // Viaje
+    purpose_of_journey: nullify(step4.purpose_of_journey),
+    purpose_other: nullify(step4.purpose_other),
+    additional_destinations: nullify(step4.additional_destinations),
+    member_state_destination: nullify(step4.member_state_destination),
+    member_state_first_entry: nullify(step4.member_state_first_entry),
+    number_of_entries: nullify(step4.number_of_entries),
+    intended_arrival_date: nullify(step4.intended_arrival_date),
+    intended_departure_date: nullify(step4.intended_departure_date),
+    duration_of_stay_days: !step4.duration_of_stay_days ? null : Number(step4.duration_of_stay_days),
+
+    // Historial
+    previous_schengen_visas: nullify(step5.previous_schengen_visas),
+    previous_visas: nullify(step5.previous_visas),
+    fingerprints_collected: nullify(step5.fingerprints_collected),
+    fingerprints_date: nullify(step5.fingerprints_date),
+    final_destination_permit: nullify(step5.final_destination_permit),
+    final_permit_issued_by: nullify(step5.final_permit_issued_by),
+    final_permit_valid_from: nullify(step5.final_permit_valid_from),
+    final_permit_valid_until: nullify(step5.final_permit_valid_until),
+
+    // Invitación/costos
+    inviting_person_or_hotel: nullify(step6.inviting_person_or_hotel),
+    inviting_address: nullify(step6.inviting_address),
+    inviting_phone: nullify(step6.inviting_phone),
+    inviting_company: nullify(step6.inviting_company),
+    inviting_company_contact: nullify(step6.inviting_company_contact),
+    costs_covered_by: nullify(step6.costs_covered_by),
+    sponsor_details: nullify(step6.sponsor_details),
+    means_of_support: nullify(step6.means_of_support),
+
+    // Familiar UE
+    eu_family_member: nullify(step7.eu_family_member),
+    eu_family_surname: nullify(step7.eu_family_surname),
+    eu_family_first_name: nullify(step7.eu_family_first_name),
+    eu_family_dob: nullify(step7.eu_family_dob),
+    eu_family_nationality: nullify(step7.eu_family_nationality),
+    eu_family_doc_number: nullify(step7.eu_family_doc_number),
+    eu_family_relationship: nullify(step7.eu_family_relationship),
+
+    // Firma
+    place_and_date: nullify(step8.place_and_date),
+    signature_confirmed: step8.signature_confirmed === true,
+
+    // Soportes
+    travel_insurance_confirmed: step8.travel_insurance_confirmed === true,
+    proof_of_funds_eur: step8.proof_of_funds_eur === true,
+    accommodation_proof: step8.accommodation_proof === true,
+    return_ticket_confirmed: step8.return_ticket_confirmed === true,
+    ties_to_home_country: step8.ties_to_home_country === true,
+
+    // Documentos
+    passport_file_url: nullify(step9.passport_file_url),
+    photo_file_url: nullify(step9.photo_file_url),
+    travel_insurance_url: nullify(step9.travel_insurance_url),
+    bank_statements_url: nullify(step9.bank_statements_url),
+    accommodation_url: nullify(step9.accommodation_url),
+    flight_itinerary_url: nullify(step9.flight_itinerary_url),
+    employment_proof_url: nullify(step9.employment_proof_url),
+    ties_proof_url: nullify(step9.ties_proof_url),
+    documents: nullify(step9.documents),
+
+    // Carta
+    ai_letter_status: 'generating',
+    
+    // Raw
+    form_data: formData
+  }
+
   console.log('[SUBMIT_SCHENGEN] Step 1: DB insert')
   try {
     const { error: dbError } = await supabaseAdmin
       .from('visa_applications_schengen')
-      .insert({
-        id: applicationId,
-        status: 'pending',
-        
-        // Identidad
-        surname: nullify(step1.surname),
-        surname_at_birth: nullify(step1.surname_at_birth),
-        first_names: nullify(step1.first_names),
-        date_of_birth: nullify(step1.date_of_birth),
-        place_of_birth: nullify(step1.place_of_birth),
-        country_of_birth: nullify(step1.country_of_birth),
-        current_nationality: nullify(step1.current_nationality),
-        nationality_at_birth: nullify(step1.nationality_at_birth),
-        other_nationalities: nullify(step1.other_nationalities),
-        sex: nullify(step1.sex),
-        civil_status: nullify(step1.civil_status),
-        civil_status_other: nullify(step1.civil_status_other),
-        parental_authority_name: nullify(step1.parental_authority_name),
-        parental_authority_address: nullify(step1.parental_authority_address),
-        national_id_number: nullify(step1.national_id_number),
-
-        // Documento
-        travel_document_type: nullify(step2.travel_document_type),
-        travel_document_other: nullify(step2.travel_document_other),
-        passport_number: nullify(step2.passport_number),
-        passport_issue_date: nullify(step2.passport_issue_date),
-        passport_expiry_date: nullify(step2.passport_expiry_date),
-        passport_issuing_country: nullify(step2.passport_issuing_country),
-
-        // Contacto/residencia/ocupación
-        home_address: nullify(step3.home_address),
-        home_email: nullify(step3.home_email),
-        home_phone: nullify(step3.home_phone),
-        residence_other_country: nullify(step3.residence_other_country),
-        residence_permit_number: nullify(step3.residence_permit_number),
-        residence_permit_valid_until: nullify(step3.residence_permit_valid_until),
-        current_occupation: nullify(step3.current_occupation),
-        employer_name: nullify(step3.employer_name),
-        employer_address: nullify(step3.employer_address),
-        employer_phone: nullify(step3.employer_phone),
-
-        // Viaje
-        purpose_of_journey: nullify(step4.purpose_of_journey),
-        purpose_other: nullify(step4.purpose_other),
-        additional_destinations: nullify(step4.additional_destinations),
-        member_state_destination: nullify(step4.member_state_destination),
-        member_state_first_entry: nullify(step4.member_state_first_entry),
-        number_of_entries: nullify(step4.number_of_entries),
-        intended_arrival_date: nullify(step4.intended_arrival_date),
-        intended_departure_date: nullify(step4.intended_departure_date),
-        duration_of_stay_days: !step4.duration_of_stay_days ? null : Number(step4.duration_of_stay_days),
-
-        // Historial
-        previous_schengen_visas: nullify(step5.previous_schengen_visas),
-        previous_visas: nullify(step5.previous_visas),
-        fingerprints_collected: nullify(step5.fingerprints_collected),
-        fingerprints_date: nullify(step5.fingerprints_date),
-        final_destination_permit: nullify(step5.final_destination_permit),
-        final_permit_issued_by: nullify(step5.final_permit_issued_by),
-        final_permit_valid_from: nullify(step5.final_permit_valid_from),
-        final_permit_valid_until: nullify(step5.final_permit_valid_until),
-
-        // Invitación/costos
-        inviting_person_or_hotel: nullify(step6.inviting_person_or_hotel),
-        inviting_address: nullify(step6.inviting_address),
-        inviting_phone: nullify(step6.inviting_phone),
-        inviting_company: nullify(step6.inviting_company),
-        inviting_company_contact: nullify(step6.inviting_company_contact),
-        costs_covered_by: nullify(step6.costs_covered_by),
-        sponsor_details: nullify(step6.sponsor_details),
-        means_of_support: nullify(step6.means_of_support),
-
-        // Familiar UE
-        eu_family_member: nullify(step7.eu_family_member),
-        eu_family_surname: nullify(step7.eu_family_surname),
-        eu_family_first_name: nullify(step7.eu_family_first_name),
-        eu_family_dob: nullify(step7.eu_family_dob),
-        eu_family_nationality: nullify(step7.eu_family_nationality),
-        eu_family_doc_number: nullify(step7.eu_family_doc_number),
-        eu_family_relationship: nullify(step7.eu_family_relationship),
-
-        // Firma
-        place_and_date: nullify(step8.place_and_date),
-        signature_confirmed: step8.signature_confirmed === true,
-
-        // Soportes
-        travel_insurance_confirmed: step8.travel_insurance_confirmed === true,
-        proof_of_funds_eur: step8.proof_of_funds_eur === true,
-        accommodation_proof: step8.accommodation_proof === true,
-        return_ticket_confirmed: step8.return_ticket_confirmed === true,
-        ties_to_home_country: step8.ties_to_home_country === true,
-
-        // Documentos
-        passport_file_url: nullify(step9.passport_file_url),
-        photo_file_url: nullify(step9.photo_file_url),
-        travel_insurance_url: nullify(step9.travel_insurance_url),
-        bank_statements_url: nullify(step9.bank_statements_url),
-        accommodation_url: nullify(step9.accommodation_url),
-        flight_itinerary_url: nullify(step9.flight_itinerary_url),
-        employment_proof_url: nullify(step9.employment_proof_url),
-        ties_proof_url: nullify(step9.ties_proof_url),
-        documents: nullify(step9.documents),
-
-        // Carta
-        ai_letter_status: 'generating',
-        
-        // Raw
-        form_data: formData
-      })
+      .insert(insertData)
 
     if (dbError) throw new Error(dbError.message)
     console.log('[SUBMIT_SCHENGEN] DB insert OK')

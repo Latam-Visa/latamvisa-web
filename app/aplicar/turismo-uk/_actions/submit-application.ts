@@ -73,113 +73,115 @@ async function executeSubmit(formData: any) {
   const step9 = formData.step9 || {}
   const step10 = formData.step10 || {}
 
+  const insertData = {
+    id: applicationId,
+    status: 'pending',
+    
+    // Paso 1
+    purpose_of_visit: nullify(step1.purpose_of_visit),
+    proposed_entry_date: nullify(step1.proposed_entry_date),
+    proposed_exit_date: nullify(step1.proposed_exit_date),
+    visited_uk_before: toBool(step1.visited_uk_before),
+    visited_uk_details: nullify(step1.visited_uk_details),
+    has_uk_contacts: toBool(step1.has_uk_contacts),
+    uk_contacts: deepNullify(step1.uk_contacts || []),
+
+    // Paso 2
+    first_name: nullify(step2.first_name),
+    last_name: nullify(step2.last_name),
+    other_names_used: nullify(step2.other_names_used),
+    date_of_birth: nullify(step2.date_of_birth),
+    place_of_birth: nullify(step2.place_of_birth),
+    country_of_birth: nullify(step2.country_of_birth),
+    gender: nullify(step2.gender),
+    passport_number: nullify(step2.passport_number),
+    passport_issue_date: nullify(step2.passport_issue_date),
+    passport_expiry_date: nullify(step2.passport_expiry_date),
+    passport_issuing_country: nullify(step2.passport_issuing_country),
+    passport_issuing_authority: nullify(step2.passport_issuing_authority),
+
+    // Paso 3
+    current_nationality: nullify(step3.current_nationality),
+    has_other_nationality: toBool(step3.has_other_nationality),
+    other_nationality: nullify(step3.other_nationality),
+    has_national_id: toBool(step3.has_national_id),
+    national_id_number: nullify(step3.national_id_number),
+    country_of_residence: nullify(step3.country_of_residence),
+    time_in_current_residence: nullify(step3.time_in_current_residence),
+
+    // Paso 4
+    residential_address_line1: nullify(step4.residential_address_line1),
+    residential_address_line2: nullify(step4.residential_address_line2),
+    residential_city: nullify(step4.residential_city),
+    residential_state: nullify(step4.residential_state),
+    residential_postal_code: nullify(step4.residential_postal_code),
+    residential_country: nullify(step4.residential_country),
+    time_at_current_address: nullify(step4.time_at_current_address),
+    phone: nullify(step4.phone),
+    email: nullify(step4.email),
+
+    // Paso 5
+    occupation_status: nullify(step5.occupation_status),
+    employer_name: nullify(step5.employer_name),
+    employer_address: nullify(step5.employer_address),
+    job_title: nullify(step5.job_title),
+    monthly_income: nullify(step5.monthly_income),
+    monthly_income_currency: nullify(step5.monthly_income_currency),
+    available_funds_gbp: nullify(step5.available_funds_gbp),
+    trip_financed_by_other: toBool(step5.trip_financed_by_other),
+    trip_financer_details: nullify(step5.trip_financer_details),
+
+    // Paso 6
+    travel_history: deepNullify(step6.travel_history || []),
+    has_valid_visa: toBool(step6.has_valid_visa),
+    valid_visas: deepNullify(step6.valid_visas || []),
+
+    // Paso 7
+    visa_refused_before: toBool(step7.visa_refused_before),
+    visa_refusal_details: nullify(step7.visa_refusal_details),
+    deported_or_removed: toBool(step7.deported_or_removed),
+    deportation_details: nullify(step7.deportation_details),
+    criminal_conviction: toBool(step7.criminal_conviction),
+    criminal_conviction_details: nullify(step7.criminal_conviction_details),
+
+    // Paso 8
+    marital_status: nullify(step8.marital_status),
+    spouse_first_name: nullify(step8.spouse_first_name),
+    spouse_last_name: nullify(step8.spouse_last_name),
+    spouse_date_of_birth: nullify(step8.spouse_date_of_birth),
+    spouse_nationality: nullify(step8.spouse_nationality),
+    spouse_traveling: nullify(step8.spouse_traveling),
+    has_children: toBool(step8.has_children),
+    children: deepNullify(step8.children || []),
+
+    // Paso 9
+    has_tuberculosis: toBool(step9.has_tuberculosis),
+    tuberculosis_details: nullify(step9.tuberculosis_details),
+    requires_medical_treatment: toBool(step9.requires_medical_treatment),
+    medical_treatment_details: nullify(step9.medical_treatment_details),
+
+    // Paso 10
+    passport_file_url: nullify(step10.passport_file_url),
+    photo_file_url: nullify(step10.photo_file_url),
+    bank_statements_url: deepNullify(step10.bank_statements_url),
+    employment_proof_url: nullify(step10.employment_proof_url),
+    ties_proof_url: nullify(step10.ties_proof_url),
+    other_visa_url: nullify(step10.other_visa_url),
+    itinerary_url: nullify(step10.itinerary_url),
+    documents: deepNullify(step10.documents || []),
+
+    // Form Data raw
+    form_data: formData,
+
+    // Letter status initial
+    ai_letter_status: 'generating'
+  }
+
   console.log('[SUBMIT_UK] Step 1: DB insert')
   try {
     const { error: dbError } = await supabaseAdmin
       .from('visa_applications_uk')
-      .insert({
-        id: applicationId,
-        status: 'pending',
-        
-        // Paso 1
-        purpose_of_visit: nullify(step1.purpose_of_visit),
-        proposed_entry_date: nullify(step1.proposed_entry_date),
-        proposed_exit_date: nullify(step1.proposed_exit_date),
-        visited_uk_before: toBool(step1.visited_uk_before),
-        visited_uk_details: nullify(step1.visited_uk_details),
-        has_uk_contacts: toBool(step1.has_uk_contacts),
-        uk_contacts: deepNullify(step1.uk_contacts || []),
-
-        // Paso 2
-        first_name: nullify(step2.first_name),
-        last_name: nullify(step2.last_name),
-        other_names_used: nullify(step2.other_names_used),
-        date_of_birth: nullify(step2.date_of_birth),
-        place_of_birth: nullify(step2.place_of_birth),
-        country_of_birth: nullify(step2.country_of_birth),
-        gender: nullify(step2.gender),
-        passport_number: nullify(step2.passport_number),
-        passport_issue_date: nullify(step2.passport_issue_date),
-        passport_expiry_date: nullify(step2.passport_expiry_date),
-        passport_issuing_country: nullify(step2.passport_issuing_country),
-        passport_issuing_authority: nullify(step2.passport_issuing_authority),
-
-        // Paso 3
-        current_nationality: nullify(step3.current_nationality),
-        has_other_nationality: toBool(step3.has_other_nationality),
-        other_nationality: nullify(step3.other_nationality),
-        has_national_id: toBool(step3.has_national_id),
-        national_id_number: nullify(step3.national_id_number),
-        country_of_residence: nullify(step3.country_of_residence),
-        time_in_current_residence: nullify(step3.time_in_current_residence),
-
-        // Paso 4
-        residential_address_line1: nullify(step4.residential_address_line1),
-        residential_address_line2: nullify(step4.residential_address_line2),
-        residential_city: nullify(step4.residential_city),
-        residential_state: nullify(step4.residential_state),
-        residential_postal_code: nullify(step4.residential_postal_code),
-        residential_country: nullify(step4.residential_country),
-        time_at_current_address: nullify(step4.time_at_current_address),
-        phone: nullify(step4.phone),
-        email: nullify(step4.email),
-
-        // Paso 5
-        occupation_status: nullify(step5.occupation_status),
-        employer_name: nullify(step5.employer_name),
-        employer_address: nullify(step5.employer_address),
-        job_title: nullify(step5.job_title),
-        monthly_income: nullify(step5.monthly_income),
-        monthly_income_currency: nullify(step5.monthly_income_currency),
-        available_funds_gbp: nullify(step5.available_funds_gbp),
-        trip_financed_by_other: toBool(step5.trip_financed_by_other),
-        trip_financer_details: nullify(step5.trip_financer_details),
-
-        // Paso 6
-        travel_history: deepNullify(step6.travel_history || []),
-        has_valid_visa: toBool(step6.has_valid_visa),
-        valid_visas: deepNullify(step6.valid_visas || []),
-
-        // Paso 7
-        visa_refused_before: toBool(step7.visa_refused_before),
-        visa_refusal_details: nullify(step7.visa_refusal_details),
-        deported_or_removed: toBool(step7.deported_or_removed),
-        deportation_details: nullify(step7.deportation_details),
-        criminal_conviction: toBool(step7.criminal_conviction),
-        criminal_conviction_details: nullify(step7.criminal_conviction_details),
-
-        // Paso 8
-        marital_status: nullify(step8.marital_status),
-        spouse_first_name: nullify(step8.spouse_first_name),
-        spouse_last_name: nullify(step8.spouse_last_name),
-        spouse_date_of_birth: nullify(step8.spouse_date_of_birth),
-        spouse_nationality: nullify(step8.spouse_nationality),
-        spouse_traveling: nullify(step8.spouse_traveling),
-        has_children: toBool(step8.has_children),
-        children: deepNullify(step8.children || []),
-
-        // Paso 9
-        has_tuberculosis: toBool(step9.has_tuberculosis),
-        tuberculosis_details: nullify(step9.tuberculosis_details),
-        requires_medical_treatment: toBool(step9.requires_medical_treatment),
-        medical_treatment_details: nullify(step9.medical_treatment_details),
-
-        // Paso 10
-        passport_file_url: nullify(step10.passport_file_url),
-        photo_file_url: nullify(step10.photo_file_url),
-        bank_statements_url: deepNullify(step10.bank_statements_url),
-        employment_proof_url: nullify(step10.employment_proof_url),
-        ties_proof_url: nullify(step10.ties_proof_url),
-        other_visa_url: nullify(step10.other_visa_url),
-        itinerary_url: nullify(step10.itinerary_url),
-        documents: deepNullify(step10.documents || []),
-
-        // Form Data raw
-        form_data: formData,
-
-        // Letter status initial
-        ai_letter_status: 'generating'
-      })
+      .insert(insertData)
 
     if (dbError) throw new Error(dbError.message)
     console.log('[SUBMIT_UK] DB insert OK')
