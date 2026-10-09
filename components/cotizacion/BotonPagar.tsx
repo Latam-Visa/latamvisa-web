@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { COPY_PAGINA } from '@/lib/cotizaciones/contenido'
 
 // El formulario solo envía la server action ligada al token; el monto del
 // botón es únicamente visual.
@@ -14,7 +15,7 @@ export function BotonPagar({ action, label }: { action: () => Promise<void>; lab
         disabled={enviando}
         className="w-full min-h-[56px] px-5 py-4 rounded-xl bg-[#C8FF00] text-[#0d2b0d] font-monument uppercase tracking-wide text-sm sm:text-base hover:bg-[#b8ef00] active:scale-[0.99] transition-all disabled:opacity-70 disabled:cursor-wait"
       >
-        {enviando ? 'Conectando checkout seguro…' : label}
+        {enviando ? COPY_PAGINA.conectando : label}
       </button>
     </form>
   )

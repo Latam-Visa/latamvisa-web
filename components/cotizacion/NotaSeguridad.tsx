@@ -1,3 +1,5 @@
+import { COPY_PAGINA } from '@/lib/cotizaciones/contenido'
+
 // Misma nota de seguridad que /agendar, con el verde de texto de marca.
 export function NotaSeguridad() {
   return (
@@ -7,8 +9,8 @@ export function NotaSeguridad() {
         <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
       </svg>
       <p className="font-iceland text-[11px] text-[#0d2b0d] font-bold uppercase tracking-widest leading-relaxed">
-        Encriptación de grado militar SSL <br />
-        No procesamos números de tarjetas
+        {COPY_PAGINA.seguridad[0]} <br />
+        {COPY_PAGINA.seguridad[1]}
       </p>
     </div>
   )

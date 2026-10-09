@@ -3,17 +3,19 @@
 import { useEffect, useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import QRCode from 'qrcode'
-import { Copy, Check, Download, MessageCircle, Ban, CalendarPlus, BadgeCheck, ExternalLink, Loader2, AlertCircle } from 'lucide-react'
+import { Download, Ban, CalendarPlus, BadgeCheck, ExternalLink, Loader2, AlertCircle } from 'lucide-react'
 import {
-  PUBLIC_SITE_URL,
   estadoEfectivo,
   formatFecha,
   formatFechaHora,
   formatMoney,
   labelPaisCotizacion,
+  labelPaisOrigen,
+  labelTipoVisa,
+  linkPago,
   type Cotizacion,
 } from '@/lib/cotizaciones'
-import { anularCotizacion, extenderCotizacion, marcarComisionPagada } from '../../_actions/cotizaciones-actions'
+import { AccionesCompartir, type EnviarEmail } from '@/components/cotizacion/AccionesCompartir'
 import { EstadoBadge } from '../../_components/EstadoBadge'
 
 const botonSecundario =
@@ -28,15 +30,27 @@ function Dato({ label, children }: { label: string; children: React.ReactNode })
   )
 }
 
-export function CotizacionDetailClient({ cot, convenioNombre }: { cot: Cotizacion; convenioNombre: string | null }) {
+type Accion = (id: string) => Promise<{ success: boolean; error?: string }>
+
+// Las server actions llegan como props desde la página, igual que en el
+// generador (admin y portal).
+export function CotizacionDetailClient({
+  cot,
+  convenioNombre,
+  acciones,
+}: {
+  cot: Cotizacion
+  convenioNombre: string | null
+  acciones: { anular: Accion; extender: Accion; marcarComisionPagada: Accion; enviarEmail: EnviarEmail }
+}) {
+  const { anular: anularCotizacion, extender: extenderCotizacion, marcarComisionPagada, enviarEmail: enviarEmailAdmin } = acciones
   const router = useRouter()
   const [pendiente, startTransition] = useTransition()
   const [accion, setAccion] = useState<string | null>(null)
   const [error, setError] = useState('')
-  const [copiado, setCopiado] = useState(false)
   const [qr, setQr] = useState<string | null>(null)
 
-  const link = `${PUBLIC_SITE_URL}/pagar/${cot.token}`
+  const link = linkPago(cot.token)
   const estado = estadoEfectivo(cot)
   const fmt = (n: number) => formatMoney(n, cot.moneda)
 
@@ -45,24 +59,6 @@ export function CotizacionDetailClient({ cot, convenioNombre }: { cot: Cotizacio
       .then(setQr)
       .catch(() => setQr(null))
   }, [link])
-
-  const mensajeWhatsApp = [
-    `Hola ${cot.cliente_nombre}, te compartimos tu cotización ${cot.numero} de LATAM VISA.`,
-    `Valor para empezar: ${fmt(cot.monto)}.`,
-    `Puedes revisarla y pagar aquí: ${link}`,
-  ].join('\n')
-  // Sin número: WhatsApp deja elegir el chat (cliente, grupo o el convenio).
-  const urlWhatsApp = `https://wa.me/?text=${encodeURIComponent(mensajeWhatsApp)}`
-
-  const copiar = async () => {
-    try {
-      await navigator.clipboard.writeText(link)
-      setCopiado(true)
-      setTimeout(() => setCopiado(false), 2000)
-    } catch {
-      setError('No se pudo copiar. Selecciona el link y cópialo a mano.')
-    }
-  }
 
   const ejecutar = (nombre: string, fn: () => Promise<{ success: boolean; error?: string }>) => {
     setError('')
@@ -99,35 +95,21 @@ export function CotizacionDetailClient({ cot, convenioNombre }: { cot: Cotizacio
           <EstadoBadge estado={estado} />
         </div>
 
-        <div className="flex flex-col sm:flex-row gap-2">
-          <input
-            readOnly
-            value={link}
-            onFocus={(e) => e.currentTarget.select()}
-            aria-label="Link público de la cotización"
-            className="flex-1 min-w-0 bg-[#F5F5F0] border border-[#E5E5E5] rounded-lg px-3 py-2.5 text-sm font-mono text-[#0A0A0A] min-h-[44px]"
-          />
-          <button type="button" onClick={copiar} className={botonSecundario}>
-            {copiado ? <Check className="w-4 h-4 text-[#2F4A00]" /> : <Copy className="w-4 h-4" />}
-            {copiado ? 'Copiado' : 'Copiar'}
-          </button>
-        </div>
+        <input
+          readOnly
+          value={link}
+          onFocus={(e) => e.currentTarget.select()}
+          aria-label="Link público de la cotización"
+          className="w-full min-w-0 bg-[#F5F5F0] border border-[#E5E5E5] rounded-lg px-3 py-2.5 text-sm font-mono text-[#0A0A0A] min-h-[44px]"
+        />
 
-        <div className="flex flex-col sm:flex-row gap-2">
-          <a
-            href={urlWhatsApp}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center justify-center gap-2 bg-[#C8FF00] text-[#2F4A00] font-bold text-sm px-4 py-2.5 rounded-lg hover:bg-[#b8ef00] transition-colors min-h-[48px]"
-          >
-            <MessageCircle className="w-4 h-4" />
-            Enviar por WhatsApp
-          </a>
-          <a href={link} target="_blank" rel="noopener noreferrer" className={botonSecundario}>
-            <ExternalLink className="w-4 h-4" />
-            Ver como cliente
-          </a>
-        </div>
+        {estado !== 'anulada' && (
+          <AccionesCompartir cot={cot} enviarEmail={enviarEmailAdmin} emailInicial={cot.email_enviado_a ?? cot.cliente_email ?? ''} />
+        )}
+        <a href={link} target="_blank" rel="noopener noreferrer" className={botonSecundario}>
+          <ExternalLink className="w-4 h-4" />
+          Ver como cliente
+        </a>
 
         {qr && (
           <div className="flex flex-col sm:flex-row items-center gap-4 pt-2">
@@ -157,10 +139,14 @@ export function CotizacionDetailClient({ cot, convenioNombre }: { cot: Cotizacio
       <section className="bg-white rounded-2xl border border-[#E5E5E5] p-5 sm:p-6">
         <h3 className="text-sm font-bold text-[#0A0A0A] mb-4">Detalles</h3>
         <dl className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-          <Dato label="Cliente">{cot.cliente_nombre}</Dato>
+          <Dato label="Cliente">{cot.cliente_nombre || '—'}</Dato>
           <Dato label="Correo">{cot.cliente_email || '—'}</Dato>
           <Dato label="WhatsApp">{cot.cliente_whatsapp || '—'}</Dato>
-          <Dato label="País">{labelPaisCotizacion(cot.pais_destino)}</Dato>
+          <Dato label="Visa">{`${labelTipoVisa(cot.tipo_visa)} · ${labelPaisCotizacion(cot.pais_destino)}`}</Dato>
+          <Dato label="Aplica desde">{labelPaisOrigen(cot.pais_origen)}</Dato>
+          <Dato label="Visa americana">{cot.tiene_visa_usa == null ? '—' : cot.tiene_visa_usa ? 'Sí' : 'No'}</Dato>
+          <Dato label="Creada por">{cot.creada_por === 'convenio' ? 'Convenio (portal)' : 'Admin'}</Dato>
+          <Dato label="Email enviado">{cot.email_enviado_a ? `${cot.email_enviado_a}${cot.email_enviado_el ? ` · ${formatFechaHora(cot.email_enviado_el)}` : ''}` : '—'}</Dato>
           <Dato label="Personas">{cot.personas}</Dato>
           <Dato label="Convenio">{convenioNombre || 'Directo'}</Dato>
           <Dato label="Comisión">{cot.convenio_id ? fmt(cot.comision_total) : '—'}</Dato>

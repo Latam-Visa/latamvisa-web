@@ -7,7 +7,8 @@ import {
   estadoEfectivo,
   formatFecha,
   formatMoney,
-  labelPaisCotizacion,
+  labelPaisOrigen,
+  labelVisa,
   type Cotizacion,
   type EstadoCotizacion,
 } from '@/lib/cotizaciones'
@@ -22,6 +23,12 @@ export interface ResumenConvenio {
 }
 
 const DIRECTO = '__directo__'
+
+// "desde Colombia · Visa EE. UU.: Sí · Portal"
+function detalleVisa(c: Cotizacion) {
+  const visaUsa = c.tiene_visa_usa == null ? '—' : c.tiene_visa_usa ? 'Sí' : 'No'
+  return `desde ${labelPaisOrigen(c.pais_origen)} · Visa EE. UU.: ${visaUsa} · ${c.creada_por === 'convenio' ? 'Portal' : 'Admin'}`
+}
 
 const ESTADOS: { value: EstadoCotizacion | ''; label: string }[] = [
   { value: '', label: 'Todos los estados' },
@@ -57,7 +64,7 @@ export function CotizacionesListClient({
         if (convenio === DIRECTO && c.convenio_id) return false
         if (convenio && convenio !== DIRECTO && c.convenio_id !== convenio) return false
         if (estado && c.efectivo !== estado) return false
-        if (q && !c.cliente_nombre.toLowerCase().includes(q) && !c.numero.toLowerCase().includes(q)) return false
+        if (q && !(c.cliente_nombre ?? '').toLowerCase().includes(q) && !c.numero.toLowerCase().includes(q)) return false
         return true
       })
   }, [cotizaciones, query, convenio, estado])
@@ -144,16 +151,17 @@ export function CotizacionesListClient({
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
                     <p className="text-xs font-mono text-[#6B6B6B]">{c.numero}</p>
-                    <p className="text-sm font-bold text-[#0A0A0A] break-words">{c.cliente_nombre}</p>
+                    <p className="text-sm font-bold text-[#0A0A0A] break-words">{c.cliente_nombre || 'Sin nombre'}</p>
                   </div>
                   <EstadoBadge estado={c.efectivo} />
                 </div>
                 <div className="mt-3 flex items-end justify-between gap-3 text-xs text-[#6B6B6B]">
                   <div className="space-y-0.5">
                     <p>
-                      {(c.convenio_id && nombreConvenio.get(c.convenio_id)) || 'Directo'} · {labelPaisCotizacion(c.pais_destino)} ·{' '}
+                      {(c.convenio_id && nombreConvenio.get(c.convenio_id)) || 'Directo'} · {labelVisa(c.tipo_visa, c.pais_destino)} ·{' '}
                       {c.personas} pers.
                     </p>
+                    <p>{detalleVisa(c)}</p>
                     <p>Vence {formatFecha(c.vence_el)}</p>
                   </div>
                   <p className="text-sm font-bold text-[#0A0A0A] tabular-nums">{formatMoney(c.monto, c.moneda)}</p>
@@ -170,7 +178,7 @@ export function CotizacionesListClient({
                   <th className="px-4 py-3 font-semibold">Número</th>
                   <th className="px-4 py-3 font-semibold">Cliente</th>
                   <th className="px-4 py-3 font-semibold">Convenio</th>
-                  <th className="px-4 py-3 font-semibold">País</th>
+                  <th className="px-4 py-3 font-semibold">Visa</th>
                   <th className="px-4 py-3 font-semibold text-right">Pers.</th>
                   <th className="px-4 py-3 font-semibold text-right">Monto</th>
                   <th className="px-4 py-3 font-semibold">Estado</th>
@@ -187,10 +195,13 @@ export function CotizacionesListClient({
                       </Link>
                     </td>
                     <td className="px-4 py-3 font-medium text-[#0A0A0A]">
-                      <Link href={`/admin/cotizaciones/${c.id}`} className="hover:underline">{c.cliente_nombre}</Link>
+                      <Link href={`/admin/cotizaciones/${c.id}`} className="hover:underline">{c.cliente_nombre || 'Sin nombre'}</Link>
                     </td>
                     <td className="px-4 py-3 text-[#525252]">{(c.convenio_id && nombreConvenio.get(c.convenio_id)) || 'Directo'}</td>
-                    <td className="px-4 py-3 text-[#525252]">{labelPaisCotizacion(c.pais_destino)}</td>
+                    <td className="px-4 py-3 text-[#525252]">
+                      <span className="block whitespace-nowrap">{labelVisa(c.tipo_visa, c.pais_destino)}</span>
+                      <span className="block text-[11px] text-[#8A8A8A] whitespace-nowrap">{detalleVisa(c)}</span>
+                    </td>
                     <td className="px-4 py-3 text-right tabular-nums">{c.personas}</td>
                     <td className="px-4 py-3 text-right font-semibold tabular-nums whitespace-nowrap">{formatMoney(c.monto, c.moneda)}</td>
                     <td className="px-4 py-3"><EstadoBadge estado={c.efectivo} /></td>
