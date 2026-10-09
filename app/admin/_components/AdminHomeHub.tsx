@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import dynamic from 'next/dynamic'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
-import { ClipboardList, Lightbulb, Languages, Receipt, ArrowRight, type LucideIcon } from 'lucide-react'
+import { ClipboardList, Lightbulb, Languages, Receipt, CalendarClock, ArrowRight, type LucideIcon } from 'lucide-react'
 
 const Antigravity = dynamic(() => import('@/components/Antigravity'), { ssr: false })
 
@@ -27,6 +27,8 @@ interface AdminHomeHubProps {
   ideasPendingCount: number
   traduccionesCount: number
   cotizacionesPendientesCount: number
+  // Solo llega si el dueño desbloqueó Deadlines (cookie firmada válida).
+  deadlines?: { atrasadas: number; proximoHito: string | null } | null
 }
 
 interface HubCardData {
@@ -34,11 +36,12 @@ interface HubCardData {
   icon: LucideIcon
   title: string
   subtitle: string
-  count: number
-  countLabel: string
+  // Sin count no se muestra la insignia.
+  count?: number
+  countLabel?: string
 }
 
-export function AdminHomeHub({ solicitudesCount, ideasPendingCount, traduccionesCount, cotizacionesPendientesCount }: AdminHomeHubProps) {
+export function AdminHomeHub({ solicitudesCount, ideasPendingCount, traduccionesCount, cotizacionesPendientesCount, deadlines }: AdminHomeHubProps) {
   const cards: HubCardData[] = [
     {
       href: '/admin/solicitudes',
@@ -73,6 +76,16 @@ export function AdminHomeHub({ solicitudesCount, ideasPendingCount, traducciones
       countLabel: 'por pagar',
     },
   ]
+
+  if (deadlines) {
+    const hito = deadlines.proximoHito ? `próximo hito: ${deadlines.proximoHito}` : 'sin hitos próximos'
+    cards.push({
+      href: '/admin/deadlines',
+      icon: CalendarClock,
+      title: 'Deadlines',
+      subtitle: deadlines.atrasadas > 0 ? `${deadlines.atrasadas} atrasadas · ${hito}` : hito.charAt(0).toUpperCase() + hito.slice(1),
+    })
+  }
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
@@ -141,9 +154,13 @@ function HubCard({ card, index }: { card: HubCardData; index: number }) {
           </div>
 
           <div className="relative z-10 flex items-center justify-between">
-            <span className="inline-flex items-center gap-1.5 bg-[#C8FF00] text-[#2F4A00] text-xs font-bold px-3 py-1.5 rounded-full">
-              {card.count} {card.countLabel}
-            </span>
+            {card.count != null ? (
+              <span className="inline-flex items-center gap-1.5 bg-[#C8FF00] text-[#2F4A00] text-xs font-bold px-3 py-1.5 rounded-full">
+                {card.count} {card.countLabel}
+              </span>
+            ) : (
+              <span />
+            )}
             <span className="w-9 h-9 rounded-full bg-[#F5F5F0] flex items-center justify-center group-hover:bg-[#C8FF00] transition-colors">
               <ArrowRight className="w-4 h-4 text-[#0A0A0A] group-hover:translate-x-0.5 transition-transform" />
             </span>

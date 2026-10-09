@@ -1,5 +1,7 @@
 import { supabaseAdmin } from '@/lib/supabase/admin'
 import { AdminHomeHub } from './_components/AdminHomeHub'
+import { deadlinesDesbloqueado } from '@/lib/deadlines/unlock'
+import { formatEs, todayBrisbane } from '@/lib/deadlines/dates'
 
 export const dynamic = 'force-dynamic'
 
@@ -18,6 +20,28 @@ export default async function AdminHomePage() {
       .eq('estado', 'pendiente')
       .gt('vence_el', new Date().toISOString()),
   ])
+
+  // Tarjeta de Deadlines: solo con la cookie de desbloqueo del dueño.
+  let deadlines: { atrasadas: number; proximoHito: string | null } | null = null
+  if (deadlinesDesbloqueado()) {
+    const hoy = todayBrisbane()
+    const [atrasadas, hito] = await Promise.all([
+      supabaseAdmin.from('admin_deadlines').select('id', { count: 'exact', head: true }).lt('due_date', hoy).eq('done', false),
+      supabaseAdmin
+        .from('admin_deadlines')
+        .select('due_date, title')
+        .eq('slot', 'hito')
+        .eq('done', false)
+        .gte('due_date', hoy)
+        .order('due_date')
+        .limit(1)
+        .maybeSingle(),
+    ])
+    deadlines = {
+      atrasadas: atrasadas.count || 0,
+      proximoHito: hito.data ? `${formatEs(hito.data.due_date)} ${hito.data.title}` : null,
+    }
+  }
 
   const solicitudesCount = [usaRes, canRes, ukRes, schengenRes, ausRes].reduce((sum, r) => sum + (r.count || 0), 0)
   const ideasPendingCount = pendingIdeasRes.count || 0
@@ -39,6 +63,7 @@ export default async function AdminHomePage() {
           ideasPendingCount={ideasPendingCount}
           traduccionesCount={traduccionesCount}
           cotizacionesPendientesCount={cotizacionesRes.count || 0}
+          deadlines={deadlines}
         />
       </div>
     </div>
