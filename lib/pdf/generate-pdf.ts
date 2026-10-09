@@ -1,4 +1,4 @@
-import { renderToBuffer } from '@react-pdf/renderer'
+import { cargarReactPdf } from './react-pdf'
 import { ApplicationPDF } from './ApplicationPDF'
 import React from 'react'
 
@@ -224,6 +224,7 @@ export async function generateApplicationPdf(
   }
 
   const pdfElement = React.createElement(ApplicationPDF, { title, subtitle, sections, photos })
+  const { renderToBuffer } = await cargarReactPdf()
   const buffer = await renderToBuffer(pdfElement as any)
   return buffer
 }

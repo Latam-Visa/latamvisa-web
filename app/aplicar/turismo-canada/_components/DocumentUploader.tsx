@@ -5,6 +5,7 @@ import { UploadCloud, File as FileIcon, Trash2, RefreshCw, ChevronDown, ChevronU
 import { FormField } from '../../turismo-usa/_components/FormField' // Reuse USA form field
 import { getUploadUrl } from '../_actions/get-upload-url'
 import { sanitizePdfFile } from '@/lib/pdf-sanitize'
+import { convertirHeicAJpeg, esHeic, mensajeArchivoGrande } from '@/lib/aplicaciones/archivos-cliente'
 
 interface DocumentUploaderProps {
   name: string
@@ -15,8 +16,11 @@ interface DocumentUploaderProps {
   multiple?: boolean
 }
 
+// Mismo límite que el bucket visa-applications de Supabase.
+const MAX_BYTES = 50 * 1024 * 1024
+
 const ALLOWED_TYPES = [
-  'image/jpeg', 'image/png', 'image/webp', 'image/heic', 
+  'image/jpeg', 'image/png', 'image/webp',
   'application/pdf', 
   'application/msword', 
   'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
@@ -33,23 +37,31 @@ export function DocumentUploader({ name, label, hint, required, specsList, multi
   
   const fileInputRef = useRef<HTMLInputElement>(null)
 
-  const processFile = async (file: File) => {
+  const processFile = async (original: File) => {
     setErrorMsg('')
-    if (!ALLOWED_TYPES.includes(file.type)) {
-      setErrorMsg('Formato inválido. Sube JPG, PNG, WEBP, PDF o DOCX.')
+    // Antes de subir nada: el tamaño se avisa con el peso real del archivo.
+    if (original.size > MAX_BYTES) {
+      setErrorMsg(mensajeArchivoGrande(original, MAX_BYTES))
       return
     }
-    if (file.size > 50 * 1024 * 1024) {
-      setErrorMsg('El archivo supera los 50MB.')
+    if (!esHeic(original) && !ALLOWED_TYPES.includes(original.type)) {
+      setErrorMsg('Formato inválido. Sube JPG, PNG, WEBP, HEIC (iPhone), PDF o DOCX.')
       return
     }
 
     setIsUploading(true)
     try {
+      // Fotos de iPhone (HEIC/HEIF) se convierten a JPEG antes de subirlas.
+      let file = original
+      try {
+        file = await convertirHeicAJpeg(original)
+      } catch {
+        throw new Error('No pudimos convertir esta foto de iPhone. Toma una captura de pantalla de la foto o súbela como PDF.')
+      }
       let fileToUpload = file
-      
+
       // Compress only if it's an image
-      if (file.type.startsWith('image/') && file.type !== 'image/heic') {
+      if (file.type.startsWith('image/')) {
         const options = {
           maxSizeMB: 1,
           maxWidthOrHeight: 2400,
@@ -164,7 +176,7 @@ export function DocumentUploader({ name, label, hint, required, specsList, multi
         >
           <input
             type="file"
-            accept=".pdf,.doc,.docx,image/jpeg,image/png,image/webp,image/heic"
+            accept=".pdf,.doc,.docx,.heic,.heif,image/jpeg,image/png,image/webp,image/heic,image/heif"
             ref={fileInputRef}
             onChange={handleFileChange}
             className="hidden"
@@ -181,7 +193,7 @@ export function DocumentUploader({ name, label, hint, required, specsList, multi
                 <UploadCloud className="w-6 h-6" />
               </div>
               <p className="text-[#0A0A0A] font-medium mb-1">Haz clic o arrastra tu archivo aquí</p>
-              <p className="text-[#A3A3A3] text-sm">PDF, DOC, DOCX, JPG, PNG hasta 50MB</p>
+              <p className="text-[#A3A3A3] text-sm">PDF, DOC, DOCX, JPG, PNG, HEIC (iPhone) hasta 50MB</p>
             </div>
           )}
         </div>

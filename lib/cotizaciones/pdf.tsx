@@ -8,19 +8,10 @@ import React from 'react'
 import sharp from 'sharp'
 import QRCode from 'qrcode'
 
-// @react-pdf/renderer se carga con un import nativo que webpack ignora:
-// - empaquetado en la capa de servidor de Next usaría el React "react-server"
-//   (sin Component) y falla al renderizar;
-// - como externo normal es ESM con top-level await y vuelve "async" a los
-//   módulos que lo usan, lo que rompe el build de producción.
-// Así Node lo carga desde node_modules con el React completo.
-type ReactPdf = typeof import('@react-pdf/renderer')
+// @react-pdf/renderer se carga con el import nativo de lib/pdf/react-pdf.ts
+// (ver la explicación ahí). RP queda asignado antes de renderizar.
+import { cargarReactPdf, type ReactPdf } from '@/lib/pdf/react-pdf'
 let RP: ReactPdf
-
-async function cargarReactPdf(): Promise<ReactPdf> {
-  RP ??= (await import(/* webpackIgnore: true */ '@react-pdf/renderer')) as ReactPdf
-  return RP
-}
 import { desglosePrecios, formatFecha, formatMoney, linkPago, type Cotizacion } from '.'
 import { getContenido } from './contenido'
 import { traduccionPorPersonaDe } from './tarifas'
@@ -505,6 +496,7 @@ export async function generarPdfCotizacion(cot: Cotizacion): Promise<Buffer> {
     QRCode.toDataURL(linkPago(cot.token), { margin: 1, width: 600, color: { dark: '#000000', light: '#FFFFFF' } }),
     traduccionPorPersonaDe(cot),
   ])
-  const { renderToBuffer } = await cargarReactPdf()
+  RP = await cargarReactPdf()
+  const { renderToBuffer } = RP
   return renderToBuffer(<CotizacionPdf cot={cot} fondos={fondos as [Buffer, Buffer, Buffer]} qr={qr} traduccionPorPersona={traduccionPorPersona} />)
 }

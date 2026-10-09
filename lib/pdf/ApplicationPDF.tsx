@@ -1,7 +1,9 @@
 import React from 'react'
-import { Document, Page, Text, View, StyleSheet, Image } from '@react-pdf/renderer'
+import type { Style } from '@react-pdf/types'
+import { reactPdf } from './react-pdf'
 
-const styles = StyleSheet.create({
+// StyleSheet.create de react-pdf solo devuelve el objeto; se usa uno plano.
+const styles = {
   page: { padding: 40, fontFamily: 'Helvetica', fontSize: 11, color: '#333' },
   header: { marginBottom: 20, borderBottomWidth: 1, borderBottomColor: '#C8FF00', paddingBottom: 10 },
   title: { fontSize: 24, fontWeight: 'bold', color: '#050505' },
@@ -14,7 +16,7 @@ const styles = StyleSheet.create({
   photoNote: { fontSize: 10, color: '#888', fontStyle: 'italic', marginTop: 4 },
   photoLabel: { fontSize: 10, fontWeight: 'bold', color: '#555', marginTop: 12, marginBottom: 4 },
   photo: { width: 200, height: 140, marginTop: 4, borderWidth: 1, borderColor: '#E0E0E0', borderRadius: 4 },
-})
+} satisfies Record<string, Style>
 
 interface ApplicationPDFProps {
   title: string
@@ -31,6 +33,7 @@ interface ApplicationPDFProps {
 }
 
 export function ApplicationPDF({ title, subtitle, sections, photos }: ApplicationPDFProps) {
+  const { Document, Page, Text, View, Image } = reactPdf()
   const renderRow = (label: string, value: string | boolean | undefined | null) => {
     if (value === undefined || value === null || value === '') return null
     let displayValue = typeof value === 'boolean' ? (value ? 'Sí' : 'No') : String(value)

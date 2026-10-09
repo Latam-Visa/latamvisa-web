@@ -14,7 +14,8 @@ import { sanitizePdfFile } from '@/lib/pdf-sanitize'
 import { ProgressBar } from '../turismo-usa/_components/ProgressBar'
 import { StepNavigation } from '../turismo-usa/_components/StepNavigation'
 
-import { submitCanadaApplication } from './_actions/submit-application'
+import { ErrorEnvioModal } from './_components/ErrorEnvioModal'
+import { convertirHeicAJpeg, esHeic, mensajeArchivoGrande } from '@/lib/aplicaciones/archivos-cliente'
 
 import { 
   step1Schema, step2Schema, step3Schema, step4Schema, step5Schema, 
@@ -66,6 +67,37 @@ type FormData = z.infer<typeof formSchema>
 
 const TOTAL_STEPS = 10
 const STORAGE_KEY = 'latamvisa-canada-draft'
+// Id del envío: se crea al primer intento y se reutiliza en los reintentos,
+// así un doble clic o un reintento no duplican la aplicación.
+const SUBMISSION_KEY = 'latamvisa-canada-submission-id'
+const TIMEOUT_ENVIO_MS = 45_000
+
+function leerLocal(clave: string): string | null {
+  try { return localStorage.getItem(clave) } catch { return null }
+}
+function escribirLocal(clave: string, valor: string | null) {
+  try { valor === null ? localStorage.removeItem(clave) : localStorage.setItem(clave, valor) } catch {}
+}
+
+function idDeEnvio(): string {
+  const existente = leerLocal(SUBMISSION_KEY)
+  if (existente) return existente
+  const nuevo = crypto.randomUUID()
+  escribirLocal(SUBMISSION_KEY, nuevo)
+  return nuevo
+}
+
+// Reporta al equipo los fallos que el servidor no ve (sin conexión, timeout).
+function reportarFalloCliente(info: Record<string, unknown>) {
+  try {
+    fetch('/api/aplicar/alerta', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ formulario: 'Canadá', ...info }),
+      keepalive: true,
+    }).catch(() => {})
+  } catch {}
+}
 
 export default function TurismoCanadaApplication() {
   const router = useRouter()
@@ -85,6 +117,7 @@ export default function TurismoCanadaApplication() {
   const [isValidating, setIsValidating] = useState(false)
   const [showErrorToast, setShowErrorToast] = useState(false)
   const [showSuccess, setShowSuccess] = useState(false)
+  const [errorEnvio, setErrorEnvio] = useState<{ data: any } | null>(null)
 
   const methods = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -144,6 +177,7 @@ export default function TurismoCanadaApplication() {
 
   const handleClearDraft = () => {
     localStorage.removeItem(STORAGE_KEY)
+    escribirLocal(SUBMISSION_KEY, null)
     setShowDraftModal(false)
   }
 
@@ -209,41 +243,87 @@ export default function TurismoCanadaApplication() {
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
+  // validar (ya hecho por el formulario) -> guardar -> éxito. Si algo falla,
+  // el borrador sigue en localStorage y se muestra una pantalla amable.
   const onSubmit = async (data: any) => {
+    if (isSubmitting) return
     setIsSubmitting(true)
+    setErrorEnvio(null)
+    const submissionId = idDeEnvio()
+    const contacto = { nombre: [data?.step2?.given_name, data?.step2?.surname].filter(Boolean).join(' '), email: data?.step10?.email }
+    const controller = new AbortController()
+    const timer = setTimeout(() => controller.abort(), TIMEOUT_ENVIO_MS)
+
     try {
-      const formDataToSend = new FormData()
-      formDataToSend.append('data', JSON.stringify(data))
+      const res = await fetch('/api/aplicar/canada', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          submissionId,
+          paso: currentStep,
+          data,
+          passportScanPath: passportFileUrl ?? methods.getValues('step0_passport_url' as any) ?? null,
+        }),
+        signal: controller.signal,
+      })
+      const json = await res.json().catch(() => null)
 
-      const response = await submitCanadaApplication(formDataToSend)
-
-      if (!response.success) {
-        alert(response.error || 'Hubo un error al enviar la aplicación.')
-        setIsSubmitting(false)
+      if (!res.ok || !json?.success) {
+        // Si el servidor respondió con JSON, ya envió la alerta; si no (504,
+        // HTML de error), la manda el navegador.
+        if (!json) reportarFalloCliente({ etapa: `respuesta HTTP ${res.status}`, paso: currentStep, submissionId, ...contacto, mensaje: `Respuesta no JSON (${res.status} ${res.statusText})` })
+        setErrorEnvio({ data })
         return
       }
-      
+
       localStorage.removeItem(STORAGE_KEY)
+      escribirLocal(SUBMISSION_KEY, null)
       setShowSuccess(true)
       setTimeout(() => {
         window.location.href = 'https://latamvisatravel.com'
       }, 2500)
-    } catch (error) {
+    } catch (error: any) {
       console.error(error)
-      alert('Ocurrió un error inesperado al contactar con el servidor.')
+      reportarFalloCliente({
+        etapa: error?.name === 'AbortError' ? 'timeout del navegador' : 'red',
+        paso: currentStep,
+        submissionId,
+        ...contacto,
+        mensaje: `${error?.name || 'Error'}: ${error?.message || ''}`,
+      })
+      setErrorEnvio({ data })
+    } finally {
+      clearTimeout(timer)
       setIsSubmitting(false)
     }
   }
 
-  const handlePassportUpload = async (file: File) => {
-    if (file.size > 5 * 1024 * 1024) {
+  const handlePassportUpload = async (original: File) => {
+    const MAX_PASAPORTE = 5 * 1024 * 1024
+    // Una foto HEIC grande queda bastante más liviana al pasar a JPEG, así que
+    // el límite se revisa después de convertir.
+    if (!esHeic(original) && original.size > MAX_PASAPORTE) {
       setPassportStatus('error')
-      setPassportError('El archivo pesa más de 5MB. Sube una foto más ligera.')
+      setPassportError(mensajeArchivoGrande(original, MAX_PASAPORTE))
       return
     }
 
     setPassportStatus('uploading')
     setPassportError('')
+
+    let file = original
+    try {
+      file = await convertirHeicAJpeg(original)
+    } catch {
+      setPassportStatus('error')
+      setPassportError('No pudimos convertir esta foto de iPhone. Toma una captura de pantalla del pasaporte o súbelo como PDF.')
+      return
+    }
+    if (file.size > MAX_PASAPORTE) {
+      setPassportStatus('error')
+      setPassportError(mensajeArchivoGrande(file, MAX_PASAPORTE))
+      return
+    }
 
     const formData = new FormData()
     formData.append('file', file)
@@ -321,7 +401,7 @@ export default function TurismoCanadaApplication() {
               Seleccionar archivo
               <input 
                 type="file" 
-                accept="image/*,application/pdf" 
+                accept="image/*,.heic,.heif,application/pdf" 
                 className="hidden" 
                 onChange={(e) => {
                   if (e.target.files && e.target.files[0]) {
@@ -525,7 +605,7 @@ export default function TurismoCanadaApplication() {
         </div>
       )}
 
-      {isSubmitting && !showSuccess && (
+      {isSubmitting && !showSuccess && !errorEnvio && (
         <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-white/95 backdrop-blur-sm px-4">
           <Loader2 className="w-12 h-12 text-[#3D5A00] animate-spin mb-6" />
           <h2 className="text-[#0A0A0A] text-2xl font-bold mb-2 text-center">Enviando tu aplicación...</h2>
@@ -544,6 +624,14 @@ export default function TurismoCanadaApplication() {
           <h2 className="text-[#0A0A0A] text-2xl font-bold mb-2 text-center">¡Tu aplicación fue enviada con éxito!</h2>
           <p className="text-[#525252] font-medium text-center">Te contactaremos pronto por WhatsApp.</p>
         </div>
+      )}
+
+      {errorEnvio && !showSuccess && (
+        <ErrorEnvioModal
+          reintentando={isSubmitting}
+          nombre={[errorEnvio.data?.step2?.given_name, errorEnvio.data?.step2?.surname].filter(Boolean).join(' ') || null}
+          onReintentar={() => onSubmit(errorEnvio.data)}
+        />
       )}
 
       {showDraftModal && !isSubmitting && (

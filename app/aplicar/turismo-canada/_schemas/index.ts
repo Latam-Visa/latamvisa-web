@@ -2,7 +2,13 @@ import * as z from 'zod'
 import { differenceInYears, parseISO } from 'date-fns'
 
 const requiredString = z.string().min(1, 'Este campo es requerido')
-const requiredDate = z.string().min(1, 'La fecha es requerida')
+// Las columnas de fecha en Supabase solo aceptan AAAA-MM-DD (lo que entrega
+// <input type="date">). Una fecha escrita a mano, p. ej. al corregir el
+// escaneo del pasaporte, se pide de nuevo aquí en vez de fallar al guardar.
+const requiredDate = z
+  .string()
+  .min(1, 'La fecha es requerida')
+  .regex(/^\d{4}-\d{2}-\d{2}$/, 'Elige la fecha en el calendario')
 const optionalString = z.string().optional()
 const requiredBooleanEnum = z.enum(['true', 'false'], { error: 'Debes responder esta pregunta' })
 
