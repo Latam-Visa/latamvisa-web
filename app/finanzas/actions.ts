@@ -56,6 +56,7 @@ export async function entrarConEmail(_prev: { ok?: boolean; mensaje?: string } |
   const { error } = await supabase.auth.signInWithOtp({ email, options: { emailRedirectTo: `${origen()}/finanzas/auth/callback` } })
   if (error) {
     console.error('[FINANZAS] envío del enlace falló', { code: error.code ?? null, status: error.status ?? null })
+    if (error.status === 429) return { ok: false, mensaje: 'Ya te mandamos un enlace hace poco. Revisa tu correo (también spam) o pide otro en unos minutos.' }
     return { ok: false, mensaje: 'No pudimos enviar el enlace. Intenta en un momento.' }
   }
   return { ok: true, mensaje: 'Te enviamos un enlace para entrar. Revisa tu correo: lo puedes abrir desde cualquier navegador o celular.' }
