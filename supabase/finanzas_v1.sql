@@ -5,8 +5,8 @@
 -- Reglas de privacidad que este archivo garantiza en la base:
 --   * Toda tabla fin_* tiene user_id -> auth.users y RLS "user_id = auth.uid()"
 --     para select / insert / update / delete. Sin excepciones, sin políticas
---     para anon. La service role (servidor) se salta RLS: el código solo la usa
---     para acciones del propio usuario (URLs firmadas, limpieza por cron).
+--     para anon. La service role (servidor) se salta RLS: el código de Finanzas
+--     solo la usa en el cron de limpieza de archivos vencidos (no lee datos).
 --   * El único dato agregado visible para el admin es el total de perfiles
 --     (función fin_total_perfiles, solo ejecutable por service_role).
 --   * Bucket privado finanzas-uploads, ruta {user_id}/{uuid}-{archivo}; cada
@@ -349,7 +349,7 @@ commit;
 
 -- =============================================================================
 -- DESPUÉS de tu primer login en /finanzas (opcional): copiar tus 55 reglas del
--- clasificador viejo a tu usuario nuevo. Cambia el correo y ejecútalo aparte.
+-- clasificador viejo a tu usuario nuevo. Ejecútalo aparte (quita los "--").
 --
 -- insert into public.fin_rules (user_id, patron, categoria, tipo, grupo, es_recurrente, prioridad)
 -- select u.id, r.patron, r.categoria, r.tipo, r.grupo, r.es_recurrente, r.prioridad
