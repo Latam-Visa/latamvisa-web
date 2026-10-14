@@ -1,15 +1,33 @@
 import { NextResponse } from 'next/server'
 import { clienteFinanzas } from '@/lib/finanzas/datos'
+import { destinoTrasEntrar, motivoError, registrarErrorAuth } from '@/lib/finanzas/entrada'
 
 export const dynamic = 'force-dynamic'
 
-// Vuelta de Google o del enlace mágico (PKCE): cambia el código por la sesión.
+// Vuelta de Google (PKCE): cambia el código por la sesión. Necesita la cookie
+// code_verifier del navegador que empezó, por eso el enlace mágico ya no pasa
+// por aquí sino por /finanzas/auth/confirm.
 export async function GET(req: Request) {
   const url = new URL(req.url)
-  const code = url.searchParams.get('code')
-  if (code) {
-    const { error } = await clienteFinanzas().auth.exchangeCodeForSession(code)
-    if (!error) return NextResponse.redirect(new URL('/finanzas/empezar', url.origin))
+  const ir = (ruta: string) => NextResponse.redirect(new URL(ruta, url.origin))
+
+  // Supabase devuelve el error en la URL (p. ej. error_code=otp_expired).
+  const codigoUrl = url.searchParams.get('error_code')
+  if (codigoUrl || url.searchParams.get('error')) {
+    registrarErrorAuth('callback', { code: codigoUrl ?? url.searchParams.get('error'), message: url.searchParams.get('error_description') ?? undefined })
+    return ir(`/finanzas?error=${motivoError(codigoUrl)}`)
   }
-  return NextResponse.redirect(new URL('/finanzas?error=entrar', url.origin))
+
+  const code = url.searchParams.get('code')
+  if (!code) {
+    registrarErrorAuth('callback', { code: 'sin_codigo' })
+    return ir('/finanzas?error=entrar')
+  }
+  const supabase = clienteFinanzas()
+  const { error } = await supabase.auth.exchangeCodeForSession(code)
+  if (error) {
+    registrarErrorAuth('callback', error)
+    return ir(`/finanzas?error=${motivoError(error.code)}`)
+  }
+  return ir(await destinoTrasEntrar(supabase))
 }

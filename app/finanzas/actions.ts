@@ -54,8 +54,11 @@ export async function entrarConEmail(_prev: { ok?: boolean; mensaje?: string } |
   if (!z.string().email().safeParse(email).success) return { ok: false, mensaje: 'Escribe un correo válido.' }
   const { supabase } = await estadoActual()
   const { error } = await supabase.auth.signInWithOtp({ email, options: { emailRedirectTo: `${origen()}/finanzas/auth/callback` } })
-  if (error) return { ok: false, mensaje: 'No pudimos enviar el enlace. Intenta en un momento.' }
-  return { ok: true, mensaje: 'Te enviamos un enlace para entrar. Revisa tu correo.' }
+  if (error) {
+    console.error('[FINANZAS] envío del enlace falló', { code: error.code ?? null, status: error.status ?? null })
+    return { ok: false, mensaje: 'No pudimos enviar el enlace. Intenta en un momento.' }
+  }
+  return { ok: true, mensaje: 'Te enviamos un enlace para entrar. Revisa tu correo: lo puedes abrir desde cualquier navegador o celular.' }
 }
 
 export async function salir() {

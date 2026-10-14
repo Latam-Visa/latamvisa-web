@@ -30,7 +30,9 @@ export default async function FinanzasInicio({ searchParams }: { searchParams: {
       </section>
       {searchParams.error && (
         <p role="alert" className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
-          No pudimos completar la entrada. Intenta de nuevo.
+          {searchParams.error === 'vencido'
+            ? 'Ese enlace ya venció o ya se usó. Pide uno nuevo aquí abajo.'
+            : 'Algo falló al entrar. Intenta otra vez.'}
         </p>
       )}
       {!user && <Entrar />}
