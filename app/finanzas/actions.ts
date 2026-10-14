@@ -35,7 +35,11 @@ function refrescar() {
 }
 
 // ── Sesión ────────────────────────────────────────────────────────────────
+// Google queda apagado en el piloto (solo enlace mágico) hasta configurar
+// Google Cloud: se prende con NEXT_PUBLIC_FINANZAS_GOOGLE=on.
+
 export async function entrarConGoogle() {
+  if (process.env.NEXT_PUBLIC_FINANZAS_GOOGLE !== 'on') redirect('/finanzas')
   const { supabase } = await estadoActual()
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: 'google',
