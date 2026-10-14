@@ -1,0 +1,3 @@
+{
+  "crons": [{ "path": "/api/cron/finanzas-limpieza", "schedule": "0 17 * * *" }]
+}

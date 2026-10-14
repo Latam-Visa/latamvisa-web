@@ -28,6 +28,8 @@ const nextConfig = {
       '/convenio/[portalToken]': ARCHIVOS_PDF,
       '/admin/cotizaciones/nueva': ARCHIVOS_PDF,
       '/admin/cotizaciones/[id]': ARCHIVOS_PDF,
+      // La narrativa de Finanzas lee los principios del disco.
+      '/finanzas/plan': ['./lib/finanzas/principios.md'],
     },
   },
   async redirects() {
