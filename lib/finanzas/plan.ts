@@ -398,7 +398,9 @@ export function buildCashflowPlan(input: PlanInput, startDate: Fecha, weeks = 20
   // Plata extra: lo que sobra sobre el saldo mínimo proyectado, dejando una
   // semana de costo base de colchón. Sacarla hoy no crea ningún día corto.
   const colchon = Math.max(c(100), costoBaseSemanal)
-  const extra = Math.floor(Math.max(0, minimo.monto - colchon) / 1000) * 1000 // múltiplos de $10
+  const sobra = Math.floor(Math.max(0, minimo.monto - colchon) / 1000) * 1000 // múltiplos de $10
+  // Nunca más de lo que se debe.
+  const extra = deudas[0] ? Math.min(sobra, c(deudas[0].saldo)) : 0
   if (extra > 0 && deudas[0]) {
     sugerencias.push({
       tipo: 'adelantar_deuda',

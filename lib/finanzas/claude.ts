@@ -80,7 +80,7 @@ const HERRAMIENTA_EXTRACCION: Anthropic.Tool = {
       },
       cargos_recurrentes: {
         type: 'array',
-        description: 'Cobros que se repiten en el extracto (suscripciones, gym, celular…).',
+        description: 'Solo plata que SALE y se repite (suscripciones, gym, celular, arriendo…). Nunca sueldos, depósitos ni otros créditos, ni transferencias entre cuentas propias, ni cuotas BNPL (esas van en cuotas).',
         items: {
           type: 'object',
           additionalProperties: false,
@@ -94,7 +94,7 @@ const HERRAMIENTA_EXTRACCION: Anthropic.Tool = {
       },
       resumen_categorias: {
         type: 'array',
-        description: 'Solo para extractos: total gastado por categoría en el periodo.',
+        description: 'Solo para extractos: total gastado por categoría en el periodo. Solo débitos: sin ingresos ni transferencias entre cuentas propias.',
         items: {
           type: 'object',
           additionalProperties: false,
@@ -116,7 +116,7 @@ const PROMPT_EXTRACCION =
   'Lee este pantallazo o extracto bancario (puede ser de un banco australiano o de una app BNPL) y llama a ' +
   'registrar_datos. Reglas: copia solo lo que se ve, no inventes ni estimes; montos en número positivo sin ' +
   'símbolo; fechas en YYYY-MM-DD (si el año no se ve, usa el más probable según el documento); si algo no ' +
-  'aparece, deja la lista vacía o null. ' + RESTRICCION
+  'aparece, deja la lista vacía o null; los ingresos (sueldo, depósitos) nunca son cargos ni gastos. ' + RESTRICCION
 
 // Algunos PDFs traen un BOM o bytes basura antes de "%PDF" y la API responde 400.
 export function limpiarPdf(buf: Buffer): Buffer {

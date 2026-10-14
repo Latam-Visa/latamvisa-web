@@ -133,6 +133,7 @@ describe('buildCashflowPlan', () => {
     const p5 = buildCashflowPlan(holgado, HOY, 20)
     const adelanto = p5.sugerencias.find((s) => s.tipo === 'adelantar_deuda')
     expect(adelanto?.deuda?.acreedor).toBe('Afterpay')
+    expect(adelanto!.deuda!.monto).toBeLessThanOrEqual(holgado.deudas[0].saldo) // nunca más de lo que se debe
     const conAdelanto = fixture()
     conAdelanto.cuentas[0].saldo = conAdelanto.cuentas[0].disponible = 5000 - adelanto!.deuda!.monto
     expect(buildCashflowPlan(conAdelanto, HOY, 20).flags.some((f) => f.tipo === 'dia_corto')).toBe(false)
