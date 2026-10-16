@@ -155,6 +155,10 @@ export async function POST(req: Request) {
         console.error('[PAGO] Error enviando correo admin:', e)
         return NextResponse.json({ error: 'No se pudo enviar el correo' }, { status: 500 })
       }
+      // Con los correos al cliente apagados no queda nada más que hacer. Salir
+      // acá evita que un fallo posterior (p. ej. listLineItems) devuelva 500 y
+      // Stripe reintente un evento cuyo correo ya salió.
+      if (!CORREOS_CLIENTE) return NextResponse.json({ received: true }, { status: 200 })
     }
 
     if (event.type === 'checkout.session.completed') {
