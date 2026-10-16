@@ -1,3 +1,4 @@
+import { resolverCarpeta } from '@/lib/docs/categorias'
 import { supabaseAdmin } from '@/lib/supabase/admin'
 import { SIGNED_URL_TTL_SECONDS, VISA_APPLICATIONS_BUCKET } from './shared'
 
@@ -109,17 +110,23 @@ export async function firmarDescarga(row: { storage_path?: string | null; bucket
   return !error && data ? data.signedUrl : undefined
 }
 
-export async function signTranslatedRows(rows: any[]) {
+// `pais` cubre filas viejas que no traen la columna pais: se usa el del lote o la solicitud.
+export async function signTranslatedRows(rows: any[], pais?: string | null) {
   return Promise.all(
-    rows.map(async (row) => ({
-      id: row.id,
-      nombre_original: row.nombre_original,
-      nombre_archivo: row.nombre_archivo,
-      status: row.status || 'traducido',
-      motivo: row.motivo,
-      carpeta: row.carpeta ?? null,
-      created_at: row.created_at,
-      downloadUrl: await firmarDescarga(row),
-    })),
+    rows.map(async (row) => {
+      // Manual > n8n > palabras clave; se resuelve al mostrar, sin escribir en la base.
+      const { carpeta, origen } = resolverCarpeta(row, pais)
+      return {
+        id: row.id,
+        nombre_original: row.nombre_original,
+        nombre_archivo: row.nombre_archivo,
+        status: row.status || 'traducido',
+        motivo: row.motivo,
+        carpeta,
+        carpetaOrigen: origen,
+        created_at: row.created_at,
+        downloadUrl: await firmarDescarga(row),
+      }
+    }),
   )
 }

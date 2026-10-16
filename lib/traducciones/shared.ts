@@ -42,8 +42,10 @@ export interface TranslatedDocument {
   nombre_archivo: string
   status: string
   motivo: string | null
-  // Categoría de ImmiAccount que asignó n8n; null en países sin carpetas.
+  // Carpeta de ImmiAccount ya resuelta (manual > n8n > mapeo, ver
+  // lib/docs/categorias.ts); null = sin clasificar o país sin carpetas.
   carpeta: string | null
+  carpetaOrigen?: 'manual' | 'n8n' | 'mapeo' | null
   created_at: string
   downloadUrl?: string
 }
