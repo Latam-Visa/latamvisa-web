@@ -1,12 +1,13 @@
 "use client"
 
 import { useEffect, useRef, useState } from 'react'
+import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
-import { Loader2, Save, Trash2, Plus, Send, AlertCircle, Check, X, Pencil } from 'lucide-react'
+import { Loader2, Plus, Send, AlertCircle, Pencil, ArrowLeft, RotateCw, Trash2 } from 'lucide-react'
 import { TranslatedDocuments } from '../../../_components/TranslatedDocuments'
-import { labelPais, type TranslatedDocument } from '@/lib/traducciones/shared'
+import { labelPais, normalizeDocStatus, type TranslatedDocument } from '@/lib/traducciones/shared'
 import { DocumentosPicker } from '../../_components/DocumentosPicker'
 import { subirArchivos, type ProgresoSubida } from '../../_components/subirArchivos'
 import { actualizarLote, eliminarLote, enviarLoteAn8n, reenviarLote } from '../../_actions/traducciones-actions'
@@ -28,6 +29,9 @@ const REFRESCO_MS = 30_000
    siempre. Pasado el tope el admin recarga a mano. */
 const MAX_REFRESCOS = 80
 
+const btnSecundario =
+  'inline-flex items-center gap-1.5 h-8 px-2.5 sm:px-3 rounded-lg text-[13px] font-medium bg-white border border-[#E5E5E5] text-[#0A0A0A] hover:bg-[#F5F5F0] transition-colors disabled:opacity-50'
+
 export function LoteDetailClient({
   lote,
   documentos,
@@ -41,16 +45,18 @@ export function LoteDetailClient({
 
   const [nombre, setNombre] = useState(lote.nombre_cliente)
   const [editandoNombre, setEditandoNombre] = useState(false)
-  const [guardandoNombre, setGuardandoNombre] = useState(false)
 
   const [notas, setNotas] = useState(lote.notas || '')
+  const [editandoNotas, setEditandoNotas] = useState(false)
   const [guardandoNotas, setGuardandoNotas] = useState(false)
-  const [notasGuardadas, setNotasGuardadas] = useState(false)
 
   const [agregando, setAgregando] = useState(false)
   const [nuevos, setNuevos] = useState<File[]>([])
   const [subiendo, setSubiendo] = useState(false)
   const [progreso, setProgreso] = useState<ProgresoSubida | null>(null)
+  // n8n no respondió a un envío de esta sesión: hay que poder reintentar
+  // aunque todavía no exista ninguna fila con error.
+  const [envioFallido, setEnvioFallido] = useState(false)
 
   const [reenviando, setReenviando] = useState(false)
   const [eliminando, setEliminando] = useState(false)
@@ -58,10 +64,14 @@ export function LoteDetailClient({
   const [aviso, setAviso] = useState('')
 
   const nombreInputRef = useRef<HTMLInputElement>(null)
+  const notasInputRef = useRef<HTMLInputElement>(null)
+  // Enter y Escape terminan la edición y el blur que sigue no debe volver a guardar.
+  const saliendoNotas = useRef(false)
 
   /* Falta procesar mientras n8n no haya escrito una fila por cada archivo
      subido. Con 0 archivos (nada subido) no hay nada que esperar. */
   const procesando = archivosSubidos > 0 && documentos.length < archivosSubidos
+  const hayErrores = documentos.some((d) => normalizeDocStatus(d.status) === 'error')
 
   useEffect(() => {
     if (!procesando) return
@@ -75,28 +85,32 @@ export function LoteDetailClient({
   }, [procesando, router])
 
   useEffect(() => {
-    if (editandoNombre) nombreInputRef.current?.focus()
+    if (editandoNombre) nombreInputRef.current?.select()
   }, [editandoNombre])
 
+  useEffect(() => {
+    if (editandoNotas) notasInputRef.current?.focus()
+  }, [editandoNotas])
+
   const guardarNombre = async () => {
+    if (nombre.trim() === lote.nombre_cliente) return setEditandoNombre(false)
     if (!nombre.trim()) return setError('El nombre del cliente no puede quedar vacío.')
-    setGuardandoNombre(true)
     setError('')
     const res = await actualizarLote(lote.id, { nombre_cliente: nombre })
-    setGuardandoNombre(false)
     if (!res.success) return setError(res.error || 'No pudimos guardar el nombre.')
     setEditandoNombre(false)
     router.refresh()
   }
 
   const guardarNotas = async () => {
+    setEditandoNotas(false)
+    if (notas.trim() === (lote.notas || '').trim()) return
     setGuardandoNotas(true)
     setError('')
     const res = await actualizarLote(lote.id, { notas })
     setGuardandoNotas(false)
     if (!res.success) return setError(res.error || 'No pudimos guardar las notas.')
-    setNotasGuardadas(true)
-    setTimeout(() => setNotasGuardadas(false), 2500)
+    router.refresh()
   }
 
   const subirNuevos = async () => {
@@ -122,7 +136,8 @@ export function LoteDetailClient({
     setSubiendo(false)
 
     if (!envio.success) {
-      setError(envio.error || 'Los archivos se subieron pero n8n no respondió. Usa "Reintentar envío".')
+      setEnvioFallido(true)
+      setError(envio.error || 'Los archivos se subieron pero n8n no respondió. Usa "Reintentar".')
     }
 
     setNuevos([])
@@ -136,6 +151,7 @@ export function LoteDetailClient({
     const res = await reenviarLote(lote.id)
     setReenviando(false)
     if (!res.success) return setError(res.error || 'Seguimos sin poder avisarle a n8n.')
+    setEnvioFallido(false)
     setAviso(`Reenviado: ${res.enviados} documento(s). Vuelve en unos 15 minutos.`)
     router.refresh()
   }
@@ -154,202 +170,206 @@ export function LoteDetailClient({
   const ocupado = subiendo || reenviando || eliminando
 
   return (
-    <div className="space-y-5">
-      {/* Cabecera del lote */}
-      <div className="bg-white rounded-2xl border border-[#E5E5E5] p-5 sm:p-6 space-y-4">
-        <div className="flex flex-wrap items-start justify-between gap-3">
-          <div className="min-w-0 flex-1">
+    <div className="space-y-3">
+      {/* Encabezado: una franja, sin tarjeta. En móvil: nombre / badge+fecha / botones. */}
+      <header className="space-y-1">
+        <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-4">
+          <div className="flex flex-wrap md:flex-nowrap items-center gap-x-2 gap-y-1 min-w-0 flex-1">
+            <Link
+              href="/admin/traducciones"
+              aria-label="Volver a traducciones"
+              title="Volver a traducciones"
+              className="w-8 h-8 shrink-0 flex items-center justify-center rounded-lg text-[#525252] hover:bg-[#F5F5F0] hover:text-[#0A0A0A] transition-colors"
+            >
+              <ArrowLeft className="w-4 h-4" />
+            </Link>
+
             {editandoNombre ? (
-              <div className="flex flex-wrap items-center gap-2">
-                <input
-                  ref={nombreInputRef}
-                  value={nombre}
-                  onChange={(e) => setNombre(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') guardarNombre()
-                    if (e.key === 'Escape') { setNombre(lote.nombre_cliente); setEditandoNombre(false) }
-                  }}
-                  aria-label="Nombre del cliente"
-                  className="flex-1 min-w-[180px] bg-[#F5F5F0] border border-[#E5E5E5] rounded-lg px-3 py-2 text-lg font-bold text-[#0A0A0A] min-h-[44px] focus:outline-none focus:border-[#C8FF00] focus:ring-1 focus:ring-[#C8FF00]"
-                />
+              <input
+                ref={nombreInputRef}
+                value={nombre}
+                onChange={(e) => setNombre(e.target.value)}
+                onBlur={guardarNombre}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') e.currentTarget.blur()
+                  if (e.key === 'Escape') { setNombre(lote.nombre_cliente); setEditandoNombre(false) }
+                }}
+                aria-label="Nombre del cliente"
+                className="min-w-0 flex-1 md:max-w-[420px] h-8 bg-white border border-[#C8FF00] rounded-md px-2 text-[20px] font-bold text-[#0A0A0A] focus:outline-none focus:ring-1 focus:ring-[#C8FF00]"
+              />
+            ) : (
+              <div className="flex items-center gap-1 min-w-0 flex-1 md:flex-initial">
+                <h1 className="text-[20px] leading-7 font-bold text-[#0A0A0A] truncate" title={lote.nombre_cliente}>
+                  {lote.nombre_cliente}
+                </h1>
                 <button
                   type="button"
-                  onClick={guardarNombre}
-                  disabled={guardandoNombre}
-                  aria-label="Guardar nombre"
-                  className="w-11 h-11 rounded-lg bg-[#C8FF00] text-[#2F4A00] flex items-center justify-center hover:bg-[#b8ef00] transition-colors disabled:opacity-60"
+                  onClick={() => setEditandoNombre(true)}
+                  aria-label="Editar nombre del cliente"
+                  title="Editar nombre"
+                  className="w-6 h-6 shrink-0 flex items-center justify-center rounded text-[#A3A3A3] hover:text-[#0A0A0A] transition-colors"
                 >
-                  {guardandoNombre ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => { setNombre(lote.nombre_cliente); setEditandoNombre(false) }}
-                  aria-label="Cancelar edición"
-                  className="w-11 h-11 rounded-lg bg-[#F5F5F0] border border-[#E5E5E5] text-[#525252] flex items-center justify-center hover:bg-[#E5E5E5] transition-colors"
-                >
-                  <X className="w-4 h-4" />
+                  <Pencil className="w-3 h-3" />
                 </button>
               </div>
-            ) : (
-              <button
-                type="button"
-                onClick={() => setEditandoNombre(true)}
-                className="group flex items-center gap-2 text-left min-h-[44px]"
-              >
-                <span className="text-lg font-bold text-[#0A0A0A] break-words">{lote.nombre_cliente}</span>
-                <Pencil className="w-3.5 h-3.5 text-[#A3A3A3] group-hover:text-[#0A0A0A] transition-colors shrink-0" />
-              </button>
             )}
 
-            <div className="flex flex-wrap items-center gap-x-2 gap-y-1 mt-1.5 text-xs text-[#6B6B6B]">
+            <div className="flex items-center gap-2 basis-full md:basis-auto shrink-0 sm:pl-10 md:pl-0">
               {lote.pais && (
-                <span className="font-bold text-[10px] uppercase tracking-wider bg-[#F5F5F0] text-[#0A0A0A] px-2 py-0.5 rounded-md border border-[#E5E5E5]">
+                <span className="font-bold text-[10px] uppercase tracking-wider bg-[#F5F5F0] text-[#0A0A0A] px-1.5 py-0.5 rounded border border-[#E5E5E5]">
                   {labelPais(lote.pais)}
                 </span>
               )}
-              <span>{format(new Date(lote.created_at), "d 'de' MMMM, yyyy", { locale: es })}</span>
+              {lote.pais && <span className="text-[12px] text-[#A3A3A3]" aria-hidden>·</span>}
+              <time dateTime={lote.created_at} className="text-[12px] text-[#6B6B6B]">
+                {format(new Date(lote.created_at), 'd MMM yyyy', { locale: es })}
+              </time>
             </div>
           </div>
+
+          <div className="flex items-center gap-2 shrink-0 sm:pl-10 md:pl-0">
+            <button type="button" onClick={() => setAgregando(true)} disabled={ocupado || agregando} className={btnSecundario}>
+              <Plus className="w-3.5 h-3.5" />
+              Documentos
+            </button>
+            {(hayErrores || envioFallido) && (
+              <button type="button" onClick={reintentar} disabled={ocupado} className={btnSecundario}>
+                {reenviando ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <RotateCw className="w-3.5 h-3.5" />}
+                Reintentar
+              </button>
+            )}
+            <button
+              type="button"
+              onClick={borrar}
+              disabled={ocupado}
+              title="Eliminar traducción"
+              className="inline-flex items-center gap-1.5 h-8 px-2 rounded-lg text-[13px] text-[#6B6B6B] hover:text-[#0A0A0A] hover:bg-[#F5F5F0] transition-colors disabled:opacity-50"
+            >
+              {eliminando ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Trash2 className="w-3.5 h-3.5 sm:hidden" />}
+              <span className="sr-only sm:not-sr-only">Eliminar</span>
+            </button>
+          </div>
         </div>
 
-        <div>
-          <label htmlFor="notas" className="block text-xs font-medium text-[#6B6B6B] mb-1.5">Notas</label>
-          <textarea
-            id="notas"
-            value={notas}
-            onChange={(e) => setNotas(e.target.value)}
-            rows={2}
-            placeholder="Contexto para tu equipo…"
-            className="w-full bg-[#F5F5F0] border border-[#E5E5E5] text-[#0A0A0A] rounded-lg px-3 py-2.5 text-sm resize-none focus:outline-none focus:border-[#C8FF00] focus:ring-1 focus:ring-[#C8FF00]"
-          />
-          <button
-            type="button"
-            onClick={guardarNotas}
-            disabled={guardandoNotas}
-            className="mt-2 inline-flex items-center gap-2 bg-[#F5F5F0] border border-[#E5E5E5] text-[#0A0A0A] px-3 py-2 rounded-lg text-sm font-medium hover:bg-[#E5E5E5] transition-colors min-h-[44px] disabled:opacity-60"
-          >
-            {guardandoNotas ? <Loader2 className="w-4 h-4 animate-spin" /> : notasGuardadas ? <Check className="w-4 h-4 text-[#2F4A00]" /> : <Save className="w-4 h-4" />}
-            {notasGuardadas ? 'Guardado' : 'Guardar notas'}
-          </button>
+        {/* Notas: texto plano en una línea; el lápiz las vuelve editables. */}
+        <div className="sm:pl-10 h-6 flex items-center gap-1 min-w-0">
+          {editandoNotas ? (
+            <input
+              ref={notasInputRef}
+              value={notas}
+              onChange={(e) => setNotas(e.target.value)}
+              onBlur={() => {
+                if (saliendoNotas.current) return void (saliendoNotas.current = false)
+                guardarNotas()
+              }}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') { saliendoNotas.current = true; guardarNotas() }
+                if (e.key === 'Escape') { saliendoNotas.current = true; setNotas(lote.notas || ''); setEditandoNotas(false) }
+              }}
+              placeholder="Contexto para tu equipo…"
+              aria-label="Notas"
+              className="flex-1 min-w-0 max-w-[720px] h-6 bg-white border border-[#C8FF00] rounded px-1.5 text-[13px] text-[#0A0A0A] focus:outline-none focus:ring-1 focus:ring-[#C8FF00]"
+            />
+          ) : notas.trim() ? (
+            <>
+              <p className="min-w-0 truncate text-[13px] text-[#6B6B6B]" title={notas}>{notas}</p>
+              <button
+                type="button"
+                onClick={() => setEditandoNotas(true)}
+                aria-label="Editar notas"
+                title="Editar notas"
+                className="w-6 h-6 shrink-0 flex items-center justify-center rounded text-[#A3A3A3] hover:text-[#0A0A0A] transition-colors"
+              >
+                <Pencil className="w-3 h-3" />
+              </button>
+            </>
+          ) : (
+            <button
+              type="button"
+              onClick={() => setEditandoNotas(true)}
+              className="text-[13px] text-[#6B6B6B] hover:text-[#0A0A0A] hover:underline"
+            >
+              + nota
+            </button>
+          )}
+          {guardandoNotas && <Loader2 className="w-3 h-3 animate-spin text-[#A3A3A3] shrink-0" aria-label="Guardando notas" />}
         </div>
-      </div>
+      </header>
 
       {procesando && (
-        <div className="bg-[#F4FFC4] border border-[#D9EFB0] rounded-xl p-4 flex gap-3" role="status" aria-live="polite">
-          <Loader2 className="w-5 h-5 text-[#2F4A00] shrink-0 mt-0.5 animate-spin" />
-          <div className="min-w-0">
-            <p className="text-sm font-bold text-[#2F4A00]">Los documentos se están traduciendo</p>
-            <p className="text-xs text-[#3D5A00] mt-0.5">
-              Esto toma unos 15 minutos. La página se actualiza sola, no hace falta que recargues.
-              {documentos.length > 0 && ` Van ${documentos.length} de ${archivosSubidos}.`}
-            </p>
-          </div>
+        <div className="bg-[#F4FFC4] border border-[#D9EFB0] rounded-lg px-3 py-2 flex items-center gap-2" role="status" aria-live="polite">
+          <Loader2 className="w-4 h-4 text-[#2F4A00] shrink-0 animate-spin" />
+          <p className="text-[13px] text-[#2F4A00] min-w-0">
+            <span className="font-bold">Traduciendo.</span> Toma unos 15 minutos y la página se actualiza sola.
+            {documentos.length > 0 && ` Van ${documentos.length} de ${archivosSubidos}.`}
+          </p>
         </div>
       )}
 
       {error && (
-        <div className="bg-[#FEF2F2] border border-red-200 rounded-xl p-4 flex gap-3">
-          <AlertCircle className="w-5 h-5 text-[#DC2626] shrink-0 mt-0.5" />
-          <p className="text-sm text-red-700 break-words min-w-0">{error}</p>
+        <div className="bg-[#FEF2F2] border border-red-200 rounded-lg px-3 py-2 flex items-center gap-2">
+          <AlertCircle className="w-4 h-4 text-[#DC2626] shrink-0" />
+          <p className="text-[13px] text-red-700 break-words min-w-0">{error}</p>
         </div>
       )}
 
       {aviso && (
-        <div className="bg-[#FFFBEB] border border-[#FDE68A] rounded-xl p-4">
-          <p className="text-sm text-[#92400E] break-words">{aviso}</p>
+        <div className="bg-[#FFFBEB] border border-[#FDE68A] rounded-lg px-3 py-2">
+          <p className="text-[13px] text-[#92400E] break-words">{aviso}</p>
         </div>
       )}
 
-      {/* Documentos */}
-      <div className="bg-white rounded-2xl border border-[#E5E5E5] p-5 sm:p-6">
-        <h3 className="text-base font-bold text-[#0A0A0A] border-b border-[#E5E5E5] pb-3 mb-4">Documentos</h3>
+      {agregando && (
+        <div className="bg-white rounded-xl border border-[#E5E5E5] p-4 space-y-3">
+          <h2 className="text-[11px] font-semibold uppercase tracking-wider text-[#6B6B6B]">Agregar documentos</h2>
+          <DocumentosPicker archivos={nuevos} onChange={setNuevos} disabled={subiendo} />
+
+          {subiendo && progreso && (
+            <div role="status" aria-live="polite">
+              <p className="text-xs text-[#6B6B6B] mb-1.5 truncate">
+                Archivo {progreso.actual} de {progreso.total} · {progreso.nombre}
+              </p>
+              <div className="h-1.5 rounded-full bg-[#F5F5F0] overflow-hidden">
+                <div
+                  className="h-full bg-[#C8FF00] transition-[width] duration-300"
+                  style={{ width: `${Math.round((progreso.actual / progreso.total) * 100)}%` }}
+                />
+              </div>
+            </div>
+          )}
+
+          <div className="flex flex-wrap gap-2">
+            <button
+              type="button"
+              onClick={subirNuevos}
+              disabled={subiendo || nuevos.length === 0}
+              className="inline-flex items-center gap-1.5 h-8 px-3 rounded-lg text-[13px] font-bold bg-[#C8FF00] text-[#2F4A00] hover:bg-[#b8ef00] transition-colors disabled:opacity-50"
+            >
+              {subiendo ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />}
+              {subiendo ? 'Subiendo…' : `Enviar ${nuevos.length || ''} a traducir`}
+            </button>
+            <button
+              type="button"
+              onClick={() => { setAgregando(false); setNuevos([]) }}
+              disabled={subiendo}
+              className={btnSecundario}
+            >
+              Cancelar
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Las tres secciones en una sola tarjeta. */}
+      <div className="bg-white rounded-xl border border-[#E5E5E5] px-4 py-2">
         <TranslatedDocuments
           documents={documentos}
           emptyMessage={
             archivosSubidos > 0
               ? 'Todavía no llegan los documentos traducidos.'
-              : 'Esta traducción no tiene documentos. Agrega archivos para enviarlos a traducir.'
+              : 'Esta traducción no tiene documentos. Usa "+ Documentos" para enviarlos a traducir.'
           }
         />
-      </div>
-
-      {/* Acciones */}
-      <div className="bg-white rounded-2xl border border-[#E5E5E5] p-5 sm:p-6 space-y-4">
-        {agregando ? (
-          <div className="space-y-4">
-            <h3 className="text-sm font-bold text-[#0A0A0A]">Agregar más documentos</h3>
-            <DocumentosPicker archivos={nuevos} onChange={setNuevos} disabled={subiendo} />
-
-            {subiendo && progreso && (
-              <div role="status" aria-live="polite">
-                <p className="text-xs text-[#6B6B6B] mb-1.5 truncate">
-                  Archivo {progreso.actual} de {progreso.total} · {progreso.nombre}
-                </p>
-                <div className="h-1.5 rounded-full bg-[#F5F5F0] overflow-hidden">
-                  <div
-                    className="h-full bg-[#C8FF00] transition-[width] duration-300"
-                    style={{ width: `${Math.round((progreso.actual / progreso.total) * 100)}%` }}
-                  />
-                </div>
-              </div>
-            )}
-
-            <div className="flex flex-col sm:flex-row gap-2">
-              <button
-                type="button"
-                onClick={subirNuevos}
-                disabled={subiendo || nuevos.length === 0}
-                className="inline-flex items-center justify-center gap-2 bg-[#C8FF00] text-[#2F4A00] font-bold text-sm px-4 py-2.5 rounded-lg hover:bg-[#b8ef00] transition-colors min-h-[44px] disabled:opacity-50"
-              >
-                {subiendo ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
-                {subiendo ? 'Subiendo…' : `Enviar ${nuevos.length || ''} a traducir`}
-              </button>
-              <button
-                type="button"
-                onClick={() => { setAgregando(false); setNuevos([]) }}
-                disabled={subiendo}
-                className="inline-flex items-center justify-center gap-2 bg-[#F5F5F0] border border-[#E5E5E5] text-[#0A0A0A] px-4 py-2.5 rounded-lg text-sm font-medium hover:bg-[#E5E5E5] transition-colors min-h-[44px] disabled:opacity-60"
-              >
-                Cancelar
-              </button>
-            </div>
-          </div>
-        ) : (
-          <div className="flex flex-col sm:flex-row gap-2">
-            <button
-              type="button"
-              onClick={() => setAgregando(true)}
-              disabled={ocupado}
-              className="inline-flex items-center justify-center gap-2 bg-[#C8FF00] text-[#2F4A00] font-bold text-sm px-4 py-2.5 rounded-lg hover:bg-[#b8ef00] transition-colors min-h-[44px] disabled:opacity-60"
-            >
-              <Plus className="w-4 h-4" />
-              Agregar más documentos
-            </button>
-
-            <button
-              type="button"
-              onClick={reintentar}
-              disabled={ocupado || archivosSubidos === 0}
-              title={archivosSubidos === 0 ? 'No hay archivos subidos en este lote' : undefined}
-              className="inline-flex items-center justify-center gap-2 bg-[#F5F5F0] border border-[#E5E5E5] text-[#0A0A0A] px-4 py-2.5 rounded-lg text-sm font-medium hover:bg-[#E5E5E5] transition-colors min-h-[44px] disabled:opacity-50"
-            >
-              {reenviando ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
-              Reintentar envío
-            </button>
-          </div>
-        )}
-
-        <div className="border-t border-[#E5E5E5] pt-4">
-          <button
-            type="button"
-            onClick={borrar}
-            disabled={ocupado}
-            className="inline-flex items-center justify-center gap-2 text-[#DC2626] px-4 py-2.5 rounded-lg text-sm font-medium hover:bg-[#FEF2F2] transition-colors min-h-[44px] disabled:opacity-60"
-          >
-            {eliminando ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
-            Eliminar lote
-          </button>
-        </div>
       </div>
     </div>
   )

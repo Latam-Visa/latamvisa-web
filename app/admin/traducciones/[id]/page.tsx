@@ -1,7 +1,5 @@
 import { supabaseAdmin } from '@/lib/supabase/admin'
 import { notFound } from 'next/navigation'
-import Link from 'next/link'
-import { ArrowLeft } from 'lucide-react'
 import { signTranslatedRows } from '@/lib/traducciones/dispatch'
 import { VISA_APPLICATIONS_BUCKET, type TranslatedDocument } from '@/lib/traducciones/shared'
 import { LoteDetailClient } from './_components/LoteDetailClient'
@@ -40,20 +38,7 @@ export default async function LoteDetallePage({ params }: { params: { id: string
   const archivosSubidos = (archivos || []).filter((f) => f.name && !f.name.startsWith('.')).length
 
   return (
-    <div className="space-y-6 max-w-[900px] mx-auto w-full pb-10">
-      <div className="flex items-start gap-4">
-        <Link
-          href="/admin/traducciones"
-          aria-label="Volver a traducciones"
-          className="flex items-center justify-center bg-white border border-[#E5E5E5] text-[#0A0A0A] p-2 rounded-lg hover:border-[#0A0A0A] transition-colors shrink-0"
-        >
-          <ArrowLeft className="w-5 h-5" />
-        </Link>
-        <h2 className="text-2xl font-bold font-[PPMonumentExtended] text-[#0A0A0A] min-w-0 break-words">
-          Traducción
-        </h2>
-      </div>
-
+    <div className="max-w-[1200px] mx-auto w-full pb-6">
       <LoteDetailClient
         lote={{
           id: lote.id,

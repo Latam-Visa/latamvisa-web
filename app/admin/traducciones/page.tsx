@@ -20,7 +20,7 @@ export default async function TraduccionesPage() {
   if (error) {
     console.error('[TRADUCCIONES] Error cargando lotes:', error)
     return (
-      <div className="max-w-[1000px] mx-auto w-full">
+      <div className="max-w-[1200px] mx-auto w-full">
         <div className="bg-[#FEF2F2] border border-red-200 rounded-xl p-6 text-sm text-red-700">
           No pudimos cargar las traducciones. Revisa que la tabla{' '}
           <code className="font-mono">lotes_traduccion</code> exista en Supabase.
@@ -61,29 +61,25 @@ export default async function TraduccionesPage() {
   })
 
   return (
-    <div className="space-y-8 max-w-[1000px] mx-auto w-full pb-10">
-      <div className="flex flex-wrap items-start justify-between gap-4">
-        <div className="flex items-start gap-4 min-w-0">
-          <Link
-            href="/admin"
-            aria-label="Volver al inicio del admin"
-            className="flex items-center justify-center bg-white border border-[#E5E5E5] text-[#0A0A0A] p-2 rounded-lg hover:border-[#0A0A0A] transition-colors shrink-0"
-          >
-            <ArrowLeft className="w-5 h-5" />
-          </Link>
-          <div className="min-w-0">
-            <h2 className="text-2xl font-bold font-[PPMonumentExtended] text-[#0A0A0A]">Traducciones</h2>
-            <p className="text-sm text-[#6B6B6B]">
-              {resumenes.length} {resumenes.length === 1 ? 'traducción' : 'traducciones'} en total
-            </p>
-          </div>
-        </div>
-
+    <div className="space-y-3 max-w-[1200px] mx-auto w-full pb-6">
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+        <Link
+          href="/admin"
+          aria-label="Volver al inicio del admin"
+          title="Volver al inicio del admin"
+          className="w-8 h-8 shrink-0 flex items-center justify-center rounded-lg text-[#525252] hover:bg-[#F5F5F0] hover:text-[#0A0A0A] transition-colors"
+        >
+          <ArrowLeft className="w-4 h-4" />
+        </Link>
+        <h1 className="text-[20px] leading-7 font-bold text-[#0A0A0A]">Traducciones</h1>
+        <span className="text-[12px] text-[#6B6B6B]">
+          {resumenes.length} {resumenes.length === 1 ? 'traducción' : 'traducciones'}
+        </span>
         <Link
           href="/admin/traducciones/nueva"
-          className="inline-flex items-center gap-2 bg-[#C8FF00] text-[#2F4A00] font-bold text-sm px-4 py-2.5 rounded-lg hover:bg-[#b8ef00] transition-colors min-h-[44px]"
+          className="ml-auto inline-flex items-center gap-1.5 h-8 px-3 rounded-lg text-[13px] font-bold bg-[#C8FF00] text-[#2F4A00] hover:bg-[#b8ef00] transition-colors"
         >
-          <Plus className="w-4 h-4" />
+          <Plus className="w-3.5 h-3.5" />
           Nueva traducción
         </Link>
       </div>
