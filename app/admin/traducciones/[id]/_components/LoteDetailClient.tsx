@@ -364,6 +364,8 @@ export function LoteDetailClient({
       <div className="bg-white rounded-xl border border-[#E5E5E5] px-4 py-2">
         <TranslatedDocuments
           documents={documentos}
+          pais={lote.pais}
+          nombreCliente={lote.nombre_cliente}
           emptyMessage={
             archivosSubidos > 0
               ? 'Todavía no llegan los documentos traducidos.'

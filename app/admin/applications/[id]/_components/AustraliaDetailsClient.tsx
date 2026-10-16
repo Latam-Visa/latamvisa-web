@@ -256,7 +256,11 @@ export function AustraliaDetailsClient({ application, signedPhotoUrls, translate
           </SectionCard>
         ) : (
           <SectionCard title="Documentos">
-            <TranslatedDocuments documents={translatedDocuments} />
+            <TranslatedDocuments
+              documents={translatedDocuments}
+              pais="australia"
+              nombreCliente={[s.given_names, s.family_name].filter(Boolean).join(' ') || 'Solicitud'}
+            />
           </SectionCard>
         )}
       </div>

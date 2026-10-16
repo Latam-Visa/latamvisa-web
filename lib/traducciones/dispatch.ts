@@ -98,27 +98,28 @@ export async function dispatchTraduccion(
    su propia columna `bucket` dónde vive el archivo: 'documentos-traducidos'
    para la traducción, 'visa-applications' para el original (pasaportes, visas
    y todo lo que no necesitó traducción). */
+// URL de descarga del admin: vida corta (1h), no las 24h del pipeline.
+export async function firmarDescarga(row: { storage_path?: string | null; bucket?: string | null; nombre_archivo?: string | null }) {
+  if (!row.storage_path) return undefined
+  const bucket = row.bucket || 'documentos-traducidos'
+  const { data, error } = await supabaseAdmin
+    .storage
+    .from(bucket)
+    .createSignedUrl(row.storage_path, 3600, { download: row.nombre_archivo ?? undefined })
+  return !error && data ? data.signedUrl : undefined
+}
+
 export async function signTranslatedRows(rows: any[]) {
   return Promise.all(
-    rows.map(async (row) => {
-      let downloadUrl: string | undefined
-      if (row.storage_path) {
-        const bucket = row.bucket || 'documentos-traducidos'
-        const { data, error } = await supabaseAdmin
-          .storage
-          .from(bucket)
-          .createSignedUrl(row.storage_path, 3600, { download: row.nombre_archivo })
-        if (!error && data) downloadUrl = data.signedUrl
-      }
-      return {
-        id: row.id,
-        nombre_original: row.nombre_original,
-        nombre_archivo: row.nombre_archivo,
-        status: row.status || 'traducido',
-        motivo: row.motivo,
-        created_at: row.created_at,
-        downloadUrl,
-      }
-    }),
+    rows.map(async (row) => ({
+      id: row.id,
+      nombre_original: row.nombre_original,
+      nombre_archivo: row.nombre_archivo,
+      status: row.status || 'traducido',
+      motivo: row.motivo,
+      carpeta: row.carpeta ?? null,
+      created_at: row.created_at,
+      downloadUrl: await firmarDescarga(row),
+    })),
   )
 }

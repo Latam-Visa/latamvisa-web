@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Loader2, Send, AlertCircle } from 'lucide-react'
-import { PAISES_TRADUCCION, PAIS_TRADUCCION_DEFAULT } from '@/lib/traducciones/shared'
+import { PAISES_TRADUCCION, PAIS_TRADUCCION_DEFAULT, carpetasDePais } from '@/lib/traducciones/shared'
 import { DocumentosPicker } from '../../_components/DocumentosPicker'
 import { subirArchivos, type ProgresoSubida } from '../../_components/subirArchivos'
 import { crearLote, enviarLoteAn8n } from '../../_actions/traducciones-actions'
@@ -16,6 +16,7 @@ export function NuevaTraduccionClient() {
 
   const [nombre, setNombre] = useState('')
   const [pais, setPais] = useState<string>(PAIS_TRADUCCION_DEFAULT)
+  const carpetasPais = carpetasDePais(pais)
   const [notas, setNotas] = useState('')
   const [archivos, setArchivos] = useState<File[]>([])
 
@@ -114,6 +115,16 @@ export function NuevaTraduccionClient() {
               <option key={p.value} value={p.value}>{p.label}</option>
             ))}
           </select>
+          {carpetasPais && (
+            <details className="mt-1.5 text-[12px] text-[#6B6B6B]">
+              <summary className="cursor-pointer truncate">
+                Los documentos se van a organizar en {carpetasPais.length} carpetas de ImmiAccount: {carpetasPais.join(', ')}
+              </summary>
+              <ol className="mt-1 ml-4 list-decimal space-y-0.5">
+                {carpetasPais.map((c) => <li key={c}>{c}</li>)}
+              </ol>
+            </details>
+          )}
         </div>
 
         <div>

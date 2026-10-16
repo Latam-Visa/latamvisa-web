@@ -42,8 +42,30 @@ export interface TranslatedDocument {
   nombre_archivo: string
   status: string
   motivo: string | null
+  // Categoría de ImmiAccount que asignó n8n; null en países sin carpetas.
+  carpeta: string | null
   created_at: string
   downloadUrl?: string
+}
+
+// Este listado debe coincidir con el nodo "Asignar Carpetas" de n8n.
+// Si se cambia aca, hay que cambiarlo alla tambien.
+export const CARPETAS_AUSTRALIA = [
+  'Travel Document',
+  'National Identity Document (other than Passport)',
+  'Evidence of the financial status and funding for visit',
+  'Evidence of planned tourism activities in Australia',
+  'Family register and composition form (if applicable)',
+  'Other Documents',
+] as const
+
+export const CARPETAS_POR_PAIS: Record<string, readonly string[]> = {
+  australia: CARPETAS_AUSTRALIA,
+}
+
+/* null = el país no usa carpetas y los documentos se agrupan por estado. */
+export function carpetasDePais(pais: string | null | undefined): readonly string[] | null {
+  return (pais && CARPETAS_POR_PAIS[pais]) || null
 }
 
 export const ALLOWED_UPLOAD_TYPES = [
