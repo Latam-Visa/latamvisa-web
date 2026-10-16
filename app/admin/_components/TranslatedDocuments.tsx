@@ -1,7 +1,9 @@
 "use client"
 
 import { useState } from 'react'
-import { Download, Loader2 } from 'lucide-react'
+import { useRouter } from 'next/navigation'
+import { Download, FolderInput, Loader2 } from 'lucide-react'
+import { moverDocumento } from '../_actions/documentos-actions'
 import { carpetasDePais, normalizeDocStatus, type DocStatus, type TranslatedDocument } from '@/lib/traducciones/shared'
 import { descargarCarpetaZip, nombreZip } from '@/lib/traducciones/zip-carpeta'
 
@@ -15,8 +17,9 @@ import { descargarCarpetaZip, nombreZip } from '@/lib/traducciones/zip-carpeta'
    pone quien lo usa.
 
    La vista la decide el país: si tiene carpetas de ImmiAccount (ver
-   CARPETAS_POR_PAIS) se agrupa por la columna `carpeta` que escribe n8n; si
-   no, por estado. Acá nunca se clasifica nada. */
+   CARPETAS_POR_PAIS) se agrupa por `carpeta`, que ya llega resuelta del
+   servidor (manual > n8n > palabras clave, ver lib/docs/categorias.ts); si
+   no, por estado. Este componente no clasifica: solo agrupa y deja mover. */
 
 const DOC_STATUS_SECTIONS: { key: DocStatus; title: string }[] = [
   { key: 'traducido', title: 'Traducidos' },
@@ -43,18 +46,77 @@ export function translatedStatusBadge(status: string) {
   )
 }
 
-function DocumentRow({ doc }: { doc: TranslatedDocument }) {
+/* "Mover a…": un <select> nativo transparente encima de un botón blanco. Así
+   en móvil abre el selector del sistema y nunca queda con fondo oscuro. */
+function MoverA({ doc, nombre, carpetas, pais, onError }: {
+  doc: TranslatedDocument
+  nombre: string
+  carpetas: readonly string[]
+  pais?: string | null
+  onError: (mensaje: string) => void
+}) {
+  const router = useRouter()
+  const [pendiente, setPendiente] = useState(false)
+  const manual = doc.carpetaOrigen === 'manual'
+
+  const cambiar = async (valor: string) => {
+    if (!valor) return
+    setPendiente(true)
+    onError('')
+    const res = await moverDocumento(doc.id, valor === '__auto__' ? null : valor, pais)
+    setPendiente(false)
+    if (!res.success) return onError(res.error || 'No pudimos mover el documento.')
+    router.refresh()
+  }
+
+  return (
+    <div className="relative shrink-0 h-7" title={manual ? 'Movido a mano. Mover a…' : 'Mover a…'}>
+      <span
+        aria-hidden
+        className={`h-7 min-w-7 px-1.5 sm:px-2 flex items-center justify-center gap-1 rounded-md border bg-white text-[11px] transition-colors ${
+          manual ? 'border-[#C8FF00] text-[#2F4A00]' : 'border-[#E5E5E5] text-[#525252]'
+        }`}
+      >
+        {pendiente ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <FolderInput className="w-3.5 h-3.5" />}
+        <span className="hidden sm:inline">Mover a…</span>
+      </span>
+      <select
+        value=""
+        onChange={(e) => cambiar(e.target.value)}
+        disabled={pendiente}
+        aria-label={`Mover ${nombre} a…`}
+        style={{ colorScheme: 'light' }}
+        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer disabled:cursor-wait bg-white text-[#0A0A0A]"
+      >
+        <option value="" disabled>Mover a…</option>
+        {carpetas.map((c) => (
+          <option key={c} value={c} disabled={c === doc.carpeta}>
+            {c === doc.carpeta ? `✓ ${c}` : c}
+          </option>
+        ))}
+        {manual && <option value="__auto__">↺ Volver a automático</option>}
+      </select>
+    </div>
+  )
+}
+
+function DocumentRow({ doc, carpetas, pais }: { doc: TranslatedDocument; carpetas?: readonly string[] | null; pais?: string | null }) {
+  const [errorMover, setErrorMover] = useState('')
   const nombre = doc.nombre_archivo || doc.nombre_original
   const estado = normalizeDocStatus(doc.status)
   const motivo = estado !== 'traducido' ? doc.motivo : null
   return (
-    <li className="h-9 flex items-center gap-3 px-2 -mx-2 rounded-md hover:bg-[#F5F5F0] transition-colors">
+    <li className="h-9 flex items-center gap-2 sm:gap-3 px-2 -mx-2 rounded-md hover:bg-[#F5F5F0] transition-colors">
       {/* El nombre manda; el motivo usa lo que sobre y se corta antes. */}
       <div className="flex-1 min-w-0 flex items-baseline gap-1.5">
         <span className="shrink-0 max-w-full truncate text-[13px] text-[#0A0A0A]" title={nombre}>
           {nombre}
         </span>
-        {motivo && (
+        {errorMover ? (
+          <span role="alert" className="min-w-0 truncate text-[11px] text-red-700" title={errorMover}>
+            · {errorMover}
+          </span>
+        ) : motivo && (
           <span
             className={`hidden sm:block min-w-0 truncate text-[11px] ${estado === 'error' ? 'text-red-700' : 'text-[#6B6B6B]'}`}
             title={motivo}
@@ -64,6 +126,7 @@ function DocumentRow({ doc }: { doc: TranslatedDocument }) {
         )}
       </div>
       {translatedStatusBadge(doc.status)}
+      {carpetas && <MoverA doc={doc} nombre={nombre} carpetas={carpetas} pais={pais} onError={setErrorMover} />}
       {doc.downloadUrl ? (
         <a
           href={doc.downloadUrl}
@@ -88,11 +151,11 @@ function DocumentRow({ doc }: { doc: TranslatedDocument }) {
   )
 }
 
-function DocumentList({ docs }: { docs: TranslatedDocument[] }) {
+function DocumentList({ docs, carpetas, pais }: { docs: TranslatedDocument[]; carpetas?: readonly string[] | null; pais?: string | null }) {
   return (
     <ul className="space-y-1">
       {docs.map((doc) => (
-        <DocumentRow key={doc.id} doc={doc} />
+        <DocumentRow key={doc.id} doc={doc} carpetas={carpetas} pais={pais} />
       ))}
     </ul>
   )
@@ -179,11 +242,15 @@ function SeccionCarpeta({
   titulo,
   docs,
   nombreCliente,
+  carpetas,
+  pais,
   sinClasificar = false,
 }: {
   titulo: string
   docs: TranslatedDocument[]
   nombreCliente: string
+  carpetas: readonly string[]
+  pais?: string | null
   sinClasificar?: boolean
 }) {
   const n = docs.length
@@ -205,7 +272,7 @@ function SeccionCarpeta({
         </span>
         {n > 0 && <BotonZip docs={docs} carpeta={titulo} nombreCliente={nombreCliente} />}
       </div>
-      {n > 0 && <DocumentList docs={docs} />}
+      {n > 0 && <DocumentList docs={docs} carpetas={carpetas} pais={pais} />}
     </section>
   )
 }
@@ -214,10 +281,12 @@ function VistaPorCarpeta({
   documents,
   carpetas,
   nombreCliente,
+  pais,
 }: {
   documents: TranslatedDocument[]
   carpetas: readonly string[]
   nombreCliente: string
+  pais?: string | null
 }) {
   const ordenar = (docs: TranslatedDocument[]) =>
     [...docs].sort((a, b) => ORDEN_ESTADO[normalizeDocStatus(a.status)] - ORDEN_ESTADO[normalizeDocStatus(b.status)])
@@ -243,10 +312,19 @@ function VistaPorCarpeta({
             titulo={carpeta}
             docs={ordenar(documents.filter((d) => d.carpeta === carpeta))}
             nombreCliente={nombreCliente}
+            carpetas={carpetas}
+            pais={pais}
           />
         ))}
         {sinClasificar.length > 0 && (
-          <SeccionCarpeta titulo="Sin clasificar" docs={ordenar(sinClasificar)} nombreCliente={nombreCliente} sinClasificar />
+          <SeccionCarpeta
+            titulo="Sin clasificar"
+            docs={ordenar(sinClasificar)}
+            nombreCliente={nombreCliente}
+            carpetas={carpetas}
+            pais={pais}
+            sinClasificar
+          />
         )}
       </div>
     </div>
@@ -268,7 +346,7 @@ export function TranslatedDocuments({
   const carpetas = carpetasDePais(pais)
 
   // Con carpetas se muestran aunque esté vacío: así se ve qué categoría falta.
-  if (carpetas) return <VistaPorCarpeta documents={documents} carpetas={carpetas} nombreCliente={nombreCliente} />
+  if (carpetas) return <VistaPorCarpeta documents={documents} carpetas={carpetas} nombreCliente={nombreCliente} pais={pais} />
 
   if (documents.length === 0) {
     return <p className="py-2 text-[13px] text-[#6B6B6B]">{emptyMessage}</p>

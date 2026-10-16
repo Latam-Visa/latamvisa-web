@@ -194,7 +194,7 @@ export default async function ApplicationDetailsPage({ params }: { params: { id:
 
     // El firmado por bucket vive en lib/traducciones/dispatch: cada fila dice
     // en su columna `bucket` si el archivo es la traducción o el original.
-    if (translatedRows) translatedDocuments = await signTranslatedRows(translatedRows)
+    if (translatedRows) translatedDocuments = await signTranslatedRows(translatedRows, 'australia')
   }
 
   return (

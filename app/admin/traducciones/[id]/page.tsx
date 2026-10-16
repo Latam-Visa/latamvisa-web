@@ -25,7 +25,7 @@ export default async function LoteDetallePage({ params }: { params: { id: string
     .eq('application_id', params.id)
     .order('created_at', { ascending: false })
 
-  const documentos: TranslatedDocument[] = rows ? await signTranslatedRows(rows) : []
+  const documentos: TranslatedDocument[] = rows ? await signTranslatedRows(rows, lote.pais) : []
 
   /* Cuántos archivos subió el admin: es el denominador del aviso de
      "procesando". n8n escribe una fila por documento, así que mientras haya
