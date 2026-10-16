@@ -9,7 +9,7 @@ import { createHash, createHmac, timingSafeEqual } from 'node:crypto'
 import { cookies } from 'next/headers'
 
 export const COOKIE_DESBLOQUEO = 'deadlines_unlock'
-export const DURACION_MS = 30 * 24 * 60 * 60 * 1000 // 30 días
+export const DURACION_MS = 8 * 60 * 60 * 1000 // 8 horas
 
 const VERSION = 'v1'
 

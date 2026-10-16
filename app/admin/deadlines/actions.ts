@@ -67,7 +67,7 @@ export async function desbloquearDeadlines(_prev: { error?: string } | null, for
   cookies().set(COOKIE_DESBLOQUEO, crearValorCookie(), {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
-    sameSite: 'lax',
+    sameSite: 'strict',
     path: '/admin',
     maxAge: DURACION_MS / 1000,
   })

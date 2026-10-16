@@ -27,7 +27,7 @@ interface AdminHomeHubProps {
   ideasPendingCount: number
   traduccionesCount: number
   cotizacionesPendientesCount: number
-  // Solo llega si el dueño desbloqueó Deadlines (cookie firmada válida).
+  // Resumen de Deadlines: solo llega si el dueño desbloqueó (cookie firmada válida).
   deadlines?: { atrasadas: number; proximoHito: string | null } | null
 }
 
@@ -77,15 +77,18 @@ export function AdminHomeHub({ solicitudesCount, ideasPendingCount, traducciones
     },
   ]
 
+  // La tarjeta siempre está; el resumen solo se muestra ya desbloqueado.
+  let deadlinesSubtitle = 'Planner privado · pide una segunda contraseña'
   if (deadlines) {
     const hito = deadlines.proximoHito ? `próximo hito: ${deadlines.proximoHito}` : 'sin hitos próximos'
-    cards.push({
-      href: '/admin/deadlines',
-      icon: CalendarClock,
-      title: 'Deadlines',
-      subtitle: deadlines.atrasadas > 0 ? `${deadlines.atrasadas} atrasadas · ${hito}` : hito.charAt(0).toUpperCase() + hito.slice(1),
-    })
+    deadlinesSubtitle = deadlines.atrasadas > 0 ? `${deadlines.atrasadas} atrasadas · ${hito}` : hito.charAt(0).toUpperCase() + hito.slice(1)
   }
+  cards.push({
+    href: '/admin/deadlines',
+    icon: CalendarClock,
+    title: 'Deadlines',
+    subtitle: deadlinesSubtitle,
+  })
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
