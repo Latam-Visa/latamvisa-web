@@ -86,6 +86,8 @@ export async function POST(req: Request) {
     const sessionData: Stripe.Checkout.SessionCreateParams = {
       ui_mode: 'embedded_page',
       mode: 'payment',
+      // Para poder escribirle por WhatsApp desde el correo de pago al admin.
+      phone_number_collection: { enabled: true },
       customer_email: email,
       line_items,
       metadata: {

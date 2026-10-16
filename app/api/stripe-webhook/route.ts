@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server'
 import Stripe from 'stripe'
 import { Resend } from 'resend'
 import { supabaseAdmin } from '@/lib/supabase/admin'
+import { construirCorreoPagoAdmin } from '@/lib/emails/pago-admin'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
@@ -20,6 +21,68 @@ const DESTINO_MAP: Record<string, { nombre: string; emoji: string; tipo: string;
   uk: { nombre: 'Reino Unido', emoji: '🇬🇧', tipo: 'Visa de Turismo', link: 'https://latamvisatravel.com/aplicar/turismo-uk' },
   nz: { nombre: 'Nueva Zelanda', emoji: '🇳🇿', tipo: 'Visa de Turismo', link: 'https://latamvisatravel.com/aplicar/turismo-nz' },
   japon: { nombre: 'Japón', emoji: '🇯🇵', tipo: 'Visa de Turismo', link: 'https://latamvisatravel.com/aplicar/turismo-japon' }
+}
+
+// Productos de Payment Links (sin metadata.destino).
+const PRODUCTO_DESTINO: Record<string, string> = {
+  prod_UNzInIKcEPubsv: 'usa',
+  prod_UPS4wTFA8YcTQB: 'canada',
+  prod_UPSArEprnY5NMG: 'uk',
+  prod_Uh5FvGa1iRJrpG: 'schengen',
+}
+
+/* Los correos de bienvenida al cliente los manda hoy n8n. Mientras siga así,
+   estos (que nunca corrieron en producción) quedan apagados para no duplicar. */
+const CORREOS_CLIENTE = process.env.STRIPE_WEBHOOK_CORREOS_CLIENTE === 'true'
+
+async function detectarDestino(session: Stripe.Checkout.Session): Promise<{ destino: string | null; opcion: string | null }> {
+  if (session.metadata?.tipo === 'cotizacion') return { destino: 'cotizacion', opcion: null }
+  if (session.metadata?.destino) return { destino: session.metadata.destino, opcion: null }
+
+  const lineItems = await stripe.checkout.sessions.listLineItems(session.id)
+  for (const item of lineItems.data) {
+    const productId = typeof item.price?.product === 'string' ? item.price.product : item.price?.product?.id
+    const destino = productId ? PRODUCTO_DESTINO[productId] : undefined
+    if (!destino) continue
+    const desc = item.description?.toLowerCase() || ''
+    const conTraduccion = desc.includes('traducción') || desc.includes('traduccion') || session.amount_total === 29000
+    const opcion = destino === 'usa' ? null : conTraduccion ? 'Con traducción' : 'Sin traducción'
+    return { destino, opcion }
+  }
+  return { destino: null, opcion: null }
+}
+
+/* Correo "Nuevo pago" al admin. Idempotente por session.id: Resend descarta un
+   segundo envío con la misma clave (24h), así un reintento de Stripe o el par
+   completed + async_payment_succeeded no lo duplican. Lanza si Resend falla,
+   para responder 500 y que Stripe reintente. */
+async function notificarPagoAdmin(session: Stripe.Checkout.Session) {
+  if (session.payment_status !== 'paid') return
+  const { destino, opcion } = await detectarDestino(session)
+  const { asunto, html } = construirCorreoPagoAdmin({
+    sessionId: session.id,
+    paymentIntentId: typeof session.payment_intent === 'string' ? session.payment_intent : session.payment_intent?.id,
+    nombre: session.customer_details?.name,
+    email: session.customer_details?.email || session.customer_email,
+    telefono: session.customer_details?.phone,
+    montoTotal: session.amount_total,
+    moneda: session.currency,
+    destino,
+    metadata: session.metadata,
+    opcion,
+    creadoEl: new Date(session.created * 1000),
+  })
+  const { error } = await resend.emails.send(
+    {
+      from: 'LATAM VISA <noreply@latamvisatravel.com>',
+      to: process.env.RESEND_ADMIN_EMAIL || 'future@latamvisas.com.au',
+      subject: asunto,
+      html,
+    },
+    { idempotencyKey: `pago-admin/${session.id}` },
+  )
+  if (error) throw new Error(`Resend: ${error.message}`)
+  console.log(`[PAGO] Correo admin enviado: ${session.id}`)
 }
 
 export async function POST(req: Request) {
@@ -75,7 +138,27 @@ export async function POST(req: Request) {
         }
       }
 
+      try {
+        await notificarPagoAdmin(session)
+      } catch (e) {
+        console.error('[PAGO] Error enviando correo admin (cotización):', e)
+        return NextResponse.json({ error: 'No se pudo enviar el correo' }, { status: 500 })
+      }
       return NextResponse.json({ received: true }, { status: 200 })
+    }
+
+    // Correo al admin para cualquier otro pago (turismo, Payment Links).
+    if (event.type === 'checkout.session.completed' || event.type === 'checkout.session.async_payment_succeeded') {
+      try {
+        await notificarPagoAdmin(event.data.object as Stripe.Checkout.Session)
+      } catch (e) {
+        console.error('[PAGO] Error enviando correo admin:', e)
+        return NextResponse.json({ error: 'No se pudo enviar el correo' }, { status: 500 })
+      }
+      // Con los correos al cliente apagados no queda nada más que hacer. Salir
+      // acá evita que un fallo posterior (p. ej. listLineItems) devuelva 500 y
+      // Stripe reintente un evento cuyo correo ya salió.
+      if (!CORREOS_CLIENTE) return NextResponse.json({ received: true }, { status: 200 })
     }
 
     if (event.type === 'checkout.session.completed') {
@@ -97,18 +180,7 @@ export async function POST(req: Request) {
       if (matchedItem) {
         const email = session.customer_details?.email;
         const fullName = session.customer_details?.name || 'Viajero';
-        const amountTotal = session.amount_total || 0;
-        const currency = session.currency?.toUpperCase() || 'USD';
         
-        let chosenOption = 'Sin traducción';
-        const itemDesc = matchedItem.description?.toLowerCase() || '';
-        if (itemDesc.includes('traducción') || itemDesc.includes('traduccion')) {
-          chosenOption = 'Con traducción';
-        } else if (amountTotal === 29000 || amountTotal === 290) {
-           chosenOption = 'Con traducción';
-        }
-
-        const ADMIN_EMAIL = process.env.RESEND_ADMIN_EMAIL || 'future@latamvisas.com.au';
         const NEXT_PUBLIC_SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://latamvisatravel.com';
 
         let adminDestName = '';
@@ -133,36 +205,7 @@ export async function POST(req: Request) {
           formLink = `${NEXT_PUBLIC_SITE_URL}/aplicar/turismo-schengen`;
         }
 
-        let adminOptionText = '';
-        if (destinationId === 'canada' || destinationId === 'uk' || destinationId === 'schengen') {
-          adminOptionText = `<p><strong>Opción elegida:</strong> ${chosenOption}</p>`;
-        }
-
-        if (email) {
-          try {
-            // Email A - to the ADMIN
-            await resend.emails.send({
-              from: 'LATAM VISA <noreply@latamvisatravel.com>',
-              to: ADMIN_EMAIL,
-              subject: `Pago ${adminDestName} recibido — ${fullName}`,
-              html: `
-                <div style="font-family: sans-serif; background-color: #0A0A0A; color: #FAFAF7; padding: 40px 20px;">
-                  <div style="max-width: 600px; margin: 0 auto; background-color: #1A1A1A; border-radius: 12px; padding: 30px; border: 1px solid #333;">
-                    <h2 style="color: #C8FF00; margin-top: 0;">Nuevo Pago Recibido (${adminDestName})</h2>
-                    <p><strong>Cliente:</strong> ${fullName}</p>
-                    <p><strong>Email:</strong> ${email}</p>
-                    <p><strong>Monto:</strong> ${(amountTotal / 100).toFixed(2)} ${currency}</p>
-                    ${adminOptionText}
-                    <p><strong>Fecha:</strong> ${new Date().toLocaleString('es-ES')}</p>
-                  </div>
-                </div>
-              `
-            });
-            console.log(`Admin email sent for ${adminDestName} payment: ${email}`);
-          } catch (e) {
-            console.error(`Error sending ${adminDestName} admin email:`, e);
-          }
-
+        if (email && CORREOS_CLIENTE) {
           try {
             // Email B - to the CLIENT
             await resend.emails.send({
@@ -230,7 +273,7 @@ export async function POST(req: Request) {
       const fullName = session.customer_details?.name || 'Viajero'
       const firstName = fullName.split(' ')[0]
 
-      if (email) {
+      if (email && CORREOS_CLIENTE) {
         // Send email with Resend
         try {
           await resend.emails.send({
@@ -282,7 +325,7 @@ export async function POST(req: Request) {
         // TODO: Insert a row into a Supabase table "payments" with:
         // email, nombre, destino, stripe_session_id, amount, created_at.
         // Skipping implementation to avoid schema mismatch/errors.
-      } else {
+      } else if (!email) {
         console.warn('No email found in session.customer_details')
       }
     }
