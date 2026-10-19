@@ -112,23 +112,29 @@ export async function hashesEnLote(
 export async function registrarDocumentoLote(
   loteId: string,
   doc: { storage_path: string; hash: string; nombre_original: string; bytes: number },
-): Promise<{ estado: 'registrado' | 'repetido' | 'error'; nombreAnterior?: string | null; error?: string }> {
+): Promise<{ estado: 'registrado' | 'repetido' | 'error'; id?: string; nombreAnterior?: string | null; error?: string }> {
   if (!UUID.test(loteId) || !HASH_VALIDO.test(doc.hash) || !doc.storage_path.startsWith(`${carpetaLote(loteId)}/`)) {
     return { estado: 'error', error: 'Datos de subida inválidos.' }
   }
 
-  const { error } = await supabaseAdmin.from('documentos_lote').insert({
-    application_id: loteId,
-    storage_path: doc.storage_path,
-    hash: doc.hash,
-    nombre_original: doc.nombre_original,
-    bytes: doc.bytes,
-  })
-  if (!error) return { estado: 'registrado' }
+  // enviado_at NULL: cargado, pero n8n no lo recibe hasta "Ya terminé".
+  const { data: fila, error } = await supabaseAdmin
+    .from('documentos_lote')
+    .insert({
+      application_id: loteId,
+      storage_path: doc.storage_path,
+      hash: doc.hash,
+      nombre_original: doc.nombre_original,
+      bytes: doc.bytes,
+      enviado_at: null,
+    })
+    .select('id')
+    .single()
+  if (!error && fila) return { estado: 'registrado', id: fila.id }
 
   await supabaseAdmin.storage.from(VISA_APPLICATIONS_BUCKET).remove([doc.storage_path])
 
-  if (error.code === '23505') {
+  if (error?.code === '23505') {
     const { data } = await supabaseAdmin
       .from('documentos_lote')
       .select('nombre_original')
@@ -140,6 +146,51 @@ export async function registrarDocumentoLote(
 
   console.error('[TRADUCCIONES] Error registrando documento del lote:', error)
   return { estado: 'error', error: 'No se pudo registrar el archivo.' }
+}
+
+/* La X sobre un archivo ya cargado: lo borra de Storage Y de documentos_lote.
+   Si solo se quitara de la lista, su hash quedaría registrado y ese archivo
+   no se podría volver a subir nunca. Solo se borra lo que todavía no se
+   envió: un documento que n8n ya recibió no se toca desde acá. */
+export async function eliminarDocumentoCargado(
+  loteId: string,
+  docId: string,
+): Promise<{ success: boolean; error?: string }> {
+  if (!UUID.test(loteId) || !UUID.test(docId)) return { success: false, error: 'Documento inválido.' }
+
+  const { data: fila, error } = await supabaseAdmin
+    .from('documentos_lote')
+    .select('id, storage_path, enviado_at')
+    .eq('id', docId)
+    .eq('application_id', loteId)
+    .maybeSingle()
+
+  if (error) {
+    console.error('[TRADUCCIONES] Error leyendo documento a borrar:', error)
+    return { success: false, error: 'No pudimos borrar el archivo.' }
+  }
+  if (!fila) return { success: true } // ya no estaba
+  if (fila.enviado_at) return { success: false, error: 'Este documento ya se envió a traducir; no se puede quitar.' }
+
+  const { error: errorStorage } = await supabaseAdmin.storage.from(VISA_APPLICATIONS_BUCKET).remove([fila.storage_path])
+  if (errorStorage) {
+    console.error('[TRADUCCIONES] Error borrando archivo de Storage:', errorStorage)
+    return { success: false, error: 'No pudimos borrar el archivo.' }
+  }
+
+  // Solo si sigue pendiente: si justo se envió, no se borra la fila.
+  const { error: errorFila } = await supabaseAdmin
+    .from('documentos_lote')
+    .delete()
+    .eq('id', docId)
+    .is('enviado_at', null)
+  if (errorFila) {
+    console.error('[TRADUCCIONES] Error borrando fila de documentos_lote:', errorFila)
+    return { success: false, error: 'No pudimos borrar el archivo.' }
+  }
+
+  revalidatePath(`/admin/traducciones/${loteId}`)
+  return { success: true }
 }
 
 /* Paso 5 aislado, para poder reintentarlo solo. Regenera las signed URLs de
@@ -195,7 +246,7 @@ export async function reenviarLote(
 
 export async function actualizarLote(
   loteId: string,
-  campos: { nombre_cliente?: string; notas?: string },
+  campos: { nombre_cliente?: string; notas?: string; pais?: string },
 ): Promise<{ success: boolean; error?: string }> {
   const update: Record<string, any> = { updated_at: new Date().toISOString() }
 
@@ -205,6 +256,10 @@ export async function actualizarLote(
     update.nombre_cliente = nombre
   }
   if (campos.notas !== undefined) update.notas = campos.notas.trim() || null
+  if (campos.pais !== undefined) {
+    if (!PAISES_VALIDOS.has(campos.pais)) return { success: false, error: 'País inválido.' }
+    update.pais = campos.pais
+  }
 
   const { error } = await supabaseAdmin.from('lotes_traduccion').update(update).eq('id', loteId)
 

@@ -35,7 +35,18 @@ export default async function LoteDetallePage({ params }: { params: { id: string
     .from(VISA_APPLICATIONS_BUCKET)
     .list(`manual/${params.id}`, { limit: 100 })
 
-  const archivosSubidos = (archivos || []).filter((f) => f.name && !f.name.startsWith('.')).length
+  const enStorage = (archivos || []).filter((f) => f.name && !f.name.startsWith('.')).length
+
+  /* Cargados pero sin "Ya terminé" (enviado_at NULL): están en Storage pero n8n
+     no los recibió, así que no cuentan para el aviso de "traduciendo". */
+  const { data: pendientesDb, error: errorPendientes } = await supabaseAdmin
+    .from('documentos_lote')
+    .select('id')
+    .eq('application_id', params.id)
+    .is('enviado_at', null)
+  if (errorPendientes) console.error('[TRADUCCIONES] Error contando pendientes:', errorPendientes)
+  const pendientesIds = (pendientesDb || []).map((f) => f.id)
+  const archivosSubidos = Math.max(0, enStorage - pendientesIds.length)
 
   return (
     <div className="max-w-[1200px] mx-auto w-full pb-6">
@@ -49,6 +60,7 @@ export default async function LoteDetallePage({ params }: { params: { id: string
         }}
         documentos={documentos}
         archivosSubidos={archivosSubidos}
+        pendientesIds={pendientesIds}
       />
     </div>
   )

@@ -47,6 +47,18 @@ export default async function TraduccionesPage() {
     }
   }
 
+  // Lotes con archivos cargados que nadie mandó a traducir (enviado_at NULL).
+  const pendientes = new Map<string, number>()
+  if (ids.length > 0) {
+    const { data: filas, error: errorPendientes } = await supabaseAdmin
+      .from('documentos_lote')
+      .select('application_id')
+      .in('application_id', ids)
+      .is('enviado_at', null)
+    if (errorPendientes) console.error('[TRADUCCIONES] Error contando pendientes:', errorPendientes)
+    for (const f of filas || []) pendientes.set(f.application_id, (pendientes.get(f.application_id) || 0) + 1)
+  }
+
   const resumenes: LoteResumen[] = (lotes || []).map((lote) => {
     const c = conteos.get(lote.id) || { traducido: 0, no_traducido: 0, error: 0 }
     return {
@@ -57,6 +69,7 @@ export default async function TraduccionesPage() {
       traducidos: c.traducido,
       originales: c.no_traducido,
       conError: c.error,
+      pendientes: pendientes.get(lote.id) || 0,
     }
   })
 

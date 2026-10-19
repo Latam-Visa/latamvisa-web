@@ -27,7 +27,7 @@ export async function middleware(request: NextRequest) {
     return sesionFinanzas(request)
   }
 
-  if ((path.startsWith('/admin') && !path.startsWith('/admin/login')) || path.startsWith('/api/finanzas') || path.startsWith('/api/admin')) {
+  if ((path.startsWith('/admin') && !path.startsWith('/admin/login')) || path.startsWith('/api/finanzas') || path.startsWith('/api/admin') || path.startsWith('/api/traducciones')) {
     const cookieValue = request.cookies.get('admin_auth')?.value
     const envPassword = (process.env.ADMIN_PASSWORD || '').trim()
 
@@ -43,5 +43,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/admin/:path*', '/api/finanzas/:path*', '/api/admin/:path*', '/finanzas', '/finanzas/:path*'],
+  matcher: ['/admin/:path*', '/api/finanzas/:path*', '/api/admin/:path*', '/api/traducciones/:path*', '/finanzas', '/finanzas/:path*'],
 }
