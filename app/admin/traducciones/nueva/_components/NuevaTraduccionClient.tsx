@@ -8,6 +8,7 @@ import { DocumentosPicker } from '../../_components/DocumentosPicker'
 import { subirArchivos, type ProgresoSubida } from '../../_components/subirArchivos'
 import { crearLote, enviarLoteAn8n } from '../../_actions/traducciones-actions'
 import type { DispatchDoc } from '@/lib/traducciones/dispatch'
+import { SELECCION_VACIA, type SeleccionArchivos } from '@/lib/traducciones/preparar-archivos'
 
 type Fase = 'form' | 'creando' | 'subiendo' | 'enviando'
 
@@ -18,7 +19,7 @@ export function NuevaTraduccionClient() {
   const [pais, setPais] = useState<string>(PAIS_TRADUCCION_DEFAULT)
   const carpetasPais = carpetasDePais(pais)
   const [notas, setNotas] = useState('')
-  const [archivos, setArchivos] = useState<File[]>([])
+  const [seleccion, setSeleccion] = useState<SeleccionArchivos>(SELECCION_VACIA)
 
   const [fase, setFase] = useState<Fase>('form')
   const [progreso, setProgreso] = useState<ProgresoSubida | null>(null)
@@ -37,7 +38,7 @@ export function NuevaTraduccionClient() {
     setAvisos([])
 
     if (!nombre.trim()) return setError('Escribe el nombre del cliente.')
-    if (archivos.length === 0) return setError('Agrega al menos un documento.')
+    if (seleccion.nuevos.length === 0) return setError('Agrega al menos un documento.')
 
     setFase('creando')
     const lote = await crearLote({ nombre_cliente: nombre, pais, notas })
@@ -47,11 +48,14 @@ export function NuevaTraduccionClient() {
     }
 
     setFase('subiendo')
-    const { subidos, fallidos } = await subirArchivos(lote.id, archivos, setProgreso)
+    const { subidos, repetidos, fallidos } = await subirArchivos(lote.id, seleccion.nuevos, setProgreso)
     setProgreso(null)
 
-    if (fallidos.length > 0) {
-      setAvisos(fallidos.map((f) => `${f.nombre}: ${f.error}`))
+    if (fallidos.length > 0 || repetidos.length > 0) {
+      setAvisos([
+        ...fallidos.map((f) => `${f.nombre}: ${f.error}`),
+        ...repetidos.map((r) => `${r.nombre}: ya estaba en el lote, se omitió`),
+      ])
     }
 
     if (subidos.length === 0) {
@@ -145,7 +149,7 @@ export function NuevaTraduccionClient() {
 
       <div className="bg-white rounded-2xl border border-[#E5E5E5] p-5 sm:p-6">
         <h3 className="text-sm font-bold text-[#0A0A0A] mb-3">Documentos</h3>
-        <DocumentosPicker archivos={archivos} onChange={setArchivos} disabled={ocupado} />
+        <DocumentosPicker seleccion={seleccion} onChange={setSeleccion} disabled={ocupado} />
       </div>
 
       {error && (
@@ -180,7 +184,7 @@ export function NuevaTraduccionClient() {
       <div className="flex flex-col sm:flex-row sm:items-center gap-3">
         <button
           type="submit"
-          disabled={ocupado || archivos.length === 0}
+          disabled={ocupado || seleccion.nuevos.length === 0}
           className="inline-flex items-center justify-center gap-2 bg-[#C8FF00] text-[#2F4A00] font-bold text-sm px-5 py-3 rounded-lg hover:bg-[#b8ef00] transition-colors min-h-[48px] disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {ocupado ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}

@@ -10,6 +10,7 @@ import { TranslatedDocuments } from '../../../_components/TranslatedDocuments'
 import { labelPais, normalizeDocStatus, type TranslatedDocument } from '@/lib/traducciones/shared'
 import { DocumentosPicker } from '../../_components/DocumentosPicker'
 import { subirArchivos, type ProgresoSubida } from '../../_components/subirArchivos'
+import { SELECCION_VACIA, type SeleccionArchivos } from '@/lib/traducciones/preparar-archivos'
 import { actualizarLote, eliminarLote, enviarLoteAn8n, reenviarLote } from '../../_actions/traducciones-actions'
 
 interface Lote {
@@ -51,7 +52,8 @@ export function LoteDetailClient({
   const [guardandoNotas, setGuardandoNotas] = useState(false)
 
   const [agregando, setAgregando] = useState(false)
-  const [nuevos, setNuevos] = useState<File[]>([])
+  const [seleccion, setSeleccion] = useState<SeleccionArchivos>(SELECCION_VACIA)
+  const nuevos = seleccion.nuevos
   const [subiendo, setSubiendo] = useState(false)
   const [progreso, setProgreso] = useState<ProgresoSubida | null>(null)
   // n8n no respondió a un envío de esta sesión: hay que poder reintentar
@@ -119,15 +121,22 @@ export function LoteDetailClient({
     setError('')
     setAviso('')
 
-    const { subidos, fallidos } = await subirArchivos(lote.id, nuevos, setProgreso)
+    const { subidos, repetidos, fallidos } = await subirArchivos(lote.id, nuevos, setProgreso)
     setProgreso(null)
 
-    if (fallidos.length > 0) {
-      setAviso(`No se subieron: ${fallidos.map((f) => f.nombre).join(', ')}.`)
-    }
+    const partes: string[] = []
+    if (repetidos.length > 0) partes.push(`Ya estaban en el lote, se omitieron: ${repetidos.map((r) => r.nombre).join(', ')}.`)
+    if (fallidos.length > 0) partes.push(`No se subieron: ${fallidos.map((f) => f.nombre).join(', ')}.`)
+    if (partes.length > 0) setAviso(partes.join(' '))
 
     if (subidos.length === 0) {
       setSubiendo(false)
+      // Sin nada nuevo no se dispara n8n: no hay nada que traducir.
+      if (fallidos.length === 0) {
+        setSeleccion(SELECCION_VACIA)
+        setAgregando(false)
+        return
+      }
       return setError('No se pudo subir ningún archivo.')
     }
 
@@ -140,7 +149,7 @@ export function LoteDetailClient({
       setError(envio.error || 'Los archivos se subieron pero n8n no respondió. Usa "Reintentar".')
     }
 
-    setNuevos([])
+    setSeleccion(SELECCION_VACIA)
     setAgregando(false)
     router.refresh()
   }
@@ -322,7 +331,7 @@ export function LoteDetailClient({
       {agregando && (
         <div className="bg-white rounded-xl border border-[#E5E5E5] p-4 space-y-3">
           <h2 className="text-[11px] font-semibold uppercase tracking-wider text-[#6B6B6B]">Agregar documentos</h2>
-          <DocumentosPicker archivos={nuevos} onChange={setNuevos} disabled={subiendo} />
+          <DocumentosPicker seleccion={seleccion} onChange={setSeleccion} loteId={lote.id} disabled={subiendo} />
 
           {subiendo && progreso && (
             <div role="status" aria-live="polite">
@@ -350,7 +359,7 @@ export function LoteDetailClient({
             </button>
             <button
               type="button"
-              onClick={() => { setAgregando(false); setNuevos([]) }}
+              onClick={() => { setAgregando(false); setSeleccion(SELECCION_VACIA) }}
               disabled={subiendo}
               className={btnSecundario}
             >
