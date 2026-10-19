@@ -5,12 +5,12 @@ import CustomCursor from '@/components/CustomCursor'
 import { monument, monumentBlack, funnel } from './fonts'
 
 export const metadata: Metadata = {
-  title: 'LATAM VISA — Asesoría Migratoria Premium para Latinoamericanos',
-  description: 'Agencia de asesoría migratoria premium en Brisbane, Australia. Visas de estudio y turismo para Australia, Japón, Inglaterra, Canadá y USA. Atendemos clientes en toda Latinoamérica.',
-  keywords: 'visa australia latinoamericanos, visa estudiante australia, visa turismo australia, agencia visas brisbane, latam visa, asesoría migratoria colombia perú méxico',
+  title: 'LATAM VISA — Visas de turismo y estudio para latinoamericanos',
+  description: 'Consultoría de viajes y educación en Brisbane, Australia. Visas de estudio y turismo para Australia, Japón, Inglaterra, Canadá y USA. Atendemos clientes en toda Latinoamérica.',
+  keywords: 'visa australia latinoamericanos, visa estudiante australia, visa turismo australia, agencia visas brisbane, latam visa',
   openGraph: {
     title: 'LATAM VISA — Tu puerta de entrada a Australia',
-    description: 'Asesoría migratoria premium para latinoamericanos. Visas de estudio, turismo y más.',
+    description: 'Consultoría de viajes y educación para latinoamericanos. Visas de estudio, turismo y más.',
     url: 'https://www.latamvisatravel.com',
     siteName: 'LATAM VISA',
     images: [{ url: '/logo.png', width: 800, height: 400, alt: 'LATAM VISA Logo' }],
@@ -19,7 +19,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'LATAM VISA — Asesoría Migratoria Premium',
+    title: 'LATAM VISA — Tu puerta de entrada a Australia',
     description: 'Tu puerta de entrada a Australia.',
     images: ['/logo.png'],
   },
@@ -46,7 +46,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               "url": "https://www.latamvisatravel.com",
               "logo": "https://www.latamvisatravel.com/logo.png",
               "image": "https://www.latamvisatravel.com/logo.png",
-              "description": "Agencia de asesoría migratoria premium para latinoamericanos. Especializada en visas de estudio y turismo para Australia, Japón, Inglaterra, Canadá y Estados Unidos.",
+              "description": "Consultoría de viajes y educación para latinoamericanos. Especializada en visas de estudio y turismo para Australia, Japón, Inglaterra, Canadá y Estados Unidos.",
               "address": {
                 "@type": "PostalAddress",
                 "addressLocality": "Brisbane",
@@ -69,7 +69,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 "Visa de Estudiante Australia",
                 "Visa de Turismo Australia", 
                 "Visa USA desde Australia",
-                "Asesoría Migratoria"
+                "Consultoría de viajes y educación"
               ],
               "sameAs": [
                 "https://www.instagram.com/latamvisa",
