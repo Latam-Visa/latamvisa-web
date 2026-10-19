@@ -21,6 +21,12 @@ export const metadata: Metadata = {
     locale: 'es_LA',
     type: 'website',
   },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Dos Vacaciones — una pa’ Europa, otra pa’ Latam',
+    description:
+      '¿Vuelves de Australia a Latinoamérica? Haz escala de unos días en Europa: te ayudamos a planear las dos vacaciones, con rutas, fechas e itinerario.',
+  },
   alternates: { canonical: 'https://www.latamvisatravel.com/viajes' },
 }
 

@@ -3,7 +3,7 @@ import { LandingHero } from './_components/LandingHero'
 
 export const metadata: Metadata = {
   title: 'LATAM VISA — Latinoamérica',
-  description: 'El puente entre tus raíces y el mundo. Visas y asesoría migratoria premium para latinoamericanos.',
+  description: 'El puente entre tus raíces y el mundo. Visas de turismo y estudio para latinoamericanos.',
   openGraph: {
     title: 'LATAM VISA — Latinoamérica',
     description: 'El puente entre tus raíces y el mundo.',
