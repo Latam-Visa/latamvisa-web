@@ -1,10 +1,11 @@
 import { z } from 'zod'
+import { ESTILOS, MAX_ADULTOS, MAX_CIUDADES, MAX_NINOS } from './opciones'
 
 /* Esquema de la solicitud "Dos Vacaciones". Lo usan el formulario (cliente)
    y POST /api/viajes/cotizar (servidor), que siempre vuelve a validar. Sin
    datos confidenciales: se puede importar desde el navegador. */
 
-export const ESTILOS = ['rumba', 'cultura', 'playa', 'comida', 'descanso'] as const
+export { ESTILOS }
 
 // Campo trampa: invisible para personas, los bots lo llenan.
 export const CAMPO_HONEYPOT = 'sitio_web'
@@ -16,6 +17,7 @@ const fecha = z.iso.date({ error: 'Fecha inválida.' })
 const celular = z
   .string()
   .trim()
+  .min(1, { error: 'Escribe tu celular.' })
   .regex(/^\+?[\d\s().-]+$/, { error: 'Escribe el celular solo con números (puede empezar con +).' })
   .refine((v) => {
     const digitos = v.replace(/\D/g, '').length
@@ -32,11 +34,11 @@ export const solicitudSchema = z
     fecha_ida: fecha,
     fecha_vuelta: fecha,
     europa_momento: z.enum(['ida', 'vuelta'], { error: 'Escoge si la escala va de ida o de vuelta.' }),
-    adultos: z.coerce.number().int().min(1, { error: 'Mínimo 1 adulto.' }).max(10),
-    ninos: z.coerce.number().int().min(0).max(10).default(0),
+    adultos: z.coerce.number().int().min(1, { error: 'Mínimo 1 adulto.' }).max(MAX_ADULTOS, { error: `Máximo ${MAX_ADULTOS} adultos.` }),
+    ninos: z.coerce.number().int().min(0).max(MAX_NINOS, { error: `Máximo ${MAX_NINOS} niños.` }).default(0),
     pasaporte: z.string().trim().min(2, { error: 'Escoge tu pasaporte.' }).max(60),
     visa_usa: z.boolean(),
-    ciudades_europa: z.array(z.string().trim().min(1).max(60)).max(4).default([]),
+    ciudades_europa: z.array(z.string().trim().min(1).max(60)).max(MAX_CIUDADES, { error: `Escoge máximo ${MAX_CIUDADES} ciudades.` }).default([]),
     sorprendanme: z.boolean().default(false),
     dias_europa: z.coerce.number().int().min(2, { error: 'Mínimo 2 noches en Europa.' }).max(21, { error: 'Máximo 21 noches en Europa.' }),
     estilo: z.array(z.enum(ESTILOS)).max(ESTILOS.length).default([]),

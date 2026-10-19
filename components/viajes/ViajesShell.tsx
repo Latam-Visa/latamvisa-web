@@ -19,13 +19,15 @@ export default function ViajesShell({ children }: { children: React.ReactNode })
   /* El flotante se esconde en dos pantallas concretas:
      - #hero, porque en móvil se montaba encima del CTA circular (medido:
        13px de solape a 390px) y porque el hero ya tiene su propia llamada.
+     - #cotiza, porque en móvil tapaba el botón "Siguiente" del formulario
+       (otro neón en la misma pantalla) y el formulario ya ofrece WhatsApp.
      - #contacto, que es en sí un CTA neón: dejarlo sería un segundo acento
        neón en la misma pantalla, y además redundante.
      En todo el resto del scroll sigue visible. */
   const [fabHidden, setFabHidden] = useState(true)
 
   useEffect(() => {
-    const targets = ['hero', 'contacto']
+    const targets = ['hero', 'cotiza', 'contacto']
       .map((id) => document.getElementById(id))
       .filter((el): el is HTMLElement => !!el)
     if (!targets.length) return
