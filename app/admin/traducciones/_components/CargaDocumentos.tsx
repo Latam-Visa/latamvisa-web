@@ -11,9 +11,7 @@ const ACCEPT = 'application/pdf,image/jpeg,image/png'
 function FilaCarga({ item, onQuitar, onReintentar }: { item: ItemCarga; onQuitar: () => void; onReintentar: () => void }) {
   const repetido = item.estado === 'repetido'
   const nota = repetido
-    ? item.motivoRepetido === 'tanda'
-      ? `se omite · repetido de “${item.nombreAnterior}”`
-      : item.nombreAnterior && item.nombreAnterior !== item.nombre
+    ? item.nombreAnterior && item.nombreAnterior !== item.nombre
         ? `se omite · ya subido como “${item.nombreAnterior}”`
         : 'se omite · ya subido'
     : null
@@ -92,15 +90,20 @@ function FilaCarga({ item, onQuitar, onReintentar }: { item: ItemCarga; onQuitar
 export function CargaDocumentos({
   obtenerLoteId,
   antesDeSoltar,
-  pendientesPrevios = 0,
+  pendientesPrevios = [],
+  antesDeEnviar,
   onEnviado,
 }: {
   // Crea el lote si hace falta (en /nueva) y devuelve su id.
   obtenerLoteId: () => Promise<string>
   // Mensaje si todavía no se puede soltar (p. ej. falta el nombre del cliente).
   antesDeSoltar?: () => string | null
-  // Cargados en otra visita y nunca enviados: "Ya terminé" también los manda.
-  pendientesPrevios?: number
+  /* Ids de filas cargadas en otra visita y nunca enviadas: "Ya terminé" también
+     las manda. Son ids y no un número porque la página se refresca sola mientras
+     traduce, y un conteo del servidor incluiría lo que se está subiendo ahora. */
+  pendientesPrevios?: string[]
+  // Corre justo antes de "Ya terminé" (p. ej. guardar el país elegido en /nueva).
+  antesDeEnviar?: (loteId: string) => Promise<void>
   onEnviado: (enviados: number, loteId: string) => void
 }) {
   const { items, aviso, agregar, quitar, reintentar, limpiar } = useCargaLote(obtenerLoteId)
@@ -110,7 +113,7 @@ export function CargaDocumentos({
   const inputRef = useRef<HTMLInputElement>(null)
 
   const { cargados, enCurso, total } = resumenCarga(items)
-  const paraEnviar = cargados + pendientesPrevios
+  const paraEnviar = new Set([...pendientesPrevios, ...items.flatMap((i) => (i.estado === 'cargado' && i.docId ? [i.docId] : []))]).size
   const omitidos = items.filter((i) => i.estado === 'repetido').length
 
   const soltar = (lista: FileList | File[]) => {
@@ -125,6 +128,7 @@ export function CargaDocumentos({
     setError('')
     try {
       const loteId = await obtenerLoteId()
+      await antesDeEnviar?.(loteId)
       const res = await fetch(`/api/traducciones/${loteId}/enviar`, { method: 'POST' })
       const json = await res.json().catch(() => ({}))
       if (!res.ok) throw new Error(json.error || 'No pudimos enviar a traducir.')

@@ -45,8 +45,8 @@ export default async function LoteDetallePage({ params }: { params: { id: string
     .eq('application_id', params.id)
     .is('enviado_at', null)
   if (errorPendientes) console.error('[TRADUCCIONES] Error contando pendientes:', errorPendientes)
-  const pendientes = pendientesDb?.length || 0
-  const archivosSubidos = Math.max(0, enStorage - pendientes)
+  const pendientesIds = (pendientesDb || []).map((f) => f.id)
+  const archivosSubidos = Math.max(0, enStorage - pendientesIds.length)
 
   return (
     <div className="max-w-[1200px] mx-auto w-full pb-6">
@@ -60,7 +60,7 @@ export default async function LoteDetallePage({ params }: { params: { id: string
         }}
         documentos={documentos}
         archivosSubidos={archivosSubidos}
-        pendientes={pendientes}
+        pendientesIds={pendientesIds}
       />
     </div>
   )

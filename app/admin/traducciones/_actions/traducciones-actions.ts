@@ -246,7 +246,7 @@ export async function reenviarLote(
 
 export async function actualizarLote(
   loteId: string,
-  campos: { nombre_cliente?: string; notas?: string },
+  campos: { nombre_cliente?: string; notas?: string; pais?: string },
 ): Promise<{ success: boolean; error?: string }> {
   const update: Record<string, any> = { updated_at: new Date().toISOString() }
 
@@ -256,6 +256,10 @@ export async function actualizarLote(
     update.nombre_cliente = nombre
   }
   if (campos.notas !== undefined) update.notas = campos.notas.trim() || null
+  if (campos.pais !== undefined) {
+    if (!PAISES_VALIDOS.has(campos.pais)) return { success: false, error: 'País inválido.' }
+    update.pais = campos.pais
+  }
 
   const { error } = await supabaseAdmin.from('lotes_traduccion').update(update).eq('id', loteId)
 

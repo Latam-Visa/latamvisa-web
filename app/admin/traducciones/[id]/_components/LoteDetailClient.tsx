@@ -35,14 +35,15 @@ export function LoteDetailClient({
   lote,
   documentos,
   archivosSubidos,
-  pendientes,
+  pendientesIds,
 }: {
   lote: Lote
   documentos: TranslatedDocument[]
   archivosSubidos: number
-  // Cargados en documentos_lote y nunca enviados a n8n (enviado_at NULL).
-  pendientes: number
+  // Filas de documentos_lote cargadas y nunca enviadas a n8n (enviado_at NULL).
+  pendientesIds: string[]
 }) {
+  const pendientes = pendientesIds.length
   const router = useRouter()
 
   const [nombre, setNombre] = useState(lote.nombre_cliente)
@@ -328,7 +329,7 @@ export function LoteDetailClient({
           </div>
           <CargaDocumentos
             obtenerLoteId={async () => lote.id}
-            pendientesPrevios={pendientes}
+            pendientesPrevios={pendientesIds}
             onEnviado={(enviados) => {
               setAgregando(false)
               setAviso(enviados > 0 ? '' : 'No había documentos nuevos para enviar.')
