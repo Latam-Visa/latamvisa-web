@@ -8,10 +8,8 @@ import { es } from 'date-fns/locale'
 import { Loader2, Plus, Send, AlertCircle, Pencil, ArrowLeft, RotateCw, Trash2 } from 'lucide-react'
 import { TranslatedDocuments } from '../../../_components/TranslatedDocuments'
 import { labelPais, normalizeDocStatus, type TranslatedDocument } from '@/lib/traducciones/shared'
-import { DocumentosPicker } from '../../_components/DocumentosPicker'
-import { subirArchivos, type ProgresoSubida } from '../../_components/subirArchivos'
-import { SELECCION_VACIA, type SeleccionArchivos } from '@/lib/traducciones/preparar-archivos'
-import { actualizarLote, eliminarLote, enviarLoteAn8n, reenviarLote } from '../../_actions/traducciones-actions'
+import { CargaDocumentos } from '../../_components/CargaDocumentos'
+import { actualizarLote, eliminarLote, reenviarLote } from '../../_actions/traducciones-actions'
 
 interface Lote {
   id: string
@@ -37,10 +35,13 @@ export function LoteDetailClient({
   lote,
   documentos,
   archivosSubidos,
+  pendientes,
 }: {
   lote: Lote
   documentos: TranslatedDocument[]
   archivosSubidos: number
+  // Cargados en documentos_lote y nunca enviados a n8n (enviado_at NULL).
+  pendientes: number
 }) {
   const router = useRouter()
 
@@ -52,13 +53,7 @@ export function LoteDetailClient({
   const [guardandoNotas, setGuardandoNotas] = useState(false)
 
   const [agregando, setAgregando] = useState(false)
-  const [seleccion, setSeleccion] = useState<SeleccionArchivos>(SELECCION_VACIA)
-  const nuevos = seleccion.nuevos
-  const [subiendo, setSubiendo] = useState(false)
-  const [progreso, setProgreso] = useState<ProgresoSubida | null>(null)
-  // n8n no respondió a un envío de esta sesión: hay que poder reintentar
-  // aunque todavía no exista ninguna fila con error.
-  const [envioFallido, setEnvioFallido] = useState(false)
+  const [enviandoPendientes, setEnviandoPendientes] = useState(false)
 
   const [reenviando, setReenviando] = useState(false)
   const [eliminando, setEliminando] = useState(false)
@@ -115,43 +110,21 @@ export function LoteDetailClient({
     router.refresh()
   }
 
-  const subirNuevos = async () => {
-    if (nuevos.length === 0) return
-    setSubiendo(true)
+  /* Misma acción que "Ya terminé" (POST /api/traducciones/[id]/enviar), desde
+     el aviso ámbar: archivos que quedaron cargados y nadie mandó a traducir. */
+  const enviarPendientesAhora = async () => {
+    setEnviandoPendientes(true)
     setError('')
-    setAviso('')
-
-    const { subidos, repetidos, fallidos } = await subirArchivos(lote.id, nuevos, setProgreso)
-    setProgreso(null)
-
-    const partes: string[] = []
-    if (repetidos.length > 0) partes.push(`Ya estaban en el lote, se omitieron: ${repetidos.map((r) => r.nombre).join(', ')}.`)
-    if (fallidos.length > 0) partes.push(`No se subieron: ${fallidos.map((f) => f.nombre).join(', ')}.`)
-    if (partes.length > 0) setAviso(partes.join(' '))
-
-    if (subidos.length === 0) {
-      setSubiendo(false)
-      // Sin nada nuevo no se dispara n8n: no hay nada que traducir.
-      if (fallidos.length === 0) {
-        setSeleccion(SELECCION_VACIA)
-        setAgregando(false)
-        return
-      }
-      return setError('No se pudo subir ningún archivo.')
+    try {
+      const res = await fetch(`/api/traducciones/${lote.id}/enviar`, { method: 'POST' })
+      const json = await res.json().catch(() => ({}))
+      if (!res.ok) throw new Error(json.error || 'No pudimos enviar a traducir.')
+      router.refresh()
+    } catch (err: any) {
+      setError(err?.message || 'No pudimos enviar a traducir.')
+    } finally {
+      setEnviandoPendientes(false)
     }
-
-    // Solo los nuevos: los que ya estaban se procesaron en su propio envío.
-    const envio = await enviarLoteAn8n(lote.id, subidos)
-    setSubiendo(false)
-
-    if (!envio.success) {
-      setEnvioFallido(true)
-      setError(envio.error || 'Los archivos se subieron pero n8n no respondió. Usa "Reintentar".')
-    }
-
-    setSeleccion(SELECCION_VACIA)
-    setAgregando(false)
-    router.refresh()
   }
 
   const reintentar = async () => {
@@ -160,7 +133,6 @@ export function LoteDetailClient({
     const res = await reenviarLote(lote.id)
     setReenviando(false)
     if (!res.success) return setError(res.error || 'Seguimos sin poder avisarle a n8n.')
-    setEnvioFallido(false)
     setAviso(`Reenviado: ${res.enviados} documento(s). Vuelve en unos 15 minutos.`)
     router.refresh()
   }
@@ -176,7 +148,7 @@ export function LoteDetailClient({
     router.push('/admin/traducciones')
   }
 
-  const ocupado = subiendo || reenviando || eliminando
+  const ocupado = reenviando || eliminando || enviandoPendientes
 
   return (
     <div className="space-y-3">
@@ -241,7 +213,7 @@ export function LoteDetailClient({
               <Plus className="w-3.5 h-3.5" />
               Documentos
             </button>
-            {(hayErrores || envioFallido) && (
+            {hayErrores && (
               <button type="button" onClick={reintentar} disabled={ocupado} className={btnSecundario}>
                 {reenviando ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <RotateCw className="w-3.5 h-3.5" />}
                 Reintentar
@@ -328,44 +300,41 @@ export function LoteDetailClient({
         </div>
       )}
 
+      {pendientes > 0 && !agregando && (
+        <div role="status" className="bg-[#FFFBEB] border border-[#FDE68A] rounded-lg px-3 py-2 flex flex-col sm:flex-row sm:items-center gap-2">
+          <p className="flex-1 min-w-0 text-[13px] text-[#92400E]">
+            <span className="font-semibold">{pendientes} {pendientes === 1 ? 'documento cargado' : 'documentos cargados'}</span>{' '}
+            que no {pendientes === 1 ? 'se ha' : 'se han'} enviado a traducir
+          </p>
+          <button
+            type="button"
+            onClick={enviarPendientesAhora}
+            disabled={ocupado}
+            className="shrink-0 inline-flex items-center justify-center gap-1.5 h-8 px-3 rounded-lg text-[13px] font-bold bg-[#C8FF00] text-[#2F4A00] hover:bg-[#b8ef00] transition-colors disabled:opacity-60"
+          >
+            {enviandoPendientes ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />}
+            Enviar a traducir
+          </button>
+        </div>
+      )}
+
       {agregando && (
         <div className="bg-white rounded-xl border border-[#E5E5E5] p-4 space-y-3">
-          <h2 className="text-[11px] font-semibold uppercase tracking-wider text-[#6B6B6B]">Agregar documentos</h2>
-          <DocumentosPicker seleccion={seleccion} onChange={setSeleccion} loteId={lote.id} disabled={subiendo} />
-
-          {subiendo && progreso && (
-            <div role="status" aria-live="polite">
-              <p className="text-xs text-[#6B6B6B] mb-1.5 truncate">
-                Archivo {progreso.actual} de {progreso.total} · {progreso.nombre}
-              </p>
-              <div className="h-1.5 rounded-full bg-[#F5F5F0] overflow-hidden">
-                <div
-                  className="h-full bg-[#C8FF00] transition-[width] duration-300"
-                  style={{ width: `${Math.round((progreso.actual / progreso.total) * 100)}%` }}
-                />
-              </div>
-            </div>
-          )}
-
-          <div className="flex flex-wrap gap-2">
-            <button
-              type="button"
-              onClick={subirNuevos}
-              disabled={subiendo || nuevos.length === 0}
-              className="inline-flex items-center gap-1.5 h-8 px-3 rounded-lg text-[13px] font-bold bg-[#C8FF00] text-[#2F4A00] hover:bg-[#b8ef00] transition-colors disabled:opacity-50"
-            >
-              {subiendo ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />}
-              {subiendo ? 'Subiendo…' : `Enviar ${nuevos.length || ''} a traducir`}
-            </button>
-            <button
-              type="button"
-              onClick={() => { setAgregando(false); setSeleccion(SELECCION_VACIA) }}
-              disabled={subiendo}
-              className={btnSecundario}
-            >
-              Cancelar
+          <div className="flex items-center justify-between gap-2">
+            <h2 className="text-[11px] font-semibold uppercase tracking-wider text-[#6B6B6B]">Agregar documentos</h2>
+            <button type="button" onClick={() => { setAgregando(false); router.refresh() }} className={btnSecundario}>
+              Cerrar
             </button>
           </div>
+          <CargaDocumentos
+            obtenerLoteId={async () => lote.id}
+            pendientesPrevios={pendientes}
+            onEnviado={(enviados) => {
+              setAgregando(false)
+              setAviso(enviados > 0 ? '' : 'No había documentos nuevos para enviar.')
+              router.refresh()
+            }}
+          />
         </div>
       )}
 

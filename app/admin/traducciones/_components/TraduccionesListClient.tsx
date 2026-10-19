@@ -15,6 +15,8 @@ export interface LoteResumen {
   traducidos: number
   originales: number
   conError: number
+  // Cargados sin enviar a traducir.
+  pendientes: number
 }
 
 export function TraduccionesListClient({ lotes }: { lotes: LoteResumen[] }) {
@@ -84,6 +86,15 @@ export function TraduccionesListClient({ lotes }: { lotes: LoteResumen[] }) {
                         {' · '}
                         {lote.originales}<span className="hidden sm:inline"> {lote.originales === 1 ? 'original' : 'originales'}</span>
                         <span className="sm:hidden"> orig.</span>
+                      </span>
+                    )}
+                    {lote.pendientes > 0 && (
+                      <span
+                        className="inline-flex items-center gap-1 font-medium text-[#92400E]"
+                        title={`${lote.pendientes} cargados sin enviar a traducir`}
+                      >
+                        <span className="w-1.5 h-1.5 rounded-full bg-[#F59E0B]" aria-hidden />
+                        {lote.pendientes}<span className="hidden sm:inline"> sin enviar</span>
                       </span>
                     )}
                     {lote.conError > 0 && (

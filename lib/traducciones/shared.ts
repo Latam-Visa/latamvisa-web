@@ -76,7 +76,8 @@ export const ALLOWED_UPLOAD_TYPES = [
   'image/png',
 ] as const
 
-export const MAX_FILES_POR_LOTE = 20
+// Por tanda (lo que se suelta de una vez), no por lote.
+export const MAX_FILES_POR_LOTE = 30
 export const MAX_FILE_SIZE_BYTES = 50 * 1024 * 1024
 
 export function extForMimeType(fileType: string): string {
