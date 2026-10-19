@@ -1,9 +1,9 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { MENSAJE_SIN_RANGO, procesarSolicitud } from './solicitud'
+import { solicitudSchema } from './schema'
 
 // Base, datos y correo simulados: estos tests no tocan Supabase ni Resend.
-const insert = vi.fn()
-const enviarCorreo = vi.fn()
-const getConfig = vi.fn()
+const { insert, enviarCorreo, getConfig } = vi.hoisted(() => ({ insert: vi.fn(), enviarCorreo: vi.fn(), getConfig: vi.fn() }))
 
 vi.mock('@/lib/supabase/admin', () => ({
   supabaseAdmin: { from: () => ({ insert: (fila: unknown) => ({ select: () => ({ single: () => insert(fila) }) }) }) },
@@ -15,9 +15,6 @@ vi.mock('./data', () => ({
   getRutasVuelo: async () => [],
   getGuias: async () => [{ id: 'g1', is_active: true, ciudad: 'Barcelona', pais: 'España', desde_aeropuerto: 'Aerobús', como_moverse: null, donde_quedarse: null, imperdibles: null, tip_parcero: null, comunidad_latina: null }],
 }))
-
-const { procesarSolicitud, MENSAJE_SIN_RANGO } = await import('./solicitud')
-const { solicitudSchema } = await import('./schema')
 
 const valido = {
   nombre: 'Prueba', email: 'prueba@example.com', celular: '+61 426 779 734', ciudad_salida: 'BNE', pais_latam: 'Colombia',
@@ -40,12 +37,25 @@ describe('procesarSolicitud', () => {
     expect(insert.mock.calls[0][0]).toMatchObject({ nombre: 'Prueba', rango_min_aud: null, rango_max_aud: null, estado: 'nueva', desglose_interno: { error_calculo: 'config caída' } })
   })
 
-  it('si falla el insert, avisa al admin por correo con todos los datos', async () => {
+  it('si falla el insert, el correo interno sale igual marcado SIN GUARDAR y con todos los datos', async () => {
     insert.mockResolvedValue({ data: null, error: { message: 'tabla caída' } })
     const r = await procesarSolicitud(solicitudSchema.parse(valido))
     expect(r.solicitud_id).toBeNull()
-    expect(enviarCorreo).toHaveBeenCalledOnce()
-    expect(enviarCorreo.mock.calls[0][0].text).toContain('prueba@example.com')
+    expect(enviarCorreo).toHaveBeenCalledTimes(2)
+    const interno = enviarCorreo.mock.calls.map((c) => c[0]).find((m) => m.subject.includes('Nuevo lead'))
+    expect(interno.subject).toMatch(/^⚠️ SIN GUARDAR — Nuevo lead Dos Vacaciones — Prueba/)
+    expect(interno.html).toContain('prueba@example.com')
+    expect(interno.html).toContain('+61 426 779 734')
+  })
+
+  it('manda el correo al cliente y el interno; si Resend falla, el flujo sigue', async () => {
+    enviarCorreo.mockRejectedValue(new Error('resend caído'))
+    const r = await procesarSolicitud(solicitudSchema.parse(valido))
+    expect(r.ok).toBe(true)
+    expect(r.solicitud_id).toBe('sol-1')
+    const [cliente, interno] = enviarCorreo.mock.calls.map((c) => c[0])
+    expect(cliente).toMatchObject({ to: 'prueba@example.com', subject: 'Tu Euro Trip antes de Latam — ya lo estamos armando ✈️' })
+    expect(interno).toMatchObject({ to: 'future@latamvisas.com.au', subject: 'Nuevo lead Dos Vacaciones — Prueba — Barcelona' })
   })
 
   it('lo que vuelve al cliente no trae desglose ni netas', async () => {
