@@ -4,6 +4,7 @@ import { supabaseAdmin } from '@/lib/supabase/admin'
 import { revalidatePath } from 'next/cache'
 import { v4 as uuidv4 } from 'uuid'
 import { dispatchTraduccion, type DispatchDoc } from '@/lib/traducciones/dispatch'
+import { HASH_VALIDO } from '@/lib/traducciones/preparar-archivos'
 import {
   construirNombreEnStorage,
   extForMimeType,
@@ -75,6 +76,70 @@ export async function getLoteUploadUrl(
     console.error('[TRADUCCIONES] getLoteUploadUrl:', err)
     return { success: false, error: 'Ocurrió un error preparando la subida.' }
   }
+}
+
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+
+/* Hashes de esta tanda que ya existen en el lote (hash -> nombre con que
+   entraron). Sirve para mostrar "se omiten" antes de subir nada. */
+export async function hashesEnLote(
+  loteId: string,
+  hashes: string[],
+): Promise<{ success: boolean; existentes: { hash: string; nombre_original: string }[]; error?: string }> {
+  if (!UUID.test(loteId)) return { success: false, existentes: [], error: 'Traducción inválida.' }
+  const validos = Array.from(new Set(hashes)).filter((h) => HASH_VALIDO.test(h)).slice(0, 200)
+  if (validos.length === 0) return { success: true, existentes: [] }
+
+  const { data, error } = await supabaseAdmin
+    .from('documentos_lote')
+    .select('hash, nombre_original')
+    .eq('application_id', loteId)
+    .in('hash', validos)
+
+  if (error) {
+    console.error('[TRADUCCIONES] Error consultando hashes del lote:', error)
+    return { success: false, existentes: [], error: 'No pudimos revisar qué documentos ya están en el lote.' }
+  }
+  return { success: true, existentes: data || [] }
+}
+
+/* Registra en documentos_lote un archivo que ya se subió a Storage. Si el
+   índice único (application_id, hash) lo rechaza — otra subida del mismo
+   archivo ganó la carrera —, no es un error: se borra lo que se subió y se
+   informa como repetido. Cualquier otro fallo también borra el archivo, para
+   que todo lo que hay en Storage esté registrado (si no, no se detectaría
+   como repetido la próxima vez). */
+export async function registrarDocumentoLote(
+  loteId: string,
+  doc: { storage_path: string; hash: string; nombre_original: string; bytes: number },
+): Promise<{ estado: 'registrado' | 'repetido' | 'error'; nombreAnterior?: string | null; error?: string }> {
+  if (!UUID.test(loteId) || !HASH_VALIDO.test(doc.hash) || !doc.storage_path.startsWith(`${carpetaLote(loteId)}/`)) {
+    return { estado: 'error', error: 'Datos de subida inválidos.' }
+  }
+
+  const { error } = await supabaseAdmin.from('documentos_lote').insert({
+    application_id: loteId,
+    storage_path: doc.storage_path,
+    hash: doc.hash,
+    nombre_original: doc.nombre_original,
+    bytes: doc.bytes,
+  })
+  if (!error) return { estado: 'registrado' }
+
+  await supabaseAdmin.storage.from(VISA_APPLICATIONS_BUCKET).remove([doc.storage_path])
+
+  if (error.code === '23505') {
+    const { data } = await supabaseAdmin
+      .from('documentos_lote')
+      .select('nombre_original')
+      .eq('application_id', loteId)
+      .eq('hash', doc.hash)
+      .maybeSingle()
+    return { estado: 'repetido', nombreAnterior: data?.nombre_original ?? null }
+  }
+
+  console.error('[TRADUCCIONES] Error registrando documento del lote:', error)
+  return { estado: 'error', error: 'No se pudo registrar el archivo.' }
 }
 
 /* Paso 5 aislado, para poder reintentarlo solo. Regenera las signed URLs de
@@ -171,6 +236,7 @@ export async function eliminarLote(loteId: string): Promise<{ success: boolean; 
   }
 
   await supabaseAdmin.from('documentos_traducidos').delete().eq('application_id', loteId)
+  await supabaseAdmin.from('documentos_lote').delete().eq('application_id', loteId)
 
   const { error } = await supabaseAdmin.from('lotes_traduccion').delete().eq('id', loteId)
   if (error) {
