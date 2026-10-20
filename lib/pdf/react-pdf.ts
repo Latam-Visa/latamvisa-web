@@ -6,8 +6,10 @@
 //   falla en Terser apenas se usa desde una ruta API o un componente servidor;
 // - empaquetado en la capa de servidor usaría el React "react-server" (sin
 //   Component) y falla al renderizar.
-// Así Node lo carga desde node_modules con el React completo, y el tracer de
-// Next igual lo incluye en las funciones de Vercel.
+// Así Node lo carga desde node_modules con el React completo. Ojo: el tracer
+// de Next NO sigue este import; el paquete viaja a Vercel porque next.config.js
+// lo agrega con outputFileTracingIncludes. Una ruta nueva que genere PDF tiene
+// que sumarse a esa lista.
 
 export type ReactPdf = typeof import('@react-pdf/renderer')
 
