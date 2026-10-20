@@ -4,6 +4,10 @@ import Stripe from 'stripe'
 import { Resend } from 'resend'
 import { supabaseAdmin } from '@/lib/supabase/admin'
 import { construirCorreoPagoAdmin } from '@/lib/emails/pago-admin'
+import { construirCorreoActivacion } from '@/lib/emails/portal'
+import { crearSolicitud } from '@/lib/portal/solicitudes'
+import { nombrePaisPortal } from '@/lib/portal/textos'
+import { SITIO } from '@/lib/portal/supabase'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
@@ -85,6 +89,59 @@ async function notificarPagoAdmin(session: Stripe.Checkout.Session) {
   console.log(`[PAGO] Correo admin enviado: ${session.id}`)
 }
 
+/* País del pago, con la misma clave que usa el resto del código (usa, canada,
+   japon...). Si no se reconoce el producto, el mismo respaldo que ya usa el
+   flujo de /agendar más abajo: metadata.destino o 'canada'. */
+async function paisDelPago(session: Stripe.Checkout.Session): Promise<string> {
+  if (session.metadata?.tipo === 'cotizacion' && session.metadata?.pais) return session.metadata.pais
+  const { destino } = await detectarDestino(session)
+  if (destino && destino !== 'cotizacion') return destino
+  console.warn(`[PORTAL] País no reconocido para ${session.id}; se usa el respaldo del webhook.`)
+  return session.metadata?.destino || 'canada'
+}
+
+async function servicioDelPago(session: Stripe.Checkout.Session): Promise<string | null> {
+  const lineItems = await stripe.checkout.sessions.listLineItems(session.id)
+  const nombres = lineItems.data.map((item) => item.description).filter(Boolean)
+  return nombres.length ? nombres.join(' + ') : null
+}
+
+/* Portal del cliente: crea la fila en `solicitudes` y le manda el correo para
+   crear su cuenta. Idempotente: la solicitud por stripe_session_id (UNIQUE) y
+   el correo por clave en Resend, como el correo admin. Lanza si algo falla,
+   para responder 500 y que Stripe reintente sin duplicar nada. */
+async function abrirPortal(session: Stripe.Checkout.Session) {
+  if (session.payment_status !== 'paid') return
+  const email = session.customer_details?.email || session.customer_email
+  if (!email) {
+    console.warn(`[PORTAL] Pago ${session.id} sin correo: no se crea solicitud.`)
+    return
+  }
+
+  const pais = await paisDelPago(session)
+  const solicitud = await crearSolicitud({
+    email_pago: email,
+    nombre_cliente: session.customer_details?.name || null,
+    pais,
+    servicio: await servicioDelPago(session),
+    stripe_session_id: session.id,
+  })
+  // Reenvío de un evento viejo: la cuenta ya existe, no se manda otro link.
+  if (solicitud.activada_at) return
+
+  const { asunto, html } = construirCorreoActivacion({
+    nombre: session.customer_details?.name,
+    pais: nombrePaisPortal(pais),
+    link: `${SITIO}/activar/${solicitud.token}`,
+  })
+  const { error } = await resend.emails.send(
+    { from: 'LATAM VISA <noreply@latamvisatravel.com>', to: email, subject: asunto, html },
+    { idempotencyKey: `activacion/${session.id}` },
+  )
+  if (error) throw new Error(`Resend: ${error.message}`)
+  console.log(`[PORTAL] Solicitud ${solicitud.nueva ? 'creada' : 'ya existía'} y correo de activación enviado: ${session.id}`)
+}
+
 export async function POST(req: Request) {
   try {
     const body = await req.text()
@@ -144,6 +201,12 @@ export async function POST(req: Request) {
         console.error('[PAGO] Error enviando correo admin (cotización):', e)
         return NextResponse.json({ error: 'No se pudo enviar el correo' }, { status: 500 })
       }
+      try {
+        await abrirPortal(session)
+      } catch (e) {
+        console.error('[PORTAL] Error creando la solicitud (cotización):', e)
+        return NextResponse.json({ error: 'No se pudo crear la solicitud' }, { status: 500 })
+      }
       return NextResponse.json({ received: true }, { status: 200 })
     }
 
@@ -154,6 +217,12 @@ export async function POST(req: Request) {
       } catch (e) {
         console.error('[PAGO] Error enviando correo admin:', e)
         return NextResponse.json({ error: 'No se pudo enviar el correo' }, { status: 500 })
+      }
+      try {
+        await abrirPortal(event.data.object as Stripe.Checkout.Session)
+      } catch (e) {
+        console.error('[PORTAL] Error creando la solicitud:', e)
+        return NextResponse.json({ error: 'No se pudo crear la solicitud' }, { status: 500 })
       }
       // Con los correos al cliente apagados no queda nada más que hacer. Salir
       // acá evita que un fallo posterior (p. ej. listLineItems) devuelva 500 y
