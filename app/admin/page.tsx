@@ -6,9 +6,10 @@ import { formatEs, todayBrisbane } from '@/lib/deadlines/dates'
 export const dynamic = 'force-dynamic'
 
 export default async function AdminHomePage() {
-  const [usaRes, canRes, ukRes, schengenRes, ausRes, pendingIdeasRes, traduccionesRes, cotizacionesRes] = await Promise.all([
+  const [usaRes, canRes, japonRes, ukRes, schengenRes, ausRes, pendingIdeasRes, traduccionesRes, cotizacionesRes] = await Promise.all([
     supabaseAdmin.from('visa_applications_usa').select('id', { count: 'exact', head: true }),
     supabaseAdmin.from('visa_applications_canada').select('id', { count: 'exact', head: true }),
+    supabaseAdmin.from('visa_applications_japon').select('id', { count: 'exact', head: true }),
     supabaseAdmin.from('visa_applications_uk').select('id', { count: 'exact', head: true }),
     supabaseAdmin.from('visa_applications_schengen').select('id', { count: 'exact', head: true }),
     supabaseAdmin.from('aplicaciones_turismo_australia').select('id', { count: 'exact', head: true }),
@@ -43,7 +44,7 @@ export default async function AdminHomePage() {
     }
   }
 
-  const solicitudesCount = [usaRes, canRes, ukRes, schengenRes, ausRes].reduce((sum, r) => sum + (r.count || 0), 0)
+  const solicitudesCount = [usaRes, canRes, japonRes, ukRes, schengenRes, ausRes].reduce((sum, r) => sum + (r.count || 0), 0)
   const ideasPendingCount = pendingIdeasRes.count || 0
   // Si la tabla todavía no existe (migración sin correr), la tarjeta se muestra
   // en cero en vez de tumbar el home entero.

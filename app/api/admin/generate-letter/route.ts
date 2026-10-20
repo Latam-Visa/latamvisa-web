@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { generateIntentionLetterBg as genCanada } from '@/app/aplicar/turismo-canada/_actions/generate-intention-letter'
+import { generateIntentionLetterBg as genJapon } from '@/app/aplicar/turismo-japon/_actions/generate-intention-letter'
 import { generateIntentionLetterBg as genUK } from '@/app/aplicar/turismo-uk/_actions/generate-intention-letter'
 import { generateIntentionLetterBg as genSchengen } from '@/app/aplicar/turismo-schengen/_actions/generate-intention-letter'
 
@@ -18,6 +19,8 @@ export async function POST(request: Request) {
     let result;
     if (destination === 'canada') {
       result = await genCanada(applicationId)
+    } else if (destination === 'japon') {
+      result = await genJapon(applicationId)
     } else if (destination === 'uk') {
       result = await genUK(applicationId)
     } else if (destination === 'schengen') {

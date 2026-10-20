@@ -3,11 +3,12 @@
 import { supabaseAdmin } from '@/lib/supabase/admin'
 import { revalidatePath } from 'next/cache'
 
-type Destination = 'usa' | 'canada' | 'uk' | 'schengen' | 'australia'
+type Destination = 'usa' | 'canada' | 'japon' | 'uk' | 'schengen' | 'australia'
 
 const TABLES: Record<Destination, string> = {
   usa: 'visa_applications_usa',
   canada: 'visa_applications_canada',
+  japon: 'visa_applications_japon',
   uk: 'visa_applications_uk',
   schengen: 'visa_applications_schengen',
   australia: 'aplicaciones_turismo_australia',

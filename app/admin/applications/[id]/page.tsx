@@ -2,6 +2,7 @@ import { supabaseAdmin } from '@/lib/supabase/admin'
 import { notFound } from 'next/navigation'
 import { AdminDetailsClient } from './_components/AdminDetailsClient'
 import { CanadaDetailsClient } from './_components/CanadaDetailsClient'
+import { JaponDetailsClient } from './_components/JaponDetailsClient'
 import { UKDetailsClient } from './_components/UKDetailsClient'
 import { SchengenDetailsClient } from './_components/SchengenDetailsClient'
 import { AustraliaDetailsClient } from './_components/AustraliaDetailsClient'
@@ -92,7 +93,15 @@ export default async function ApplicationDetailsPage({ params }: { params: { id:
             app = ausApp
             destination = 'australia'
           } else {
-            notFound()
+            const { data: japonApp } = await supabaseAdmin
+              .from('visa_applications_japon')
+              .select('*')
+              .eq('id', params.id)
+              .single()
+
+            if (!japonApp) notFound()
+            app = japonApp
+            destination = 'japon'
           }
         }
       }
@@ -110,7 +119,7 @@ export default async function ApplicationDetailsPage({ params }: { params: { id:
       getSignedPhotoUrl(bucket, app.previous_visa_photo_url),
     ])
     signedPhotoUrls = { passport, visaPhoto, previousVisa }
-  } else if (destination === 'canada') {
+  } else if (destination === 'canada' || destination === 'japon') {
     const d = app
     const [docIdPassport, docTies, docBankStatements, docTravelItinerary, docFormsLetters, docUsVisa] = await Promise.all([
       getSignedPhotoUrl(bucket, d.doc_id_passport),
@@ -208,7 +217,7 @@ export default async function ApplicationDetailsPage({ params }: { params: { id:
         </Link>
         <div>
           <h2 className="text-2xl font-bold font-[PPMonumentExtended]">
-            Detalles de Solicitud <span className="text-sm bg-black text-[#C8FF00] px-2 py-1 rounded-md ml-2 align-middle">{destination === 'usa' ? 'USA' : destination === 'canada' ? 'CANADÁ' : destination === 'uk' ? 'UK' : destination === 'australia' ? 'AUSTRALIA' : 'SCHENGEN'}</span>
+            Detalles de Solicitud <span className="text-sm bg-black text-[#C8FF00] px-2 py-1 rounded-md ml-2 align-middle">{destination === 'usa' ? 'USA' : destination === 'canada' ? 'CANADÁ' : destination === 'japon' ? 'JAPÓN' : destination === 'uk' ? 'UK' : destination === 'australia' ? 'AUSTRALIA' : 'SCHENGEN'}</span>
           </h2>
           <p className="text-[#525252] text-sm">ID: {app.id}</p>
         </div>
@@ -218,6 +227,8 @@ export default async function ApplicationDetailsPage({ params }: { params: { id:
         <AdminDetailsClient application={app} signedPhotoUrls={signedPhotoUrls} />
       ) : destination === 'canada' ? (
         <CanadaDetailsClient application={app} signedPhotoUrls={signedPhotoUrls} />
+      ) : destination === 'japon' ? (
+        <JaponDetailsClient application={app} signedPhotoUrls={signedPhotoUrls} />
       ) : destination === 'uk' ? (
         <UKDetailsClient application={app} signedPhotoUrls={signedPhotoUrls} />
       ) : destination === 'australia' ? (

@@ -6,7 +6,7 @@ function formatDate(dateStr: string | undefined): string {
 
 export function getClientConfirmationEmail(
   formData: any,
-  destination: 'usa' | 'canada' | 'uk' | 'schengen' | 'australia' = 'usa',
+  destination: 'usa' | 'canada' | 'japon' | 'uk' | 'schengen' | 'australia' = 'usa',
   attachPdf: boolean = true
 ): string {
   let name = '';
@@ -21,12 +21,12 @@ export function getClientConfirmationEmail(
     visaType = formData.step4Travel?.usaVisaType || 'Turismo';
     travelDate = formatDate(formData.step4Travel?.arrivalDate);
     destName = 'Estados Unidos';
-  } else if (destination === 'canada') {
+  } else if (destination === 'canada' || destination === 'japon') {
     name = `${formData.given_name || ''} ${formData.surname || ''}`.trim();
     email = formData.email || '';
     visaType = formData.apply_for || 'Turismo';
     travelDate = formatDate(formData.entry_date);
-    destName = 'Canadá';
+    destName = destination === 'japon' ? 'Japón' : 'Canadá';
   } else if (destination === 'uk') {
     name = `${formData.first_name || ''} ${formData.last_name || ''}`.trim();
     email = formData.email || '';

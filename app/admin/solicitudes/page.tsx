@@ -40,6 +40,17 @@ const SOURCES: {
     }),
   },
   {
+    table: 'visa_applications_japon',
+    select: '*',
+    destination: 'Japón',
+    normalize: (app) => ({
+      status: app.status || 'nuevo',
+      fullName: `${app.given_name || ''} ${app.surname || ''}`.trim() || '—',
+      email: app.email || '—',
+      visaType: app.apply_for || '—',
+    }),
+  },
+  {
     table: 'visa_applications_uk',
     select: '*',
     destination: 'UK',

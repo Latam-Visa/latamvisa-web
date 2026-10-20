@@ -5,7 +5,7 @@ import React from 'react'
 export async function generateApplicationPdf(
   data: any,
   photoUrls: Record<string, string> = {},
-  destination: 'usa' | 'canada' | 'uk' | 'schengen' = 'usa'
+  destination: 'usa' | 'canada' | 'japon' | 'uk' | 'schengen' = 'usa'
 ): Promise<Buffer> {
   let title = 'Solicitud de Visa'
   let subtitle = ''
@@ -67,8 +67,9 @@ export async function generateApplicationPdf(
       { label: 'Foto visa anterior', dataUri: photoUrls.previousVisa, hasPhotoField: !!data?.step3Passport?.previousVisaPhotoPath },
     ]
 
-  } else if (destination === 'canada') {
-    title = 'Solicitud de Visa Canadá'
+  } else if (destination === 'canada' || destination === 'japon') {
+    // Japón usa el mismo formulario y las mismas columnas que Canadá.
+    title = destination === 'japon' ? 'Solicitud de Visa Japón' : 'Solicitud de Visa Canadá'
     subtitle = `Aplicante: ${data?.given_name || ''} ${data?.surname || ''} | Email: ${data?.email || ''}`
     
     sections = [
