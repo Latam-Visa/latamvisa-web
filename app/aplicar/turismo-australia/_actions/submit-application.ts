@@ -26,7 +26,9 @@ export async function submitAustraliaApplication(
   }
 }
 
-async function executeSubmit(formData: any) {
+// `opciones.solicitudId` amarra la aplicación a la solicitud del portal. El
+// formulario público no lo pasa (queda null) y se comporta igual que siempre.
+export async function executeSubmit(formData: any, opciones: { solicitudId?: string } = {}) {
   const t0 = Date.now()
   console.log('[SUBMIT_AUSTRALIA] Start', new Date().toISOString())
 
@@ -84,9 +86,10 @@ async function executeSubmit(formData: any) {
       .from('aplicaciones_turismo_australia')
       .insert({
         id: applicationId,
+        solicitud_id: opciones.solicitudId ?? null,
         status: 'pending',
         ai_letter_status: 'generating',
-        
+
         // Step 1
         terms_accepted: toBool(step1.terms_accepted),
         currently_outside_australia: toBool(step1.currently_outside_australia),

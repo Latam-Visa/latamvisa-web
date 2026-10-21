@@ -5,6 +5,13 @@ export function Step1() {
   const { register, formState: { errors }, watch } = useFormContext()
   const errs = (errors.step1 as any) || {}
   const data = watch('step1') || {}
+  // El resumen solo tiene sentido si antes se escaneó el pasaporte (que llena
+  // step2). Sin escaneo —como en el formulario dentro de la cuenta— quedaría con
+  // puros guiones, así que no se muestra.
+  const hayPasaporte = Boolean(
+    watch('step2.given_names') || watch('step2.family_name') ||
+    watch('step2.date_of_birth') || watch('step2.passport_number')
+  )
 
   return (
     <div className="space-y-8">
@@ -13,15 +20,17 @@ export function Step1() {
         <p className="text-sm text-[#525252] mb-4">Motivo del viaje y fechas</p>
         
         
-        <div className="mb-6 p-4 bg-white border border-[#E5E5E5] rounded-xl shadow-sm">
-          <h4 className="font-medium mb-3 text-sm">Resumen de pasaporte extraído</h4>
-          <div className="grid grid-cols-2 gap-4 text-sm text-[#525252]">
-            <div><strong>Nombres:</strong> {watch('step2.given_names') || '—'}</div>
-            <div><strong>Apellidos:</strong> {watch('step2.family_name') || '—'}</div>
-            <div><strong>F. Nacimiento:</strong> {watch('step2.date_of_birth') || '—'}</div>
-            <div><strong>Pasaporte:</strong> {watch('step2.passport_number') || '—'}</div>
+        {hayPasaporte && (
+          <div className="mb-6 p-4 bg-white border border-[#E5E5E5] rounded-xl shadow-sm">
+            <h4 className="font-medium mb-3 text-sm">Resumen de pasaporte extraído</h4>
+            <div className="grid grid-cols-2 gap-4 text-sm text-[#525252]">
+              <div><strong>Nombres:</strong> {watch('step2.given_names') || '—'}</div>
+              <div><strong>Apellidos:</strong> {watch('step2.family_name') || '—'}</div>
+              <div><strong>F. Nacimiento:</strong> {watch('step2.date_of_birth') || '—'}</div>
+              <div><strong>Pasaporte:</strong> {watch('step2.passport_number') || '—'}</div>
+            </div>
           </div>
-        </div>
+        )}
 
         <FormField label="¿Aceptas los términos y condiciones?" name="step1.terms_accepted" required error={errs.terms_accepted?.message as string}>
           <div className="flex items-center gap-3">

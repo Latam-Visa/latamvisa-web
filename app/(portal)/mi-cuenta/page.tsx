@@ -1,8 +1,9 @@
 import { redirect } from 'next/navigation'
+import Link from 'next/link'
 import { usuarioActual } from '@/lib/portal/supabase'
 import { estadoEnPalabras, fechaCompra, nombrePaisPortal } from '@/lib/portal/textos'
 import { salir } from '../acciones'
-import { WHATSAPP, enlace, tarjeta, titulo } from '../_componentes/ui'
+import { WHATSAPP, btnPrimario, enlace, tarjeta, titulo } from '../_componentes/ui'
 
 export const dynamic = 'force-dynamic'
 // force-dynamic no apaga el Data Cache de Next para los fetch de supabase-js
@@ -70,7 +71,15 @@ export default async function MiCuentaPage() {
                 </div>
                 {s.servicio && <p className="text-sm text-[#0d2b0d]/70 break-words">{s.servicio}</p>}
                 <p className="inline-flex rounded-full bg-[#C8FF00] px-3 py-1 text-sm font-bold text-[#0d2b0d]">{estadoEnPalabras(s.estado)}</p>
-                <p className="text-sm text-[#0d2b0d]/70">Tu formulario estará disponible muy pronto.</p>
+                {s.pais === 'australia' && s.estado === 'activa' ? (
+                  <Link href={`/mi-cuenta/formulario/${s.id}`} className={btnPrimario}>
+                    Completar mi formulario
+                  </Link>
+                ) : s.estado === 'enviada' || s.estado === 'completada' ? (
+                  <p className="text-sm text-[#0d2b0d]/70">Ya recibimos tu formulario. Lo estamos revisando.</p>
+                ) : (
+                  <p className="text-sm text-[#0d2b0d]/70">Tu formulario estará disponible muy pronto.</p>
+                )}
               </li>
             ))}
           </ul>

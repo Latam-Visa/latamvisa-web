@@ -172,7 +172,7 @@ export default function Navbar() {
         </div>
 
         {/* RIGHT: Contact info */}
-        <div className="hidden xl:flex items-center gap-10">
+        <div className="hidden xl:flex items-start gap-10">
           <a
             href="tel:+61426779734"
             className={`transition-colors duration-500 ${textClass}`}
@@ -180,13 +180,28 @@ export default function Navbar() {
           >
             +61 426 779 734
           </a>
-          <a
-            href="mailto:future@latamvisas.com.au"
-            className={`transition-colors duration-500 ${textClass}`}
-            style={{ fontFamily: '"PPMonumentExtended", sans-serif', fontSize: '10px', fontWeight: 700, ...navTextStyle }}
-          >
-            future@latamvisas.com.au
-          </a>
+          <div className="flex flex-col items-end gap-2">
+            <a
+              href="mailto:future@latamvisas.com.au"
+              className={`transition-colors duration-500 ${textClass}`}
+              style={{ fontFamily: '"PPMonumentExtended", sans-serif', fontSize: '10px', fontWeight: 700, ...navTextStyle }}
+            >
+              future@latamvisas.com.au
+            </a>
+            {/* Acceso al portal de clientes. Fuera de /viajes, que es otra marca. */}
+            {pathname !== '/viajes' && (
+              <Link
+                href="/entrar"
+                id="nav-iniciar-sesion"
+                className={`px-4 py-1.5 rounded-full border transition-all duration-300 hover:bg-[#C8FF00] hover:border-[#C8FF00] hover:text-[#050505] ${
+                  overLight ? 'border-white/60 text-white' : 'border-[#111111]/60 text-[#111111]'
+                }`}
+                style={{ fontFamily: '"PPMonumentExtended", sans-serif', fontSize: '10px', fontWeight: 700 }}
+              >
+                Iniciar sesión
+              </Link>
+            )}
+          </div>
         </div>
 
         {/* Mobile Menu Toggle */}
@@ -226,6 +241,17 @@ export default function Navbar() {
             <a href="mailto:future@latamvisas.com.au" className="text-xs text-[#111111]" style={{ fontFamily: "'PPMonumentExtended', sans-serif" }}>
               future@latamvisas.com.au
             </a>
+            {pathname !== '/viajes' && (
+              <Link
+                href="/entrar"
+                id="nav-iniciar-sesion-movil"
+                onClick={() => setMenuOpen(false)}
+                className="self-start mt-1 px-4 py-2 rounded-full border border-[#111111] text-xs text-[#111111] font-bold hover:bg-[#C8FF00] hover:border-[#C8FF00] transition-all duration-300"
+                style={{ fontFamily: "'PPMonumentExtended', sans-serif" }}
+              >
+                Iniciar sesión
+              </Link>
+            )}
           </div>
           <Link
             href={pathname === '/viajes' ? '/viajes#contacto' : '#evaluacion'}
