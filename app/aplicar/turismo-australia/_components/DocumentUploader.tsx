@@ -3,7 +3,7 @@ import { useController, useFormContext } from 'react-hook-form'
 import imageCompression from 'browser-image-compression'
 import { UploadCloud, File as FileIcon, Trash2, RefreshCw } from 'lucide-react'
 import { FormField } from '../../turismo-usa/_components/FormField' // Reuse USA form field
-import { getUploadUrl } from '../_actions/get-upload-url'
+import { useGetUploadUrl } from './upload-context'
 import { sanitizePdfFile } from '@/lib/pdf-sanitize'
 
 interface DocumentUploaderProps {
@@ -25,6 +25,9 @@ const ALLOWED_TYPES = [
 export function DocumentUploader({ name, label, hint, required, specsList, multiple = false }: DocumentUploaderProps) {
   const { control } = useFormContext()
   const { field, fieldState } = useController({ name, control })
+  // Destino de subida: la acción pública por defecto, o la del portal (carpeta
+  // amarrada a la solicitud) cuando el formulario corre dentro de la cuenta.
+  const getUploadUrl = useGetUploadUrl()
   
   const [isDragging, setIsDragging] = useState(false)
   const [isUploading, setIsUploading] = useState(false)
