@@ -23,6 +23,25 @@ export type PaisTraduccion = (typeof PAISES_TRADUCCION)[number]['value']
 
 export const PAIS_TRADUCCION_DEFAULT: PaisTraduccion = 'australia'
 
+/* A dónde se suben los documentos del admin. La misma maquinaria sirve a dos
+   destinos: un lote de traducción manual (`/admin/traducciones`) y una
+   solicitud del formulario público (`/admin/applications/[id]`), donde el
+   admin agrega lo que el cliente mandó por WhatsApp después de aplicar.
+
+   Para una solicitud se carga el `pais` porque, a diferencia del lote, no hay
+   fila en `lotes_traduccion` de dónde leerlo: lo sabe la ficha del país. */
+export type Destino =
+  | { tipo: 'lote'; id: string }
+  | { tipo: 'solicitud'; id: string; pais: string }
+
+/* Carpeta raíz dentro de `visa-applications`. Prefijos disjuntos entre sí y
+   del formulario público (`<pais>/…`, `<pais>/sol-…`): `manual/<loteId>` para
+   los lotes, `admin/<solicitudId>` para lo que el admin agrega a una solicitud.
+   Que sean disjuntos es lo que evita que un reintento liste archivos de otro. */
+export function prefijoStorage(destino: Destino): string {
+  return destino.tipo === 'lote' ? `manual/${destino.id}` : `admin/${destino.id}`
+}
+
 export function labelPais(pais: string | null | undefined): string | null {
   if (!pais) return null
   return PAISES_TRADUCCION.find((p) => p.value === pais)?.label ?? pais
@@ -48,6 +67,10 @@ export interface TranslatedDocument {
   carpetaOrigen?: 'manual' | 'n8n' | 'mapeo' | null
   created_at: string
   downloadUrl?: string
+  /* Quién subió el documento: 'admin' = lo agregó el admin a mano después del
+     formulario; 'formulario' o null = lo subió el cliente al aplicar. Solo se
+     usa para la etiqueta "Agregado por admin"; null se trata como formulario. */
+  origen?: string | null
 }
 
 // Este listado debe coincidir con el nodo "Asignar Carpetas" de n8n.

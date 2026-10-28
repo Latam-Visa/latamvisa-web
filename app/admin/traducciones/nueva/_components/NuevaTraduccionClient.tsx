@@ -6,7 +6,7 @@ import { Loader2, Send, AlertCircle } from 'lucide-react'
 import { PAISES_TRADUCCION, PAIS_TRADUCCION_DEFAULT, carpetasDePais } from '@/lib/traducciones/shared'
 import { DocumentosPicker } from '../../_components/DocumentosPicker'
 import { subirArchivos, type ProgresoSubida } from '../../_components/subirArchivos'
-import { crearLote, enviarLoteAn8n } from '../../_actions/traducciones-actions'
+import { crearLote, enviarAn8n } from '../../_actions/traducciones-actions'
 import type { DispatchDoc } from '@/lib/traducciones/dispatch'
 import { SELECCION_VACIA, type SeleccionArchivos } from '@/lib/traducciones/preparar-archivos'
 
@@ -48,7 +48,7 @@ export function NuevaTraduccionClient() {
     }
 
     setFase('subiendo')
-    const { subidos, repetidos, fallidos } = await subirArchivos(lote.id, seleccion.nuevos, setProgreso)
+    const { subidos, repetidos, fallidos } = await subirArchivos({ tipo: 'lote', id: lote.id }, seleccion.nuevos, setProgreso)
     setProgreso(null)
 
     if (fallidos.length > 0 || repetidos.length > 0) {
@@ -64,7 +64,7 @@ export function NuevaTraduccionClient() {
     }
 
     setFase('enviando')
-    const envio = await enviarLoteAn8n(lote.id, subidos)
+    const envio = await enviarAn8n({ tipo: 'lote', id: lote.id }, subidos)
 
     if (!envio.success) {
       setFase('form')
@@ -79,7 +79,7 @@ export function NuevaTraduccionClient() {
     if (!reintento) return
     setError('')
     setFase('enviando')
-    const envio = await enviarLoteAn8n(reintento.loteId, reintento.docs)
+    const envio = await enviarAn8n({ tipo: 'lote', id: reintento.loteId }, reintento.docs)
     if (!envio.success) {
       setFase('form')
       return setError(envio.error || 'Seguimos sin poder avisarle a n8n.')

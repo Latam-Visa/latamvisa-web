@@ -11,7 +11,7 @@ import { labelPais, normalizeDocStatus, type TranslatedDocument } from '@/lib/tr
 import { DocumentosPicker } from '../../_components/DocumentosPicker'
 import { subirArchivos, type ProgresoSubida } from '../../_components/subirArchivos'
 import { SELECCION_VACIA, type SeleccionArchivos } from '@/lib/traducciones/preparar-archivos'
-import { actualizarLote, eliminarLote, enviarLoteAn8n, reenviarLote } from '../../_actions/traducciones-actions'
+import { actualizarLote, eliminarLote, enviarAn8n, reenviarLote } from '../../_actions/traducciones-actions'
 
 interface Lote {
   id: string
@@ -121,7 +121,7 @@ export function LoteDetailClient({
     setError('')
     setAviso('')
 
-    const { subidos, repetidos, fallidos } = await subirArchivos(lote.id, nuevos, setProgreso)
+    const { subidos, repetidos, fallidos } = await subirArchivos({ tipo: 'lote', id: lote.id }, nuevos, setProgreso)
     setProgreso(null)
 
     const partes: string[] = []
@@ -141,7 +141,7 @@ export function LoteDetailClient({
     }
 
     // Solo los nuevos: los que ya estaban se procesaron en su propio envío.
-    const envio = await enviarLoteAn8n(lote.id, subidos)
+    const envio = await enviarAn8n({ tipo: 'lote', id: lote.id }, subidos)
     setSubiendo(false)
 
     if (!envio.success) {
@@ -331,7 +331,7 @@ export function LoteDetailClient({
       {agregando && (
         <div className="bg-white rounded-xl border border-[#E5E5E5] p-4 space-y-3">
           <h2 className="text-[11px] font-semibold uppercase tracking-wider text-[#6B6B6B]">Agregar documentos</h2>
-          <DocumentosPicker seleccion={seleccion} onChange={setSeleccion} loteId={lote.id} disabled={subiendo} />
+          <DocumentosPicker seleccion={seleccion} onChange={setSeleccion} destino={{ tipo: 'lote', id: lote.id }} disabled={subiendo} />
 
           {subiendo && progreso && (
             <div role="status" aria-live="polite">

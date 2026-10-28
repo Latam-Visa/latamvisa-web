@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation'
 import { Save, Trash2, Loader2, ExternalLink, Copy } from 'lucide-react'
 import { formatCalendarDate } from '@/lib/dates'
 import { TranslatedDocuments } from '../../../_components/TranslatedDocuments'
+import { AgregarDocumentos } from '../../../_components/AgregarDocumentos'
 import type { TranslatedDocument } from '@/lib/traducciones/shared'
 
 interface SignedPhotoUrls {
@@ -256,6 +257,7 @@ export function AustraliaDetailsClient({ application, signedPhotoUrls, translate
           </SectionCard>
         ) : (
           <SectionCard title="Documentos">
+            <AgregarDocumentos destino={{ tipo: 'solicitud', id: application.id, pais: 'australia' }} />
             <TranslatedDocuments
               documents={translatedDocuments}
               pais="australia"

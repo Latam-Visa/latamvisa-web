@@ -1,6 +1,7 @@
-import { getLoteUploadUrl, registrarDocumentoLote } from '../_actions/traducciones-actions'
+import { getUploadUrl, registrarDocumento } from '../_actions/traducciones-actions'
 import type { DispatchDoc } from '@/lib/traducciones/dispatch'
 import type { ArchivoPreparado } from '@/lib/traducciones/preparar-archivos'
+import type { Destino } from '@/lib/traducciones/shared'
 
 export interface ProgresoSubida {
   actual: number
@@ -28,7 +29,7 @@ export interface ResultadoSubida {
    Los archivos que sí subieron NO se borran ante un fallo parcial: quedan en
    Storage y el reintento los recoge. */
 export async function subirArchivos(
-  loteId: string,
+  destino: Destino,
   archivos: ArchivoPreparado[],
   onProgress: (p: ProgresoSubida) => void,
 ): Promise<ResultadoSubida> {
@@ -40,13 +41,13 @@ export async function subirArchivos(
 
     try {
       const tipo = archivo.type || 'application/octet-stream'
-      const { success, url, path, error } = await getLoteUploadUrl(loteId, tipo, nombre)
+      const { success, url, path, error } = await getUploadUrl(destino, tipo, nombre)
       if (!success || !url || !path) throw new Error(error || 'No se pudo preparar la subida.')
 
       const res = await fetch(url, { method: 'PUT', body: archivo, headers: { 'Content-Type': tipo } })
       if (!res.ok) throw new Error(`El servidor de archivos respondió ${res.status}.`)
 
-      const registro = await registrarDocumentoLote(loteId, { storage_path: path, hash, nombre_original: nombre, bytes })
+      const registro = await registrarDocumento(destino, { storage_path: path, hash, nombre_original: nombre, bytes })
       if (registro.estado === 'repetido') {
         resultado.repetidos.push({ nombre, nombreAnterior: registro.nombreAnterior ?? null })
         continue

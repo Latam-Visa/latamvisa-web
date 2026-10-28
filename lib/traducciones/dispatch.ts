@@ -28,6 +28,11 @@ export async function dispatchTraduccion(
   applicationId: string,
   pais: string,
   docs: DispatchDoc[],
+  /* Quién originó estos documentos. Viaja en el payload para que n8n lo escriba
+     en documentos_traducidos.origen y la ficha pueda marcar "Agregado por
+     admin". Por defecto 'formulario': el flujo público no manda este campo y no
+     cambia de comportamiento. */
+  origen: 'admin' | 'formulario' = 'formulario',
 ): Promise<DispatchResult> {
   if (docs.length === 0) return { ok: true, enviados: 0 }
 
@@ -67,7 +72,7 @@ export async function dispatchTraduccion(
     const res = await fetch(webhookUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ application_id: applicationId, pais, documentos }),
+      body: JSON.stringify({ application_id: applicationId, pais, origen, documentos }),
       /* Igual que en el formulario: n8n puede estar caído o lento y un fetch
          sin timeout dejaría colgada la petición hasta que la plataforma mate
          la función. */
@@ -125,6 +130,7 @@ export async function signTranslatedRows(rows: any[], pais?: string | null) {
         carpeta,
         carpetaOrigen: origen,
         created_at: row.created_at,
+        origen: row.origen ?? null,
         downloadUrl: await firmarDescarga(row),
       }
     }),

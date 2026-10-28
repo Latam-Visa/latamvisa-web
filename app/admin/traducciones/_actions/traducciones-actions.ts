@@ -11,15 +11,18 @@ import {
   nombreOriginalDesdePath,
   PAIS_TRADUCCION_DEFAULT,
   PAISES_TRADUCCION,
+  prefijoStorage,
   VISA_APPLICATIONS_BUCKET,
+  type Destino,
 } from '@/lib/traducciones/shared'
 
 const PAISES_VALIDOS = new Set<string>(PAISES_TRADUCCION.map((p) => p.value))
 
-/* Carpeta del lote dentro de `visa-applications`. El prefijo `manual/` separa
-   estas subidas de las del formulario público, que van bajo `<pais>/`. */
+/* Carpeta de un lote dentro de `visa-applications`. Lo que es específico del
+   lote (reenvío, borrado) sigue usando este atajo; lo genérico pasa por
+   `prefijoStorage(destino)`. */
 function carpetaLote(loteId: string) {
-  return `manual/${loteId}`
+  return prefijoStorage({ tipo: 'lote', id: loteId })
 }
 
 export async function crearLote(input: {
@@ -52,14 +55,15 @@ export async function crearLote(input: {
    de mandar el archivo por una server action. Así el admin ve progreso real y
    no chocamos con el límite de tamaño del body de las server actions, que con
    PDFs escaneados se supera fácil. */
-export async function getLoteUploadUrl(
-  loteId: string,
+export async function getUploadUrl(
+  destino: Destino,
   fileType: string,
   nombreOriginal: string,
 ): Promise<{ success: boolean; url?: string; path?: string; error?: string }> {
+  if (!UUID.test(destino.id)) return { success: false, error: 'Destino inválido.' }
   try {
     const base = nombreOriginal || `documento.${extForMimeType(fileType)}`
-    const path = `${carpetaLote(loteId)}/${construirNombreEnStorage(uuidv4(), base)}`
+    const path = `${prefijoStorage(destino)}/${construirNombreEnStorage(uuidv4(), base)}`
 
     const { data, error } = await supabaseAdmin
       .storage
@@ -82,23 +86,28 @@ const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 
 /* Hashes de esta tanda que ya existen en el lote (hash -> nombre con que
    entraron). Sirve para mostrar "se omiten" antes de subir nada. */
-export async function hashesEnLote(
-  loteId: string,
+export async function hashesExistentes(
+  destino: Destino,
   hashes: string[],
 ): Promise<{ success: boolean; existentes: { hash: string; nombre_original: string }[]; error?: string }> {
-  if (!UUID.test(loteId)) return { success: false, existentes: [], error: 'Traducción inválida.' }
+  if (!UUID.test(destino.id)) return { success: false, existentes: [], error: 'Destino inválido.' }
   const validos = Array.from(new Set(hashes)).filter((h) => HASH_VALIDO.test(h)).slice(0, 200)
   if (validos.length === 0) return { success: true, existentes: [] }
 
+  /* El dedup se hace solo contra lo que el admin ya subió a este destino
+     (filas de documentos_lote con application_id = destino.id). Para una
+     solicitud, los documentos del formulario público no están en esta tabla,
+     así que no interfieren: solo se evita re-subir dos veces el mismo archivo
+     del admin. */
   const { data, error } = await supabaseAdmin
     .from('documentos_lote')
     .select('hash, nombre_original')
-    .eq('application_id', loteId)
+    .eq('application_id', destino.id)
     .in('hash', validos)
 
   if (error) {
-    console.error('[TRADUCCIONES] Error consultando hashes del lote:', error)
-    return { success: false, existentes: [], error: 'No pudimos revisar qué documentos ya están en el lote.' }
+    console.error('[TRADUCCIONES] Error consultando hashes existentes:', error)
+    return { success: false, existentes: [], error: 'No pudimos revisar qué documentos ya se subieron.' }
   }
   return { success: true, existentes: data || [] }
 }
@@ -109,16 +118,16 @@ export async function hashesEnLote(
    informa como repetido. Cualquier otro fallo también borra el archivo, para
    que todo lo que hay en Storage esté registrado (si no, no se detectaría
    como repetido la próxima vez). */
-export async function registrarDocumentoLote(
-  loteId: string,
+export async function registrarDocumento(
+  destino: Destino,
   doc: { storage_path: string; hash: string; nombre_original: string; bytes: number },
 ): Promise<{ estado: 'registrado' | 'repetido' | 'error'; nombreAnterior?: string | null; error?: string }> {
-  if (!UUID.test(loteId) || !HASH_VALIDO.test(doc.hash) || !doc.storage_path.startsWith(`${carpetaLote(loteId)}/`)) {
+  if (!UUID.test(destino.id) || !HASH_VALIDO.test(doc.hash) || !doc.storage_path.startsWith(`${prefijoStorage(destino)}/`)) {
     return { estado: 'error', error: 'Datos de subida inválidos.' }
   }
 
   const { error } = await supabaseAdmin.from('documentos_lote').insert({
-    application_id: loteId,
+    application_id: destino.id,
     storage_path: doc.storage_path,
     hash: doc.hash,
     nombre_original: doc.nombre_original,
@@ -132,7 +141,7 @@ export async function registrarDocumentoLote(
     const { data } = await supabaseAdmin
       .from('documentos_lote')
       .select('nombre_original')
-      .eq('application_id', loteId)
+      .eq('application_id', destino.id)
       .eq('hash', doc.hash)
       .maybeSingle()
     return { estado: 'repetido', nombreAnterior: data?.nombre_original ?? null }
@@ -143,24 +152,42 @@ export async function registrarDocumentoLote(
 }
 
 /* Paso 5 aislado, para poder reintentarlo solo. Regenera las signed URLs de
-   24h cada vez, así que un reintento tardío sigue sirviendo. */
-export async function enviarLoteAn8n(
-  loteId: string,
+   24h cada vez, así que un reintento tardío sigue sirviendo.
+
+   El `pais` y el `origen` del webhook dependen del destino: un lote lee su país
+   de lotes_traduccion y va como 'formulario' (no cambia el comportamiento
+   existente); una solicitud trae su país en el destino y va como 'admin', para
+   que n8n marque esas filas y la ficha pueda etiquetarlas. */
+export async function enviarAn8n(
+  destino: Destino,
   docs: DispatchDoc[],
 ): Promise<{ success: boolean; error?: string; enviados: number }> {
   if (docs.length === 0) return { success: false, error: 'No hay documentos para enviar.', enviados: 0 }
+  if (!UUID.test(destino.id)) return { success: false, error: 'Destino inválido.', enviados: 0 }
 
-  const { data: lote, error } = await supabaseAdmin
-    .from('lotes_traduccion')
-    .select('id, pais')
-    .eq('id', loteId)
-    .single()
+  let pais: string
+  let origen: 'admin' | 'formulario'
 
-  if (error || !lote) return { success: false, error: 'No encontramos la traducción.', enviados: 0 }
+  if (destino.tipo === 'lote') {
+    const { data: lote, error } = await supabaseAdmin
+      .from('lotes_traduccion')
+      .select('id, pais')
+      .eq('id', destino.id)
+      .single()
 
-  const result = await dispatchTraduccion(loteId, lote.pais || PAIS_TRADUCCION_DEFAULT, docs)
+    if (error || !lote) return { success: false, error: 'No encontramos la traducción.', enviados: 0 }
+    pais = lote.pais || PAIS_TRADUCCION_DEFAULT
+    origen = 'formulario'
+  } else {
+    pais = destino.pais || PAIS_TRADUCCION_DEFAULT
+    origen = 'admin'
+  }
 
-  revalidatePath(`/admin/traducciones/${loteId}`)
+  const result = await dispatchTraduccion(destino.id, pais, docs, origen)
+
+  revalidatePath(
+    destino.tipo === 'lote' ? `/admin/traducciones/${destino.id}` : `/admin/applications/${destino.id}`,
+  )
   return { success: result.ok, error: result.error, enviados: result.enviados }
 }
 
@@ -190,7 +217,7 @@ export async function reenviarLote(
     return { success: false, error: 'Este lote no tiene archivos subidos.', enviados: 0 }
   }
 
-  return enviarLoteAn8n(loteId, docs)
+  return enviarAn8n({ tipo: 'lote', id: loteId }, docs)
 }
 
 export async function actualizarLote(

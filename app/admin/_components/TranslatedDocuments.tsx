@@ -125,6 +125,17 @@ function DocumentRow({ doc, carpetas, pais }: { doc: TranslatedDocument; carpeta
           </span>
         )}
       </div>
+      {/* Discreta: distingue lo que el admin agregó tras el formulario. Las
+          filas sin origen (todas las viejas) no la muestran y se ven igual. */}
+      {doc.origen === 'admin' && (
+        <span
+          title="Agregado por el admin después del formulario"
+          className="shrink-0 px-1.5 py-0.5 rounded text-[9px] leading-4 font-bold uppercase tracking-wider bg-[#EAF0F4] text-[#4B5A66]"
+        >
+          <span className="sm:hidden">Admin</span>
+          <span className="hidden sm:inline">Agregado por admin</span>
+        </span>
+      )}
       {translatedStatusBadge(doc.status)}
       {carpetas && <MoverA doc={doc} nombre={nombre} carpetas={carpetas} pais={pais} onError={setErrorMover} />}
       {doc.downloadUrl ? (

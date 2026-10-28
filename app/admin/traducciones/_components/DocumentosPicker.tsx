@@ -2,9 +2,9 @@
 
 import { useRef, useState } from 'react'
 import { UploadCloud, X, Loader2 } from 'lucide-react'
-import { ALLOWED_UPLOAD_TYPES, MAX_FILE_SIZE_BYTES, MAX_FILES_POR_LOTE, formatFileSize } from '@/lib/traducciones/shared'
+import { ALLOWED_UPLOAD_TYPES, MAX_FILE_SIZE_BYTES, MAX_FILES_POR_LOTE, formatFileSize, type Destino } from '@/lib/traducciones/shared'
 import { prepararArchivo, separarTanda, type ArchivoPreparado, type SeleccionArchivos } from '@/lib/traducciones/preparar-archivos'
-import { hashesEnLote } from '../_actions/traducciones-actions'
+import { hashesExistentes } from '../_actions/traducciones-actions'
 
 const ACCEPT = 'application/pdf,image/jpeg,image/png'
 
@@ -14,17 +14,17 @@ const ACCEPT = 'application/pdf,image/jpeg,image/png'
 
    Al soltar los archivos los sanea y calcula su SHA-256 (ver
    prepararArchivo), descarta los repetidos dentro de la misma tanda y, si hay
-   `loteId`, los que ya están en el lote. Así nada se traduce dos veces. */
+   `destino`, los que ya se subieron a ese destino. Así nada se sube dos veces. */
 export function DocumentosPicker({
   seleccion,
   onChange,
-  loteId,
+  destino,
   disabled,
 }: {
   seleccion: SeleccionArchivos
   onChange: (seleccion: SeleccionArchivos) => void
-  // Lote existente ("Agregar más documentos"); sin él, solo se deduplica la tanda.
-  loteId?: string
+  // Destino existente (lote o solicitud); sin él, solo se deduplica la tanda.
+  destino?: Destino
   disabled?: boolean
 }) {
   const [isDragging, setIsDragging] = useState(false)
@@ -57,14 +57,14 @@ export function DocumentosPicker({
       try {
         const preparados = await Promise.all(validos.map(prepararArchivo))
 
-        let enLote = new Map<string, string>()
-        if (loteId) {
-          const res = await hashesEnLote(loteId, preparados.map((p) => p.hash))
+        let yaSubidos = new Map<string, string>()
+        if (destino) {
+          const res = await hashesExistentes(destino, preparados.map((p) => p.hash))
           if (!res.success) throw new Error(res.error)
-          enLote = new Map(res.existentes.map((e) => [e.hash, e.nombre_original]))
+          yaSubidos = new Map(res.existentes.map((e) => [e.hash, e.nombre_original]))
         }
 
-        const tanda = separarTanda(preparados, nuevos.map((n) => n.hash), enLote)
+        const tanda = separarTanda(preparados, nuevos.map((n) => n.hash), yaSubidos)
 
         const cabe = Math.max(0, MAX_FILES_POR_LOTE - nuevos.length)
         if (tanda.nuevos.length > cabe) {
@@ -146,7 +146,9 @@ export function DocumentosPicker({
 
       {soloRepetidos && (
         <p role="status" className="mt-3 px-3 py-2 rounded-lg bg-[#F5F5F0] border border-[#E5E5E5] text-[13px] text-[#525252]">
-          Estos documentos ya estaban en el lote, no hay nada nuevo que traducir.
+          {destino?.tipo === 'solicitud'
+            ? 'Estos documentos ya se subieron, no hay nada nuevo que enviar.'
+            : 'Estos documentos ya estaban en el lote, no hay nada nuevo que traducir.'}
         </p>
       )}
 
@@ -181,7 +183,7 @@ export function DocumentosPicker({
       {omitidos.length > 0 && (
         <section className="mt-3">
           <h4 className="my-1.5 text-[11px] font-semibold uppercase tracking-wider text-[#6B6B6B]">
-            {loteId ? 'Ya están en el lote, se omiten' : 'Repetidos, se omiten'} ({omitidos.length})
+            {destino?.tipo === 'solicitud' ? 'Ya subidos, se omiten' : destino ? 'Ya están en el lote, se omiten' : 'Repetidos, se omiten'} ({omitidos.length})
           </h4>
           <ul className="space-y-0.5">
             {omitidos.map((o, i) => {
