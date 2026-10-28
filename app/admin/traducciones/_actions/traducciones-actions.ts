@@ -18,6 +18,8 @@ import {
 
 const PAISES_VALIDOS = new Set<string>(PAISES_TRADUCCION.map((p) => p.value))
 
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+
 /* Carpeta de un lote dentro de `visa-applications`. Lo que es específico del
    lote (reenvío, borrado) sigue usando este atajo; lo genérico pasa por
    `prefijoStorage(destino)`. */
@@ -77,12 +79,10 @@ export async function getUploadUrl(
 
     return { success: true, url: data.signedUrl, path }
   } catch (err: any) {
-    console.error('[TRADUCCIONES] getLoteUploadUrl:', err)
+    console.error('[TRADUCCIONES] getUploadUrl:', err)
     return { success: false, error: 'Ocurrió un error preparando la subida.' }
   }
 }
-
-const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 
 /* Hashes de esta tanda que ya existen en el lote (hash -> nombre con que
    entraron). Sirve para mostrar "se omiten" antes de subir nada. */
