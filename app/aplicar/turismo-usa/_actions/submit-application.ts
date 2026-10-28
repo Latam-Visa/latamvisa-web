@@ -11,21 +11,9 @@ import { generateApplicationPdf } from '@/lib/pdf/generate-pdf'
 export async function submitUsaApplication(
   formDataInput: FormData
 ): Promise<{ success: boolean; applicationId?: string; error?: string; errorCode?: string; digest?: string }> {
-
-  let ipAddress = 'unknown'
-  let userAgent = 'unknown'
-
-  try {
-    const headersList = headers()
-    ipAddress = headersList.get('x-forwarded-for') || headersList.get('x-real-ip') || 'unknown'
-    userAgent = headersList.get('user-agent') || 'unknown'
-  } catch (e) {
-    // Ignore
-  }
-
   try {
     const formData = JSON.parse(formDataInput.get('data') as string)
-    return await executeSubmit(formData, ipAddress, userAgent)
+    return await executeSubmit(formData)
   } catch (error: any) {
     console.error('[GLOBAL_CATCH] Error:', error.message, error.stack)
     return {
@@ -37,7 +25,26 @@ export async function submitUsaApplication(
   }
 }
 
-async function executeSubmit(formData: any, ipAddress: string, userAgent: string) {
+/* Núcleo del envío. Lo usan el formulario público (submitUsaApplication) y el
+   portal del cliente (lib/portal/acciones-usa.ts). `solicitudId` amarra la fila
+   a la solicitud del portal; el público no lo manda y queda null, idéntico a
+   hoy. ipAddress/userAgent se leen de los headers si no se pasan. */
+export async function executeSubmit(
+  formData: any,
+  opciones: { solicitudId?: string; ipAddress?: string; userAgent?: string } = {}
+) {
+  let ipAddress = opciones.ipAddress || 'unknown'
+  let userAgent = opciones.userAgent || 'unknown'
+  if (!opciones.ipAddress || !opciones.userAgent) {
+    try {
+      const headersList = headers()
+      if (!opciones.ipAddress) ipAddress = headersList.get('x-forwarded-for') || headersList.get('x-real-ip') || 'unknown'
+      if (!opciones.userAgent) userAgent = headersList.get('user-agent') || 'unknown'
+    } catch (e) {
+      // Ignore
+    }
+  }
+  const solicitudId = opciones.solicitudId ?? null
   const t0 = Date.now()
   console.log('[SUBMIT] Start', new Date().toISOString())
 
@@ -70,6 +77,7 @@ async function executeSubmit(formData: any, ipAddress: string, userAgent: string
       .from('visa_applications_usa')
       .insert({
         id: applicationId,
+        solicitud_id: solicitudId,
         data: formData,
         pdf_url: null,
         passport_photo_url: passportPhotoPath,

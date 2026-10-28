@@ -18,9 +18,11 @@ import { Step6Family } from './_components/Step6Family'
 import { Step7Work } from './_components/Step7Work'
 import { Step8Additional } from './_components/Step8Additional'
 import { submitUsaApplication } from './_actions/submit-application'
-import { getUploadUrl } from './_actions/upload-url'
+import { getUploadUrl as getUploadUrlPublico } from './_actions/upload-url'
 import { createClient } from '@/lib/supabase/client'
 import { PassportConfirmModal } from '../turismo-uk/components/PassportConfirmModal'
+import { SubidaProvider } from './_components/upload-context'
+import { cargarBorrador, guardarBorrador, urlDeSubida, enviarUsa } from '@/lib/portal/acciones-usa'
 
 import { step1Schema, step2Schema, step3Schema, step4Schema, step5Schema, step6Schema, step7Schema, step8Schema } from './_schemas'
 
@@ -124,6 +126,13 @@ export default function TurismoUsaApplication() {
   const [showErrorToast, setShowErrorToast] = useState(false)
   const [showSuccess, setShowSuccess] = useState(false)
 
+  /* Modo cuenta: el cliente llega desde /mi-cuenta con ?solicitud=<id>. Es el
+     mismo formulario; solo cambia dónde se guarda el borrador (servidor, no
+     localStorage), dónde se suben los documentos y qué pasa al enviar.
+     'cargando' evita escribir nada antes de saber en qué modo estamos. */
+  const [modo, setModo] = useState<'cargando' | 'publico' | 'cuenta'>('cargando')
+  const [solicitudId, setSolicitudId] = useState<string | null>(null)
+
   const methods = useForm<FormData>({
     resolver: zodResolver(formSchema),
     mode: 'onTouched',
@@ -139,8 +148,36 @@ export default function TurismoUsaApplication() {
     }
   })
 
-  // Load from local storage on mount
+  // Load draft on mount: from the server in account mode, else localStorage
   useEffect(() => {
+    const id = new URLSearchParams(window.location.search).get('solicitud')
+    if (id) {
+      cargarBorrador(id).then((res) => {
+        if (res.estado === 'sin_acceso') {
+          window.location.href = '/entrar'
+          return
+        }
+        if (res.estado === 'enviada' || res.estado === 'otro_pais') {
+          window.location.href = '/mi-cuenta'
+          return
+        }
+        if (res.borrador) {
+          setDraftData({ step: res.borrador.step ?? 1, data: res.borrador.data })
+          setShowDraftModal(true)
+        } else {
+          // Sin borrador: prellenamos nombre y correo del pago.
+          if (res.prefill.fullName) methods.setValue('step1Contact.fullName' as any, res.prefill.fullName)
+          if (res.prefill.email) methods.setValue('step1Contact.email' as any, res.prefill.email)
+        }
+        setSolicitudId(id)
+        setModo('cuenta')
+      }).catch(() => {
+        window.location.href = '/mi-cuenta'
+      })
+      return
+    }
+
+    setModo('publico')
     const saved = localStorage.getItem(STORAGE_KEY)
     if (saved) {
       try {
@@ -158,6 +195,16 @@ export default function TurismoUsaApplication() {
 
   const formValues = useWatch({ control: methods.control })
   useEffect(() => {
+    // En modo cuenta esperamos la decisión del borrador para no pisar lo
+    // guardado con los valores por defecto vacíos.
+    if (modo === 'cargando') return
+    if (modo === 'cuenta') {
+      if (!solicitudId || showDraftModal) return
+      const timeout = setTimeout(() => {
+        guardarBorrador(solicitudId, formValues, currentStep).catch(() => {})
+      }, 800)
+      return () => clearTimeout(timeout)
+    }
     const timeout = setTimeout(() => {
       // Don't save if it's completely empty
       if (Object.keys(formValues).length > 0) {
@@ -168,7 +215,7 @@ export default function TurismoUsaApplication() {
       }
     }, 500)
     return () => clearTimeout(timeout)
-  }, [formValues])
+  }, [formValues, currentStep, modo, solicitudId, showDraftModal])
 
   const handleLoadDraft = () => {
     if (draftData && draftData.data) {
@@ -182,7 +229,7 @@ export default function TurismoUsaApplication() {
   }
 
   const handleClearDraft = () => {
-    localStorage.removeItem(STORAGE_KEY)
+    if (modo !== 'cuenta') localStorage.removeItem(STORAGE_KEY)
     setShowDraftModal(false)
   }
 
@@ -251,8 +298,22 @@ export default function TurismoUsaApplication() {
 
   const onSubmit = async (data: FormData) => {
     setIsSubmitting(true)
-    
+
     try {
+      if (modo === 'cuenta' && solicitudId) {
+        const res = await enviarUsa(solicitudId, data)
+        if (!res.success) {
+          alert(res.error || 'Hubo un error al enviar la aplicación. Por favor, intenta de nuevo.')
+          setIsSubmitting(false)
+          return
+        }
+        setShowSuccess(true)
+        setTimeout(() => {
+          window.location.href = '/mi-cuenta'
+        }, 2500)
+        return
+      }
+
       const formDataToSend = new FormData()
       formDataToSend.append('data', JSON.stringify(data))
 
@@ -303,7 +364,10 @@ export default function TurismoUsaApplication() {
         setPassportStatus('success')
         
         try {
-          const { success: uploadSuccess, url, path, error: uploadError } = await getUploadUrl(file.type)
+          const pedirUrl = modo === 'cuenta' && solicitudId
+            ? (t: string) => urlDeSubida(solicitudId, t)
+            : getUploadUrlPublico
+          const { success: uploadSuccess, url, path, error: uploadError } = await pedirUrl(file.type)
           if (uploadSuccess && url && path) {
             const uploadRes = await fetch(url, {
               method: 'PUT',
@@ -548,6 +612,7 @@ export default function TurismoUsaApplication() {
           <img src="/logo.png" alt="LATAM VISA Logo" className="h-16 sm:h-20 object-contain" />
         </div>
         <FormProvider {...methods}>
+          <SubidaProvider getUploadUrl={(fileType) => (modo === 'cuenta' && solicitudId ? urlDeSubida(solicitudId, fileType) : getUploadUrlPublico(fileType))}>
           <form onSubmit={(e) => { e.preventDefault(); handleNext(); }} className="space-y-8">
             <ProgressBar 
               currentStep={Math.max(1, currentStep)} 
@@ -605,6 +670,7 @@ export default function TurismoUsaApplication() {
               />
             )}
           </form>
+          </SubidaProvider>
         </FormProvider>
       </div>
     </div>
