@@ -4,151 +4,58 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { prefersReducedMotion } from '@/lib/lenis'
 import MenuOverlay from './MenuOverlay'
-import { useScramble } from './useScramble'
 
-/* 01 — Hero. Estructura tomada de la referencia (intro breve, wordmark
-   gigante centrado, línea de borde a borde, CTA circular), con marca propia. */
-
-const INTRO_FLAG = 'viajes-intro-seen'
-const RING_R = 139 // radio del círculo de 280px con stroke de 1px
-const RING_LEN = 2 * Math.PI * RING_R
-
-function Intro({ onDone }: { onDone: () => void }) {
-  const lineRef = useRef<HTMLSpanElement>(null)
-  const rootRef = useRef<HTMLDivElement>(null)
-
-  useEffect(() => {
-    let cancelled = false
-    let ctx: { revert: () => void } | null = null
-
-    const run = async () => {
-      const { gsap } = await import('gsap')
-      if (cancelled) return
-      ctx = gsap.context(() => {
-        const tl = gsap.timeline({ onComplete: onDone })
-        tl.fromTo(lineRef.current, { scaleY: 0 }, { scaleY: 1, duration: 0.75, ease: 'power2.out' })
-          .to({}, { duration: 0.45 }) // se sostiene ~1.2s en total
-          .to(rootRef.current, { yPercent: -100, duration: 0.75, ease: 'power3.inOut' })
-      }, rootRef)
-    }
-    run()
-
-    return () => {
-      cancelled = true
-      ctx?.revert()
-    }
-  }, [onDone])
-
-  return (
-    <div
-      ref={rootRef}
-      aria-hidden
-      className="fixed inset-0 z-[70] flex flex-col items-center justify-center"
-      style={{ backgroundColor: 'var(--viajes-ink)' }}
-    >
-      <p className="viajes-wordmark" style={{ fontSize: 'clamp(2.5rem, 9vw, 7rem)' }}>
-        <span className="block" data-scramble>Europa</span>
-        <span className="viajes-script block" data-scramble style={{ fontSize: '1.15em', lineHeight: 0.95 }}>Travel</span>
-      </p>
-
-      {/* línea de 1px que crece desde el centro hacia abajo */}
-      <span
-        ref={lineRef}
-        className="my-8 block"
-        style={{ width: '1px', height: '84px', backgroundColor: '#FFFFFF', opacity: 0.55, transformOrigin: 'top center' }}
-      />
-
-      <p className="viajes-label" style={{ color: '#FFFFFF', opacity: 0.8, letterSpacing: '0.2em', textAlign: 'center' }}>
-        <span data-scramble>LATAM Travel — 1 viaje, 2 vacaciones.</span>
-      </p>
-    </div>
-  )
-}
+/* 01 — Hero con video de fondo (estilo editorial "Travel Sensations"):
+   video en bucle silenciado a pantalla completa, un velo sutil para
+   legibilidad, y el contenido centrado y compacto: eyebrow + título serif
+   "EUROPA" + subtítulo + CTA azul cielo que baja al cotizador. */
 
 export default function HeroViajes() {
-  /* La intro se pinta ya en el HTML del servidor para que nadie vea el hero
-     antes de tiempo; en el cliente se decide si corre o se descarta al
-     instante (reduced-motion, o ya vista en esta sesión). */
-  const [introDone, setIntroDone] = useState(false)
-  const [introResolved, setIntroResolved] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
-
   const menuBtnRef = useRef<HTMLButtonElement>(null)
-  const ringRef = useRef<SVGSVGElement>(null)
-  const line1Ref = useRef<HTMLSpanElement>(null)
-  const line2Ref = useRef<HTMLSpanElement>(null)
-  const sectionRef = useRef<HTMLElement>(null)
+  const videoRef = useRef<HTMLVideoElement>(null)
 
-  // El wordmark corre su propia timeline; este hook cubre el resto de
-  // textos del hero (bordes y CTA circular).
-  useScramble(sectionRef)
-
+  // Respeta reduced-motion: deja el poster quieto en vez del bucle. Se decide
+  // tras el montaje (nunca en SSR) para no cambiar el árbol entre server y
+  // cliente.
   useEffect(() => {
-    const seen = sessionStorage.getItem(INTRO_FLAG) === '1'
-    if (seen || prefersReducedMotion()) setIntroDone(true)
-    setIntroResolved(true)
+    if (prefersReducedMotion()) videoRef.current?.pause()
   }, [])
 
-  useEffect(() => {
-    if (introDone) sessionStorage.setItem(INTRO_FLAG, '1')
-  }, [introDone])
-
-  // Efecto scramble del wordmark retirado a pedido: el texto final ("Europa /
-  // Travel") ya viene en el HTML, así que el hero se lee directo sin revoltijo.
-
-  // El anillo se dibuja al entrar en viewport
-  useEffect(() => {
-    const el = ringRef.current
-    if (!el) return
-    const io = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting) el.dataset.drawn = 'true' },
-      { threshold: 0.4 },
-    )
-    io.observe(el)
-    return () => io.disconnect()
-  }, [])
-
-  const goToDestinos = (e: React.MouseEvent) => {
+  const bajarACotizar = (e: React.MouseEvent) => {
     e.preventDefault()
-    document.getElementById('destinos')?.scrollIntoView({ behavior: 'smooth' })
+    document.getElementById('cotiza')?.scrollIntoView({ behavior: 'smooth' })
   }
 
   return (
     <>
-      {introResolved && !introDone && <Intro onDone={() => setIntroDone(true)} />}
-
       <section
-        ref={sectionRef}
         id="hero"
-        aria-label="LATAM Travel — 1 viaje, 2 vacaciones"
-        className="relative w-full overflow-hidden"
-        style={{ height: '100svh', backgroundColor: 'var(--viajes-ink)' }}
+        aria-label="EUROPA — 1 viaje, 2 vacaciones"
+        className="viajes-hero-video"
       >
-        <Image
-          src="/viajes-hero.webp"
-          alt="Una puerta abierta sobre el mar en calma"
-          fill
-          priority
-          sizes="100vw"
-          style={{ objectFit: 'cover' }}
-        />
+        <video
+          ref={videoRef}
+          className="viajes-hero-bg"
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="metadata"
+          poster="/viajes/amanecer-barcelona-poster.jpg"
+        >
+          <source src="/viajes/amanecer-barcelona.mp4" type="video/mp4" />
+        </video>
 
-        {/* Solo para que el logo y el menú se lean */}
-        <div
-          aria-hidden
-          className="absolute inset-x-0 top-0"
-          style={{ height: '40%', background: 'linear-gradient(180deg, rgba(11,42,74,0.45) 0%, rgba(11,42,74,0) 100%)' }}
-        />
+        <div aria-hidden className="viajes-hero-scrim" />
 
         {/* ARRIBA IZQUIERDA — logo */}
         <Link
           href="/"
           aria-label="LATAM Travel — inicio"
           className="absolute left-0 top-0 z-20 flex items-center"
-          style={{ padding: 'clamp(28px, 3.3vw, 48px)' }}
+          style={{ padding: 'clamp(24px, 3vw, 44px)' }}
         >
-          {/* Recorte ajustado a la placa: el PNG con padding rendía solo
-              ~10.6px de marca visible dentro de una caja de 40px. */}
           <Image
             src="/logo-lt-travel-white.png"
             alt="LATAM Travel"
@@ -159,81 +66,51 @@ export default function HeroViajes() {
           />
         </Link>
 
-        {/* ARRIBA DERECHA — menú */}
-        <button
-          ref={menuBtnRef}
-          type="button"
-          onClick={() => setMenuOpen(true)}
-          aria-haspopup="dialog"
-          aria-expanded={menuOpen}
-          className="viajes-label absolute right-0 top-0 z-20 flex items-center gap-2"
-          style={{
-            padding: 'clamp(28px, 3.3vw, 48px)',
-            fontFamily: 'var(--font-viajes-display), "Arial Narrow", sans-serif',
-            fontWeight: 900,
-            color: '#FFFFFF',
-            background: 'none',
-            border: 'none',
-            cursor: 'pointer',
-            fontSize: '22px', // el doble del label base (11px)
-            letterSpacing: '0.2em',
-            minHeight: '44px',
-          }}
-        >
-          <span data-scramble>Menú</span>
-          <svg width="4" height="16" viewBox="0 0 4 16" fill="currentColor" aria-hidden>
-            <circle cx="2" cy="2" r="1.6" />
-            <circle cx="2" cy="8" r="1.6" />
-            <circle cx="2" cy="14" r="1.6" />
-          </svg>
-        </button>
-
-        {/* CENTRO — wordmark */}
-        <div className="absolute inset-x-0 z-10" style={{ top: '9%' }}>
-          {/* El texto final va en el HTML: si el JS no corre o hay
-              reduced-motion, el wordmark se lee igual. El scramble solo lo
-              reescribe encima. */}
-          <h1 className="viajes-wordmark viajes-hero-title">
-            <span ref={line1Ref} className="block">Europa</span>
-            <span ref={line2Ref} className="viajes-script viajes-hero-script">Travel</span>
-          </h1>
+        {/* ARRIBA DERECHA — menú (píldora) */}
+        <div className="absolute right-0 top-0 z-20 flex items-center" style={{ padding: 'clamp(20px, 3vw, 40px)' }}>
+          <button
+            ref={menuBtnRef}
+            type="button"
+            onClick={() => setMenuOpen(true)}
+            aria-haspopup="dialog"
+            aria-expanded={menuOpen}
+            className="viajes-menu-pill"
+          >
+            Menú
+            <svg width="4" height="16" viewBox="0 0 4 16" fill="currentColor" aria-hidden>
+              <circle cx="2" cy="2" r="1.6" />
+              <circle cx="2" cy="8" r="1.6" />
+              <circle cx="2" cy="14" r="1.6" />
+            </svg>
+          </button>
         </div>
 
-        {/* Etiquetas laterales, a la misma altura y en los tercios */}
-        <span className="viajes-hero-edge viajes-hero-edge--left viajes-script z-10" data-scramble>1 viaje</span>
-        <span className="viajes-hero-edge viajes-hero-edge--right viajes-script z-10" data-scramble>2 vacaciones</span>
-
-        {/* CTA circular en la mitad inferior */}
-        <a
-          href="#destinos"
-          onClick={goToDestinos}
-          className="viajes-ring-cta absolute left-1/2 z-10 flex -translate-x-1/2 items-center justify-center"
-          style={{ bottom: '7%' }}
-          aria-label="Mira países disponibles"
-        >
-          <span className="relative flex items-center justify-center" style={{ width: 'var(--ring-size)', height: 'var(--ring-size)' }}>
-            <span
-              className="viajes-ring-fill absolute inset-0"
-              style={{ borderRadius: '50%' }}
-            />
-            <svg
-              ref={ringRef}
-              className="viajes-ring absolute inset-0"
-              viewBox="0 0 280 280"
-              style={{ ['--ring-len' as string]: RING_LEN }}
-              aria-hidden
-            >
-              <circle cx="140" cy="140" r={RING_R} fill="none" stroke="#FFFFFF" strokeWidth="1" />
+        {/* CENTRO — eyebrow + título serif + subtítulo + CTA */}
+        <div className="viajes-hero-center">
+          <p className="viajes-hero-eyebrow">1 viaje, 2 vacaciones</p>
+          <h1 className="viajes-hero-serif-title">Europa</h1>
+          <p className="viajes-hero-sub">
+            Vuela de Australia a Latinoamérica y conoce Europa en el camino. Un país a la ida y otro a la vuelta.
+          </p>
+          <a
+            href="#cotiza"
+            onClick={bajarACotizar}
+            className="viajes-cta viajes-cta-sky"
+            style={{ marginTop: '2rem' }}
+          >
+            Cotiza tu viaje
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden>
+              <path d="M5 12h14M13 6l6 6-6 6" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
-            <span
-              className="viajes-label relative text-center"
-              style={{ color: '#FFFFFF', fontSize: '12px', letterSpacing: '0.15em', lineHeight: 1.7 }}
-            >
-              <span className="block" data-scramble>Mira países</span>
-              <span className="block" data-scramble>disponibles</span>
-            </span>
-          </span>
-        </a>
+          </a>
+        </div>
+
+        {/* ABAJO DERECHA — coordenadas del lugar del video */}
+        <div className="viajes-coords">
+          <span>41.3888, 2.1590</span>
+          <br />
+          <span className="viajes-coords-place">Amanecer · Barcelona</span>
+        </div>
       </section>
 
       <MenuOverlay open={menuOpen} onClose={() => setMenuOpen(false)} returnFocusTo={menuBtnRef} />
