@@ -47,7 +47,7 @@ function Intro({ onDone }: { onDone: () => void }) {
       style={{ backgroundColor: 'var(--viajes-ink)' }}
     >
       <p className="viajes-wordmark" style={{ fontSize: 'clamp(2.5rem, 9vw, 7rem)' }}>
-        <span className="block" data-scramble>Latam</span>
+        <span className="block" data-scramble>Europa</span>
         <span className="viajes-script block" data-scramble style={{ fontSize: '1.15em', lineHeight: 0.95 }}>Travel</span>
       </p>
 
@@ -93,48 +93,8 @@ export default function HeroViajes() {
     if (introDone) sessionStorage.setItem(INTRO_FLAG, '1')
   }, [introDone])
 
-  /* ScrambleText sobre el wordmark, en cuanto el hero queda a la vista.
-     ScrambleTextPlugin viene en el propio paquete gsap (build de Club, igual
-     que SplitText), así que se importa de ahí y no del CDN — una dependencia
-     externa menos y misma versión que el resto de la animación. */
-  useEffect(() => {
-    if (!introDone) return
-    const l1 = line1Ref.current
-    const l2 = line2Ref.current
-    if (!l1 || !l2) return
-    if (prefersReducedMotion()) return // el HTML ya trae el texto final
-
-    let cancelled = false
-    let tl: gsap.core.Timeline | null = null
-
-    const run = async () => {
-      const [{ gsap }, mod] = await Promise.all([
-        import('gsap'),
-        import('gsap/ScrambleTextPlugin'),
-      ])
-      if (cancelled) return
-
-      const ScrambleTextPlugin = (mod as any).ScrambleTextPlugin ?? (mod as any).default
-      gsap.registerPlugin(ScrambleTextPlugin)
-
-      // Mismo ritmo que useScramble: la resolución izquierda-a-derecha se
-      // lee letra por letra al alargar el tween y bajar `speed`.
-      tl = gsap.timeline()
-      tl.to(l1, { duration: 3, scrambleText: { text: 'Latam', chars: 'upperCase', speed: 0.15 } })
-        .to(l2, { duration: 3, scrambleText: { text: 'Travel', chars: 'upperCase', speed: 0.15 } }, 0.45)
-    }
-
-    run()
-
-    return () => {
-      cancelled = true
-      tl?.kill()
-      // El plugin reescribe el contenido mientras corre; si desmontamos a
-      // media animación hay que dejar el texto definitivo, no el revuelto.
-      if (l1) l1.textContent = 'Latam'
-      if (l2) l2.textContent = 'Travel'
-    }
-  }, [introDone])
+  // Efecto scramble del wordmark retirado a pedido: el texto final ("Europa /
+  // Travel") ya viene en el HTML, así que el hero se lee directo sin revoltijo.
 
   // El anillo se dibuja al entrar en viewport
   useEffect(() => {
@@ -234,7 +194,7 @@ export default function HeroViajes() {
               reduced-motion, el wordmark se lee igual. El scramble solo lo
               reescribe encima. */}
           <h1 className="viajes-wordmark viajes-hero-title">
-            <span ref={line1Ref} className="block">Latam</span>
+            <span ref={line1Ref} className="block">Europa</span>
             <span ref={line2Ref} className="viajes-script viajes-hero-script">Travel</span>
           </h1>
         </div>
