@@ -18,6 +18,25 @@ interface Solicitud {
   estado: string
   created_at: string
   nombre_cliente: string | null
+  borrador_formulario: { data?: unknown } | null
+}
+
+// Países con el formulario en "modo cuenta" (borrador en el servidor, la
+// solicitud queda marcada al enviar). Se conectan uno por uno; el resto sigue
+// en "muy pronto".
+const FORMULARIOS_MODO_CUENTA: Record<string, string> = {
+  australia: '/aplicar/turismo-australia',
+  usa: '/aplicar/turismo-usa',
+}
+
+function linkFormulario(s: Solicitud): string | null {
+  const base = FORMULARIOS_MODO_CUENTA[s.pais]
+  return base ? `${base}?solicitud=${s.id}` : null
+}
+
+// "Continuar" si ya hay algo guardado; "Llenar" si aún no empieza.
+function etiquetaFormulario(s: Solicitud): string {
+  return s.borrador_formulario?.data ? 'Continuar formulario' : 'Llenar mi formulario'
 }
 
 export default async function MiCuentaPage() {
@@ -28,7 +47,7 @@ export default async function MiCuentaPage() {
   // Con la sesión del cliente (no la service key): RLS solo devuelve sus filas.
   const { data, error } = await supabase
     .from('solicitudes')
-    .select('id, pais, servicio, estado, created_at, nombre_cliente')
+    .select('id, pais, servicio, estado, created_at, nombre_cliente, borrador_formulario')
     .eq('user_id', user.id)
     .order('created_at', { ascending: false })
   if (error) console.error('[PORTAL] mi-cuenta no pudo leer solicitudes', { code: error.code })
@@ -71,9 +90,9 @@ export default async function MiCuentaPage() {
                 </div>
                 {s.servicio && <p className="text-sm text-[#0d2b0d]/70 break-words">{s.servicio}</p>}
                 <p className="inline-flex rounded-full bg-[#C8FF00] px-3 py-1 text-sm font-bold text-[#0d2b0d]">{estadoEnPalabras(s.estado)}</p>
-                {s.pais === 'australia' && s.estado === 'activa' ? (
-                  <Link href={`/mi-cuenta/formulario/${s.id}`} className={btnPrimario}>
-                    Completar mi formulario
+                {s.estado === 'activa' && linkFormulario(s) ? (
+                  <Link href={linkFormulario(s)!} className={btnPrimario}>
+                    {etiquetaFormulario(s)}
                   </Link>
                 ) : s.estado === 'enviada' || s.estado === 'completada' ? (
                   <p className="text-sm text-[#0d2b0d]/70">Ya recibimos tu formulario. Lo estamos revisando.</p>

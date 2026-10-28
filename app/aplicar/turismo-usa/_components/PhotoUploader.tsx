@@ -3,7 +3,7 @@ import { useController, useFormContext } from 'react-hook-form'
 import imageCompression from 'browser-image-compression'
 import { UploadCloud, Image as ImageIcon, Trash2, RefreshCw, AlertCircle, ChevronDown, ChevronUp } from 'lucide-react'
 import { FormField } from './FormField'
-import { getUploadUrl } from '../_actions/upload-url'
+import { useGetUploadUrl } from './upload-context'
 import { sanitizePdfFile } from '@/lib/pdf-sanitize'
 
 interface PhotoUploaderProps {
@@ -17,6 +17,9 @@ interface PhotoUploaderProps {
 export function PhotoUploader({ name, label, hint, required, specsList }: PhotoUploaderProps) {
   const { control } = useFormContext()
   const { field, fieldState } = useController({ name, control })
+  // En modo cuenta el destino apunta a la carpeta de la solicitud; sin provider
+  // es la acción pública de siempre.
+  const getUploadUrl = useGetUploadUrl()
   
   const [isDragging, setIsDragging] = useState(false)
   const [isCompressing, setIsCompressing] = useState(false)
