@@ -506,6 +506,140 @@ body::before {
   transform: translateY(-2px);
 }
 
+/* CTA azul cielo — variante del hero con video. Fondo claro, texto tinta
+   (alto contraste). Nunca negro ni neón-como-texto. */
+.viajes-cta-sky {
+  background-color: var(--viajes-sky);
+  color: var(--viajes-ink);
+}
+
+/* ── HERO con video de fondo (estilo editorial "Travel Sensations") ──────
+   Pantalla completa, video en bucle silenciado, un velo oscuro sutil para
+   legibilidad (no es un fondo de caja de texto, es el scrim del hero), y el
+   contenido centrado y compacto encima. */
+.viajes-hero-video {
+  position: relative;
+  width: 100%;
+  height: 100svh;
+  overflow: hidden;
+  background-color: var(--viajes-ink);
+}
+
+.viajes-hero-bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Velo: un poco más oscuro arriba y abajo para que logo, menú, título y
+   coordenadas se lean sobre cualquier fotograma del video. */
+.viajes-hero-scrim {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(180deg, rgba(8,20,34,0.42) 0%, rgba(8,20,34,0.12) 32%, rgba(8,20,34,0.18) 64%, rgba(8,20,34,0.5) 100%);
+}
+
+.viajes-hero-center {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 0 24px;
+}
+
+/* Serif editorial para el título del hero. */
+.viajes-serif {
+  font-family: var(--font-viajes-serif), 'Cormorant Garamond', Georgia, serif;
+}
+
+.viajes-hero-serif-title {
+  font-family: var(--font-viajes-serif), 'Cormorant Garamond', Georgia, serif;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  line-height: 1;
+  color: #FFFFFF;
+  font-size: clamp(3.25rem, 11vw, 8.5rem);
+  text-shadow: 0 2px 28px rgba(8,20,34,0.45);
+  /* el tracking amplio en mayúsculas deja un hueco a la derecha; se compensa */
+  margin-right: -0.1em;
+}
+
+.viajes-hero-eyebrow {
+  font-family: var(--font-viajes-script), 'Brush Script MT', cursive;
+  color: #FFFFFF;
+  opacity: 0.92;
+  font-size: clamp(1.25rem, 3.2vw, 2rem);
+  line-height: 1;
+  margin-bottom: 0.4rem;
+  text-shadow: 0 1px 14px rgba(8,20,34,0.5);
+}
+
+.viajes-hero-sub {
+  font-family: var(--font-funnel), 'FunnelDisplay', sans-serif;
+  color: #FFFFFF;
+  opacity: 0.9;
+  font-size: clamp(0.95rem, 1.5vw, 1.15rem);
+  line-height: 1.5;
+  max-width: 34ch;
+  margin: 1.1rem auto 0;
+  text-shadow: 0 1px 12px rgba(8,20,34,0.5);
+}
+
+/* Menú tipo píldora (como la referencia). */
+.viajes-menu-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background-color: #FFFFFF;
+  color: var(--viajes-ink);
+  border: none;
+  border-radius: 100px;
+  padding: 10px 20px;
+  min-height: 44px;
+  font-family: var(--font-funnel), 'FunnelDisplay', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.viajes-menu-pill:hover {
+  transform: translateY(-1px);
+}
+
+/* Coordenadas/lugar abajo a la derecha (detalle editorial). */
+.viajes-coords {
+  position: absolute;
+  right: clamp(20px, 3vw, 48px);
+  bottom: clamp(20px, 3vw, 44px);
+  z-index: 10;
+  text-align: right;
+  color: #FFFFFF;
+  font-family: var(--font-funnel), 'FunnelDisplay', sans-serif;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  line-height: 1.5;
+  opacity: 0.85;
+  text-shadow: 0 1px 10px rgba(8,20,34,0.6);
+}
+
+.viajes-coords .viajes-coords-place {
+  text-transform: uppercase;
+}
+
+@media (max-width: 640px) {
+  .viajes-coords { font-size: 10px; }
+}
+
 /* Las líneas del hero suben desde detrás de su propia máscara */
 .viajes-line-mask {
   overflow: hidden;

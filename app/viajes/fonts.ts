@@ -1,5 +1,5 @@
 import localFont from 'next/font/local'
-import { Playball } from 'next/font/google'
+import { Playball, Cormorant_Garamond } from 'next/font/google'
 
 /* Display de la campaña: PPMonumentCondensed, el corte estrecho de la propia
    tipografía de marca. Los archivos ya estaban en public/fonts/PPMonument
@@ -33,5 +33,14 @@ export const viajesScript = Playball({
   subsets: ['latin'],
   weight: '400',
   variable: '--font-viajes-script',
+  display: 'swap',
+})
+
+/* Serif editorial del hero (estilo "Travel Sensations"): un título mediano y
+   elegante sobre el video de fondo, en mayúsculas y con tracking amplio. */
+export const viajesSerif = Cormorant_Garamond({
+  subsets: ['latin'],
+  weight: ['400', '500', '600'],
+  variable: '--font-viajes-serif',
   display: 'swap',
 })
