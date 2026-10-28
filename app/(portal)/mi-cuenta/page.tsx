@@ -20,6 +20,14 @@ interface Solicitud {
   nombre_cliente: string | null
 }
 
+// Países con el formulario en "modo cuenta" (borrador en el servidor, la
+// solicitud queda marcada al enviar). Por ahora solo Australia; los demás
+// siguen en "muy pronto" hasta que se conecten uno por uno.
+function linkFormulario(s: Solicitud): string | null {
+  if (s.pais === 'australia') return `/aplicar/turismo-australia?solicitud=${s.id}`
+  return null
+}
+
 export default async function MiCuentaPage() {
   // El middleware ya exige sesión; esto la vuelve a validar en el servidor.
   const { supabase, user } = await usuarioActual()
@@ -71,8 +79,8 @@ export default async function MiCuentaPage() {
                 </div>
                 {s.servicio && <p className="text-sm text-[#0d2b0d]/70 break-words">{s.servicio}</p>}
                 <p className="inline-flex rounded-full bg-[#C8FF00] px-3 py-1 text-sm font-bold text-[#0d2b0d]">{estadoEnPalabras(s.estado)}</p>
-                {s.pais === 'australia' && s.estado === 'activa' ? (
-                  <Link href={`/mi-cuenta/formulario/${s.id}`} className={btnPrimario}>
+                {s.estado === 'activa' && linkFormulario(s) ? (
+                  <Link href={linkFormulario(s)!} className={btnPrimario}>
                     Completar mi formulario
                   </Link>
                 ) : s.estado === 'enviada' || s.estado === 'completada' ? (

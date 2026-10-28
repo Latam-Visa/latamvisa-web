@@ -1,6 +1,8 @@
 'use server'
 
-/* Acciones del formulario de Australia dentro de la cuenta del cliente.
+/* Acciones del formulario de Australia en "modo cuenta": el mismo formulario
+   público (/aplicar/turismo-australia?solicitud=<id>) cuando el cliente llega
+   desde /mi-cuenta.
 
    Todo corre en el servidor con la service key, pero cada acción vuelve a
    verificar, contra la sesión, que el usuario es dueño de la solicitud: el
@@ -35,6 +37,28 @@ async function solicitudPropia(solicitudId: string): Promise<SolicitudPropia | n
 }
 
 const yaEnviada = (estado: string | null) => estado === 'enviada' || estado === 'completada'
+
+// Estado inicial del formulario en modo cuenta. 'sin_acceso' = sin sesión o
+// la solicitud no es de este usuario (el formulario manda a /entrar).
+export async function cargarBorrador(solicitudId: string): Promise<
+  | { estado: 'sin_acceso' }
+  | { estado: 'enviada' }
+  | { estado: 'otro_pais'; pais: string }
+  | { estado: 'ok'; borrador: { data?: any; step?: number } | null }
+> {
+  const sol = await solicitudPropia(solicitudId)
+  if (!sol) return { estado: 'sin_acceso' }
+  if (yaEnviada(sol.estado)) return { estado: 'enviada' }
+  if (sol.pais !== 'australia') return { estado: 'otro_pais', pais: sol.pais }
+  const { data } = await supabaseAdmin
+    .from('solicitudes')
+    .select('borrador_formulario')
+    .eq('id', solicitudId)
+    .eq('user_id', sol.userId)
+    .maybeSingle()
+  const b = data?.borrador_formulario as { data?: any; step?: number } | null
+  return { estado: 'ok', borrador: b && b.data ? b : null }
+}
 
 export async function guardarBorrador(
   solicitudId: string,
