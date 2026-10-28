@@ -595,19 +595,18 @@ body::before {
    proporción de "RESIDENCE" en la referencia. El tope en rem evita que en
    pantallas ultra anchas crezca sin control. */
 .viajes-hero-title {
-  /* "LATAM" mide 1.905em de ancho (2.005em de tinta menos 0.10em del
-     tracking negativo), medido sobre el OTF. A 47vw eso da ~88% del ancho
-     de la ventana, que es la proporción del título en la referencia.
+  /* El título es "EUROPA" (6 letras). "LATAM" medía 1.905em de ancho y a 47vw
+     ocupaba ~88% de la ventana, la proporción del título en la referencia.
+     "EUROPA" mide ~2.29em (6 letras a ~0.40em de tinta menos 0.12em de tracking),
+     ~20% más ancho; para conservar ese mismo ~88% el vw baja proporcionalmente
+     a ~39vw (47 x 1.905/2.29). Mantiene el nowrap en una sola línea.
 
-     Pero la referencia usa una palabra de 9 letras y la nuestra tiene 5:
-     a igual ancho, nuestra altura de mayúscula es el doble. En un desktop
-     apaisado, 47vw deja el título ocupando media pantalla de alto y se
-     come las etiquetas laterales y el CTA circular. Por eso el alto manda
-     cuando la ventana es ancha y baja: 42svh es el máximo que deja el
-     bloque terminando por encima del 47% de la altura.
-     En móvil (alto y estrecho) gana el 47vw y se ve el ancho completo. */
-  font-size: clamp(4rem, min(47vw, 42vh), 56rem);
-  font-size: clamp(4rem, min(47vw, 42svh), 56rem);
+     El tope por alto (42svh) sigue mandando cuando la ventana es ancha y baja,
+     para que el bloque termine por encima del 47% de la altura y no se coma las
+     etiquetas laterales ni el CTA circular. En móvil (alto y estrecho) gana el
+     vw y se ve el ancho completo. */
+  font-size: clamp(4rem, min(39vw, 42vh), 56rem);
+  font-size: clamp(4rem, min(39vw, 42svh), 56rem);
   white-space: nowrap;
 }
 
