@@ -20,6 +20,10 @@ export interface DestinoSudamerica {
   slug: string
   /** lo que ve el cliente, p.ej. "Chile (Santiago)" */
   nombre: string
+  /** nombre corto para los botones, p.ej. "Chile" */
+  corto: string
+  /** bandera emoji para los botones */
+  flag: string
   directo: Rango
   europa: Rango
 }
@@ -32,11 +36,11 @@ export const CIUDADES_SALIDA = ['Sydney', 'Brisbane', 'Melbourne'] as const
 export type CiudadSalida = (typeof CIUDADES_SALIDA)[number]
 
 export const DESTINOS: DestinoSudamerica[] = [
-  { slug: 'chile',     nombre: 'Chile (Santiago)',          directo: { min: 1700, max: 3400 }, europa: { min: 3000, max: 5200 } },
-  { slug: 'argentina', nombre: 'Argentina (Buenos Aires)',  directo: { min: 1900, max: 3500 }, europa: { min: 3100, max: 5400 } },
-  { slug: 'peru',      nombre: 'Perú (Lima)',               directo: { min: 1900, max: 3700 }, europa: { min: 3200, max: 5500 } },
-  { slug: 'brasil',    nombre: 'Brasil (São Paulo)',        directo: { min: 2000, max: 3800 }, europa: { min: 3300, max: 5600 } },
-  { slug: 'colombia',  nombre: 'Colombia (Bogotá)',         directo: { min: 2000, max: 3900 }, europa: { min: 3100, max: 5400 } },
+  { slug: 'chile',     nombre: 'Chile (Santiago)',          corto: 'Chile',     flag: '🇨🇱', directo: { min: 1700, max: 3400 }, europa: { min: 3000, max: 5200 } },
+  { slug: 'argentina', nombre: 'Argentina (Buenos Aires)',  corto: 'Argentina', flag: '🇦🇷', directo: { min: 1900, max: 3500 }, europa: { min: 3100, max: 5400 } },
+  { slug: 'peru',      nombre: 'Perú (Lima)',               corto: 'Perú',      flag: '🇵🇪', directo: { min: 1900, max: 3700 }, europa: { min: 3200, max: 5500 } },
+  { slug: 'brasil',    nombre: 'Brasil (São Paulo)',        corto: 'Brasil',    flag: '🇧🇷', directo: { min: 2000, max: 3800 }, europa: { min: 3300, max: 5600 } },
+  { slug: 'colombia',  nombre: 'Colombia (Bogotá)',         corto: 'Colombia',  flag: '🇨🇴', directo: { min: 2000, max: 3900 }, europa: { min: 3100, max: 5400 } },
 ]
 
 export function destinoPorSlug(slug: string): DestinoSudamerica | undefined {
