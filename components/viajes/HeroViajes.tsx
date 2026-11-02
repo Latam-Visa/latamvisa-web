@@ -5,21 +5,26 @@ import Link from 'next/link'
 import { prefersReducedMotion } from '@/lib/lenis'
 import MenuOverlay from './MenuOverlay'
 
-/* 01 — Hero con video de fondo (estilo editorial "Travel Sensations"):
-   video en bucle silenciado a pantalla completa, un velo sutil para
-   legibilidad, y el contenido centrado y compacto: eyebrow + título serif
-   "EUROPA" + subtítulo + CTA azul cielo que baja al cotizador. */
+/* 01 — Hero cinematográfico, oscuro, estilo editorial (ref: Latam Travel
+   Website references). Tres columnas verticales de video (Barcelona · París ·
+   Niza), un velo oscuro controlado para legibilidad, y el título LATAM TRAVEL
+   en PP Monument Extended cruzando por encima. Sin emojis, solo Tailwind. */
+
+const COLUMNAS = [
+  { src: '/viajes/hero/sagrada-barcelona.mp4', poster: '/viajes/hero/sagrada-barcelona-poster.jpg', ciudad: 'Barcelona' },
+  { src: '/viajes/hero/eiffel-paris.mp4', poster: '/viajes/hero/eiffel-paris-poster.jpg', ciudad: 'París' },
+  { src: '/viajes/hero/atardecer-niza.mp4', poster: '/viajes/hero/atardecer-niza-poster.jpg', ciudad: 'Niza' },
+]
 
 export default function HeroViajes() {
   const [menuOpen, setMenuOpen] = useState(false)
   const menuBtnRef = useRef<HTMLButtonElement>(null)
-  const videoRef = useRef<HTMLVideoElement>(null)
+  const sectionRef = useRef<HTMLElement>(null)
 
-  // Respeta reduced-motion: deja el poster quieto en vez del bucle. Se decide
-  // tras el montaje (nunca en SSR) para no cambiar el árbol entre server y
-  // cliente.
+  // Respeta reduced-motion: deja los posters quietos en vez del bucle.
   useEffect(() => {
-    if (prefersReducedMotion()) videoRef.current?.pause()
+    if (!prefersReducedMotion()) return
+    sectionRef.current?.querySelectorAll('video').forEach((v) => v.pause())
   }, [])
 
   const bajarACotizar = (e: React.MouseEvent) => {
@@ -30,51 +35,61 @@ export default function HeroViajes() {
   return (
     <>
       <section
+        ref={sectionRef}
         id="hero"
-        aria-label="EUROPA — 1 viaje, 2 vacaciones"
-        className="viajes-hero-video"
+        aria-label="LATAM Travel — 1 viaje, 2 vacaciones"
+        className="relative h-[100svh] w-full overflow-hidden bg-[#0a0a0a]"
       >
-        <video
-          ref={videoRef}
-          className="viajes-hero-bg"
-          autoPlay
-          muted
-          loop
-          playsInline
-          preload="metadata"
-          poster="/viajes/amanecer-barcelona-poster.jpg"
-        >
-          <source src="/viajes/amanecer-barcelona.mp4" type="video/mp4" />
-        </video>
+        {/* Tres columnas de video */}
+        <div className="absolute inset-0 flex">
+          {COLUMNAS.map((col) => (
+            <div
+              key={col.ciudad}
+              className="relative flex-1 overflow-hidden border-l border-white/10 first:border-l-0"
+            >
+              <video
+                className="absolute inset-0 h-full w-full object-cover"
+                autoPlay
+                muted
+                loop
+                playsInline
+                preload="metadata"
+                poster={col.poster}
+              >
+                <source src={col.src} type="video/mp4" />
+              </video>
+              {/* base oscura para la etiqueta de ciudad */}
+              <div className="pointer-events-none absolute inset-x-0 bottom-0 h-2/5 bg-gradient-to-t from-black/80 to-transparent" />
+              <span className="absolute inset-x-0 bottom-6 text-center font-['PPMonumentExtended'] text-[10px] font-light uppercase tracking-[0.3em] text-white/85 sm:text-xs">
+                {col.ciudad}
+              </span>
+            </div>
+          ))}
+        </div>
 
-        <div aria-hidden className="viajes-hero-scrim" />
+        {/* Velo global para que el título se lea sobre cualquier fotograma */}
+        <div className="pointer-events-none absolute inset-0 bg-black/40" />
 
-        {/* ARRIBA IZQUIERDA — logo */}
-        <Link
-          href="/"
-          aria-label="LATAM Travel — inicio"
-          className="absolute left-0 top-0 z-20 flex items-center"
-          style={{ padding: 'clamp(24px, 3vw, 44px)' }}
-        >
-          <Image
-            src="/logo-lt-travel-white.png"
-            alt="LATAM Travel"
-            width={961}
-            height={121}
-            priority
-            className="h-3 w-auto object-contain md:h-[17px]"
-          />
-        </Link>
+        {/* Barra superior: logo + menú */}
+        <div className="absolute inset-x-0 top-0 z-20 flex items-center justify-between p-6 md:p-10">
+          <Link href="/" aria-label="LATAM Travel — inicio" className="flex items-center">
+            <Image
+              src="/logo-lt-travel-white.png"
+              alt="LATAM Travel"
+              width={961}
+              height={121}
+              priority
+              className="h-3 w-auto object-contain md:h-[17px]"
+            />
+          </Link>
 
-        {/* ARRIBA DERECHA — menú (píldora) */}
-        <div className="absolute right-0 top-0 z-20 flex items-center" style={{ padding: 'clamp(20px, 3vw, 40px)' }}>
           <button
             ref={menuBtnRef}
             type="button"
             onClick={() => setMenuOpen(true)}
             aria-haspopup="dialog"
             aria-expanded={menuOpen}
-            className="viajes-menu-pill"
+            className="inline-flex min-h-[40px] items-center gap-2 border border-white/70 px-4 py-2 font-['PPMonumentExtended'] text-[11px] uppercase tracking-[0.2em] text-white transition-colors hover:bg-white/10"
           >
             Menú
             <svg width="4" height="16" viewBox="0 0 4 16" fill="currentColor" aria-hidden>
@@ -85,31 +100,31 @@ export default function HeroViajes() {
           </button>
         </div>
 
-        {/* CENTRO — eyebrow + título serif + subtítulo + CTA */}
-        <div className="viajes-hero-center">
-          <p className="viajes-hero-eyebrow">1 viaje, 2 vacaciones</p>
-          <h1 className="viajes-hero-serif-title">Europa</h1>
-          <p className="viajes-hero-sub">
-            Vuela de Australia a Latinoamérica y conoce Europa en el camino. Un país a la ida y otro a la vuelta.
+        {/* Centro: eyebrow + título + CTA */}
+        <div className="pointer-events-none absolute inset-0 z-10 flex flex-col items-center justify-center px-6 text-center">
+          <p className="font-['PPMonumentExtended'] text-[10px] font-light uppercase tracking-[0.4em] text-white/80 sm:text-xs">
+            Europa — Sudamérica · 2026
           </p>
+
+          <h1 className="mt-5 font-['PPMonumentExtended'] font-black uppercase leading-[0.92] text-white [text-shadow:0_2px_30px_rgba(0,0,0,0.5)]">
+            <span className="block text-[15vw] sm:text-[11vw] lg:text-[8.5vw]">Latam</span>
+            <span className="block text-[15vw] sm:text-[11vw] lg:text-[8.5vw]">Travel</span>
+          </h1>
+
+          <p className="mt-6 font-['PPMonumentExtended'] text-xs font-light uppercase tracking-[0.25em] text-white/85 sm:text-sm">
+            1 viaje, 2 vacaciones
+          </p>
+
           <a
             href="#cotiza"
             onClick={bajarACotizar}
-            className="viajes-cta viajes-cta-sky"
-            style={{ marginTop: '2rem' }}
+            className="pointer-events-auto mt-8 inline-flex min-h-[48px] items-center gap-2 bg-[#C8FF00] px-7 font-['PPMonumentExtended'] text-[11px] font-bold uppercase tracking-[0.15em] text-[#0a0a0a] transition-transform hover:-translate-y-0.5"
           >
             Cotiza tu viaje
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden>
               <path d="M5 12h14M13 6l6 6-6 6" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           </a>
-        </div>
-
-        {/* ABAJO DERECHA — coordenadas del lugar del video */}
-        <div className="viajes-coords">
-          <span>41.3888, 2.1590</span>
-          <br />
-          <span className="viajes-coords-place">Amanecer · Barcelona</span>
         </div>
       </section>
 
