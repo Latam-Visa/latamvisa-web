@@ -996,3 +996,77 @@ body::before {
   .viajes-hero-edge--left { left: 8%; }
   .viajes-hero-edge--right { right: 8%; }
 }
+
+/* ───────── Reel de desintegración (/viajes) ─────────
+   Las 4 tarjetas (España → Barcelona → París → Niza) en formato 4:5. Base
+   (sin JS / reduced-motion): apiladas y scrolleables. Activo (JS + motion):
+   escenario fijo, tarjetas superpuestas al centro, y cada transición desintegra
+   el video en partículas. */
+.reel-root { position: relative; width: 100%; background: #0a0a0a; }
+
+.reel-stage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  padding: 24px 0;
+}
+
+.reel-card {
+  position: relative;
+  flex: none;
+  width: min(62svh, 90vw);
+  aspect-ratio: 4 / 5;
+}
+
+.reel-visual {
+  position: absolute;
+  inset: 0;
+  border-radius: 22px;
+  border: 1.5px solid rgba(255, 255, 255, 0.32);
+  overflow: hidden;
+  background: #0a0a0a;
+}
+
+.reel-visual > video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Capa de fragmentos: fuera del recorte para que las partículas vuelen libres */
+.reel-shards {
+  position: absolute;
+  inset: 0;
+  overflow: visible;
+  opacity: 0;
+  visibility: hidden;
+}
+
+.reel-shard {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* Activo: escenario fijo y tarjetas superpuestas */
+.reel-root[data-active="true"] .reel-stage {
+  display: block;
+  height: 100svh;
+  gap: 0;
+  padding: 0;
+}
+
+.reel-root[data-active="true"] .reel-card {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+@media (min-width: 768px) {
+  .reel-visual { border-radius: 30px; }
+}
