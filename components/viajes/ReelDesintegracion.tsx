@@ -146,9 +146,16 @@ export default function ReelDesintegracion() {
                     >
                       Promociones
                     </a>
-                    <span className="justify-self-center text-center font-[family-name:var(--font-viajes-geo)] text-[7px] font-light uppercase tracking-[0.2em] text-white/90 sm:text-[8px] sm:tracking-[0.3em] md:text-[10px]">
-                      La vida es una sola
-                    </span>
+                    <Link href="/" aria-label="LATAM Travel — inicio" className="flex items-center justify-self-center">
+                      <Image
+                        src="/logo-lt-travel-white.png"
+                        alt="LATAM Travel"
+                        width={961}
+                        height={121}
+                        priority
+                        className="h-3.5 w-auto object-contain md:h-[18px]"
+                      />
+                    </Link>
                     <a
                       href="#destinos"
                       onClick={irA('destinos')}
@@ -158,34 +165,29 @@ export default function ReelDesintegracion() {
                     </a>
                   </nav>
 
-                  {/* Logo centrado */}
-                  <div className="pointer-events-auto absolute inset-0 flex items-center justify-center px-16 sm:px-24">
-                    <Link href="/" aria-label="LATAM Travel — inicio" className="flex items-center">
-                      <Image
-                        src="/logo-lt-travel-white.png"
-                        alt="LATAM Travel"
-                        width={961}
-                        height={121}
-                        priority
-                        className="h-4 w-auto object-contain md:h-5"
-                      />
-                    </Link>
-                  </div>
+                  {/* Velo radial para que el titular amarillo contraste */}
+                  <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_72%_62%_at_center,rgba(0,0,0,0.5),transparent_76%)]" />
 
-                  {/* Frase emocional */}
-                  <div className="pointer-events-none absolute inset-0 flex items-center justify-center px-8">
-                    <p className="max-w-[32ch] translate-y-9 text-center font-[family-name:var(--font-viajes-geo)] text-[10px] font-light leading-relaxed tracking-[0.04em] text-white/90 [text-shadow:0_1px_12px_rgba(0,0,0,0.55)] sm:max-w-[44ch] sm:translate-y-10 sm:text-[12px] md:translate-y-12 md:text-sm">
-                      Prefiero llegar a viejo lleno de historias que contar, no solo de plata.
-                    </p>
+                  {/* Titular mixto (serif + script + sans) en amarillo cálido */}
+                  <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center gap-0.5 px-6 text-center text-[#EBD48A] [text-shadow:0_2px_22px_rgba(0,0,0,0.6)]">
+                    <span className="font-[family-name:var(--font-viajes-serif)] italic leading-none tracking-wide text-[clamp(15px,2.3vw,28px)]">
+                      un viaje,
+                    </span>
+                    <span className="font-[family-name:var(--font-viajes-script)] leading-[0.95] text-[clamp(40px,7.6vw,96px)]">
+                      dos vacaciones
+                    </span>
+                    <span className="mt-1 font-[family-name:var(--font-viajes-geo)] font-bold uppercase leading-none tracking-[0.04em] text-[clamp(17px,3vw,40px)]">
+                      un solo vuelo
+                    </span>
                   </div>
 
                   {/* Micro-textos a los extremos */}
-                  <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-5 md:pl-14">
+                  <div className="pointer-events-none absolute inset-y-0 left-0 hidden items-center pl-5 sm:flex md:pl-14">
                     <span className="font-[family-name:var(--font-viajes-geo)] text-[7px] font-light uppercase tracking-[0.1em] text-white/80 sm:text-[10px] sm:tracking-[0.25em] md:text-[11px] md:tracking-[0.3em]">
                       Latinoamérica
                     </span>
                   </div>
-                  <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-5 md:pr-14">
+                  <div className="pointer-events-none absolute inset-y-0 right-0 hidden items-center pr-5 sm:flex md:pr-14">
                     <span className="font-[family-name:var(--font-viajes-geo)] text-[7px] font-light uppercase tracking-[0.1em] text-white/80 sm:text-[10px] sm:tracking-[0.25em] md:text-[11px] md:tracking-[0.3em]">
                       Travel
                     </span>
