@@ -16,16 +16,13 @@ const WhatsAppIcon = ({ size = 18 }: { size?: number }) => (
 export default function ViajesShell({ children }: { children: React.ReactNode }) {
   useLenis()
 
-  /* El flotante se esconde en dos pantallas concretas:
-     - #hero, porque en móvil se montaba encima del CTA circular (medido:
-       13px de solape a 390px) y porque el hero ya tiene su propia llamada.
-     - #contacto, que es en sí un CTA neón: dejarlo sería un segundo acento
-       neón en la misma pantalla, y además redundante.
-     En todo el resto del scroll sigue visible. */
+  /* La barra app se esconde sobre el cotizador (#cotiza) y el contacto
+     (#contacto): ahí ya está el formulario / CTA, y la barra taparía el
+     contenido o repetiría el neón. En todo el resto del scroll sigue visible. */
   const [fabHidden, setFabHidden] = useState(true)
 
   useEffect(() => {
-    const targets = ['hero', 'contacto']
+    const targets = ['cotiza', 'contacto']
       .map((id) => document.getElementById(id))
       .filter((el): el is HTMLElement => !!el)
     if (!targets.length) return
@@ -45,31 +42,46 @@ export default function ViajesShell({ children }: { children: React.ReactNode })
     return () => io.disconnect()
   }, [])
 
+  const irCotiza = (e: React.MouseEvent) => {
+    e.preventDefault()
+    document.getElementById('cotiza')?.scrollIntoView({ behavior: 'smooth' })
+  }
+
   return (
     <>
       {children}
 
-      {/* Mobile-only: the desktop layout always has a CTA within reach. */}
-      <a
-        href={WHATSAPP_HREF}
-        target="_blank"
-        rel="noopener noreferrer"
-        aria-label="Cotizar por WhatsApp"
+      {/* Barra de acción estilo app (solo móvil): botones grandes y claros,
+         siempre a mano. Se esconde sobre el cotizador/contacto para no tapar
+         el formulario. */}
+      <div
         aria-hidden={fabHidden}
-        className="viajes-cta fixed bottom-5 right-5 z-50 md:hidden"
-        style={{
-          height: '52px',
-          paddingLeft: '20px',
-          paddingRight: '22px',
-          boxShadow: '0 8px 28px rgba(11,42,74,0.28)',
-          opacity: fabHidden ? 0 : 1,
-          pointerEvents: fabHidden ? 'none' : 'auto',
-          transition: 'opacity 0.3s ease',
-        }}
+        className={`fixed inset-x-0 bottom-0 z-50 transition-transform duration-300 md:hidden ${
+          fabHidden ? 'pointer-events-none translate-y-full' : 'translate-y-0'
+        }`}
       >
-        <WhatsAppIcon size={17} />
-        WhatsApp
-      </a>
+        <div className="flex items-center gap-2.5 border-t border-white/10 bg-[#0a0a0a]/85 px-3 pb-[calc(12px+env(safe-area-inset-bottom))] pt-3 backdrop-blur-md">
+          <a
+            href="#cotiza"
+            onClick={irCotiza}
+            className="inline-flex min-h-[56px] flex-1 items-center justify-center gap-2 rounded-2xl bg-[#C8FF00] font-['PPMonumentExtended'] text-[13px] font-bold uppercase tracking-[0.06em] text-[#0a0a0a] transition-transform active:scale-[0.97]"
+          >
+            Cotización express
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden>
+              <path d="M5 12h14M13 6l6 6-6 6" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </a>
+          <a
+            href={WHATSAPP_HREF}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Escríbenos por WhatsApp"
+            className="inline-flex min-h-[56px] min-w-[56px] items-center justify-center rounded-2xl bg-[#25D366] text-white transition-transform active:scale-[0.97]"
+          >
+            <WhatsAppIcon size={24} />
+          </a>
+        </div>
+      </div>
     </>
   )
 }
