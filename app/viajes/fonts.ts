@@ -1,15 +1,5 @@
 import localFont from 'next/font/local'
-import { Playball, Cormorant_Garamond, Quicksand } from 'next/font/google'
-
-/* Geométrica redondeada de caja baja (estilo "pause."): Quicksand. Reemplaza a
-   PP Monument Extended en el reel del hero. "a" de un piso, terminales suaves,
-   muy limpia en tamaños grandes. */
-export const viajesGeo = Quicksand({
-  subsets: ['latin'],
-  weight: ['400', '500', '600', '700'],
-  variable: '--font-viajes-geo',
-  display: 'swap',
-})
+import { Playball, Cormorant_Garamond } from 'next/font/google'
 
 /* Display de la campaña: PPMonumentCondensed, el corte estrecho de la propia
    tipografía de marca. Los archivos ya estaban en public/fonts/PPMonument
