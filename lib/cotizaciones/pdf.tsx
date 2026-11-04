@@ -24,6 +24,8 @@ const MM = 72 / 25.4
 
 const DIR_FONDOS = path.join(process.cwd(), 'public', 'cotizacion', 'canada')
 const DIR_FUENTES = path.join(process.cwd(), 'public', 'fonts')
+// Logo del convenio (VisadoConsular), fondo transparente, bajo el footer.
+const LOGO_CONVENIO = path.join(DIR_FONDOS, 'visadoconsular.png')
 
 // ── Fuentes ────────────────────────────────────────────────────────────────
 // Si falta un archivo se usa Helvetica (y queda en el log).
@@ -188,6 +190,29 @@ async function fondoPagina1(tieneVisaUsa: boolean): Promise<Buffer> {
   pegar(img, original, { x: 0, y: r.franjaRelleno.y, ancho: img.ancho, alto: r.hueco.alto }, { x: 0, y: r.hueco.y }, { corregir: true, fundirArriba: true })
   // El bloque se corrige al color del papel de su nuevo lugar, sin fundir.
   pegar(img, conFrase, { x: 0, y: b.y, ancho: img.ancho, alto: b.alto }, { x: 0, y: b.y + r.desplazamiento }, { corregir: true })
+
+  // Último paso: subir todo el cuerpo para quitar el espacio grande bajo la
+  // línea del encabezado. Se copia de un clon para no leer/escribir el mismo
+  // buffer solapado.
+  const base = clonar(img)
+  pegar(
+    img,
+    base,
+    { x: 0, y: r.cuerpoDesde, ancho: img.ancho, alto: PNG_ALTO - r.cuerpoDesde },
+    { x: 0, y: r.cuerpoDesde - r.subir },
+    { fundirArriba: true },
+  )
+  // La franja liberada abajo conserva el footer original (línea + logo): se
+  // tapa con papel limpio tomado del hueco del encabezado (con margen extra
+  // hacia arriba para cubrir el logo por completo).
+  const extra = 30
+  pegar(
+    img,
+    original,
+    { x: 0, y: 600, ancho: img.ancho, alto: r.subir + extra },
+    { x: 0, y: PNG_ALTO - r.subir - extra },
+    { corregir: true, fundirArriba: true },
+  )
   return aJpeg(img)
 }
 
@@ -399,6 +424,32 @@ function CotizacionPdf({ cot, fondos, qr, traduccionPorPersona }: DatosPdf) {
             .
           </Abs>
         ) : null}
+        {/* Convenio: "En convenio con" + logo de VisadoConsular bajo el footer. */}
+        <Text
+          style={{
+            position: 'absolute',
+            left: 0,
+            width: pt(PNG_ANCHO),
+            top: pt(p1.convenio.label.y),
+            textAlign: 'center',
+            ...conTinta,
+            fontWeight: 600,
+            fontSize: p1.convenio.label.size,
+            opacity: 0.7,
+            letterSpacing: 1.2,
+          }}
+        >
+          EN CONVENIO CON
+        </Text>
+        <Image
+          src={LOGO_CONVENIO}
+          style={{
+            position: 'absolute',
+            left: pt((PNG_ANCHO - p1.convenio.logo.ancho) / 2),
+            top: pt(p1.convenio.logo.y),
+            width: pt(p1.convenio.logo.ancho),
+          }}
+        />
       </Page>
 
       {/* ── Página 2 ── */}
