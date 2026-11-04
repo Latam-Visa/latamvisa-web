@@ -142,17 +142,17 @@ export default function ReelDesintegracion() {
                     <a
                       href="#cotiza"
                       onClick={irA('cotiza')}
-                      className="justify-self-start font-['PPMonumentExtended'] text-[7px] uppercase tracking-[0.15em] text-white/85 transition-colors hover:text-white sm:text-[8px] sm:tracking-[0.25em] md:text-[10px]"
+                      className="justify-self-start font-[family-name:var(--font-viajes-geo)] text-[7px] uppercase tracking-[0.15em] text-white/85 transition-colors hover:text-white sm:text-[8px] sm:tracking-[0.25em] md:text-[10px]"
                     >
                       Promociones
                     </a>
-                    <span className="justify-self-center text-center font-['PPMonumentExtended'] text-[7px] font-light uppercase tracking-[0.2em] text-white/90 sm:text-[8px] sm:tracking-[0.3em] md:text-[10px]">
+                    <span className="justify-self-center text-center font-[family-name:var(--font-viajes-geo)] text-[7px] font-light uppercase tracking-[0.2em] text-white/90 sm:text-[8px] sm:tracking-[0.3em] md:text-[10px]">
                       La vida es una sola
                     </span>
                     <a
                       href="#destinos"
                       onClick={irA('destinos')}
-                      className="justify-self-end font-['PPMonumentExtended'] text-[7px] uppercase tracking-[0.15em] text-white/85 transition-colors hover:text-white sm:text-[8px] sm:tracking-[0.25em] md:text-[10px]"
+                      className="justify-self-end font-[family-name:var(--font-viajes-geo)] text-[7px] uppercase tracking-[0.15em] text-white/85 transition-colors hover:text-white sm:text-[8px] sm:tracking-[0.25em] md:text-[10px]"
                     >
                       Destinos
                     </a>
@@ -174,19 +174,19 @@ export default function ReelDesintegracion() {
 
                   {/* Frase emocional */}
                   <div className="pointer-events-none absolute inset-0 flex items-center justify-center px-8">
-                    <p className="max-w-[32ch] translate-y-9 text-center font-['PPMonumentExtended'] text-[10px] font-light leading-relaxed tracking-[0.04em] text-white/90 [text-shadow:0_1px_12px_rgba(0,0,0,0.55)] sm:max-w-[44ch] sm:translate-y-10 sm:text-[12px] md:translate-y-12 md:text-sm">
+                    <p className="max-w-[32ch] translate-y-9 text-center font-[family-name:var(--font-viajes-geo)] text-[10px] font-light leading-relaxed tracking-[0.04em] text-white/90 [text-shadow:0_1px_12px_rgba(0,0,0,0.55)] sm:max-w-[44ch] sm:translate-y-10 sm:text-[12px] md:translate-y-12 md:text-sm">
                       Prefiero llegar a viejo lleno de historias que contar, no solo de plata.
                     </p>
                   </div>
 
                   {/* Micro-textos a los extremos */}
                   <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-5 md:pl-14">
-                    <span className="font-['PPMonumentExtended'] text-[7px] font-light uppercase tracking-[0.1em] text-white/80 sm:text-[10px] sm:tracking-[0.25em] md:text-[11px] md:tracking-[0.3em]">
+                    <span className="font-[family-name:var(--font-viajes-geo)] text-[7px] font-light uppercase tracking-[0.1em] text-white/80 sm:text-[10px] sm:tracking-[0.25em] md:text-[11px] md:tracking-[0.3em]">
                       Latinoamérica
                     </span>
                   </div>
                   <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-5 md:pr-14">
-                    <span className="font-['PPMonumentExtended'] text-[7px] font-light uppercase tracking-[0.1em] text-white/80 sm:text-[10px] sm:tracking-[0.25em] md:text-[11px] md:tracking-[0.3em]">
+                    <span className="font-[family-name:var(--font-viajes-geo)] text-[7px] font-light uppercase tracking-[0.1em] text-white/80 sm:text-[10px] sm:tracking-[0.25em] md:text-[11px] md:tracking-[0.3em]">
                       Travel
                     </span>
                   </div>
@@ -195,23 +195,23 @@ export default function ReelDesintegracion() {
                 <>
                   {/* Índice + país */}
                   <div className="pointer-events-none absolute inset-x-0 top-0 flex items-start justify-between p-5 md:p-8">
-                    <span className="font-['PPMonumentExtended'] text-[10px] font-light uppercase tracking-[0.3em] text-white/70 sm:text-[11px]">
+                    <span className="font-[family-name:var(--font-viajes-geo)] text-[10px] font-light uppercase tracking-[0.3em] text-white/70 sm:text-[11px]">
                       {v.indice} / 03
                     </span>
-                    <span className="font-['PPMonumentExtended'] text-[10px] font-light uppercase tracking-[0.3em] text-white/70 sm:text-[11px]">
+                    <span className="font-[family-name:var(--font-viajes-geo)] text-[10px] font-light uppercase tracking-[0.3em] text-white/70 sm:text-[11px]">
                       {v.pais}
                     </span>
                   </div>
 
                   {/* Nombre + línea */}
                   <div className="pointer-events-none absolute inset-x-0 bottom-0 flex flex-col items-start gap-2 p-5 md:p-10">
-                    <h2 className="font-['PPMonumentExtended'] font-black uppercase leading-[0.9] text-white [text-shadow:0_2px_30px_rgba(0,0,0,0.5)] text-[12vw] sm:text-[10vw] lg:text-[6.5vw]">
+                    <h2 className="font-[family-name:var(--font-viajes-geo)] font-black uppercase leading-[0.9] text-white [text-shadow:0_2px_30px_rgba(0,0,0,0.5)] text-[12vw] sm:text-[10vw] lg:text-[6.5vw]">
                       {v.ciudad}
                     </h2>
-                    <p className="max-w-[28ch] font-['PPMonumentExtended'] text-[11px] font-light uppercase tracking-[0.2em] text-white/80 sm:text-sm">
+                    <p className="max-w-[28ch] font-[family-name:var(--font-viajes-geo)] text-[11px] font-light uppercase tracking-[0.2em] text-white/80 sm:text-sm">
                       {v.linea}
                     </p>
-                    <span className="mt-0.5 inline-flex items-center gap-2 font-['PPMonumentExtended'] text-[9px] font-light uppercase tracking-[0.3em] text-white/75 sm:text-[11px]">
+                    <span className="mt-0.5 inline-flex items-center gap-2 font-[family-name:var(--font-viajes-geo)] text-[9px] font-light uppercase tracking-[0.3em] text-white/75 sm:text-[11px]">
                       <span className="inline-block h-1.5 w-1.5 bg-[#C8FF00]" aria-hidden />
                       {v.esquina}
                     </span>
