@@ -86,8 +86,8 @@ export default function HeroViajes() {
 
         {/* Frase emocional debajo del logo */}
         <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center px-8">
-          <p className="max-w-[26ch] translate-y-8 text-center font-['PPMonumentExtended'] text-[8px] font-light uppercase leading-relaxed tracking-[0.22em] text-white/80 sm:translate-y-9 sm:text-[10px] sm:tracking-[0.28em] md:translate-y-10">
-            La vida se mide en viajes, no en días
+          <p className="max-w-[32ch] translate-y-10 text-center font-['PPMonumentExtended'] text-[10px] font-light leading-relaxed tracking-[0.04em] text-white/90 [text-shadow:0_1px_12px_rgba(0,0,0,0.55)] sm:max-w-[44ch] sm:translate-y-12 sm:text-[12px] md:translate-y-14 md:text-sm">
+            Prefiero llegar a viejo lleno de historias que contar, no solo de plata.
           </p>
         </div>
 
