@@ -24,8 +24,10 @@ const MM = 72 / 25.4
 
 const DIR_FONDOS = path.join(process.cwd(), 'public', 'cotizacion', 'canada')
 const DIR_FUENTES = path.join(process.cwd(), 'public', 'fonts')
-// Logo del convenio (VisadoConsular), fondo transparente, bajo el footer.
-const LOGO_CONVENIO = path.join(DIR_FONDOS, 'visadoconsular.png')
+// Footer: "LATAM VISA" (recortado del fondo, transparente) + VisadoConsular
+// (con su fondo negro), lado a lado y centrados como grupo.
+const LOGO_LATAM = path.join(DIR_FONDOS, 'latamvisa-chip.png')
+const LOGO_CONVENIO = path.join(DIR_FONDOS, 'visadoconsular-negro.png')
 
 // ── Fuentes ────────────────────────────────────────────────────────────────
 // Si falta un archivo se usa Helvetica (y queda en el log).
@@ -212,6 +214,18 @@ async function fondoPagina1(tieneVisaUsa: boolean): Promise<Buffer> {
     { x: 0, y: 600, ancho: img.ancho, alto: r.subir + extra },
     { x: 0, y: PNG_ALTO - r.subir - extra },
     { corregir: true, fundirArriba: true },
+  )
+
+  // Borrar el "LATAM VISA" horneado (ya desplazado): el footer se redibuja como
+  // overlays (LATAM VISA + VisadoConsular) centrados. Se rellena con papel del
+  // margen izquierdo a la misma altura.
+  const lvY = 1860 - r.subir
+  pegar(
+    img,
+    clonar(img),
+    { x: 90, y: lvY - 12, ancho: 280, alto: 56 },
+    { x: 567, y: lvY - 12 },
+    { corregir: true },
   )
   return aJpeg(img)
 }
@@ -424,32 +438,26 @@ function CotizacionPdf({ cot, fondos, qr, traduccionPorPersona }: DatosPdf) {
             .
           </Abs>
         ) : null}
-        {/* Convenio: "En convenio con" + logo de VisadoConsular bajo el footer. */}
-        <Text
-          style={{
-            position: 'absolute',
-            left: 0,
-            width: pt(PNG_ANCHO),
-            top: pt(p1.convenio.label.y),
-            textAlign: 'center',
-            ...conTinta,
-            fontWeight: 600,
-            fontSize: p1.convenio.label.size,
-            opacity: 0.7,
-            letterSpacing: 1.2,
-          }}
-        >
-          EN CONVENIO CON
-        </Text>
-        <Image
-          src={LOGO_CONVENIO}
-          style={{
-            position: 'absolute',
-            left: pt((PNG_ANCHO - p1.convenio.logo.ancho) / 2),
-            top: pt(p1.convenio.logo.y),
-            width: pt(p1.convenio.logo.ancho),
-          }}
-        />
+        {/* Footer: LATAM VISA + VisadoConsular, mismo alto, centrados como grupo. */}
+        {(() => {
+          const fo = p1.footer
+          const wLatam = fo.alto * fo.latamAspect
+          const wConvenio = fo.alto * fo.convenioAspect
+          const total = wLatam + fo.gap + wConvenio
+          const startX = (PNG_ANCHO - total) / 2
+          return (
+            <>
+              <Image
+                src={LOGO_LATAM}
+                style={{ position: 'absolute', left: pt(startX), top: pt(fo.y), height: pt(fo.alto) }}
+              />
+              <Image
+                src={LOGO_CONVENIO}
+                style={{ position: 'absolute', left: pt(startX + wLatam + fo.gap), top: pt(fo.y), height: pt(fo.alto) }}
+              />
+            </>
+          )
+        })()}
       </Page>
 
       {/* ── Página 2 ── */}

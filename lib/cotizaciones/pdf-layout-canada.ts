@@ -55,10 +55,15 @@ export const PAGINA_1 = {
   viabilidad: { x: 120, y: 948 - 130, ancho: 1150, size: 11.2, interlineado: 1.18 },
   // Punto final de "...6 meses de vigencia)" cuando se tapa la frase de la visa americana.
   puntoSinVisa: { x: 457, y: 1199 + 170 - 130, size: 11.4 },
-  // Logo del convenio (VisadoConsular) bajo el footer "LATAM VISA".
-  convenio: {
-    label: { y: 1808, size: 8 },
-    logo: { ancho: 220, y: 1842 },
+  // Footer: "LATAM VISA" + VisadoConsular, mismo alto, centrados como grupo.
+  // `y` = top (px PNG, ya desplazado por `subir`); aspectos = ancho/alto de los
+  // assets (latamvisa-chip 218x33, visadoconsular-negro 1204x640).
+  footer: {
+    y: 1860 - 130 + 2,
+    alto: 33,
+    gap: 26,
+    latamAspect: 218 / 33,
+    convenioAspect: 1204 / 640,
   },
 }
 
