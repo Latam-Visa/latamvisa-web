@@ -54,17 +54,17 @@ export default function HeroViajes() {
           <a
             href="#cotiza"
             onClick={irA('cotiza')}
-            className="justify-self-start font-['PPMonumentExtended'] text-[8px] uppercase tracking-[0.15em] text-white/85 transition-colors hover:text-white sm:text-[10px] sm:tracking-[0.25em] md:text-xs"
+            className="justify-self-start font-['PPMonumentExtended'] text-[7px] uppercase tracking-[0.15em] text-white/85 transition-colors hover:text-white sm:text-[8px] sm:tracking-[0.25em] md:text-[10px]"
           >
             Promociones
           </a>
-          <span className="justify-self-center text-center font-['PPMonumentExtended'] text-[8px] font-light uppercase tracking-[0.2em] text-white/90 sm:text-[10px] sm:tracking-[0.3em] md:text-xs">
+          <span className="justify-self-center text-center font-['PPMonumentExtended'] text-[7px] font-light uppercase tracking-[0.2em] text-white/90 sm:text-[8px] sm:tracking-[0.3em] md:text-[10px]">
             La vida es una sola
           </span>
           <a
             href="#destinos"
             onClick={irA('destinos')}
-            className="justify-self-end font-['PPMonumentExtended'] text-[8px] uppercase tracking-[0.15em] text-white/85 transition-colors hover:text-white sm:text-[10px] sm:tracking-[0.25em] md:text-xs"
+            className="justify-self-end font-['PPMonumentExtended'] text-[7px] uppercase tracking-[0.15em] text-white/85 transition-colors hover:text-white sm:text-[8px] sm:tracking-[0.25em] md:text-[10px]"
           >
             Destinos
           </a>
@@ -82,6 +82,13 @@ export default function HeroViajes() {
               className="h-4 w-auto object-contain md:h-5"
             />
           </Link>
+        </div>
+
+        {/* Frase emocional debajo del logo */}
+        <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center px-8">
+          <p className="max-w-[26ch] translate-y-8 text-center font-['PPMonumentExtended'] text-[8px] font-light uppercase leading-relaxed tracking-[0.22em] text-white/80 sm:translate-y-9 sm:text-[10px] sm:tracking-[0.28em] md:translate-y-10">
+            La vida se mide en viajes, no en días
+          </p>
         </div>
 
         {/* Micro-textos a los extremos, alineados con el logo */}
