@@ -32,6 +32,12 @@ export const RETOQUES = {
     franjaRelleno: { y: 1626 },
     // "y copia de la visa americana de cada uno." (coordenadas ANTES de bajar el bloque)
     fraseVisaUsa: { x: 458, y: 1199, ancho: 690, alto: 34 },
+    // El fondo de Canva deja un espacio grande entre la línea del encabezado y
+    // "¡Hola!". Como último paso se sube todo el cuerpo (desde `cuerpoDesde`)
+    // `subir` px y el hueco de abajo queda como papel. Las posiciones de los
+    // textos superpuestos (viabilidad, punto sin visa) ya descuentan `subir`.
+    subir: 130,
+    cuerpoDesde: 720,
   },
   pagina2: {
     // Tabla de Canva: bordes en x 105-1309, y 870-1399. Se borra con margen
@@ -46,9 +52,14 @@ export const PAGINA_1 = {
   grupo: { x: 126, y: 442, size: 12.5 },
   fechas: { x: 126, y: 494, size: 11 },
   cliente: { x: 126, y: 532, size: 11 },
-  viabilidad: { x: 120, y: 948, ancho: 1150, size: 11.2, interlineado: 1.18 },
+  viabilidad: { x: 120, y: 948 - 130, ancho: 1150, size: 11.2, interlineado: 1.18 },
   // Punto final de "...6 meses de vigencia)" cuando se tapa la frase de la visa americana.
-  puntoSinVisa: { x: 457, y: 1199 + 170, size: 11.4 },
+  puntoSinVisa: { x: 457, y: 1199 + 170 - 130, size: 11.4 },
+  // Logo del convenio (VisadoConsular) bajo el footer "LATAM VISA".
+  convenio: {
+    label: { y: 1808, size: 8 },
+    logo: { ancho: 220, y: 1842 },
+  },
 }
 
 export const PAGINA_2 = {
