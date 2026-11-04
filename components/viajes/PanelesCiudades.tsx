@@ -74,12 +74,12 @@ export default function PanelesCiudades() {
   }, [])
 
   return (
-    <div ref={rootRef} className="bg-[#0a0a0a]">
+    <div ref={rootRef} className="space-y-3 bg-[#0a0a0a] px-3 pb-3 md:space-y-4 md:px-4 md:pb-4">
       {CIUDADES.map((c) => (
         <section
           key={c.ciudad}
           aria-label={`${c.ciudad}, ${c.pais}`}
-          className="relative h-[88svh] w-full overflow-hidden border-t border-white/10 md:h-[92svh]"
+          className="relative h-[82svh] w-full overflow-hidden rounded-[20px] border border-white/15 md:h-[88svh] md:rounded-[28px]"
         >
           <video
             className="absolute inset-0 h-full w-full object-cover"

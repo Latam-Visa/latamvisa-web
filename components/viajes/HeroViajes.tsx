@@ -6,9 +6,11 @@ import { prefersReducedMotion } from '@/lib/lenis'
 import MenuOverlay from './MenuOverlay'
 
 /* 01 — Hero cinematográfico (ref: Latam Travel Website references / IMG_4923).
-   Un solo video horizontal a lo ancho (España, amanecer) que cubre ~2/3 de la
-   pantalla en desktop; el tercio inferior deja asomar el primer panel de ciudad.
-   Título LATAM TRAVEL en PP Monument Extended. Sin emojis, solo Tailwind. */
+   Un video horizontal (España, amanecer) como tarjeta bordeada y redondeada
+   que cubre 3/4 de pantalla; el cuarto inferior deja asomar el primer panel.
+   Composición minimalista: logo centrado (ancho y alto) con dos micro-textos
+   pegados a los extremos — Latinoamérica (izq) · Travel (der).
+   Sin emojis, solo Tailwind. */
 
 export default function HeroViajes() {
   const [menuOpen, setMenuOpen] = useState(false)
@@ -19,99 +21,75 @@ export default function HeroViajes() {
     if (prefersReducedMotion()) videoRef.current?.pause()
   }, [])
 
-  const bajarACotizar = (e: React.MouseEvent) => {
-    e.preventDefault()
-    document.getElementById('cotiza')?.scrollIntoView({ behavior: 'smooth' })
-  }
-
   return (
     <>
       <section
         id="hero"
         aria-label="LATAM Travel — 1 viaje, 2 vacaciones"
-        className="relative h-[78svh] w-full overflow-hidden bg-[#0a0a0a] md:h-[66svh]"
+        className="h-[75svh] w-full bg-[#0a0a0a] p-3 md:p-4"
       >
-        <video
-          ref={videoRef}
-          className="absolute inset-0 h-full w-full object-cover"
-          autoPlay
-          muted
-          loop
-          playsInline
-          preload="metadata"
-          poster="/viajes/panels/espana-poster.jpg"
-        >
-          <source src="/viajes/panels/espana.mp4" type="video/mp4" />
-        </video>
-
-        {/* Velos para legibilidad: oscurece arriba, centro y abajo */}
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/60 via-black/25 to-black/70" />
-
-        {/* Barra superior: logo + menú */}
-        <div className="absolute inset-x-0 top-0 z-20 flex items-center justify-between p-6 md:p-10">
-          <Link href="/" aria-label="LATAM Travel — inicio" className="flex items-center">
-            <Image
-              src="/logo-lt-travel-white.png"
-              alt="LATAM Travel"
-              width={961}
-              height={121}
-              priority
-              className="h-3 w-auto object-contain md:h-[17px]"
-            />
-          </Link>
-
-          <button
-            ref={menuBtnRef}
-            type="button"
-            onClick={() => setMenuOpen(true)}
-            aria-haspopup="dialog"
-            aria-expanded={menuOpen}
-            className="inline-flex min-h-[40px] items-center gap-2 border border-white/70 px-4 py-2 font-['PPMonumentExtended'] text-[11px] uppercase tracking-[0.2em] text-white transition-colors hover:bg-white/10"
+        <div className="relative h-full w-full overflow-hidden rounded-[20px] border border-white/15 md:rounded-[28px]">
+          <video
+            ref={videoRef}
+            className="absolute inset-0 h-full w-full object-cover"
+            autoPlay
+            muted
+            loop
+            playsInline
+            preload="metadata"
+            poster="/viajes/panels/espana-poster.jpg"
           >
-            Menú
-            <svg width="4" height="16" viewBox="0 0 4 16" fill="currentColor" aria-hidden>
-              <circle cx="2" cy="2" r="1.6" />
-              <circle cx="2" cy="8" r="1.6" />
-              <circle cx="2" cy="14" r="1.6" />
-            </svg>
-          </button>
-        </div>
+            <source src="/viajes/panels/espana.mp4" type="video/mp4" />
+          </video>
 
-        {/* Centro: eyebrow + título + CTA */}
-        <div className="pointer-events-none absolute inset-0 z-10 flex flex-col items-center justify-center px-6 text-center">
-          <p className="font-['PPMonumentExtended'] text-[10px] font-light uppercase tracking-[0.4em] text-white/80 sm:text-xs">
-            Europa — Sudamérica · 2026
-          </p>
+          {/* Velo para legibilidad + halo radial que levanta el logo del reflejo */}
+          <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/45 via-black/20 to-black/55" />
+          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_46%_34%_at_center,rgba(0,0,0,0.62),transparent_72%)]" />
 
-          <h1 className="mt-5 font-['PPMonumentExtended'] font-black uppercase leading-[0.9] text-white [text-shadow:0_2px_30px_rgba(0,0,0,0.55)]">
-            <span className="block text-[14vw] sm:text-[11vw] lg:text-[8.5vw]">Latam</span>
-            <span className="block text-[14vw] sm:text-[11vw] lg:text-[8.5vw]">Travel</span>
-          </h1>
+          {/* Menú (arriba derecha) */}
+          <div className="absolute right-0 top-0 z-20 p-5 md:p-7">
+            <button
+              ref={menuBtnRef}
+              type="button"
+              onClick={() => setMenuOpen(true)}
+              aria-haspopup="dialog"
+              aria-expanded={menuOpen}
+              className="inline-flex min-h-[40px] items-center gap-2 border border-white/70 px-4 py-2 font-['PPMonumentExtended'] text-[11px] uppercase tracking-[0.2em] text-white transition-colors hover:bg-white/10"
+            >
+              Menú
+              <svg width="4" height="16" viewBox="0 0 4 16" fill="currentColor" aria-hidden>
+                <circle cx="2" cy="2" r="1.6" />
+                <circle cx="2" cy="8" r="1.6" />
+                <circle cx="2" cy="14" r="1.6" />
+              </svg>
+            </button>
+          </div>
 
-          <p className="mt-6 font-['PPMonumentExtended'] text-xs font-light uppercase tracking-[0.25em] text-white/85 sm:text-sm">
-            1 viaje, 2 vacaciones
-          </p>
+          {/* Logo centrado (ancho y alto) */}
+          <div className="absolute inset-0 z-10 flex items-center justify-center px-16 sm:px-24">
+            <Link href="/" aria-label="LATAM Travel — inicio" className="flex items-center">
+              <Image
+                src="/logo-lt-travel-white.png"
+                alt="LATAM Travel"
+                width={961}
+                height={121}
+                priority
+                className="h-auto w-[40vw] max-w-[340px] object-contain md:w-[24vw]"
+              />
+            </Link>
+          </div>
 
-          <a
-            href="#cotiza"
-            onClick={bajarACotizar}
-            className="pointer-events-auto mt-8 inline-flex min-h-[48px] items-center gap-2 bg-[#C8FF00] px-7 font-['PPMonumentExtended'] text-[11px] font-bold uppercase tracking-[0.15em] text-[#0a0a0a] transition-transform hover:-translate-y-0.5"
-          >
-            Cotiza tu viaje
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden>
-              <path d="M5 12h14M13 6l6 6-6 6" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-          </a>
-        </div>
-
-        {/* Esquinas tipo editorial + ciudad */}
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 flex items-end justify-between p-6 md:p-10">
-          <span className="font-['PPMonumentExtended'] text-[10px] font-light uppercase tracking-[0.3em] text-white/75 sm:text-xs">
-            España
-          </span>
-          <span className="font-['PPMonumentExtended'] text-[10px] font-light uppercase tracking-[0.3em] text-white/60 sm:text-xs">
-            Vol. 2026
-          </span>
+          {/* Micro-textos a los extremos, alineados con el logo */}
+          <div className="pointer-events-none absolute inset-y-0 left-0 z-10 flex items-center pl-3 md:pl-8">
+            <span className="font-['PPMonumentExtended'] text-[8px] font-light uppercase tracking-[0.1em] text-white/80 sm:text-[10px] sm:tracking-[0.25em] md:text-[11px] md:tracking-[0.3em]">
+              Latinoamérica
+            </span>
+          </div>
+          <div className="pointer-events-none absolute inset-y-0 right-0 z-10 flex items-center pr-3 md:pr-8">
+            <span className="font-['PPMonumentExtended'] text-[8px] font-light uppercase tracking-[0.1em] text-white/80 sm:text-[10px] sm:tracking-[0.25em] md:text-[11px] md:tracking-[0.3em]">
+              Travel
+            </span>
+          </div>
         </div>
       </section>
 
