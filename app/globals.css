@@ -1012,11 +1012,12 @@ body::before {
   padding: 16px;
 }
 
+/* Dos paneles por pantalla (mitad y mitad), descontando gap + padding */
 .reel-card {
   position: relative;
   flex: none;
   width: 100%;
-  height: 80svh;
+  height: calc(50svh - 16px);
 }
 
 .reel-visual {
@@ -1028,31 +1029,19 @@ body::before {
   background: #0a0a0a;
 }
 
+/* El video es más alto que el marco para permitir el parallax (drift suave) */
 .reel-visual > video {
   position: absolute;
-  inset: 0;
+  left: 0;
+  top: -14%;
   width: 100%;
-  height: 100%;
+  height: 128%;
   object-fit: cover;
-}
-
-/* Capa de fragmentos: fuera del recorte para que las partículas vuelen libres */
-.reel-shards {
-  position: absolute;
-  inset: 0;
-  overflow: visible;
-  opacity: 0;
-  visibility: hidden;
-}
-
-.reel-shard {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
+  will-change: transform;
 }
 
 @media (min-width: 768px) {
   .reel-stage { gap: 24px; padding: 24px; }
+  .reel-card { height: calc(50svh - 24px); }
   .reel-visual { border-radius: 30px; }
 }
