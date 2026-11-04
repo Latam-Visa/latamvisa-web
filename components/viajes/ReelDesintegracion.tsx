@@ -4,14 +4,15 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { prefersReducedMotion } from '@/lib/lenis'
 
-/* 01 — Reel de desintegración (/viajes). Cuatro videos en tarjetas 4:5
-   (España → Barcelona → París → Niza). Al hacer scroll, cada tarjeta se
-   DESINTEGRA en partículas (algoritmo del demo de Sikriti Dakua, capturando el
-   póster con el mismo recorte "cover" del video) revelando la siguiente.
-   El efecto se construye en el cliente; bajo prefers-reduced-motion las
-   tarjetas quedan apiladas y scrolleables. Sin emojis, solo Tailwind + .reel-*. */
+/* 01 — Reel de desintegración (/viajes). Paneles de video HORIZONTALES
+   apilados (España → Barcelona → París → Niza), proporción a lo ancho y 80svh
+   de alto (se ven ~2 por pantalla, ref IMG_4923). Al hacer scroll, cada panel
+   se DESINTEGRA en partículas mientras sale por arriba y el siguiente sube
+   (algoritmo del demo de Sikriti Dakua, capturando el póster con el mismo
+   recorte cover). Bajo prefers-reduced-motion quedan apilados sin efecto.
+   Sin emojis, solo Tailwind + .reel-*. */
 
-type Video = {
+type Panel = {
   src: string
   poster: string
   ciudad: string
@@ -22,7 +23,7 @@ type Video = {
   hero?: boolean
 }
 
-const VIDEOS: Video[] = [
+const PANELES: Panel[] = [
   { src: '/viajes/panels/espana.mp4', poster: '/viajes/panels/espana-poster.jpg', ciudad: 'España', hero: true },
   { src: '/viajes/panels/barcelona.mp4', poster: '/viajes/panels/barcelona-poster.jpg', ciudad: 'Barcelona', pais: 'España', indice: '01', linea: 'donde el viaje empieza a sentirse', esquina: 'Gaudí · Mediterráneo' },
   { src: '/viajes/panels/paris.mp4', poster: '/viajes/panels/paris-poster.jpg', ciudad: 'París', pais: 'Francia', indice: '02', linea: 'una escala que vale un viaje', esquina: 'Sena · Luz' },
@@ -31,7 +32,6 @@ const VIDEOS: Video[] = [
 
 export default function ReelDesintegracion() {
   const reelRef = useRef<HTMLElement>(null)
-  const stageRef = useRef<HTMLDivElement>(null)
 
   const irA = (id: string) => (e: React.MouseEvent) => {
     e.preventDefault()
@@ -40,8 +40,7 @@ export default function ReelDesintegracion() {
 
   useEffect(() => {
     const reel = reelRef.current
-    const stage = stageRef.current
-    if (!reel || !stage) return
+    if (!reel) return
 
     if (prefersReducedMotion()) {
       reel.querySelectorAll('video').forEach((v) => v.pause())
@@ -50,6 +49,7 @@ export default function ReelDesintegracion() {
 
     let cancelled = false
     let gsapCtx: { revert: () => void } | null = null
+    let io: IntersectionObserver | null = null
     const createdShards: HTMLCanvasElement[] = []
 
     const run = async () => {
@@ -67,12 +67,22 @@ export default function ReelDesintegracion() {
       const shardLayers = cards.map((c) => c.querySelector<HTMLElement>('.reel-shards')!)
       const videos = cards.map((c) => c.querySelector<HTMLVideoElement>('video')!)
 
-      cards.forEach((c, i) => { c.style.zIndex = String(N - i) })
-      reel.setAttribute('data-active', 'true')
+      // Reproducir solo los videos visibles
+      io = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((e) => {
+            const v = e.target as HTMLVideoElement
+            if (e.isIntersecting) v.play().catch(() => {})
+            else v.pause()
+          })
+        },
+        { threshold: 0.15 },
+      )
+      videos.forEach((v) => io!.observe(v))
 
       const small = window.innerWidth < 700
-      const COUNT = small ? 28 : 40
-      const CAPW = small ? 220 : 300
+      const COUNT = small ? 30 : 44
+      const CAPW = small ? 320 : 460
 
       const buildFor = async (idx: number): Promise<HTMLCanvasElement[]> => {
         const poster = videos[idx].getAttribute('poster') || ''
@@ -81,8 +91,10 @@ export default function ReelDesintegracion() {
         img.src = poster
         await img.decode().catch(() => {})
         if (cancelled) return []
+        const rect = visuals[idx].getBoundingClientRect()
+        const aspect = rect.width && rect.height ? rect.width / rect.height : 16 / 9
         const W = CAPW
-        const H = Math.round((CAPW * 5) / 4)
+        const H = Math.max(1, Math.round(CAPW / aspect))
         const base = document.createElement('canvas')
         base.width = W
         base.height = H
@@ -138,60 +150,38 @@ export default function ReelDesintegracion() {
       gsap.set(shardLayers, { autoAlpha: 0 })
       gsap.set(visuals, { autoAlpha: 1 })
 
-      const playRange = (k: number) => {
-        videos.forEach((v, i) => {
-          if (i === k || i === k + 1) v.play().catch(() => {})
-          else v.pause()
-        })
-      }
-      playRange(0)
-
       gsapCtx = gsap.context(() => {
-        const scrollLen = (N - 1) * window.innerHeight * 1.25
-        const tl = gsap.timeline({
-          scrollTrigger: {
-            trigger: reel,
-            start: 'top top',
-            end: `+=${scrollLen}`,
-            scrub: 1,
-            pin: stage,
-            anticipatePin: 1,
-            invalidateOnRefresh: true,
-          },
-        })
-
         for (let k = 0; k < N - 1; k++) {
-          const hold = `t${k}`
-          tl.addLabel(hold)
-          tl.call(() => playRange(k), [], hold)
-          tl.to({}, { duration: 1 }) // mantener la tarjeta visible
-
-          const br = `b${k}`
-          tl.addLabel(br)
-          tl.set(visuals[k], { autoAlpha: 0 }, br)
-          tl.set(shardLayers[k], { autoAlpha: 1 }, br)
-
           const list = shardLists[k] || []
+          const tl = gsap.timeline({
+            scrollTrigger: {
+              trigger: cards[k],
+              start: 'top top',
+              end: 'bottom top',
+              scrub: true,
+            },
+          })
+          // ver el video un momento antes de que empiece a desintegrarse
+          tl.to({}, { duration: 0.28 })
+          tl.set(visuals[k], { autoAlpha: 0 })
+          tl.set(shardLayers[k], { autoAlpha: 1 })
           list.forEach((shard, i) => {
             const angle = (Math.random() - 0.5) * 2 * Math.PI
             const rot = 30 * (Math.random() - 0.5)
             tl.to(
               shard,
               {
-                duration: 1.4,
+                duration: 0.72,
                 rotation: rot,
                 x: 90 * Math.sin(angle),
                 y: 90 * Math.cos(angle),
                 autoAlpha: 0,
                 ease: 'power2.out',
               },
-              `${br}+=${(i / Math.max(list.length, 1)) * 0.9}`,
+              0.28 + (i / Math.max(list.length, 1)) * 0.5,
             )
           })
         }
-
-        tl.call(() => playRange(N - 1), [], '>')
-        tl.to({}, { duration: 1 }) // hold final en la última tarjeta
       }, reel)
 
       ScrollTrigger.refresh()
@@ -201,9 +191,9 @@ export default function ReelDesintegracion() {
 
     return () => {
       cancelled = true
+      io?.disconnect()
       gsapCtx?.revert()
       createdShards.forEach((c) => c.remove())
-      reel.removeAttribute('data-active')
     }
   }, [])
 
@@ -214,8 +204,8 @@ export default function ReelDesintegracion() {
       aria-label="LATAM Travel — la vida es una sola"
       className="reel-root"
     >
-      <div ref={stageRef} className="reel-stage">
-        {VIDEOS.map((v) => (
+      <div className="reel-stage">
+        {PANELES.map((v) => (
           <article key={v.ciudad} className="reel-card">
             <div className="reel-visual">
               <video
@@ -237,29 +227,29 @@ export default function ReelDesintegracion() {
                   {/* Barra superior */}
                   <nav
                     aria-label="Navegación"
-                    className="pointer-events-auto absolute inset-x-0 top-0 grid grid-cols-3 items-center p-4 md:p-5"
+                    className="pointer-events-auto absolute inset-x-0 top-0 grid grid-cols-3 items-center p-5 md:p-7"
                   >
                     <a
                       href="#cotiza"
                       onClick={irA('cotiza')}
-                      className="justify-self-start font-['PPMonumentExtended'] text-[7px] uppercase tracking-[0.15em] text-white/85 transition-colors hover:text-white sm:text-[8px] sm:tracking-[0.2em] md:text-[10px]"
+                      className="justify-self-start font-['PPMonumentExtended'] text-[7px] uppercase tracking-[0.15em] text-white/85 transition-colors hover:text-white sm:text-[8px] sm:tracking-[0.25em] md:text-[10px]"
                     >
                       Promociones
                     </a>
-                    <span className="justify-self-center text-center font-['PPMonumentExtended'] text-[7px] font-light uppercase tracking-[0.15em] text-white/90 sm:text-[8px] sm:tracking-[0.25em] md:text-[10px]">
+                    <span className="justify-self-center text-center font-['PPMonumentExtended'] text-[7px] font-light uppercase tracking-[0.2em] text-white/90 sm:text-[8px] sm:tracking-[0.3em] md:text-[10px]">
                       La vida es una sola
                     </span>
                     <a
                       href="#destinos"
                       onClick={irA('destinos')}
-                      className="justify-self-end font-['PPMonumentExtended'] text-[7px] uppercase tracking-[0.15em] text-white/85 transition-colors hover:text-white sm:text-[8px] sm:tracking-[0.2em] md:text-[10px]"
+                      className="justify-self-end font-['PPMonumentExtended'] text-[7px] uppercase tracking-[0.15em] text-white/85 transition-colors hover:text-white sm:text-[8px] sm:tracking-[0.25em] md:text-[10px]"
                     >
                       Destinos
                     </a>
                   </nav>
 
                   {/* Logo centrado */}
-                  <div className="pointer-events-auto absolute inset-0 flex items-center justify-center px-10">
+                  <div className="pointer-events-auto absolute inset-0 flex items-center justify-center px-16 sm:px-24">
                     <Link href="/" aria-label="LATAM Travel — inicio" className="flex items-center">
                       <Image
                         src="/logo-lt-travel-white.png"
@@ -273,20 +263,20 @@ export default function ReelDesintegracion() {
                   </div>
 
                   {/* Frase emocional */}
-                  <div className="pointer-events-none absolute inset-0 flex items-center justify-center px-6">
-                    <p className="max-w-[24ch] translate-y-9 text-center font-['PPMonumentExtended'] text-[9px] font-light leading-relaxed tracking-[0.03em] text-white/90 [text-shadow:0_1px_12px_rgba(0,0,0,0.55)] sm:max-w-[26ch] sm:translate-y-10 sm:text-[11px] md:translate-y-12">
+                  <div className="pointer-events-none absolute inset-0 flex items-center justify-center px-8">
+                    <p className="max-w-[32ch] translate-y-10 text-center font-['PPMonumentExtended'] text-[10px] font-light leading-relaxed tracking-[0.04em] text-white/90 [text-shadow:0_1px_12px_rgba(0,0,0,0.55)] sm:max-w-[44ch] sm:translate-y-12 sm:text-[12px] md:translate-y-14 md:text-sm">
                       Prefiero llegar a viejo lleno de historias que contar, no solo de plata.
                     </p>
                   </div>
 
                   {/* Micro-textos a los extremos */}
-                  <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4 md:pl-6">
-                    <span className="font-['PPMonumentExtended'] text-[7px] font-light uppercase tracking-[0.1em] text-white/80 sm:text-[9px] sm:tracking-[0.2em]">
+                  <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-5 md:pl-14">
+                    <span className="font-['PPMonumentExtended'] text-[7px] font-light uppercase tracking-[0.1em] text-white/80 sm:text-[10px] sm:tracking-[0.25em] md:text-[11px] md:tracking-[0.3em]">
                       Latinoamérica
                     </span>
                   </div>
-                  <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-4 md:pr-6">
-                    <span className="font-['PPMonumentExtended'] text-[7px] font-light uppercase tracking-[0.1em] text-white/80 sm:text-[9px] sm:tracking-[0.2em]">
+                  <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-5 md:pr-14">
+                    <span className="font-['PPMonumentExtended'] text-[7px] font-light uppercase tracking-[0.1em] text-white/80 sm:text-[10px] sm:tracking-[0.25em] md:text-[11px] md:tracking-[0.3em]">
                       Travel
                     </span>
                   </div>
@@ -294,24 +284,24 @@ export default function ReelDesintegracion() {
               ) : (
                 <>
                   {/* Índice + país */}
-                  <div className="pointer-events-none absolute inset-x-0 top-0 flex items-start justify-between p-4 md:p-5">
-                    <span className="font-['PPMonumentExtended'] text-[8px] font-light uppercase tracking-[0.25em] text-white/70 sm:text-[10px]">
+                  <div className="pointer-events-none absolute inset-x-0 top-0 flex items-start justify-between p-6 md:p-10">
+                    <span className="font-['PPMonumentExtended'] text-[11px] font-light uppercase tracking-[0.3em] text-white/70 sm:text-xs">
                       {v.indice} / 03
                     </span>
-                    <span className="font-['PPMonumentExtended'] text-[8px] font-light uppercase tracking-[0.25em] text-white/70 sm:text-[10px]">
+                    <span className="font-['PPMonumentExtended'] text-[11px] font-light uppercase tracking-[0.3em] text-white/70 sm:text-xs">
                       {v.pais}
                     </span>
                   </div>
 
                   {/* Nombre + línea */}
-                  <div className="pointer-events-none absolute inset-x-0 bottom-0 flex flex-col items-start gap-2 p-4 md:p-6">
-                    <h2 className="font-['PPMonumentExtended'] text-[34px] font-black uppercase leading-[0.9] text-white [text-shadow:0_2px_24px_rgba(0,0,0,0.5)] sm:text-[48px] md:text-[56px]">
+                  <div className="pointer-events-none absolute inset-x-0 bottom-0 flex flex-col items-start gap-3 p-6 md:p-12">
+                    <h2 className="font-['PPMonumentExtended'] font-black uppercase leading-[0.9] text-white [text-shadow:0_2px_30px_rgba(0,0,0,0.5)] text-[14vw] sm:text-[11vw] lg:text-[7.5vw]">
                       {v.ciudad}
                     </h2>
-                    <p className="max-w-[24ch] font-['PPMonumentExtended'] text-[9px] font-light uppercase tracking-[0.18em] text-white/80 sm:text-[11px]">
+                    <p className="max-w-[28ch] font-['PPMonumentExtended'] text-xs font-light uppercase tracking-[0.2em] text-white/80 sm:text-sm">
                       {v.linea}
                     </p>
-                    <span className="mt-1 inline-flex items-center gap-2 font-['PPMonumentExtended'] text-[8px] font-light uppercase tracking-[0.25em] text-white/70 sm:text-[10px]">
+                    <span className="mt-1 inline-flex items-center gap-2 font-['PPMonumentExtended'] text-[10px] font-light uppercase tracking-[0.3em] text-white/75 sm:text-xs">
                       <span className="inline-block h-1.5 w-1.5 bg-[#C8FF00]" aria-hidden />
                       {v.esquina}
                     </span>
