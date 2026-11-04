@@ -5,26 +5,18 @@ import Link from 'next/link'
 import { prefersReducedMotion } from '@/lib/lenis'
 import MenuOverlay from './MenuOverlay'
 
-/* 01 — Hero cinematográfico, oscuro, estilo editorial (ref: Latam Travel
-   Website references). Tres columnas verticales de video (Barcelona · París ·
-   Niza), un velo oscuro controlado para legibilidad, y el título LATAM TRAVEL
-   en PP Monument Extended cruzando por encima. Sin emojis, solo Tailwind. */
-
-const COLUMNAS = [
-  { src: '/viajes/hero/sagrada-barcelona.mp4', poster: '/viajes/hero/sagrada-barcelona-poster.jpg', ciudad: 'Barcelona' },
-  { src: '/viajes/hero/eiffel-paris.mp4', poster: '/viajes/hero/eiffel-paris-poster.jpg', ciudad: 'París' },
-  { src: '/viajes/hero/atardecer-niza.mp4', poster: '/viajes/hero/atardecer-niza-poster.jpg', ciudad: 'Niza' },
-]
+/* 01 — Hero cinematográfico (ref: Latam Travel Website references / IMG_4923).
+   Un solo video horizontal a lo ancho (España, amanecer) que cubre ~2/3 de la
+   pantalla en desktop; el tercio inferior deja asomar el primer panel de ciudad.
+   Título LATAM TRAVEL en PP Monument Extended. Sin emojis, solo Tailwind. */
 
 export default function HeroViajes() {
   const [menuOpen, setMenuOpen] = useState(false)
   const menuBtnRef = useRef<HTMLButtonElement>(null)
-  const sectionRef = useRef<HTMLElement>(null)
+  const videoRef = useRef<HTMLVideoElement>(null)
 
-  // Respeta reduced-motion: deja los posters quietos en vez del bucle.
   useEffect(() => {
-    if (!prefersReducedMotion()) return
-    sectionRef.current?.querySelectorAll('video').forEach((v) => v.pause())
+    if (prefersReducedMotion()) videoRef.current?.pause()
   }, [])
 
   const bajarACotizar = (e: React.MouseEvent) => {
@@ -35,40 +27,25 @@ export default function HeroViajes() {
   return (
     <>
       <section
-        ref={sectionRef}
         id="hero"
         aria-label="LATAM Travel — 1 viaje, 2 vacaciones"
-        className="relative h-[100svh] w-full overflow-hidden bg-[#0a0a0a]"
+        className="relative h-[78svh] w-full overflow-hidden bg-[#0a0a0a] md:h-[66svh]"
       >
-        {/* Tres columnas de video */}
-        <div className="absolute inset-0 flex">
-          {COLUMNAS.map((col) => (
-            <div
-              key={col.ciudad}
-              className="relative flex-1 overflow-hidden border-l border-white/10 first:border-l-0"
-            >
-              <video
-                className="absolute inset-0 h-full w-full object-cover"
-                autoPlay
-                muted
-                loop
-                playsInline
-                preload="metadata"
-                poster={col.poster}
-              >
-                <source src={col.src} type="video/mp4" />
-              </video>
-              {/* base oscura para la etiqueta de ciudad */}
-              <div className="pointer-events-none absolute inset-x-0 bottom-0 h-2/5 bg-gradient-to-t from-black/80 to-transparent" />
-              <span className="absolute inset-x-0 bottom-6 text-center font-['PPMonumentExtended'] text-[10px] font-light uppercase tracking-[0.3em] text-white/85 sm:text-xs">
-                {col.ciudad}
-              </span>
-            </div>
-          ))}
-        </div>
+        <video
+          ref={videoRef}
+          className="absolute inset-0 h-full w-full object-cover"
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="metadata"
+          poster="/viajes/panels/espana-poster.jpg"
+        >
+          <source src="/viajes/panels/espana.mp4" type="video/mp4" />
+        </video>
 
-        {/* Velo global para que el título se lea sobre cualquier fotograma */}
-        <div className="pointer-events-none absolute inset-0 bg-black/40" />
+        {/* Velos para legibilidad: oscurece arriba, centro y abajo */}
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/60 via-black/25 to-black/70" />
 
         {/* Barra superior: logo + menú */}
         <div className="absolute inset-x-0 top-0 z-20 flex items-center justify-between p-6 md:p-10">
@@ -106,9 +83,9 @@ export default function HeroViajes() {
             Europa — Sudamérica · 2026
           </p>
 
-          <h1 className="mt-5 font-['PPMonumentExtended'] font-black uppercase leading-[0.92] text-white [text-shadow:0_2px_30px_rgba(0,0,0,0.5)]">
-            <span className="block text-[15vw] sm:text-[11vw] lg:text-[8.5vw]">Latam</span>
-            <span className="block text-[15vw] sm:text-[11vw] lg:text-[8.5vw]">Travel</span>
+          <h1 className="mt-5 font-['PPMonumentExtended'] font-black uppercase leading-[0.9] text-white [text-shadow:0_2px_30px_rgba(0,0,0,0.55)]">
+            <span className="block text-[14vw] sm:text-[11vw] lg:text-[8.5vw]">Latam</span>
+            <span className="block text-[14vw] sm:text-[11vw] lg:text-[8.5vw]">Travel</span>
           </h1>
 
           <p className="mt-6 font-['PPMonumentExtended'] text-xs font-light uppercase tracking-[0.25em] text-white/85 sm:text-sm">
@@ -125,6 +102,16 @@ export default function HeroViajes() {
               <path d="M5 12h14M13 6l6 6-6 6" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           </a>
+        </div>
+
+        {/* Esquinas tipo editorial + ciudad */}
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 flex items-end justify-between p-6 md:p-10">
+          <span className="font-['PPMonumentExtended'] text-[10px] font-light uppercase tracking-[0.3em] text-white/75 sm:text-xs">
+            España
+          </span>
+          <span className="font-['PPMonumentExtended'] text-[10px] font-light uppercase tracking-[0.3em] text-white/60 sm:text-xs">
+            Vol. 2026
+          </span>
         </div>
       </section>
 
