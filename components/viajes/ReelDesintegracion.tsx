@@ -1,9 +1,20 @@
 'use client'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { prefersReducedMotion, scrollToId } from '@/lib/lenis'
 import { whatsappHref } from './whatsapp'
+
+// Antes del primer paint para que el estado oculto (.reel-intro) no parpadee.
+const useIsoLayoutEffect = typeof window !== 'undefined' ? useLayoutEffect : useEffect
+
+// Divide un texto en <span.reel-letter> para animarlo letra por letra.
+const letras = (texto: string) =>
+  texto.split('').map((c, i) => (
+    <span key={i} className="reel-letter">
+      {c === ' ' ? ' ' : c}
+    </span>
+  ))
 
 const WhatsAppIcon = ({ size = 18 }: { size?: number }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
@@ -55,6 +66,52 @@ export default function ReelDesintegracion() {
     e.preventDefault()
     scrollToId(id)
   }
+
+  /* Entrada del hero (efecto estilo Osmo, sobre el propio hero): "Latinoamérica"
+     y "Travel" suben letra por letra, el logo crece desde el centro, y la barra
+     y la frase aparecen. No es un overlay: anima los elementos que ya están.
+     Bajo prefers-reduced-motion no se añade .reel-intro y todo se ve directo. */
+  useIsoLayoutEffect(() => {
+    const reel = reelRef.current
+    if (!reel || prefersReducedMotion()) return
+
+    reel.classList.add('reel-intro')
+    let cancelled = false
+    let ctx: { revert: () => void } | null = null
+    const limpiar = () => reel.classList.remove('reel-intro')
+    // Por si GSAP tarda o falla, nunca dejar el hero oculto.
+    const fallback = window.setTimeout(limpiar, 2600)
+
+    ;(async () => {
+      try {
+        const { gsap } = await import('gsap')
+        if (cancelled) return limpiar()
+        ctx = gsap.context(() => {
+          const q = gsap.utils.selector(reel)
+          const tl = gsap.timeline({
+            defaults: { ease: 'expo.out' },
+            onComplete: limpiar,
+          })
+          // fromTo con estado final explícito: el CSS pre-oculta (anti-flash),
+          // así que un .from leería "oculto" como destino y no revelaría nada.
+          tl.fromTo(q('.hero-logo'), { scale: 0.5, autoAlpha: 0 }, { scale: 1, autoAlpha: 1, duration: 1.2 })
+            .fromTo(q('.reel-letter'), { yPercent: 160, autoAlpha: 0 }, { yPercent: 0, autoAlpha: 1, stagger: 0.025, duration: 0.95 }, '<0.2')
+            .fromTo(q('.hero-navitem'), { yPercent: 140, autoAlpha: 0 }, { yPercent: 0, autoAlpha: 1, stagger: 0.08, duration: 0.8 }, '<0.05')
+            // Solo fade: la frase ya tiene translate-y (transform) para su sitio.
+            .fromTo(q('.hero-phrase'), { autoAlpha: 0 }, { autoAlpha: 1, duration: 1.0 }, '<0.15')
+        }, reel)
+      } catch {
+        limpiar()
+      }
+    })()
+
+    return () => {
+      cancelled = true
+      window.clearTimeout(fallback)
+      ctx?.revert()
+      limpiar()
+    }
+  }, [])
 
   useEffect(() => {
     const reel = reelRef.current
@@ -169,17 +226,17 @@ export default function ReelDesintegracion() {
                     <a
                       href="#cotiza"
                       onClick={irA('cotiza')}
-                      className="justify-self-start font-['PPMonumentExtended'] text-[7px] uppercase tracking-[0.15em] text-white/85 transition-colors hover:text-white sm:text-[8px] sm:tracking-[0.25em] md:text-[10px]"
+                      className="hero-navitem justify-self-start font-['PPMonumentExtended'] text-[7px] uppercase tracking-[0.15em] text-white/85 transition-colors hover:text-white sm:text-[8px] sm:tracking-[0.25em] md:text-[10px]"
                     >
                       Promociones
                     </a>
-                    <span className="justify-self-center text-center font-['PPMonumentExtended'] text-[7px] font-light uppercase tracking-[0.2em] text-white/90 sm:text-[8px] sm:tracking-[0.3em] md:text-[10px]">
+                    <span className="hero-navitem justify-self-center text-center font-['PPMonumentExtended'] text-[7px] font-light uppercase tracking-[0.2em] text-white/90 sm:text-[8px] sm:tracking-[0.3em] md:text-[10px]">
                       La vida es una sola
                     </span>
                     <a
                       href="#destinos"
                       onClick={irA('destinos')}
-                      className="justify-self-end font-['PPMonumentExtended'] text-[7px] uppercase tracking-[0.15em] text-white/85 transition-colors hover:text-white sm:text-[8px] sm:tracking-[0.25em] md:text-[10px]"
+                      className="hero-navitem justify-self-end font-['PPMonumentExtended'] text-[7px] uppercase tracking-[0.15em] text-white/85 transition-colors hover:text-white sm:text-[8px] sm:tracking-[0.25em] md:text-[10px]"
                     >
                       Destinos
                     </a>
@@ -196,31 +253,32 @@ export default function ReelDesintegracion() {
                         width={961}
                         height={121}
                         priority
-                        className="h-4 w-auto object-contain md:h-5"
+                        className="hero-logo h-4 w-auto object-contain md:h-5"
                       />
                     </Link>
                   </div>
 
                   {/* Frase emocional */}
                   <div className="pointer-events-none absolute inset-0 flex items-center justify-center px-8">
-                    <p className="max-w-[32ch] translate-y-9 text-center font-['PPMonumentExtended'] text-[10px] font-light leading-relaxed tracking-[0.04em] text-white/90 [text-shadow:0_1px_12px_rgba(0,0,0,0.55)] sm:max-w-[44ch] sm:translate-y-10 sm:text-[12px] md:translate-y-12 md:text-sm">
+                    <p className="hero-phrase max-w-[32ch] translate-y-9 text-center font-['PPMonumentExtended'] text-[10px] font-light leading-relaxed tracking-[0.04em] text-white/90 [text-shadow:0_1px_12px_rgba(0,0,0,0.55)] sm:max-w-[44ch] sm:translate-y-10 sm:text-[12px] md:translate-y-12 md:text-sm">
                       Prefiero llegar a viejo lleno de historias que contar, no solo de plata.
                     </p>
                   </div>
 
-                  {/* Micro-textos a los extremos */}
+                  {/* Micro-textos a los extremos: hacen el efecto de subir
+                     letra por letra en la entrada del hero. */}
                   <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-5 md:pl-14">
-                    <span className="font-['PPMonumentExtended'] text-[7px] font-light uppercase tracking-[0.1em] text-white/80 sm:text-[10px] sm:tracking-[0.25em] md:text-[11px] md:tracking-[0.3em]">
-                      Latinoamérica
+                    <span className="reel-letter-mask font-['PPMonumentExtended'] text-[7px] font-light uppercase tracking-[0.1em] text-white/80 sm:text-[10px] sm:tracking-[0.25em] md:text-[11px] md:tracking-[0.3em]">
+                      {letras('Latinoamérica')}
                     </span>
                   </div>
                   <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-5 md:pr-14">
                     <a
                       href="#vuelos"
                       onClick={irA('vuelos')}
-                      className="pointer-events-auto font-['PPMonumentExtended'] text-[7px] font-light uppercase tracking-[0.1em] text-white/80 transition-colors hover:text-white sm:text-[10px] sm:tracking-[0.25em] md:text-[11px] md:tracking-[0.3em]"
+                      className="reel-letter-mask pointer-events-auto font-['PPMonumentExtended'] text-[7px] font-light uppercase tracking-[0.1em] text-white/80 transition-colors hover:text-white sm:text-[10px] sm:tracking-[0.25em] md:text-[11px] md:tracking-[0.3em]"
                     >
-                      Travel
+                      {letras('Travel')}
                     </a>
                   </div>
                 </>

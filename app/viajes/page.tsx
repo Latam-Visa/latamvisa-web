@@ -1,7 +1,6 @@
 import type { Metadata } from 'next'
 import { viajesDisplay, viajesScript, viajesSerif, viajesBlack } from './fonts'
 import ViajesShell from '@/components/viajes/ViajesShell'
-import IntroLatamTravel from '@/components/viajes/IntroLatamTravel'
 import ReelDesintegracion from '@/components/viajes/ReelDesintegracion'
 import LaIdea from '@/components/viajes/LaIdea'
 import ComparativoVuelos from '@/components/viajes/ComparativoVuelos'
@@ -34,7 +33,6 @@ export default function ViajesPage() {
   return (
     <main className={`viajes-root ${viajesDisplay.variable} ${viajesScript.variable} ${viajesSerif.variable} ${viajesBlack.variable}`}>
       <ViajesShell>
-        <IntroLatamTravel />
         <ReelDesintegracion />
         <LaIdea />
         <ComparativoVuelos />
