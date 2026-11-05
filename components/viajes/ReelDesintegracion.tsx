@@ -116,7 +116,7 @@ export default function ReelDesintegracion() {
     >
       <div className="reel-stage">
         {PANELES.map((v) => (
-          <article key={v.ciudad} className="reel-card">
+          <article key={v.ciudad} className={`reel-card${v.hero ? ' reel-card--hero' : ''}`}>
             <div className="reel-visual">
               <video
                 autoPlay
@@ -205,7 +205,7 @@ export default function ReelDesintegracion() {
 
                   {/* Nombre + línea */}
                   <div className="pointer-events-none absolute inset-x-0 bottom-0 flex flex-col items-start gap-2 p-5 md:p-10">
-                    <h2 className="font-['PPMonumentExtended'] font-black uppercase leading-[0.9] text-white [text-shadow:0_2px_30px_rgba(0,0,0,0.5)] text-[12vw] sm:text-[10vw] lg:text-[6.5vw]">
+                    <h2 className="font-[var(--font-viajes-black)] uppercase leading-[0.9] tracking-[-0.04em] text-[#F3EBA8] [text-shadow:0_2px_30px_rgba(0,0,0,0.5)] text-[13vw] sm:text-[11vw] lg:text-[7vw]">
                       {v.ciudad}
                     </h2>
                     <p className="max-w-[28ch] font-['PPMonumentExtended'] text-[11px] font-light uppercase tracking-[0.2em] text-white/80 sm:text-sm">
