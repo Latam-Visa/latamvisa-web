@@ -2,7 +2,7 @@
 import { useEffect, useRef } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { prefersReducedMotion } from '@/lib/lenis'
+import { prefersReducedMotion, scrollToId } from '@/lib/lenis'
 
 /* 01 — Reel de videos (/viajes). Paneles HORIZONTALES apilados (España →
    Barcelona → París → Niza): se ven DOS por pantalla (mitad y mitad) con borde
@@ -34,7 +34,7 @@ export default function ReelDesintegracion() {
 
   const irA = (id: string) => (e: React.MouseEvent) => {
     e.preventDefault()
-    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' })
+    scrollToId(id)
   }
 
   useEffect(() => {
@@ -185,10 +185,14 @@ export default function ReelDesintegracion() {
                       Latinoamérica
                     </span>
                   </div>
-                  <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-5 md:pr-14">
-                    <span className="font-['PPMonumentExtended'] text-[7px] font-light uppercase tracking-[0.1em] text-white/80 sm:text-[10px] sm:tracking-[0.25em] md:text-[11px] md:tracking-[0.3em]">
+                  <div className="pointer-events-auto absolute inset-y-0 right-0 flex items-center pr-5 md:pr-14">
+                    <a
+                      href="#vuelos"
+                      onClick={irA('vuelos')}
+                      className="font-['PPMonumentExtended'] text-[7px] font-light uppercase tracking-[0.1em] text-white/80 transition-colors hover:text-white sm:text-[10px] sm:tracking-[0.25em] md:text-[11px] md:tracking-[0.3em]"
+                    >
                       Travel
-                    </span>
+                    </a>
                   </div>
                 </>
               ) : (

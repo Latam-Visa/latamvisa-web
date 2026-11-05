@@ -1,6 +1,6 @@
 'use client'
 import { useEffect, useState } from 'react'
-import { useLenis } from '@/lib/lenis'
+import { useLenis, scrollToId } from '@/lib/lenis'
 import { WHATSAPP_HREF } from './whatsapp'
 
 /* Client shell for /viajes: mounts the Lenis + ScrollTrigger rig (a no-op
@@ -44,7 +44,7 @@ export default function ViajesShell({ children }: { children: React.ReactNode })
 
   const irCotiza = (e: React.MouseEvent) => {
     e.preventDefault()
-    document.getElementById('cotiza')?.scrollIntoView({ behavior: 'smooth' })
+    scrollToId('cotiza')
   }
 
   return (

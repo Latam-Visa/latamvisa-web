@@ -28,6 +28,18 @@ export function startLenis() {
   activeLenis?.start()
 }
 
+/* Smooth-scroll to an element by id. With Lenis active, native
+   scrollIntoView fights the eased scroll (Lenis snaps back on its next
+   tick), so route through lenis.scrollTo; fall back to native scroll under
+   reduced-motion / before Lenis has mounted. */
+export function scrollToId(id: string) {
+  if (typeof document === 'undefined') return
+  const el = document.getElementById(id)
+  if (!el) return
+  if (activeLenis) activeLenis.scrollTo(el)
+  else el.scrollIntoView({ behavior: 'smooth' })
+}
+
 export function useLenis(enabled = true) {
   useEffect(() => {
     if (!enabled) return
