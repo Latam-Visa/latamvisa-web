@@ -80,7 +80,7 @@ export default function ReelDesintegracion() {
     let ctx: { revert: () => void } | null = null
     const limpiar = () => reel.classList.remove('reel-intro')
     // Por si GSAP tarda o falla, nunca dejar el hero oculto.
-    const fallback = window.setTimeout(limpiar, 2600)
+    const fallback = window.setTimeout(limpiar, 3800)
 
     ;(async () => {
       try {
@@ -89,16 +89,29 @@ export default function ReelDesintegracion() {
         ctx = gsap.context(() => {
           const q = gsap.utils.selector(reel)
           const tl = gsap.timeline({
-            defaults: { ease: 'expo.out' },
+            defaults: { ease: 'expo.inOut' },
             onComplete: limpiar,
           })
           // fromTo con estado final explícito: el CSS pre-oculta (anti-flash),
-          // así que un .from leería "oculto" como destino y no revelaría nada.
-          tl.fromTo(q('.hero-logo'), { scale: 0.5, autoAlpha: 0 }, { scale: 1, autoAlpha: 1, duration: 1.2 })
-            .fromTo(q('.reel-letter'), { yPercent: 160, autoAlpha: 0 }, { yPercent: 0, autoAlpha: 1, stagger: 0.025, duration: 0.95 }, '<0.2')
-            .fromTo(q('.hero-navitem'), { yPercent: 140, autoAlpha: 0 }, { yPercent: 0, autoAlpha: 1, stagger: 0.08, duration: 0.8 }, '<0.05')
+          // así que un .from leería "oculto"/"cerrado" como destino y no revelaría nada.
+          // 1) El video del hero se ABRE desde la línea central hacia los lados.
+          tl.fromTo(
+            q('.reel-card--hero .reel-visual'),
+            { clipPath: 'inset(0% 50% 0% 50% round 30px)' },
+            { clipPath: 'inset(0% 0% 0% 0% round 30px)', duration: 1.7 },
+          )
+            // 2) El logo SALE DEL CENTRO (crece) cuando el video ya casi se abrió.
+            .fromTo(
+              q('.hero-logo'),
+              { scale: 0.3, autoAlpha: 0 },
+              { scale: 1, autoAlpha: 1, duration: 1.1, ease: 'expo.out' },
+              '>-0.7',
+            )
+            // 3) "Latinoamérica" y "Travel" suben letra por letra en los extremos.
+            .fromTo(q('.reel-letter'), { yPercent: 160, autoAlpha: 0 }, { yPercent: 0, autoAlpha: 1, stagger: 0.03, duration: 0.9, ease: 'expo.out' }, '<0.15')
+            .fromTo(q('.hero-navitem'), { yPercent: 140, autoAlpha: 0 }, { yPercent: 0, autoAlpha: 1, stagger: 0.08, duration: 0.8, ease: 'expo.out' }, '<0.1')
             // Solo fade: la frase ya tiene translate-y (transform) para su sitio.
-            .fromTo(q('.hero-phrase'), { autoAlpha: 0 }, { autoAlpha: 1, duration: 1.0 }, '<0.15')
+            .fromTo(q('.hero-phrase'), { autoAlpha: 0 }, { autoAlpha: 1, duration: 1.0, ease: 'expo.out' }, '<0.15')
         }, reel)
       } catch {
         limpiar()

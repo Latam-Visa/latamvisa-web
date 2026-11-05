@@ -1052,9 +1052,10 @@ body::before {
 }
 
 /* ---- Entrada del hero (efecto estilo Osmo, sobre el propio hero) --------
-   Al cargar, las palabras "Latinoamérica" y "Travel" suben letra por letra y
-   el LOGO centrado crece desde el centro, sobre el video. GSAP anima; aquí
-   solo el estado inicial OCULTO para que no haya flash antes de animar.
+   Al cargar, el VIDEO del hero crece desde una línea central hacia los lados
+   (clip-path, como la caja del ejemplo que se abre revelando la imagen); el
+   LOGO sale del centro y "Latinoamérica"/"Travel" aparecen subiendo letra por
+   letra. GSAP anima; aquí solo el estado inicial para que no haya flash.
    `.reel-intro` lo pone el JS en useLayoutEffect y lo quita al terminar; bajo
    prefers-reduced-motion el JS no lo añade y todo se ve directo. */
 .reel-letter { display: inline-block; }
@@ -1065,6 +1066,10 @@ body::before {
   vertical-align: bottom;
   padding-top: 0.24em; /* aire para la tilde (LATINOAMÉRICA) */
   padding-bottom: 0.14em;
+}
+/* El hero arranca cerrado a una línea en el centro */
+.reel-intro .reel-card--hero .reel-visual {
+  clip-path: inset(0% 50% 0% 50% round 30px);
 }
 .reel-intro .reel-letter,
 .reel-intro .hero-logo,
