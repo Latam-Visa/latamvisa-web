@@ -158,9 +158,11 @@ export default function ReelDesintegracion() {
                     </a>
                   </nav>
 
-                  {/* Logo centrado */}
-                  <div className="pointer-events-auto absolute inset-0 flex items-center justify-center px-16 sm:px-24">
-                    <Link href="/" aria-label="LATAM Travel — inicio" className="flex items-center">
+                  {/* Logo centrado. El contenedor NO captura clicks (si fuera
+                     pointer-events-auto taparía todo el hero y mataría el nav);
+                     solo el propio logo es clickeable. */}
+                  <div className="pointer-events-none absolute inset-0 flex items-center justify-center px-16 sm:px-24">
+                    <Link href="/" aria-label="LATAM Travel — inicio" className="pointer-events-auto flex items-center">
                       <Image
                         src="/logo-lt-travel-white.png"
                         alt="LATAM Travel"
@@ -185,11 +187,11 @@ export default function ReelDesintegracion() {
                       Latinoamérica
                     </span>
                   </div>
-                  <div className="pointer-events-auto absolute inset-y-0 right-0 flex items-center pr-5 md:pr-14">
+                  <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-5 md:pr-14">
                     <a
                       href="#vuelos"
                       onClick={irA('vuelos')}
-                      className="font-['PPMonumentExtended'] text-[7px] font-light uppercase tracking-[0.1em] text-white/80 transition-colors hover:text-white sm:text-[10px] sm:tracking-[0.25em] md:text-[11px] md:tracking-[0.3em]"
+                      className="pointer-events-auto font-['PPMonumentExtended'] text-[7px] font-light uppercase tracking-[0.1em] text-white/80 transition-colors hover:text-white sm:text-[10px] sm:tracking-[0.25em] md:text-[11px] md:tracking-[0.3em]"
                     >
                       Travel
                     </a>
