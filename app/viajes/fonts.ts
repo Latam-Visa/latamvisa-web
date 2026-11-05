@@ -1,5 +1,5 @@
 import localFont from 'next/font/local'
-import { Playball, Cormorant_Garamond } from 'next/font/google'
+import { Playball, Cormorant_Garamond, Archivo_Black } from 'next/font/google'
 
 /* Display de la campaña: PPMonumentCondensed, el corte estrecho de la propia
    tipografía de marca. Los archivos ya estaban en public/fonts/PPMonument
@@ -42,5 +42,16 @@ export const viajesSerif = Cormorant_Garamond({
   subsets: ['latin'],
   weight: ['400', '500', '600'],
   variable: '--font-viajes-serif',
+  display: 'swap',
+})
+
+/* Títulos de los paneles (nombres de ciudad), estilo "CASA COCO": grotesca
+   pesada y compacta. Archivo Black solo trae un peso (400, ya de por sí muy
+   grueso). Va en crema (#F3EBA8) sobre el video, con el tracking apretado
+   a -4% para ese look macizo. */
+export const viajesBlack = Archivo_Black({
+  subsets: ['latin'],
+  weight: '400',
+  variable: '--font-viajes-black',
   display: 'swap',
 })

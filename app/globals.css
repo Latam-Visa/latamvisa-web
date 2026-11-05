@@ -1020,6 +1020,10 @@ body::before {
   height: calc(50svh - 16px);
 }
 
+/* El hero (LATAM TRAVEL) ocupa 3/4 de la pantalla; de ahí para abajo quedan
+   los pares de videos a media pantalla. */
+.reel-card--hero { height: calc(75svh - 16px); }
+
 .reel-visual {
   position: absolute;
   inset: 0;
@@ -1043,5 +1047,6 @@ body::before {
 @media (min-width: 768px) {
   .reel-stage { gap: 24px; padding: 24px; }
   .reel-card { height: calc(50svh - 24px); }
+  .reel-card--hero { height: calc(75svh - 24px); }
   .reel-visual { border-radius: 30px; }
 }
