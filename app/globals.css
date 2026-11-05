@@ -1057,9 +1057,15 @@ body::before {
    queda igual (siempre visible, no se toca). GSAP anima; aquí solo el estado
    inicial para que no haya flash. `.reel-intro` lo pone el JS en useLayoutEffect
    y lo quita al terminar; bajo prefers-reduced-motion no se añade y se ve directo. */
-.reel-letter-mask { display: inline-block; }
-/* Las palabras arrancan cerradas a una línea en su centro y se abren */
-.reel-intro .reel-letter-mask { clip-path: inset(0% 50% 0% 50%); }
+.reel-letter-mask { display: inline-block; will-change: filter, transform; }
+/* Enfoque cine: las palabras arrancan BORROSAS y apretadas; GSAP las enfoca y
+   expande. Estado inicial aquí para que no haya flash antes de animar. */
+.reel-intro .reel-letter-mask {
+  opacity: 0;
+  visibility: hidden;
+  filter: blur(16px);
+  transform: scaleX(0.9);
+}
 .reel-intro .hero-logo {
   opacity: 0;
   visibility: hidden;
