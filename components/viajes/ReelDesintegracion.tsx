@@ -1,8 +1,15 @@
 'use client'
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { prefersReducedMotion, scrollToId } from '@/lib/lenis'
+import { whatsappHref } from './whatsapp'
+
+const WhatsAppIcon = ({ size = 18 }: { size?: number }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z" />
+  </svg>
+)
 
 /* 01 — Reel de videos (/viajes). Paneles HORIZONTALES apilados (España →
    Barcelona → París → Niza): se ven DOS por pantalla (mitad y mitad) con borde
@@ -20,17 +27,29 @@ type Panel = {
   linea?: string
   esquina?: string
   hero?: boolean
+  // Precio SEMILLA "una semana en Europa" (AUD, por persona). Editable a mano;
+  // el número real lo afina el cotizador. Formato de display ya con separador.
+  semana?: string
 }
 
 const PANELES: Panel[] = [
   { src: '/viajes/panels/espana.mp4', poster: '/viajes/panels/espana-poster.jpg', ciudad: 'España', hero: true },
-  { src: '/viajes/panels/barcelona.mp4', poster: '/viajes/panels/barcelona-poster.jpg', ciudad: 'Barcelona', pais: 'España', indice: '01', linea: 'donde el viaje empieza a sentirse', esquina: 'Gaudí · Mediterráneo' },
-  { src: '/viajes/panels/paris.mp4', poster: '/viajes/panels/paris-poster.jpg', ciudad: 'París', pais: 'Francia', indice: '02', linea: 'una escala que vale un viaje', esquina: 'Sena · Luz' },
-  { src: '/viajes/panels/niza.mp4', poster: '/viajes/panels/niza-poster.jpg', ciudad: 'Niza', pais: 'Côte d’Azur', indice: '03', linea: 'el Mediterráneo antes de volver a casa', esquina: 'Riviera · Atardecer' },
+  { src: '/viajes/panels/barcelona.mp4', poster: '/viajes/panels/barcelona-poster.jpg', ciudad: 'Barcelona', pais: 'España', indice: '01', linea: 'donde el viaje empieza a sentirse', esquina: 'Gaudí · Mediterráneo', semana: '1.100' },
+  { src: '/viajes/panels/paris.mp4', poster: '/viajes/panels/paris-poster.jpg', ciudad: 'París', pais: 'Francia', indice: '02', linea: 'una escala que vale un viaje', esquina: 'Sena · Luz', semana: '1.450' },
+  { src: '/viajes/panels/niza.mp4', poster: '/viajes/panels/niza-poster.jpg', ciudad: 'Niza', pais: 'Côte d’Azur', indice: '03', linea: 'el Mediterráneo antes de volver a casa', esquina: 'Riviera · Atardecer', semana: '1.250' },
 ]
 
 export default function ReelDesintegracion() {
   const reelRef = useRef<HTMLElement>(null)
+
+  // Qué paneles tienen la franja de precio desplegada (se puede abrir cada uno).
+  const [abiertos, setAbiertos] = useState<Set<string>>(new Set())
+  const toggle = (ciudad: string) =>
+    setAbiertos((prev) => {
+      const next = new Set(prev)
+      next.has(ciudad) ? next.delete(ciudad) : next.add(ciudad)
+      return next
+    })
 
   const irA = (id: string) => (e: React.MouseEvent) => {
     e.preventDefault()
@@ -115,9 +134,17 @@ export default function ReelDesintegracion() {
       className="reel-root"
     >
       <div className="reel-stage">
-        {PANELES.map((v) => (
+        {PANELES.map((v) => {
+          const abierto = abiertos.has(v.ciudad)
+          return (
           <article key={v.ciudad} className={`reel-card${v.hero ? ' reel-card--hero' : ''}`}>
-            <div className="reel-visual">
+            <div
+              className={
+                v.hero
+                  ? 'reel-visual'
+                  : 'reel-visual group cursor-pointer transition-[transform,border-color,box-shadow] duration-500 md:hover:scale-[1.012] md:hover:border-[#C8FF00]/70 md:hover:shadow-[0_0_55px_-12px_rgba(200,255,0,0.5)]'
+              }
+            >
               <video
                 autoPlay
                 muted
@@ -199,6 +226,31 @@ export default function ReelDesintegracion() {
                 </>
               ) : (
                 <>
+                  {/* Toca la tarjeta para desplegar la franja de precio. Cubre
+                     todo el panel; los textos de arriba son pointer-events-none
+                     así que el click los atraviesa. */}
+                  <button
+                    type="button"
+                    onClick={() => toggle(v.ciudad)}
+                    aria-expanded={abierto}
+                    aria-label={abierto ? `Cerrar precio de ${v.ciudad}` : `Ver precio de ${v.ciudad} y cotizar`}
+                    className="absolute inset-0"
+                  />
+
+                  {/* Pista de que es tocable (y realce al pasar el cursor) */}
+                  <div
+                    className={`pointer-events-none absolute bottom-5 right-5 z-[1] flex items-center gap-2 rounded-full border border-white/40 bg-white/10 px-3.5 py-1.5 backdrop-blur-sm transition-opacity duration-300 md:bottom-8 md:right-8 ${
+                      abierto ? 'opacity-0' : 'opacity-90 md:opacity-60 md:group-hover:opacity-100'
+                    }`}
+                  >
+                    <span className="font-['PPMonumentExtended'] text-[9px] font-light uppercase tracking-[0.2em] text-white sm:text-[10px]">
+                      Ver precio
+                    </span>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="text-[#C8FF00]" aria-hidden>
+                      <path d="M12 19V5M6 11l6-6 6 6" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                  </div>
+
                   {/* Nombre de ciudad ARRIBA: así se alcanza a ver en el asomo
                      del panel siguiente sin tener que bajar. */}
                   <div className="pointer-events-none absolute inset-x-0 top-0 flex flex-col items-start gap-1.5 p-5 md:gap-2 md:p-8">
@@ -220,11 +272,52 @@ export default function ReelDesintegracion() {
                       {v.esquina}
                     </span>
                   </div>
+
+                  {/* Franja de precio: sube desde abajo hasta la mitad al tocar.
+                     Semitransparente (se sigue viendo el video arriba y detrás). */}
+                  <div
+                    onClick={(e) => e.stopPropagation()}
+                    className={`absolute inset-x-0 bottom-0 z-10 flex h-1/2 flex-col justify-end gap-3.5 bg-gradient-to-t from-black/85 via-black/55 to-transparent p-6 backdrop-blur-[2px] transition-[transform,opacity] duration-500 ease-out md:gap-5 md:p-9 ${
+                      abierto ? 'translate-y-0 opacity-100' : 'pointer-events-none translate-y-full opacity-0'
+                    }`}
+                  >
+                    <button
+                      type="button"
+                      onClick={() => toggle(v.ciudad)}
+                      aria-label="Cerrar"
+                      className="absolute right-5 top-4 flex h-8 w-8 items-center justify-center rounded-full border border-white/30 text-white/80 transition-colors hover:border-white/60 hover:text-white md:right-7 md:top-6"
+                    >
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden>
+                        <path d="M6 6l12 12M18 6L6 18" strokeLinecap="round" />
+                      </svg>
+                    </button>
+
+                    <p className="max-w-[20ch] font-['PPMonumentExtended'] text-base font-light leading-snug text-white [text-shadow:0_1px_12px_rgba(0,0,0,0.6)] sm:text-lg md:text-xl">
+                      ¿Una semana en Europa por{' '}
+                      <span className="whitespace-nowrap rounded-md bg-[#C8FF00] px-2 py-0.5 font-normal text-[#0a0a0a]">
+                        ${v.semana}
+                      </span>
+                      ?
+                    </p>
+                    <p className="font-['PPMonumentExtended'] text-[10px] font-light uppercase tracking-[0.25em] text-white/80 sm:text-[11px]">
+                      Cotiza con nosotros
+                    </p>
+                    <a
+                      href={whatsappHref(`Hola! Vi ${v.ciudad} en la web — ¿una semana en Europa por ~$${v.semana}? Quiero cotizar mi Euro Trip.`)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex min-h-[52px] w-full items-center justify-center gap-2.5 rounded-2xl bg-[#25D366] font-['PPMonumentExtended'] text-[13px] font-bold uppercase tracking-[0.06em] text-white transition-transform active:scale-[0.98] sm:w-auto sm:self-start sm:px-8"
+                    >
+                      <WhatsAppIcon size={20} />
+                      Cotiza por WhatsApp
+                    </a>
+                  </div>
                 </>
               )}
             </div>
           </article>
-        ))}
+          )
+        })}
       </div>
     </section>
   )
