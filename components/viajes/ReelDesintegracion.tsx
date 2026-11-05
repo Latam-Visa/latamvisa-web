@@ -5,16 +5,8 @@ import Link from 'next/link'
 import { prefersReducedMotion, scrollToId } from '@/lib/lenis'
 import { whatsappHref } from './whatsapp'
 
-// Antes del primer paint para que el estado oculto (.reel-intro) no parpadee.
+// Antes del primer paint para que el estado cerrado (.reel-intro) no parpadee.
 const useIsoLayoutEffect = typeof window !== 'undefined' ? useLayoutEffect : useEffect
-
-// Divide un texto en <span.reel-letter> para animarlo letra por letra.
-const letras = (texto: string) =>
-  texto.split('').map((c, i) => (
-    <span key={i} className="reel-letter">
-      {c === ' ' ? ' ' : c}
-    </span>
-  ))
 
 const WhatsAppIcon = ({ size = 18 }: { size?: number }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
@@ -80,7 +72,7 @@ export default function ReelDesintegracion() {
     let ctx: { revert: () => void } | null = null
     const limpiar = () => reel.classList.remove('reel-intro')
     // Por si GSAP tarda o falla, nunca dejar el hero oculto.
-    const fallback = window.setTimeout(limpiar, 3800)
+    const fallback = window.setTimeout(limpiar, 2400)
 
     ;(async () => {
       try {
@@ -92,26 +84,21 @@ export default function ReelDesintegracion() {
             defaults: { ease: 'expo.inOut' },
             onComplete: limpiar,
           })
-          // fromTo con estado final explícito: el CSS pre-oculta (anti-flash),
-          // así que un .from leería "oculto"/"cerrado" como destino y no revelaría nada.
-          // 1) El video del hero se ABRE desde la línea central hacia los lados.
+          // fromTo con estado final explícito: el CSS pre-cierra (anti-flash), así
+          // que un .from leería "cerrado" como destino y no abriría nada.
+          // Las PALABRAS "Latinoamérica" y "Travel" se ABREN desde su centro.
           tl.fromTo(
-            q('.reel-card--hero .reel-visual'),
-            { clipPath: 'inset(0% 50% 0% 50% round 30px)' },
-            { clipPath: 'inset(0% 0% 0% 0% round 30px)', duration: 1.7 },
+            q('.reel-letter-mask'),
+            { clipPath: 'inset(0% 50% 0% 50%)' },
+            { clipPath: 'inset(0% 0% 0% 0%)', duration: 1.2, stagger: 0.12 },
           )
-            // 2) El logo SALE DEL CENTRO (crece) cuando el video ya casi se abrió.
+            // El logo SALE DEL CENTRO (crece) a la vez.
             .fromTo(
               q('.hero-logo'),
               { scale: 0.3, autoAlpha: 0 },
               { scale: 1, autoAlpha: 1, duration: 1.1, ease: 'expo.out' },
-              '>-0.7',
+              '<',
             )
-            // 3) "Latinoamérica" y "Travel" suben letra por letra en los extremos.
-            .fromTo(q('.reel-letter'), { yPercent: 160, autoAlpha: 0 }, { yPercent: 0, autoAlpha: 1, stagger: 0.03, duration: 0.9, ease: 'expo.out' }, '<0.15')
-            .fromTo(q('.hero-navitem'), { yPercent: 140, autoAlpha: 0 }, { yPercent: 0, autoAlpha: 1, stagger: 0.08, duration: 0.8, ease: 'expo.out' }, '<0.1')
-            // Solo fade: la frase ya tiene translate-y (transform) para su sitio.
-            .fromTo(q('.hero-phrase'), { autoAlpha: 0 }, { autoAlpha: 1, duration: 1.0, ease: 'expo.out' }, '<0.15')
         }, reel)
       } catch {
         limpiar()
@@ -278,11 +265,11 @@ export default function ReelDesintegracion() {
                     </p>
                   </div>
 
-                  {/* Micro-textos a los extremos: hacen el efecto de subir
-                     letra por letra en la entrada del hero. */}
+                  {/* Micro-textos a los extremos: se ABREN desde su centro en
+                     la entrada del hero (clip-path). */}
                   <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-5 md:pl-14">
                     <span className="reel-letter-mask font-['PPMonumentExtended'] text-[7px] font-light uppercase tracking-[0.1em] text-white/80 sm:text-[10px] sm:tracking-[0.25em] md:text-[11px] md:tracking-[0.3em]">
-                      {letras('Latinoamérica')}
+                      Latinoamérica
                     </span>
                   </div>
                   <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-5 md:pr-14">
@@ -291,7 +278,7 @@ export default function ReelDesintegracion() {
                       onClick={irA('vuelos')}
                       className="reel-letter-mask pointer-events-auto font-['PPMonumentExtended'] text-[7px] font-light uppercase tracking-[0.1em] text-white/80 transition-colors hover:text-white sm:text-[10px] sm:tracking-[0.25em] md:text-[11px] md:tracking-[0.3em]"
                     >
-                      {letras('Travel')}
+                      Travel
                     </a>
                   </div>
                 </>

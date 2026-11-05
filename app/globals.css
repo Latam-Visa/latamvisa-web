@@ -1052,29 +1052,15 @@ body::before {
 }
 
 /* ---- Entrada del hero (efecto estilo Osmo, sobre el propio hero) --------
-   Al cargar, el VIDEO del hero crece desde una línea central hacia los lados
-   (clip-path, como la caja del ejemplo que se abre revelando la imagen); el
-   LOGO sale del centro y "Latinoamérica"/"Travel" aparecen subiendo letra por
-   letra. GSAP anima; aquí solo el estado inicial para que no haya flash.
-   `.reel-intro` lo pone el JS en useLayoutEffect y lo quita al terminar; bajo
-   prefers-reduced-motion el JS no lo añade y todo se ve directo. */
-.reel-letter { display: inline-block; }
-.reel-letter-mask {
-  display: inline-block;
-  overflow: hidden;
-  line-height: 1;
-  vertical-align: bottom;
-  padding-top: 0.24em; /* aire para la tilde (LATINOAMÉRICA) */
-  padding-bottom: 0.14em;
-}
-/* El hero arranca cerrado a una línea en el centro */
-.reel-intro .reel-card--hero .reel-visual {
-  clip-path: inset(0% 50% 0% 50% round 30px);
-}
-.reel-intro .reel-letter,
-.reel-intro .hero-logo,
-.reel-intro .hero-navitem,
-.reel-intro .hero-phrase {
+   Al cargar, las PALABRAS "Latinoamérica" y "Travel" se ABREN desde su centro
+   (clip-path, como la apertura del ejemplo) y el LOGO sale del centro. El VIDEO
+   queda igual (siempre visible, no se toca). GSAP anima; aquí solo el estado
+   inicial para que no haya flash. `.reel-intro` lo pone el JS en useLayoutEffect
+   y lo quita al terminar; bajo prefers-reduced-motion no se añade y se ve directo. */
+.reel-letter-mask { display: inline-block; }
+/* Las palabras arrancan cerradas a una línea en su centro y se abren */
+.reel-intro .reel-letter-mask { clip-path: inset(0% 50% 0% 50%); }
+.reel-intro .hero-logo {
   opacity: 0;
   visibility: hidden;
 }
