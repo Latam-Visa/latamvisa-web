@@ -72,7 +72,7 @@ export default function ReelDesintegracion() {
     let ctx: { revert: () => void } | null = null
     const limpiar = () => reel.classList.remove('reel-intro')
     // Por si GSAP tarda o falla, nunca dejar el hero oculto.
-    const fallback = window.setTimeout(limpiar, 2400)
+    const fallback = window.setTimeout(limpiar, 3600)
 
     ;(async () => {
       try {
@@ -81,22 +81,23 @@ export default function ReelDesintegracion() {
         ctx = gsap.context(() => {
           const q = gsap.utils.selector(reel)
           const tl = gsap.timeline({
-            defaults: { ease: 'expo.inOut' },
+            defaults: { ease: 'power2.out' },
             onComplete: limpiar,
           })
-          // fromTo con estado final explícito: el CSS pre-cierra (anti-flash), así
-          // que un .from leería "cerrado" como destino y no abriría nada.
-          // Las PALABRAS "Latinoamérica" y "Travel" se ABREN desde su centro.
+          // fromTo con estado final explícito: el CSS pre-oculta/difumina
+          // (anti-flash), así que un .from leería ese estado como destino.
+          // ENFOQUE CINE: las palabras arrancan borrosas y apretadas, y se
+          // enfocan + expanden (una tras otra). Lento y notorio.
           tl.fromTo(
             q('.reel-letter-mask'),
-            { clipPath: 'inset(0% 50% 0% 50%)' },
-            { clipPath: 'inset(0% 0% 0% 0%)', duration: 1.2, stagger: 0.12 },
+            { autoAlpha: 0, filter: 'blur(16px)', scaleX: 0.9 },
+            { autoAlpha: 1, filter: 'blur(0px)', scaleX: 1, duration: 2.0, stagger: 0.25 },
           )
             // El logo SALE DEL CENTRO (crece) a la vez.
             .fromTo(
               q('.hero-logo'),
               { scale: 0.3, autoAlpha: 0 },
-              { scale: 1, autoAlpha: 1, duration: 1.1, ease: 'expo.out' },
+              { scale: 1, autoAlpha: 1, duration: 1.5, ease: 'expo.out' },
               '<',
             )
         }, reel)
