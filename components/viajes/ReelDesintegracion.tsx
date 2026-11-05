@@ -193,21 +193,19 @@ export default function ReelDesintegracion() {
                 </>
               ) : (
                 <>
-                  {/* Índice + país */}
-                  <div className="pointer-events-none absolute inset-x-0 top-0 flex items-start justify-between p-5 md:p-8">
+                  {/* Nombre de ciudad ARRIBA: así se alcanza a ver en el asomo
+                     del panel siguiente sin tener que bajar. */}
+                  <div className="pointer-events-none absolute inset-x-0 top-0 flex flex-col items-start gap-1.5 p-5 md:gap-2 md:p-8">
                     <span className="font-['PPMonumentExtended'] text-[10px] font-light uppercase tracking-[0.3em] text-white/70 sm:text-[11px]">
-                      {v.indice} / 03
+                      {v.indice} / 03 · {v.pais}
                     </span>
-                    <span className="font-['PPMonumentExtended'] text-[10px] font-light uppercase tracking-[0.3em] text-white/70 sm:text-[11px]">
-                      {v.pais}
-                    </span>
-                  </div>
-
-                  {/* Nombre + línea */}
-                  <div className="pointer-events-none absolute inset-x-0 bottom-0 flex flex-col items-start gap-2 p-5 md:p-10">
-                    <h2 className="font-[var(--font-viajes-black)] uppercase leading-[0.9] tracking-[-0.04em] text-[#F3EBA8] [text-shadow:0_2px_30px_rgba(0,0,0,0.5)] text-[13vw] sm:text-[11vw] lg:text-[7vw]">
+                    <h2 className="font-[var(--font-viajes-black)] uppercase leading-[0.9] tracking-[-0.04em] text-[#F3EBA8] [text-shadow:0_2px_30px_rgba(0,0,0,0.5)] text-[10vw] sm:text-[8.5vw] lg:text-[5.4vw]">
                       {v.ciudad}
                     </h2>
+                  </div>
+
+                  {/* Línea editorial abajo */}
+                  <div className="pointer-events-none absolute inset-x-0 bottom-0 flex flex-col items-start gap-2 p-5 md:p-10">
                     <p className="max-w-[28ch] font-['PPMonumentExtended'] text-[11px] font-light uppercase tracking-[0.2em] text-white/80 sm:text-sm">
                       {v.linea}
                     </p>
