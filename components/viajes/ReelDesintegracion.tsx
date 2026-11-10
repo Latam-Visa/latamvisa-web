@@ -137,9 +137,8 @@ export default function ReelDesintegracion() {
 
       const cards = Array.from(reel.querySelectorAll<HTMLElement>('.reel-card'))
       if (!cards.length) return
-      const videos = cards.map((c) => c.querySelector<HTMLVideoElement>('video')!)
 
-      // Reproducir solo los videos visibles
+      // Reproducir solo los videos visibles (el hero es imagen, no tiene video)
       io = new IntersectionObserver(
         (entries) => {
           entries.forEach((e) => {
@@ -150,13 +149,16 @@ export default function ReelDesintegracion() {
         },
         { threshold: 0.1 },
       )
-      videos.forEach((v) => io!.observe(v))
 
-      // Parallax: cada video se desplaza suave dentro de su marco con el scroll
+      // Parallax: cada video se desplaza suave dentro de su marco con el scroll.
+      // El hero (imagen) se salta: queda fijo.
       gsapCtx = gsap.context(() => {
-        cards.forEach((card, i) => {
+        cards.forEach((card) => {
+          const video = card.querySelector<HTMLVideoElement>('video')
+          if (!video) return
+          io!.observe(video)
           gsap.fromTo(
-            videos[i],
+            video,
             { yPercent: 8 },
             {
               yPercent: -8,
@@ -203,17 +205,32 @@ export default function ReelDesintegracion() {
                   : 'reel-visual group cursor-pointer transition-[transform,border-color,box-shadow] duration-500 md:hover:scale-[1.012] md:hover:border-[#C8FF00]/70 md:hover:shadow-[0_0_55px_-12px_rgba(200,255,0,0.5)]'
               }
             >
-              <video
-                autoPlay
-                muted
-                loop
-                playsInline
-                preload="metadata"
-                poster={v.poster}
-                aria-hidden
-              >
-                <source src={v.src} type="video/mp4" />
-              </video>
+              {v.hero ? (
+                // El hero usa una imagen fija (cielo con nubes), no video. Se
+                // encuadra con object-bottom para que las nubes (abajo) siempre
+                // se vean bien en vertical. Queda estático (sin parallax).
+                <Image
+                  src="/viajes/cielo-nubes.jpg"
+                  alt=""
+                  fill
+                  sizes="100vw"
+                  priority
+                  className="object-cover object-bottom"
+                  aria-hidden
+                />
+              ) : (
+                <video
+                  autoPlay
+                  muted
+                  loop
+                  playsInline
+                  preload="metadata"
+                  poster={v.poster}
+                  aria-hidden
+                >
+                  <source src={v.src} type="video/mp4" />
+                </video>
+              )}
 
               <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/45 via-black/15 to-black/55" />
 
