@@ -11,11 +11,10 @@ import {
   formatAUD,
 } from '@/lib/viajes/rangos'
 
-/* 05 — Cotiza tu trip. Herramienta interactiva en vivo.
-   Eliges destino y ciudad con botones, mueves "personas" con un stepper, y el
-   precio de las dos rutas (directo vs. con parada en Europa) se calcula AL
-   INSTANTE del lado del cliente desde lib/viajes/rangos.ts. Para la cotización
-   afinada dejas tu correo y ahí sí va al servidor (estimado + correos). */
+/* 05 — Cotiza tu trip. Herramienta interactiva en vivo, en el lenguaje oscuro
+   (blanco + azulito). Eliges destino y ciudad con chips, mueves "personas" con
+   un stepper, y el precio de las dos rutas se calcula AL INSTANTE del lado del
+   cliente. Para la cotización afinada dejas tu correo y ahí va al servidor. */
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
@@ -66,112 +65,113 @@ export default function CotizaTuTrip() {
   }
 
   return (
-    <section
-      id="cotiza"
-      ref={ref}
-      aria-labelledby="cotiza-title"
-      className="viajes-section"
-      style={{ backgroundColor: 'var(--viajes-sky)', color: 'var(--viajes-ink)' }}
-    >
-      <p className="viajes-label" data-reveal style={{ opacity: 0, color: 'rgba(11,42,74,0.6)' }}>
-        04 / Cotiza tu trip
-      </p>
-      <h2 id="cotiza-title" className="viajes-display mt-6" data-reveal style={{ opacity: 0, maxWidth: '18ch' }}>
-        Arma tu viaje y mira el precio
-      </h2>
+    <section id="cotiza" ref={ref} aria-labelledby="cotiza-title" className="vx-section">
+      <div className="vx-inner">
+        <p className="vx-eyebrow" data-reveal>
+          <span className="vx-dot" aria-hidden />
+          04 / Cotiza tu trip
+        </p>
+        <h2 id="cotiza-title" className="vx-title mt-7 max-w-[18ch]" data-reveal>
+          Arma tu viaje y mira <span className="vx-az">el precio</span>
+        </h2>
 
-      {enviado ? (
-        <Confirmacion nombre={form.nombre} destino={enviado.destinoNombre} />
-      ) : (
-        <div data-reveal style={{ opacity: 0 }} className="viajes-tool mt-10">
-          {/* 1 · Destino */}
-          <Paso n="1" titulo="¿A qué país de Sudamérica vas?">
-            <div className="viajes-chips">
-              {DESTINOS.map((d) => (
-                <Chip key={d.slug} activo={destinoSlug === d.slug} onClick={() => setDestinoSlug(d.slug)}>
-                  <span aria-hidden style={{ fontSize: '1.1em' }}>{d.flag}</span> {d.corto}
-                </Chip>
-              ))}
-            </div>
-          </Paso>
-
-          {/* 2 · Ciudad */}
-          <Paso n="2" titulo="¿Desde qué ciudad sales?">
-            <div className="viajes-chips">
-              {CIUDADES_SALIDA.map((c) => (
-                <Chip key={c} activo={ciudad === c} onClick={() => setCiudad(c)}>
-                  {c}
-                </Chip>
-              ))}
-            </div>
-          </Paso>
-
-          {/* 3 · Personas */}
-          <Paso n="3" titulo="¿Cuántas personas viajan?">
-            <div className="viajes-stepper">
-              <button type="button" aria-label="Quitar una persona" onClick={() => setPersonas((p) => Math.max(1, p - 1))} disabled={personas <= 1}>−</button>
-              <span className="viajes-stepper-num">{personas}</span>
-              <button type="button" aria-label="Agregar una persona" onClick={() => setPersonas((p) => Math.min(9, p + 1))} disabled={personas >= 9}>+</button>
-            </div>
-          </Paso>
-
-          {/* Resultado en vivo */}
-          {estimado && destino ? (
-            <div className="viajes-estimado-live mt-8" aria-live="polite">
-              <p className="viajes-label" style={{ color: 'rgba(11,42,74,0.6)' }}>
-                {destino.corto} · {sufijo}
-              </p>
-              <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
-                <Tarjeta titulo="Directo (Pacífico / vía USA)" rango={`${formatAUD(estimado.directo.min)} – ${formatAUD(estimado.directo.max)}`} />
-                <Tarjeta titulo="Con parada en Europa" rango={`${formatAUD(estimado.europa.min)} – ${formatAUD(estimado.europa.max)}`} destacado />
+        {enviado ? (
+          <Confirmacion nombre={form.nombre} destino={enviado.destinoNombre} />
+        ) : (
+          <div data-reveal className="mt-12 max-w-[860px]">
+            {/* 1 · Destino */}
+            <Paso n="1" titulo="¿A qué país de Sudamérica vas?">
+              <div className="flex flex-wrap gap-2.5">
+                {DESTINOS.map((d) => (
+                  <Chip key={d.slug} activo={destinoSlug === d.slug} onClick={() => setDestinoSlug(d.slug)}>
+                    <span aria-hidden className="text-[1.1em] leading-none">{d.flag}</span> {d.corto}
+                  </Chip>
+                ))}
               </div>
-              <p className="viajes-dif mt-4">
-                <span>Conocer Europa en el mismo viaje</span>
-                <strong>+{formatAUD(estimado.diferenciaDesde)} por persona</strong>
-              </p>
+            </Paso>
 
-              {!contactoAbierto ? (
-                <button type="button" className="viajes-cta viajes-cta-sky mt-6" style={{ border: 'none' }} onClick={() => setContactoAbierto(true)}>
-                  Quiero mi cotización afinada
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden><path d="M5 12h14M13 6l6 6-6 6" strokeLinecap="round" strokeLinejoin="round" /></svg>
-                </button>
-              ) : (
-                <div className="viajes-contacto mt-6">
-                  <p className="viajes-body" style={{ maxWidth: 'none', marginBottom: '14px' }}>
-                    Déjanos tus datos y en <strong>24h</strong> te mandamos la cotización afinada, con fechas y aerolíneas reales.
-                  </p>
-                  <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                    <input className="viajes-input" placeholder="Tu nombre" value={form.nombre} onChange={(e) => setForm({ ...form, nombre: e.target.value })} autoComplete="name" />
-                    <input className="viajes-input" type="email" placeholder="Tu correo" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} autoComplete="email" inputMode="email" />
-                    <input className="viajes-input md:col-span-2" type="tel" placeholder="WhatsApp (opcional)" value={form.whatsapp} onChange={(e) => setForm({ ...form, whatsapp: e.target.value })} autoComplete="tel" inputMode="tel" />
-                  </div>
-                  {error && <p role="alert" className="viajes-label mt-4" style={{ color: '#b00020' }}>{error}</p>}
-                  <button type="button" className="viajes-cta viajes-cta-sky mt-5" style={{ border: 'none', cursor: enviando ? 'wait' : 'pointer', opacity: enviando ? 0.7 : 1 }} onClick={enviarContacto} disabled={enviando}>
-                    {enviando ? 'Enviando…' : 'Enviar y recibir cotización'}
-                  </button>
+            {/* 2 · Ciudad */}
+            <Paso n="2" titulo="¿Desde qué ciudad sales?">
+              <div className="flex flex-wrap gap-2.5">
+                {CIUDADES_SALIDA.map((c) => (
+                  <Chip key={c} activo={ciudad === c} onClick={() => setCiudad(c)}>
+                    {c}
+                  </Chip>
+                ))}
+              </div>
+            </Paso>
+
+            {/* 3 · Personas */}
+            <Paso n="3" titulo="¿Cuántas personas viajan?">
+              <div className="vx-stepper">
+                <button type="button" aria-label="Quitar una persona" onClick={() => setPersonas((p) => Math.max(1, p - 1))} disabled={personas <= 1}>−</button>
+                <span className="vx-num">{personas}</span>
+                <button type="button" aria-label="Agregar una persona" onClick={() => setPersonas((p) => Math.min(9, p + 1))} disabled={personas >= 9}>+</button>
+              </div>
+            </Paso>
+
+            {/* Resultado en vivo */}
+            {estimado && destino ? (
+              <div className="mt-10" aria-live="polite">
+                <p className="vx-muted text-[color:var(--vx-azul)]">
+                  {destino.corto} · {sufijo}
+                </p>
+                <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
+                  <Tarjeta titulo="Directo (Pacífico / vía USA)" rango={`${formatAUD(estimado.directo.min)} – ${formatAUD(estimado.directo.max)}`} />
+                  <Tarjeta titulo="Con parada en Europa" rango={`${formatAUD(estimado.europa.min)} – ${formatAUD(estimado.europa.max)}`} destacado />
                 </div>
-              )}
-            </div>
-          ) : (
-            <p className="viajes-label mt-8" style={{ color: 'rgba(11,42,74,0.5)' }}>
-              Elige tu destino para ver el precio al instante.
-            </p>
-          )}
-        </div>
-      )}
 
-      <a href={WHATSAPP_HREF} target="_blank" rel="noopener noreferrer" className="viajes-cta mt-8" style={{ border: 'none', backgroundColor: 'transparent', textDecoration: 'underline' }}>
-        ¿Prefieres hablar? Cotizar por WhatsApp
-      </a>
+                <div className="mt-6 flex flex-wrap items-center gap-3">
+                  <span className="vx-body">Conocer Europa en el mismo viaje</span>
+                  <span className="vx-pill-neon">
+                    <strong>+{formatAUD(estimado.diferenciaDesde)}</strong> por persona
+                  </span>
+                </div>
+
+                {!contactoAbierto ? (
+                  <button type="button" className="vx-cta vx-cta--neon mt-7" onClick={() => setContactoAbierto(true)}>
+                    Quiero mi cotización afinada
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden><path d="M5 12h14M13 6l6 6-6 6" strokeLinecap="round" strokeLinejoin="round" /></svg>
+                  </button>
+                ) : (
+                  <div className="vx-card mt-7 p-6 md:p-7">
+                    <p className="vx-body mb-4">
+                      Déjanos tus datos y en <strong className="text-white">24h</strong> te mandamos la cotización afinada, con fechas y aerolíneas reales.
+                    </p>
+                    <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                      <input className="vx-input" placeholder="Tu nombre" value={form.nombre} onChange={(e) => setForm({ ...form, nombre: e.target.value })} autoComplete="name" />
+                      <input className="vx-input" type="email" placeholder="Tu correo" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} autoComplete="email" inputMode="email" />
+                      <input className="vx-input md:col-span-2" type="tel" placeholder="WhatsApp (opcional)" value={form.whatsapp} onChange={(e) => setForm({ ...form, whatsapp: e.target.value })} autoComplete="tel" inputMode="tel" />
+                    </div>
+                    {error && <p role="alert" className="vx-muted mt-4 text-[color:#ff8a8a]">{error}</p>}
+                    <button type="button" className={`vx-cta vx-cta--neon mt-5 ${enviando ? 'cursor-wait opacity-70' : ''}`} onClick={enviarContacto} disabled={enviando}>
+                      {enviando ? 'Enviando…' : 'Enviar y recibir cotización'}
+                    </button>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <p className="vx-muted mt-10">
+                Elige tu destino para ver el precio al instante.
+              </p>
+            )}
+          </div>
+        )}
+
+        <a href={WHATSAPP_HREF} target="_blank" rel="noopener noreferrer" className="mt-8 inline-block font-['PPMonumentExtended'] text-[12px] font-light uppercase tracking-[0.2em] text-white/60 underline decoration-white/30 underline-offset-4 transition-colors hover:text-white">
+          ¿Prefieres hablar? Cotizar por WhatsApp
+        </a>
+      </div>
     </section>
   )
 }
 
 function Paso({ n, titulo, children }: { n: string; titulo: string; children: React.ReactNode }) {
   return (
-    <div className="viajes-paso">
-      <p className="viajes-paso-titulo">
-        <span className="viajes-paso-num">{n}</span> {titulo}
+    <div className="mt-8 first:mt-0">
+      <p className="mb-4 flex items-center gap-3 font-['PPMonumentExtended'] text-[15px] font-light text-white">
+        <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[var(--vx-azul)] text-[12px] font-medium text-[#07253a]">{n}</span>
+        {titulo}
       </p>
       {children}
     </div>
@@ -180,7 +180,7 @@ function Paso({ n, titulo, children }: { n: string; titulo: string; children: Re
 
 function Chip({ activo, onClick, children }: { activo: boolean; onClick: () => void; children: React.ReactNode }) {
   return (
-    <button type="button" onClick={onClick} aria-pressed={activo} className={`viajes-chip${activo ? ' viajes-chip--on' : ''}`}>
+    <button type="button" onClick={onClick} aria-pressed={activo} className={`vx-chip${activo ? ' vx-chip--on' : ''}`}>
       {children}
     </button>
   )
@@ -188,9 +188,9 @@ function Chip({ activo, onClick, children }: { activo: boolean; onClick: () => v
 
 function Tarjeta({ titulo, rango, destacado }: { titulo: string; rango: string; destacado?: boolean }) {
   return (
-    <div className={`viajes-ruta${destacado ? ' viajes-ruta--on' : ''}`}>
-      <p className="viajes-label" style={{ color: 'rgba(11,42,74,0.6)' }}>{titulo}</p>
-      <p className="viajes-display mt-2" style={{ fontSize: 'clamp(1.4rem, 3.6vw, 1.9rem)' }}>{rango}</p>
+    <div className={`vx-card p-5 ${destacado ? 'vx-card--on' : ''}`}>
+      <p className="vx-muted text-[color:var(--vx-azul)]">{titulo}</p>
+      <p className="mt-2 font-[family-name:var(--font-viajes-black)] text-[clamp(1.3rem,3.4vw,1.85rem)] tracking-[-0.02em] text-white">{rango}</p>
     </div>
   )
 }
@@ -198,14 +198,15 @@ function Tarjeta({ titulo, rango, destacado }: { titulo: string; rango: string; 
 function Confirmacion({ nombre, destino }: { nombre: string; destino: string }) {
   const primer = nombre.trim().split(/\s+/)[0]
   return (
-    <div data-reveal className="viajes-confirma mt-10">
-      <p className="viajes-display" style={{ fontSize: 'clamp(1.6rem, 4vw, 2.2rem)', maxWidth: '20ch' }}>
-        ¡Listo{primer ? `, ${primer}` : ''}! 🎉
+    <div data-reveal className="vx-card mt-12 max-w-[640px] p-7 md:p-9">
+      <p className="flex items-center gap-3 font-[family-name:var(--font-viajes-black)] text-[clamp(1.6rem,4vw,2.2rem)] uppercase tracking-[-0.02em] text-white">
+        ¡Listo{primer ? `, ${primer}` : ''}!
+        <span className="vx-dot" aria-hidden />
       </p>
-      <p className="viajes-body mt-4" style={{ maxWidth: 'none' }}>
-        Recibimos tu solicitud para <strong>{destino}</strong>. Te mandamos la cotización afinada a tu correo en las próximas <strong>24 horas</strong>.
+      <p className="vx-body mt-4">
+        Recibimos tu solicitud para <strong className="text-white">{destino}</strong>. Te mandamos la cotización afinada a tu correo en las próximas <strong className="text-white">24 horas</strong>.
       </p>
-      <a href={WHATSAPP_HREF} target="_blank" rel="noopener noreferrer" className="viajes-cta viajes-cta-sky mt-6" style={{ border: 'none' }}>
+      <a href={WHATSAPP_HREF} target="_blank" rel="noopener noreferrer" className="vx-cta vx-cta--wa mt-6">
         Adelantar por WhatsApp
       </a>
     </div>
