@@ -236,29 +236,9 @@ export default function ReelDesintegracion() {
 
               {v.hero ? (
                 <>
-                  {/* Barra superior */}
-                  <nav
-                    aria-label="Navegación"
-                    className="pointer-events-auto absolute inset-x-0 top-0 grid grid-cols-3 items-center p-5 md:p-7"
-                  >
-                    <a
-                      href="#cotiza"
-                      onClick={irA('cotiza')}
-                      className="hero-navitem justify-self-start font-['PPMonumentExtended'] text-[7px] uppercase tracking-[0.15em] text-white/85 transition-colors hover:text-white sm:text-[8px] sm:tracking-[0.25em] md:text-[10px]"
-                    >
-                      Promociones
-                    </a>
-                    <span className="hero-navitem justify-self-center text-center font-['PPMonumentExtended'] text-[7px] font-light uppercase tracking-[0.2em] text-white/90 sm:text-[8px] sm:tracking-[0.3em] md:text-[10px]">
-                      La vida es una sola
-                    </span>
-                    <a
-                      href="#destinos"
-                      onClick={irA('destinos')}
-                      className="hero-navitem justify-self-end font-['PPMonumentExtended'] text-[7px] uppercase tracking-[0.15em] text-white/85 transition-colors hover:text-white sm:text-[8px] sm:tracking-[0.25em] md:text-[10px]"
-                    >
-                      Destinos
-                    </a>
-                  </nav>
+                  {/* La navegación superior ahora la da el Navbar del sitio
+                     (fijo arriba); el hero ya no lleva su propia barra para no
+                     duplicarla. */}
 
                   {/* Logo centrado. El contenedor NO captura clicks (si fuera
                      pointer-events-auto taparía todo el hero y mataría el nav);

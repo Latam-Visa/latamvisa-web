@@ -1007,7 +1007,9 @@ body::before {
    pantalla, como la referencia IMG_4923). Al hacer scroll, cada panel se
    DESINTEGRA en partículas mientras sale por arriba y el siguiente sube.
    Base (sin JS / reduced-motion): simplemente apilados y scrolleables. */
-.reel-root { position: relative; width: 100%; background: #0a0a0a; }
+/* El fondo detrás de los paneles (los gaps) es azul cielo, el mismo tono del
+   hero, en vez de negro: toda la zona de videos se siente "cielo". */
+.reel-root { position: relative; width: 100%; background: #3C9EEC; }
 
 .reel-stage {
   display: flex;
