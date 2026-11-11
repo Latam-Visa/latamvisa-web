@@ -64,7 +64,7 @@ export default function ViajesShell({ children }: { children: React.ReactNode })
           <a
             href="#cotiza"
             onClick={irCotiza}
-            className="inline-flex min-h-[56px] flex-1 items-center justify-center gap-2 rounded-2xl bg-[#C8FF00] font-['PPMonumentExtended'] text-[13px] font-bold uppercase tracking-[0.08em] text-[#0a0a0a] transition-transform active:scale-[0.97]"
+            className="inline-flex min-h-[56px] flex-1 items-center justify-center gap-2 rounded-2xl bg-[#1C7AE5] font-['PPMonumentExtended'] text-[13px] font-bold uppercase tracking-[0.08em] text-white transition-transform active:scale-[0.97]"
           >
             Cotización express
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden>

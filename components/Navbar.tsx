@@ -64,9 +64,9 @@ export default function Navbar() {
       // moment TravelHeroScroll's fixed rig goes invisible; nothing from the
       // hero renders past that point, so that's the only correct trigger.
       if (pathname === '/viajes') {
-        const heroEndEl = document.getElementById('viajes-hero-end')
-        const pastHero = heroEndEl ? heroEndEl.getBoundingClientRect().top <= 0 : false
-        setOverLight(!pastHero)
+        // /viajes corre sobre fondo BLANCO: texto y logo oscuros siempre,
+        // legibles sobre los gaps blancos y sobre el cielo del hero.
+        setOverLight(false)
         return
       }
 
@@ -118,10 +118,14 @@ export default function Navbar() {
     pathname === '/agendar'
       ? 'bg-white/60 backdrop-blur-xl border-b border-white/40'
       : pathname === '/viajes'
-        ? overLight
-          ? 'bg-white/15 backdrop-blur-md'
-          : 'bg-[#FAFAF7]/95 backdrop-blur-md border-b border-[#E5E5E5]'
+        ? 'bg-white/80 backdrop-blur-md border-b border-black/[0.06]'
         : ''
+
+  // CTA del menú móvil: azul LATAM en /viajes, neón en la home.
+  const mobileCtaColor =
+    pathname === '/viajes'
+      ? 'bg-[#1C7AE5] text-white shadow-[0_4px_16px_rgba(28,122,229,0.35)] hover:bg-[#1565C7]'
+      : 'bg-[#C8FF00] text-[#050505] shadow-[0_4px_16px_rgba(200,255,0,0.35)] hover:bg-white hover:text-[#111111] hover:shadow-[0_4px_12px_rgba(0,0,0,0.10)]'
 
   return (
     <motion.header
@@ -256,7 +260,7 @@ export default function Navbar() {
           <Link
             href={pathname === '/viajes' ? '/viajes#contacto' : '#evaluacion'}
             onClick={() => setMenuOpen(false)}
-            className="mt-2 px-5 py-3 rounded-full text-xs tracking-widest uppercase bg-[#C8FF00] text-[#050505] font-bold text-center shadow-[0_4px_16px_rgba(200,255,0,0.35)] hover:bg-white hover:text-[#111111] hover:shadow-[0_4px_12px_rgba(0,0,0,0.10)] transition-all duration-300"
+            className={`mt-2 px-5 py-3 rounded-full text-xs tracking-widest uppercase font-bold text-center transition-all duration-300 ${mobileCtaColor}`}
             style={{ fontFamily: "'FunnelDisplay', sans-serif" }}
           >
             {pathname === '/viajes' ? 'Hablar por WhatsApp →' : 'Evalúa tu Perfil →'}
