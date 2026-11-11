@@ -56,8 +56,8 @@ export default function LaIdea() {
                   <span
                     className={`flex h-9 w-9 items-center justify-center rounded-full border font-['PPMonumentExtended'] text-[10px] font-light tracking-[0.1em] ${
                       p.destacado
-                        ? 'border-transparent bg-[var(--vx-azul)] text-[#07253a]'
-                        : 'border-white/25 text-white/70'
+                        ? 'border-transparent bg-[var(--vx-azul)] text-white'
+                        : 'border-black/20 text-black/60'
                     }`}
                   >
                     {p.kicker}
@@ -68,7 +68,7 @@ export default function LaIdea() {
                     </span>
                   )}
                 </div>
-                <h3 className="mt-5 font-[family-name:var(--font-viajes-black)] text-[clamp(1.5rem,4vw,2.1rem)] uppercase leading-none tracking-[-0.02em] text-white">
+                <h3 className="mt-5 font-[family-name:var(--font-viajes-black)] text-[clamp(1.5rem,4vw,2.1rem)] uppercase leading-none tracking-[-0.02em] text-[#111111]">
                   {p.titulo}
                 </h3>
                 <p className="vx-body mt-3 max-w-[32ch]">{p.texto}</p>
@@ -79,9 +79,9 @@ export default function LaIdea() {
                   className="flex items-center justify-center py-1 md:px-1 md:py-0"
                   aria-hidden
                 >
-                  <span className="hidden h-px flex-1 bg-white/15 md:block" />
+                  <span className="hidden h-px flex-1 bg-black/10 md:block" />
                   <PlaneIcon className="h-5 w-5 rotate-90 text-[var(--vx-azul)] md:rotate-0" />
-                  <span className="hidden h-px flex-1 bg-white/15 md:block" />
+                  <span className="hidden h-px flex-1 bg-black/10 md:block" />
                 </div>
               )}
             </div>

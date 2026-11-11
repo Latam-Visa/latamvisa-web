@@ -47,7 +47,7 @@ export default function ComparativoVuelos() {
                 {ruta.destacada && <span className="vx-dot" aria-hidden />}
               </div>
 
-              <p className="mt-5 font-[family-name:var(--font-viajes-black)] text-[clamp(1.35rem,3.4vw,1.9rem)] uppercase leading-[1.05] tracking-[-0.02em] text-white">
+              <p className="mt-5 font-[family-name:var(--font-viajes-black)] text-[clamp(1.35rem,3.4vw,1.9rem)] uppercase leading-[1.05] tracking-[-0.02em] text-[#111111]">
                 {ruta.titulo}
               </p>
 

@@ -26,12 +26,12 @@ export default function DestinosEuropa() {
         <div className="mt-14 grid grid-cols-1 gap-5 sm:grid-cols-2 md:gap-6">
           {DESTINOS.map((nombre) => (
             <article key={nombre} data-reveal className="vx-card vx-card-hover overflow-hidden">
-              <div className="relative flex aspect-[16/10] items-end bg-[linear-gradient(160deg,rgba(155,199,232,0.14),rgba(255,255,255,0.03))] p-5">
+              <div className="relative flex aspect-[16/10] items-end bg-[linear-gradient(160deg,rgba(28,122,229,0.12),rgba(28,122,229,0.02))] p-5">
                 <span className="vx-muted">Foto pendiente</span>
                 <span className="pointer-events-none absolute right-5 top-5 vx-dot" aria-hidden />
               </div>
               <div className="flex items-center justify-between px-5 py-4">
-                <h3 className="font-[family-name:var(--font-viajes-black)] text-[clamp(1.6rem,4.5vw,2.3rem)] uppercase leading-none tracking-[-0.03em] text-white">
+                <h3 className="font-[family-name:var(--font-viajes-black)] text-[clamp(1.6rem,4.5vw,2.3rem)] uppercase leading-none tracking-[-0.03em] text-[#111111]">
                   {nombre}
                 </h3>
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-[var(--vx-azul)]" aria-hidden>
