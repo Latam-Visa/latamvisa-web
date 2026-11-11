@@ -410,7 +410,9 @@ body::before {
   --viajes-paper: #F2F0E9;
   --viajes-sky: #A8C8E8;
   /* solo CTA y acentos — máximo uno por pantalla */
-  --viajes-neon: #D4FF3D;
+  /* Acento LATAM Travel (antes neón verde): azul de marca alineado al cielo
+     del hero. Resalta sobre fondo claro y lleva texto blanco encima. */
+  --viajes-neon: #1C7AE5;
 
   /* Azulito de LATAM Travel (acento del sistema oscuro unificado) */
   --vx-azul: #9BC7E8;
@@ -1007,9 +1009,9 @@ body::before {
    pantalla, como la referencia IMG_4923). Al hacer scroll, cada panel se
    DESINTEGRA en partículas mientras sale por arriba y el siguiente sube.
    Base (sin JS / reduced-motion): simplemente apilados y scrolleables. */
-/* El fondo detrás de los paneles (los gaps) es azul cielo, el mismo tono del
-   hero, en vez de negro: toda la zona de videos se siente "cielo". */
-.reel-root { position: relative; width: 100%; background: #3C9EEC; }
+/* El fondo detrás de los paneles (los gaps) es blanco: los paneles flotan
+   sobre blanco como una galería, limpio. */
+.reel-root { position: relative; width: 100%; background: #FFFFFF; }
 
 .reel-stage {
   display: flex;
@@ -1128,7 +1130,7 @@ body::before {
   color: rgba(255, 255, 255, 0.45);
 }
 
-.vx-dot { display: inline-block; width: 6px; height: 6px; background: #C8FF00; }
+.vx-dot { display: inline-block; width: 6px; height: 6px; background: #1C7AE5; }
 
 .vx-card {
   background: rgba(255, 255, 255, 0.045);
@@ -1225,7 +1227,7 @@ body::before {
   transition: transform 0.2s ease;
 }
 .vx-cta:active { transform: scale(0.98); }
-.vx-cta--neon { background: #C8FF00; color: #0a0a0a; }
+.vx-cta--neon { background: #1C7AE5; color: #fff; }
 .vx-cta--azul { background: var(--vx-azul); color: #07253a; }
 .vx-cta--wa { background: #25D366; color: #fff; }
 .vx-cta--ghost {
@@ -1239,8 +1241,8 @@ body::before {
   display: inline-flex;
   align-items: center;
   gap: 10px;
-  background: #C8FF00;
-  color: #0a0a0a;
+  background: #1C7AE5;
+  color: #fff;
   border-radius: 999px;
   padding: 10px 18px;
   font-family: 'PPMonumentExtended', sans-serif;

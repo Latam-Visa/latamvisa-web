@@ -202,7 +202,7 @@ export default function ReelDesintegracion() {
               className={
                 v.hero
                   ? 'reel-visual'
-                  : 'reel-visual group cursor-pointer transition-[transform,border-color,box-shadow] duration-500 md:hover:scale-[1.012] md:hover:border-[#C8FF00]/70 md:hover:shadow-[0_0_55px_-12px_rgba(200,255,0,0.5)]'
+                  : 'reel-visual group cursor-pointer transition-[transform,border-color,box-shadow] duration-500 md:hover:scale-[1.012] md:hover:border-[#1C7AE5]/70 md:hover:shadow-[0_0_55px_-12px_rgba(28,122,229,0.5)]'
               }
             >
               {v.hero ? (
@@ -302,7 +302,7 @@ export default function ReelDesintegracion() {
                     <span className="font-['PPMonumentExtended'] text-[9px] font-light uppercase tracking-[0.2em] text-white sm:text-[10px]">
                       Ver precio
                     </span>
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="text-[#C8FF00]" aria-hidden>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="text-[#1C7AE5]" aria-hidden>
                       <path d="M12 19V5M6 11l6-6 6 6" strokeLinecap="round" strokeLinejoin="round" />
                     </svg>
                   </div>
@@ -324,7 +324,7 @@ export default function ReelDesintegracion() {
                       {v.linea}
                     </p>
                     <span className="mt-0.5 inline-flex items-center gap-2 font-['PPMonumentExtended'] text-[9px] font-light uppercase tracking-[0.3em] text-white/75 sm:text-[11px]">
-                      <span className="inline-block h-1.5 w-1.5 bg-[#C8FF00]" aria-hidden />
+                      <span className="inline-block h-1.5 w-1.5 bg-[#1C7AE5]" aria-hidden />
                       {v.esquina}
                     </span>
                   </div>
@@ -350,7 +350,7 @@ export default function ReelDesintegracion() {
 
                     <p className="max-w-[20ch] font-['PPMonumentExtended'] text-base font-light leading-snug text-white [text-shadow:0_1px_12px_rgba(0,0,0,0.6)] sm:text-lg md:text-xl">
                       ¿Una semana en Europa por{' '}
-                      <span className="whitespace-nowrap rounded-md bg-[#C8FF00] px-2 py-0.5 font-normal text-[#0a0a0a]">
+                      <span className="whitespace-nowrap rounded-md bg-[#1C7AE5] px-2 py-0.5 font-normal text-white">
                         ${v.semana}
                       </span>
                       ?
