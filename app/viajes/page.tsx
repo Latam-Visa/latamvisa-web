@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { viajesDisplay, viajesScript, viajesSerif, viajesBlack } from './fonts'
+import Navbar from '@/components/Navbar'
 import ViajesShell from '@/components/viajes/ViajesShell'
 import ReelDesintegracion from '@/components/viajes/ReelDesintegracion'
 import LaIdea from '@/components/viajes/LaIdea'
@@ -26,12 +27,13 @@ export const metadata: Metadata = {
 
 /* Campaña "Dos Vacaciones" (LATAM VISA x Europa).
    La página corre en su propio sistema de diseño (.viajes-root en
-   globals.css) y sin el Navbar del sitio: cada sección es una pantalla con
-   una sola idea, y una barra fija encima rompería esa regla. La navegación
-   de vuelta al sitio vive en el link "Viajes" del nav principal. */
+   globals.css) y lleva el MISMO Navbar del sitio (en su variante /viajes:
+   logo LATAM Travel + links de la campaña), fijo arriba en desktop y móvil,
+   para una navegación consistente con la home. */
 export default function ViajesPage() {
   return (
     <main className={`viajes-root ${viajesDisplay.variable} ${viajesScript.variable} ${viajesSerif.variable} ${viajesBlack.variable}`}>
+      <Navbar />
       <ViajesShell>
         <ReelDesintegracion />
         <LaIdea />
