@@ -136,14 +136,14 @@ export default function CotizaTuTrip() {
                 ) : (
                   <div className="vx-card mt-7 p-6 md:p-7">
                     <p className="vx-body mb-4">
-                      Déjanos tus datos y en <strong className="text-white">24h</strong> te mandamos la cotización afinada, con fechas y aerolíneas reales.
+                      Déjanos tus datos y en <strong className="text-[#111111]">24h</strong> te mandamos la cotización afinada, con fechas y aerolíneas reales.
                     </p>
                     <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                       <input className="vx-input" placeholder="Tu nombre" value={form.nombre} onChange={(e) => setForm({ ...form, nombre: e.target.value })} autoComplete="name" />
                       <input className="vx-input" type="email" placeholder="Tu correo" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} autoComplete="email" inputMode="email" />
                       <input className="vx-input md:col-span-2" type="tel" placeholder="WhatsApp (opcional)" value={form.whatsapp} onChange={(e) => setForm({ ...form, whatsapp: e.target.value })} autoComplete="tel" inputMode="tel" />
                     </div>
-                    {error && <p role="alert" className="vx-muted mt-4 text-[color:#ff8a8a]">{error}</p>}
+                    {error && <p role="alert" className="vx-muted mt-4 text-[color:#c0272d]">{error}</p>}
                     <button type="button" className={`vx-cta vx-cta--neon mt-5 ${enviando ? 'cursor-wait opacity-70' : ''}`} onClick={enviarContacto} disabled={enviando}>
                       {enviando ? 'Enviando…' : 'Enviar y recibir cotización'}
                     </button>
@@ -158,7 +158,7 @@ export default function CotizaTuTrip() {
           </div>
         )}
 
-        <a href={WHATSAPP_HREF} target="_blank" rel="noopener noreferrer" className="mt-8 inline-block font-['PPMonumentExtended'] text-[12px] font-light uppercase tracking-[0.2em] text-white/60 underline decoration-white/30 underline-offset-4 transition-colors hover:text-white">
+        <a href={WHATSAPP_HREF} target="_blank" rel="noopener noreferrer" className="mt-8 inline-block font-['PPMonumentExtended'] text-[12px] font-light uppercase tracking-[0.2em] text-black/55 underline decoration-black/25 underline-offset-4 transition-colors hover:text-[#111111]">
           ¿Prefieres hablar? Cotizar por WhatsApp
         </a>
       </div>
@@ -169,8 +169,8 @@ export default function CotizaTuTrip() {
 function Paso({ n, titulo, children }: { n: string; titulo: string; children: React.ReactNode }) {
   return (
     <div className="mt-8 first:mt-0">
-      <p className="mb-4 flex items-center gap-3 font-['PPMonumentExtended'] text-[15px] font-light text-white">
-        <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[var(--vx-azul)] text-[12px] font-medium text-[#07253a]">{n}</span>
+      <p className="mb-4 flex items-center gap-3 font-['PPMonumentExtended'] text-[15px] font-light text-[#111111]">
+        <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[var(--vx-azul)] text-[12px] font-medium text-white">{n}</span>
         {titulo}
       </p>
       {children}
@@ -190,7 +190,7 @@ function Tarjeta({ titulo, rango, destacado }: { titulo: string; rango: string; 
   return (
     <div className={`vx-card p-5 ${destacado ? 'vx-card--on' : ''}`}>
       <p className="vx-muted text-[color:var(--vx-azul)]">{titulo}</p>
-      <p className="mt-2 font-[family-name:var(--font-viajes-black)] text-[clamp(1.3rem,3.4vw,1.85rem)] tracking-[-0.02em] text-white">{rango}</p>
+      <p className="mt-2 font-[family-name:var(--font-viajes-black)] text-[clamp(1.3rem,3.4vw,1.85rem)] tracking-[-0.02em] text-[#111111]">{rango}</p>
     </div>
   )
 }
@@ -199,12 +199,12 @@ function Confirmacion({ nombre, destino }: { nombre: string; destino: string }) 
   const primer = nombre.trim().split(/\s+/)[0]
   return (
     <div data-reveal className="vx-card mt-12 max-w-[640px] p-7 md:p-9">
-      <p className="flex items-center gap-3 font-[family-name:var(--font-viajes-black)] text-[clamp(1.6rem,4vw,2.2rem)] uppercase tracking-[-0.02em] text-white">
+      <p className="flex items-center gap-3 font-[family-name:var(--font-viajes-black)] text-[clamp(1.6rem,4vw,2.2rem)] uppercase tracking-[-0.02em] text-[#111111]">
         ¡Listo{primer ? `, ${primer}` : ''}!
         <span className="vx-dot" aria-hidden />
       </p>
       <p className="vx-body mt-4">
-        Recibimos tu solicitud para <strong className="text-white">{destino}</strong>. Te mandamos la cotización afinada a tu correo en las próximas <strong className="text-white">24 horas</strong>.
+        Recibimos tu solicitud para <strong className="text-[#111111]">{destino}</strong>. Te mandamos la cotización afinada a tu correo en las próximas <strong className="text-[#111111]">24 horas</strong>.
       </p>
       <a href={WHATSAPP_HREF} target="_blank" rel="noopener noreferrer" className="vx-cta vx-cta--wa mt-6">
         Adelantar por WhatsApp

@@ -76,7 +76,7 @@ export default function ViajesShell({ children }: { children: React.ReactNode })
             target="_blank"
             rel="noopener noreferrer"
             aria-label="Escríbenos por WhatsApp"
-            className="inline-flex min-h-[56px] min-w-[56px] items-center justify-center rounded-2xl bg-[#25D366] text-white transition-transform active:scale-[0.97]"
+            className="inline-flex min-h-[56px] min-w-[56px] items-center justify-center rounded-2xl bg-[#1C7AE5] text-white transition-transform active:scale-[0.97]"
           >
             <WhatsAppIcon size={24} />
           </a>

@@ -232,7 +232,13 @@ export default function ReelDesintegracion() {
                 </video>
               )}
 
-              <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/45 via-black/15 to-black/55" />
+              {/* El hero (imagen de cielo) mantiene su velo para que el logo y
+                 la frase blanca se lean. Los VIDEOS van SIN velo: nada de
+                 bandas oscuras arriba/abajo ("bordes negros"). La legibilidad
+                 del texto sobre el video la dan sombras de texto fuertes. */}
+              {v.hero && (
+                <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/45 via-black/15 to-black/55" />
+              )}
 
               {v.hero ? (
                 <>
@@ -287,7 +293,17 @@ export default function ReelDesintegracion() {
                      así que el click los atraviesa. */}
                   <button
                     type="button"
-                    onClick={() => toggle(v.ciudad)}
+                    onClick={(e) => {
+                      const abrira = !abiertos.has(v.ciudad)
+                      toggle(v.ciudad)
+                      // Al abrir, centra la tarjeta en pantalla para que NADA
+                      // quede cortado por el navbar o el borde (antes el nombre
+                      // del país y parte de la franja se veían a medias).
+                      if (abrira) {
+                        const card = (e.currentTarget as HTMLElement).closest('.reel-card')
+                        card?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+                      }
+                    }}
                     aria-expanded={abierto}
                     aria-label={abierto ? `Cerrar precio de ${v.ciudad}` : `Ver precio de ${v.ciudad} y cotizar`}
                     className="absolute inset-0"
@@ -310,20 +326,20 @@ export default function ReelDesintegracion() {
                   {/* Nombre de ciudad ARRIBA: así se alcanza a ver en el asomo
                      del panel siguiente sin tener que bajar. */}
                   <div className="pointer-events-none absolute inset-x-0 top-0 flex flex-col items-start gap-1.5 p-5 md:gap-2 md:p-8">
-                    <span className="font-['PPMonumentExtended'] text-[10px] font-light uppercase tracking-[0.3em] text-white/70 sm:text-[11px]">
+                    <span className="font-['PPMonumentExtended'] text-[10px] font-light uppercase tracking-[0.3em] text-white/80 [text-shadow:0_1px_10px_rgba(0,0,0,0.9)] sm:text-[11px]">
                       {v.indice} / 03 · {v.pais}
                     </span>
-                    <h2 className="font-[var(--font-viajes-black)] uppercase leading-[0.9] tracking-[-0.04em] text-[#F3EBA8] [text-shadow:0_2px_30px_rgba(0,0,0,0.5)] text-[10vw] sm:text-[8.5vw] lg:text-[5.4vw]">
+                    <h2 className="font-[var(--font-viajes-black)] uppercase leading-[0.9] tracking-[-0.04em] text-[#F3EBA8] [text-shadow:0_2px_16px_rgba(0,0,0,0.85),0_1px_4px_rgba(0,0,0,0.7)] text-[10vw] sm:text-[8.5vw] lg:text-[5.4vw]">
                       {v.ciudad}
                     </h2>
                   </div>
 
                   {/* Línea editorial abajo */}
                   <div className="pointer-events-none absolute inset-x-0 bottom-0 flex flex-col items-start gap-2 p-5 md:p-10">
-                    <p className="max-w-[28ch] font-['PPMonumentExtended'] text-[11px] font-light uppercase tracking-[0.2em] text-white/80 sm:text-sm">
+                    <p className="max-w-[28ch] font-['PPMonumentExtended'] text-[11px] font-light uppercase tracking-[0.2em] text-white/90 [text-shadow:0_1px_12px_rgba(0,0,0,0.9)] sm:text-sm">
                       {v.linea}
                     </p>
-                    <span className="mt-0.5 inline-flex items-center gap-2 font-['PPMonumentExtended'] text-[9px] font-light uppercase tracking-[0.3em] text-white/75 sm:text-[11px]">
+                    <span className="mt-0.5 inline-flex items-center gap-2 font-['PPMonumentExtended'] text-[9px] font-light uppercase tracking-[0.3em] text-white/80 [text-shadow:0_1px_10px_rgba(0,0,0,0.9)] sm:text-[11px]">
                       <span className="inline-block h-1.5 w-1.5 bg-[#1C7AE5]" aria-hidden />
                       {v.esquina}
                     </span>
@@ -333,7 +349,7 @@ export default function ReelDesintegracion() {
                      Semitransparente (se sigue viendo el video arriba y detrás). */}
                   <div
                     onClick={(e) => e.stopPropagation()}
-                    className={`absolute inset-x-0 bottom-0 z-10 flex h-1/2 flex-col justify-end gap-3.5 bg-gradient-to-t from-black/85 via-black/55 to-transparent p-6 backdrop-blur-[2px] transition-[transform,opacity] duration-500 ease-out md:gap-5 md:p-9 ${
+                    className={`absolute inset-x-0 bottom-0 z-10 flex h-[62%] flex-col justify-end gap-3.5 overflow-y-auto bg-gradient-to-t from-black/85 via-black/55 to-transparent p-6 backdrop-blur-[2px] transition-[transform,opacity] duration-500 ease-out md:gap-5 md:p-9 ${
                       abierto ? 'translate-y-0 opacity-100' : 'pointer-events-none translate-y-full opacity-0'
                     }`}
                   >
@@ -362,7 +378,7 @@ export default function ReelDesintegracion() {
                       href={whatsappHref(`Hola! Vi ${v.ciudad} en la web — ¿una semana en Europa por ~$${v.semana}? Quiero cotizar mi Euro Trip.`)}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex min-h-[52px] w-full items-center justify-center gap-2.5 rounded-2xl bg-[#25D366] font-['PPMonumentExtended'] text-[13px] font-bold uppercase tracking-[0.06em] text-white transition-transform active:scale-[0.98] sm:w-auto sm:self-start sm:px-8"
+                      className="inline-flex min-h-[52px] w-full items-center justify-center gap-2.5 rounded-2xl bg-[#1C7AE5] font-['PPMonumentExtended'] text-[13px] font-bold uppercase tracking-[0.06em] text-white transition-transform active:scale-[0.98] sm:w-auto sm:self-start sm:px-8"
                     >
                       <WhatsAppIcon size={20} />
                       Cotiza por WhatsApp
