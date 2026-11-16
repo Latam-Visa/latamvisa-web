@@ -261,7 +261,11 @@ export function cuandoLabel(row: PlanPagoRow, fechaInicio: string | null): strin
 // ---------------------------------------------------------------------------
 // Mapeo al body que ya acepta /api/quote-html (mismo PDF, sin duplicar diseño)
 // ---------------------------------------------------------------------------
+export type Moneda = 'AUD' | 'USD'
+export interface MoneyOpts { currency?: Moneda; rate?: number }
+
 export interface QuoteBody {
+  currency?: string
   profile: { nombre: string; edad: number | string; pais: string; nivelIngles: string; pasaporte: string; ciudadLlegada: string }
   studentType: StudentType
   opciones: Array<{
@@ -278,7 +282,12 @@ export interface QuoteBody {
   }>
 }
 
-export function mapToQuoteBody(c: CotizacionEstudio): QuoteBody {
+export function mapToQuoteBody(c: CotizacionEstudio, opts?: MoneyOpts): QuoteBody {
+  const currency: Moneda = opts?.currency || 'AUD'
+  const rate = currency === 'USD' ? n(opts?.rate) || 1 : 1
+  // Convierte montos AUD → moneda de salida (AUD = sin cambio). Los COP NO se tocan.
+  const conv = (v: unknown) => (currency === 'USD' ? Math.round(n(v) * rate) : Math.round(n(v)))
+
   const curso = c.curso || (c.tipo === 'VET' ? 'Vocacional' : 'Inglés General')
   const label = `VISA SUBCLASS 500 · ${curso.toUpperCase()}`
 
@@ -296,6 +305,7 @@ export function mapToQuoteBody(c: CotizacionEstudio): QuoteBody {
       : undefined
 
   return {
+    currency,
     profile: {
       nombre: c.nombre || 'Estudiante',
       edad: c.edad ?? '',
@@ -322,18 +332,19 @@ export function mapToQuoteBody(c: CotizacionEstudio): QuoteBody {
         planPagosCustom: planOrdenado.map((r) => ({
           cuando: cuandoLabel(r, c.fecha_inicio),
           concepto: r.concepto,
-          monto: n(r.monto),
+          monto: conv(r.monto),
         })),
         cotizacion: {
           blockA: {
-            tuition: n(c.matricula_cliente),
-            material: n(c.materiales),
-            enrolment: n(c.inscripcion),
-            oshcTotal: n(c.oshc),
-            visaTotal: n(c.visa),
-            subtotalAUD: n(c.total),
+            tuition: conv(c.matricula_cliente),
+            material: conv(c.materiales),
+            enrolment: conv(c.inscripcion),
+            oshcTotal: conv(c.oshc),
+            visaTotal: conv(c.visa),
+            subtotalAUD: conv(c.total),
           },
-          blockB: n(c.solvencia_aud) > 0 ? { subtotalAUD: n(c.solvencia_aud) } : undefined,
+          blockB: n(c.solvencia_aud) > 0 ? { subtotalAUD: conv(c.solvencia_aud) } : undefined,
+          // Costos locales en COP: NO se convierten (son pagos en Colombia).
           localCostsCOP,
         },
       },
@@ -345,7 +356,11 @@ export function mapToQuoteBody(c: CotizacionEstudio): QuoteBody {
 // Mensaje de WhatsApp (español colombiano, cercano, usando "tú").
 // Nunca incluye datos internos (neto, comisión, notas).
 // ---------------------------------------------------------------------------
-export function buildWhatsapp(c: CotizacionEstudio): string {
+export function buildWhatsapp(c: CotizacionEstudio, opts?: MoneyOpts): string {
+  const currency: Moneda = opts?.currency || 'AUD'
+  const rate = currency === 'USD' ? n(opts?.rate) || 1 : 1
+  const conv = (v: unknown) => (currency === 'USD' ? Math.round(n(v) * rate) : Math.round(n(v)))
+
   const primer = (c.nombre || '').trim().split(/\s+/)[0] || ''
   const saludo = primer ? `¡Hola ${primer}! 😊` : '¡Hola! 😊'
   const planOrdenado = [...(c.plan_pagos || [])].sort((a, b) => n(a.orden) - n(b.orden))
@@ -355,11 +370,12 @@ export function buildWhatsapp(c: CotizacionEstudio): string {
   if (c.promo_banner) lineas.push('', c.promo_banner)
   lineas.push('', 'Plan de pagos:')
   for (const r of planOrdenado) {
-    lineas.push(`• ${cuandoLabel(r, c.fecha_inicio)} — ${r.concepto}: AUD ${fmtMiles(r.monto)}`)
+    lineas.push(`• ${cuandoLabel(r, c.fecha_inicio)} — ${r.concepto}: ${currency} ${fmtMiles(conv(r.monto))}`)
   }
   lineas.push('')
-  lineas.push(`Para arrancar necesitas: AUD ${fmtMiles(planParaArrancar(c.plan_pagos))}`)
-  lineas.push(`Total del plan: AUD ${fmtMiles(c.total)}`)
+  lineas.push(`Para arrancar necesitas: ${currency} ${fmtMiles(conv(planParaArrancar(c.plan_pagos)))}`)
+  lineas.push(`Total del plan: ${currency} ${fmtMiles(conv(c.total))}`)
+  if (currency === 'USD') lineas.push('(Valores en USD, referencia a la tasa del día.)')
   lineas.push('', 'Cualquier duda me escribes y lo ajustamos. 🙌')
   return lineas.join('\n')
 }

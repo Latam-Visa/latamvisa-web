@@ -11,8 +11,9 @@ import {
   cuandoLabel, mapToQuoteBody, buildWhatsapp, fmtMiles, n,
   ESTADOS_ESTUDIO,
   type CotizacionEstudio, type EstadoEstudio, type PlanPagoRow, type CuandoTipo, type StudentType, type TipoCurso,
+  type Moneda, type MoneyOpts,
 } from '@/lib/cotizaciones-estudio'
-import { guardarEstudio, eliminarEstudio, type GuardarPayload } from '../../_actions/actions'
+import { guardarEstudio, eliminarEstudio, obtenerTasaUsd, type GuardarPayload } from '../../_actions/actions'
 import { EstadoBadgeEstudio } from '../../_components/EstadoBadgeEstudio'
 
 type Manual = { materiales: boolean; matricula_neta: boolean; comision_aud: boolean; total: boolean }
@@ -46,6 +47,31 @@ export function EditorClient({ inicial }: { inicial: CotizacionEstudio }) {
 
   const [guardState, setGuardState] = useState<'idle' | 'guardando' | 'guardado' | 'error'>('idle')
   const [toast, setToast] = useState<string | null>(null)
+
+  // Moneda de salida (PDF / preview / WhatsApp). AUD = guardado; USD = convertido
+  // a la tasa del día (los montos guardados SIEMPRE son AUD).
+  const [moneda, setMoneda] = useState<Moneda>('AUD')
+  const [tasa, setTasa] = useState<number | null>(null)
+  const [tasaInfo, setTasaInfo] = useState<string>('')
+  const [tasaCargando, setTasaCargando] = useState(false)
+  const moneyOpts: MoneyOpts = moneda === 'USD' ? { currency: 'USD', rate: tasa ?? undefined } : { currency: 'AUD' }
+
+  const cambiarMoneda = async (m: Moneda) => {
+    setMoneda(m)
+    if (m === 'USD' && tasa == null) {
+      setTasaCargando(true)
+      const res = await obtenerTasaUsd()
+      setTasaCargando(false)
+      if (res.success && res.rate) {
+        setTasa(res.rate)
+        setTasaInfo(`1 AUD = ${res.rate.toFixed(4)} USD · ${res.fuente || ''}`)
+      } else {
+        setToast(res.error || 'No pudimos obtener la tasa; vuelve a AUD o reintenta.')
+        setMoneda('AUD')
+      }
+    }
+  }
+
   const [xWeeks, setXWeeks] = useState<number>(Math.max(1, Math.ceil(n(inicial.semanas_pagas) / 2) || 1))
   const [nWeeks, setNWeeks] = useState<number>(Math.max(1, Math.ceil(n(inicial.semanas_pagas) / 2) || 1))
   const [terms, setTerms] = useState<number>(Math.max(1, Math.round(n(inicial.semanas_enrolment) / 13) || 1))
@@ -128,14 +154,16 @@ export function EditorClient({ inicial }: { inicial: CotizacionEstudio }) {
     const w = window.open('', '_blank')
     const ok = await guardarYa()
     if (w) {
-      if (ok) w.location.href = `/admin/cotizaciones-estudio/${c.id}/print`
-      else { w.close(); setToast('No pudimos guardar antes de generar el PDF.') }
+      if (ok) {
+        const q = moneda === 'USD' && tasa ? `?cur=USD&rate=${tasa}` : ''
+        w.location.href = `/admin/cotizaciones-estudio/${c.id}/print${q}`
+      } else { w.close(); setToast('No pudimos guardar antes de generar el PDF.') }
     }
   }
 
   const copiarWhatsapp = async () => {
     try {
-      await navigator.clipboard.writeText(buildWhatsapp(c))
+      await navigator.clipboard.writeText(buildWhatsapp(c, moneyOpts))
       setToast('Mensaje de WhatsApp copiado ✓')
     } catch {
       setToast('No pudimos copiar; revisa permisos del navegador.')
@@ -178,6 +206,19 @@ export function EditorClient({ inicial }: { inicial: CotizacionEstudio }) {
             {guardState === 'error' && (<span className="text-red-600">Error al guardar</span>)}
           </span>
 
+          {/* Moneda de salida (PDF / preview / WhatsApp) */}
+          <div className="inline-flex overflow-hidden rounded-lg border border-[#E5E5E5]">
+            {(['AUD', 'USD'] as Moneda[]).map((m) => (
+              <button
+                key={m}
+                onClick={() => cambiarMoneda(m)}
+                className={`px-3 py-2 text-sm font-bold transition-colors ${moneda === m ? 'bg-[#2F4A00] text-white' : 'bg-white text-[#2F4A00] hover:bg-[#F7FBED]'}`}
+              >
+                {m}
+              </button>
+            ))}
+          </div>
+
           <button onClick={copiarWhatsapp} className="inline-flex min-h-[40px] items-center gap-2 rounded-lg border border-[#E5E5E5] bg-white px-3 py-2 text-sm font-semibold text-[#0A0A0A] transition-colors hover:border-[#2F4A00]">
             <MessageCircle className="h-4 w-4" /> Copiar WhatsApp
           </button>
@@ -185,6 +226,18 @@ export function EditorClient({ inicial }: { inicial: CotizacionEstudio }) {
             <Download className="h-4 w-4" /> Descargar PDF
           </button>
         </div>
+
+        {moneda === 'USD' && (
+          <div className="-mt-3 flex items-center gap-2 rounded-xl border border-[#D9EFB0] bg-[#F7FBED] px-3 py-2 text-xs text-[#2F4A00]">
+            {tasaCargando ? (
+              <><Loader2 className="h-3.5 w-3.5 animate-spin" /> Obteniendo tasa del día…</>
+            ) : tasa ? (
+              <>Mostrando en <b>USD</b> · {tasaInfo}. Los montos guardados siguen en AUD; el USD es referencia a la tasa de hoy.</>
+            ) : (
+              <>Sin tasa disponible.</>
+            )}
+          </div>
+        )}
 
         {/* Cliente */}
         <Seccion titulo="Cliente">
@@ -337,8 +390,8 @@ export function EditorClient({ inicial }: { inicial: CotizacionEstudio }) {
 
       {/* ================= Vista previa en vivo ================= */}
       <div className="lg:sticky lg:top-20 lg:h-fit">
-        <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-[#6B6B6B]">Vista previa</p>
-        <VistaPrevia cotizacion={c} />
+        <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-[#6B6B6B]">Vista previa {moneda === 'USD' && tasa ? '· USD' : '· AUD'}</p>
+        <VistaPrevia cotizacion={c} opts={moneyOpts} />
       </div>
 
       {toast && (
@@ -353,13 +406,13 @@ export function EditorClient({ inicial }: { inicial: CotizacionEstudio }) {
 // ============================================================================
 // Vista previa: iframe con el HTML real de /api/quote-html, escalado al ancho.
 // ============================================================================
-function VistaPrevia({ cotizacion }: { cotizacion: CotizacionEstudio }) {
+function VistaPrevia({ cotizacion, opts }: { cotizacion: CotizacionEstudio; opts: MoneyOpts }) {
   const [html, setHtml] = useState<string>('')
   const [cargando, setCargando] = useState(false)
   const wrapRef = useRef<HTMLDivElement>(null)
   const [scale, setScale] = useState(0.5)
 
-  const bodyKey = useMemo(() => JSON.stringify(mapToQuoteBody(cotizacion)), [cotizacion])
+  const bodyKey = useMemo(() => JSON.stringify(mapToQuoteBody(cotizacion, opts)), [cotizacion, opts])
 
   useEffect(() => {
     let cancelado = false
