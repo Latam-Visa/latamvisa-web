@@ -6,7 +6,7 @@ import { formatEs, todayBrisbane } from '@/lib/deadlines/dates'
 export const dynamic = 'force-dynamic'
 
 export default async function AdminHomePage() {
-  const [usaRes, canRes, japonRes, ukRes, schengenRes, ausRes, pendingIdeasRes, traduccionesRes, cotizacionesRes] = await Promise.all([
+  const [usaRes, canRes, japonRes, ukRes, schengenRes, ausRes, pendingIdeasRes, traduccionesRes, cotizacionesRes, cotizacionesEstudioRes] = await Promise.all([
     supabaseAdmin.from('visa_applications_usa').select('id', { count: 'exact', head: true }),
     supabaseAdmin.from('visa_applications_canada').select('id', { count: 'exact', head: true }),
     supabaseAdmin.from('visa_applications_japon').select('id', { count: 'exact', head: true }),
@@ -20,6 +20,11 @@ export default async function AdminHomePage() {
       .select('id', { count: 'exact', head: true })
       .eq('estado', 'pendiente')
       .gt('vence_el', new Date().toISOString()),
+    // Estudio: contamos las que siguen en juego (borrador + enviada).
+    supabaseAdmin
+      .from('cotizaciones_estudio')
+      .select('id', { count: 'exact', head: true })
+      .in('estado', ['borrador', 'enviada']),
   ])
 
   // Tarjeta de Deadlines: solo con la cookie de desbloqueo del dueño.
@@ -64,6 +69,7 @@ export default async function AdminHomePage() {
           ideasPendingCount={ideasPendingCount}
           traduccionesCount={traduccionesCount}
           cotizacionesPendientesCount={cotizacionesRes.count || 0}
+          cotizacionesEstudioCount={cotizacionesEstudioRes.count || 0}
           deadlines={deadlines}
         />
       </div>
