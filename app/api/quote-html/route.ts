@@ -32,12 +32,16 @@ function fillPricingPage(pageHtml: string, params: {
   promoBanner?: string;
   extrasGratis?: string[];
   planPagosCustom?: Array<{ cuando: string; concepto: string; monto: number }>;
+  // Moneda de cara al cliente. Default 'AUD' → comportamiento idéntico al actual.
+  // Con 'USD' los montos YA vienen convertidos en el body; aquí solo se re-etiqueta.
+  currency?: string;
 }) {
   let html = pageHtml;
   const {
     nombre, edad, pais, nivelIngles, pasaporte, ciudadLlegada, studentType, cotizacion, stages, optionLabel,
-    promoBanner, extrasGratis, planPagosCustom,
+    promoBanner, extrasGratis, planPagosCustom, currency,
   } = params;
+  const cur = currency || 'AUD';
 
   html = html.replace(/Preparado para <b>.*?<\/b> · Ruta de estudio en Australia/, `Preparado para <b>${nombre}</b> · Ruta de estudio en Australia`);
   html = html.replace(/<span class="htag">.*?<\/span>/, `<span class="htag">${optionLabel} · DESDE ${pais.toUpperCase()} · ${ciudadLlegada.toUpperCase()}</span>`);
@@ -73,7 +77,7 @@ function fillPricingPage(pageHtml: string, params: {
   const idxInviertes = html.indexOf('<div class="h2" style="margin-top:10px;">Lo que inviertes</div>');
   const idxColR = html.indexOf('<div class="col-r">');
 
-  const materialText = cotizacion.blockA.material > 0 ? `AUD ${cotizacion.blockA.material.toLocaleString('de-DE')}` : 'Incluido';
+  const materialText = cotizacion.blockA.material > 0 ? `${cur} ${cotizacion.blockA.material.toLocaleString('de-DE')}` : 'Incluido';
   const durationText = stages && stages.length > 0 ? ` (${weeksTextToMonths(stages[0].duration)})` : '';
 
   // PROMO opcional: filas "GRATIS" adicionales en el desglose — suman 0 al total.
@@ -83,15 +87,15 @@ function fillPricingPage(pageHtml: string, params: {
 
   const inviertesHtml = `
       <div class="itable">
-        <div class="irow"><span>Matrícula${durationText}</span><span class="amt">AUD ${cotizacion.blockA.tuition.toLocaleString('de-DE')}</span></div>
+        <div class="irow"><span>Matrícula${durationText}</span><span class="amt">${cur} ${cotizacion.blockA.tuition.toLocaleString('de-DE')}</span></div>
         <div class="irow"><span>Materiales</span><span class="amt">${materialText}</span></div>
-        <div class="irow"><span>Reserva de cupo + inscripción</span><span class="amt">AUD ${cotizacion.blockA.enrolment.toLocaleString('de-DE')}</span></div>
-        <div class="irow"><span>OSHC · seguro médico</span><span class="amt">AUD ${cotizacion.blockA.oshcTotal.toLocaleString('de-DE')}</span></div>
-        <div class="irow"><span>Visa Subclass 500 (incl. recargo)</span><span class="amt">AUD ${cotizacion.blockA.visaTotal.toLocaleString('de-DE')}</span></div>
-        ${studentType === 'onshore' && cotizacion.blockA.medicalOnshoreAUD ? `<div class="irow"><span>Examen Médico (Australia)</span><span class="amt">AUD ${cotizacion.blockA.medicalOnshoreAUD.toLocaleString('de-DE')}</span></div>` : ''}
+        <div class="irow"><span>Reserva de cupo + inscripción</span><span class="amt">${cur} ${cotizacion.blockA.enrolment.toLocaleString('de-DE')}</span></div>
+        <div class="irow"><span>OSHC · seguro médico</span><span class="amt">${cur} ${cotizacion.blockA.oshcTotal.toLocaleString('de-DE')}</span></div>
+        <div class="irow"><span>Visa Subclass 500 (incl. recargo)</span><span class="amt">${cur} ${cotizacion.blockA.visaTotal.toLocaleString('de-DE')}</span></div>
+        ${studentType === 'onshore' && cotizacion.blockA.medicalOnshoreAUD ? `<div class="irow"><span>Examen Médico (Australia)</span><span class="amt">${cur} ${cotizacion.blockA.medicalOnshoreAUD.toLocaleString('de-DE')}</span></div>` : ''}
         ${extrasGratisHtml}
       </div>
-      <div class="total"><span>TOTAL</span><span>AUD ${cotizacion.blockA.subtotalAUD.toLocaleString('de-DE')}</span></div>
+      <div class="total"><span>TOTAL</span><span>${cur} ${cotizacion.blockA.subtotalAUD.toLocaleString('de-DE')}</span></div>
       ${studentType === 'offshore' && cotizacion.localCostsCOP ? `<div class="cop">+ Costos locales en ${pais} (aparte): Biometría VFS ~COP ${cotizacion.localCostsCOP.biometrics.toLocaleString('es-CO')} · Examen médico ~COP ${cotizacion.localCostsCOP.medical.toLocaleString('es-CO')}</div>` : ''}
     `;
 
@@ -110,7 +114,7 @@ function fillPricingPage(pageHtml: string, params: {
   // para sumar el total) en vez del plan auto-calculado de abajo.
   if (planPagosCustom && planPagosCustom.length > 0) {
     pagosHtml += planPagosCustom.map((row) => `
-          <tr><td class="pw">${row.cuando}</td><td>${row.concepto}</td><td class="amt">AUD ${Number(row.monto).toLocaleString('de-DE')}</td></tr>
+          <tr><td class="pw">${row.cuando}</td><td>${row.concepto}</td><td class="amt">${cur} ${Number(row.monto).toLocaleString('de-DE')}</td></tr>
     `).join('');
   } else {
     const tuitionMaterial = cotizacion.blockA.tuition + cotizacion.blockA.material;
@@ -133,18 +137,18 @@ function fillPricingPage(pageHtml: string, params: {
     }
 
     pagosHtml += `
-          <tr><td class="pw">Hoy</td><td>Reserva de cupo + inscripción</td><td class="amt">AUD ${hoy.toLocaleString('de-DE')}</td></tr>
-          <tr><td class="pw">+5 días</td><td>Visa Subclass 500${studentType === 'onshore' && cotizacion.blockA.medicalOnshoreAUD ? ' + Examen Médico' : ''}</td><td class="amt">AUD ${plus5.toLocaleString('de-DE')}</td></tr>
-          <tr><td class="pw">+10 días</td><td>OSHC · seguro médico</td><td class="amt">AUD ${plus10.toLocaleString('de-DE')}</td></tr>
-          <tr><td class="pw">+15 días</td><td>${hasCuotas ? 'Matrícula Etapa 1' : 'Matrícula completa + materiales'}</td><td class="amt">AUD ${plus15.toLocaleString('de-DE')}</td></tr>
+          <tr><td class="pw">Hoy</td><td>Reserva de cupo + inscripción</td><td class="amt">${cur} ${hoy.toLocaleString('de-DE')}</td></tr>
+          <tr><td class="pw">+5 días</td><td>Visa Subclass 500${studentType === 'onshore' && cotizacion.blockA.medicalOnshoreAUD ? ' + Examen Médico' : ''}</td><td class="amt">${cur} ${plus5.toLocaleString('de-DE')}</td></tr>
+          <tr><td class="pw">+10 días</td><td>OSHC · seguro médico</td><td class="amt">${cur} ${plus10.toLocaleString('de-DE')}</td></tr>
+          <tr><td class="pw">+15 días</td><td>${hasCuotas ? 'Matrícula Etapa 1' : 'Matrícula completa + materiales'}</td><td class="amt">${cur} ${plus15.toLocaleString('de-DE')}</td></tr>
     `;
 
     if (hasCuotas) {
       pagosHtml += `
-          <tr><td class="pw">Mes 6</td><td>Etapa 2 · cuota 1</td><td class="amt">AUD ${cuota6.toLocaleString('de-DE')}</td></tr>
-          <tr><td class="pw">Mes 9</td><td>Etapa 2 · cuota 2</td><td class="amt">AUD ${cuota9.toLocaleString('de-DE')}</td></tr>
-          <tr><td class="pw">Mes 12</td><td>Etapa 2 · cuota 3</td><td class="amt">AUD ${cuota12.toLocaleString('de-DE')}</td></tr>
-          <tr><td class="pw">Mes 15</td><td>Etapa 2 · cuota final</td><td class="amt">AUD ${cuota15.toLocaleString('de-DE')}</td></tr>
+          <tr><td class="pw">Mes 6</td><td>Etapa 2 · cuota 1</td><td class="amt">${cur} ${cuota6.toLocaleString('de-DE')}</td></tr>
+          <tr><td class="pw">Mes 9</td><td>Etapa 2 · cuota 2</td><td class="amt">${cur} ${cuota9.toLocaleString('de-DE')}</td></tr>
+          <tr><td class="pw">Mes 12</td><td>Etapa 2 · cuota 3</td><td class="amt">${cur} ${cuota12.toLocaleString('de-DE')}</td></tr>
+          <tr><td class="pw">Mes 15</td><td>Etapa 2 · cuota final</td><td class="amt">${cur} ${cuota15.toLocaleString('de-DE')}</td></tr>
       `;
     }
   }
@@ -154,7 +158,12 @@ function fillPricingPage(pageHtml: string, params: {
   html = html.substring(0, idxPagosStart) + pagosHtml + html.substring(idxPagosEnd);
 
   if (cotizacion.blockB?.subtotalAUD) {
-    html = html.replace('~AUD 29.710 de manutención (12 meses) + matrícula del primer año + tiquete aéreo de ida.', `~AUD ${cotizacion.blockB.subtotalAUD.toLocaleString('de-DE')} (fondos de manutención + estudios + tiquete).`);
+    html = html.replace('~AUD 29.710 de manutención (12 meses) + matrícula del primer año + tiquete aéreo de ida.', `~${cur} ${cotizacion.blockB.subtotalAUD.toLocaleString('de-DE')} (fondos de manutención + estudios + tiquete).`);
+  }
+
+  // Nota al pie: re-etiquetar la moneda cuando no es AUD (ej. "Valores en USD").
+  if (cur !== 'AUD') {
+    html = html.replace('Valores en AUD sujetos a tarifa oficial vigente', `Valores en ${cur} · referencia a la tasa del día`);
   }
 
   return html;
@@ -163,7 +172,7 @@ function fillPricingPage(pageHtml: string, params: {
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { profile, studentType, opciones } = body;
+    const { profile, studentType, opciones, currency } = body;
 
     if (!opciones || !Array.isArray(opciones) || opciones.length === 0) {
       return NextResponse.json({ error: 'opciones is required and must be a non-empty array with at least 1 item.' }, { status: 400 });
@@ -216,6 +225,7 @@ export async function POST(req: Request) {
         promoBanner: opt.promoBanner,
         extrasGratis: opt.extrasGratis,
         planPagosCustom: opt.planPagosCustom,
+        currency: currency || 'AUD',
       });
     }).join('\n');
 

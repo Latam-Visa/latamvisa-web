@@ -136,6 +136,36 @@ export async function cambiarEstadoEstudio(id: string, estado: EstadoEstudio): P
   return { success: true }
 }
 
+// Tasa AUD → USD del día. Fuente principal open.er-api.com (actualiza a diario),
+// respaldo frankfurter.dev (BCE). Devuelve la tasa y de dónde salió.
+export async function obtenerTasaUsd(): Promise<{ success: boolean; rate?: number; fecha?: string; fuente?: string; error?: string }> {
+  if (!esAdmin()) return { success: false, error: 'Sesión de admin expirada.' }
+
+  try {
+    const r = await fetch('https://open.er-api.com/v6/latest/AUD', { cache: 'no-store' })
+    const j = await r.json()
+    const rate = j?.rates?.USD
+    if (typeof rate === 'number' && rate > 0) {
+      return { success: true, rate, fecha: j.time_last_update_utc || '', fuente: 'exchangerate-api' }
+    }
+  } catch {
+    /* intentamos el respaldo */
+  }
+
+  try {
+    const r = await fetch('https://api.frankfurter.dev/v1/latest?base=AUD&symbols=USD', { cache: 'no-store' })
+    const j = await r.json()
+    const rate = j?.rates?.USD
+    if (typeof rate === 'number' && rate > 0) {
+      return { success: true, rate, fecha: j.date || '', fuente: 'frankfurter / BCE' }
+    }
+  } catch {
+    /* sin suerte */
+  }
+
+  return { success: false, error: 'No pudimos obtener la tasa del día. Intenta de nuevo.' }
+}
+
 export async function eliminarEstudio(id: string): Promise<{ success: boolean; error?: string }> {
   if (!esAdmin()) return NO_AUTORIZADO
   if (!isUuid(id)) return { success: false, error: 'No encontramos la cotización.' }
