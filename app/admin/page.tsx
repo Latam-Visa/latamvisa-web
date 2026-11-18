@@ -6,7 +6,7 @@ import { formatEs, todayBrisbane } from '@/lib/deadlines/dates'
 export const dynamic = 'force-dynamic'
 
 export default async function AdminHomePage() {
-  const [usaRes, canRes, japonRes, ukRes, schengenRes, ausRes, pendingIdeasRes, traduccionesRes, cotizacionesRes, cotizacionesEstudioRes] = await Promise.all([
+  const [usaRes, canRes, japonRes, ukRes, schengenRes, ausRes, pendingIdeasRes, traduccionesRes, cotizacionesRes, cotizacionesEstudioRes, staffingGapsRes] = await Promise.all([
     supabaseAdmin.from('visa_applications_usa').select('id', { count: 'exact', head: true }),
     supabaseAdmin.from('visa_applications_canada').select('id', { count: 'exact', head: true }),
     supabaseAdmin.from('visa_applications_japon').select('id', { count: 'exact', head: true }),
@@ -25,6 +25,13 @@ export default async function AdminHomePage() {
       .from('cotizaciones_estudio')
       .select('id', { count: 'exact', head: true })
       .in('estado', ['borrador', 'enviada']),
+    // Staffing: turnos con cobertura incompleta en los próximos 14 días.
+    supabaseAdmin
+      .from('staffing_coverage')
+      .select('need_id', { count: 'exact', head: true })
+      .gt('missing', 0)
+      .gte('shift_date', new Date().toISOString().slice(0, 10))
+      .lte('shift_date', new Date(Date.now() + 14 * 86400000).toISOString().slice(0, 10)),
   ])
 
   // Tarjeta de Deadlines: solo con la cookie de desbloqueo del dueño.
@@ -70,6 +77,7 @@ export default async function AdminHomePage() {
           traduccionesCount={traduccionesCount}
           cotizacionesPendientesCount={cotizacionesRes.count || 0}
           cotizacionesEstudioCount={cotizacionesEstudioRes.count || 0}
+          staffingGapsCount={staffingGapsRes.count || 0}
           deadlines={deadlines}
         />
       </div>
