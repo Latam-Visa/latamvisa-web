@@ -19,6 +19,8 @@ import {
   slotStatus,
   SLOT_STYLE,
   SLOT_DOT,
+  initials,
+  avatarColor,
   sumTotals,
   DIAS_ES,
   MESES_ES,
@@ -49,7 +51,15 @@ export function CalendarClient(props: Props) {
   const router = useRouter()
   const [pending, startTransition] = useTransition()
   const [openNeed, setOpenNeed] = useState<string | null>(null)
+  const [quick, setQuick] = useState<{ needId: string; x: number; y: number } | null>(null)
   const [error, setError] = useState<string | null>(null)
+
+  function openQuick(needId: string, rect: DOMRect) {
+    const vw = typeof window !== 'undefined' ? window.innerWidth : 1200
+    const x = Math.min(Math.max(8, rect.left), vw - 284)
+    setQuick({ needId, x, y: rect.bottom + 6 })
+    setError(null)
+  }
 
   const anchor = fromYmd(anchorYmd)
   const hoyYmd = ymd(new Date())
@@ -66,6 +76,7 @@ export function CalendarClient(props: Props) {
 
   const totals = useMemo(() => sumTotals(coverage), [coverage])
   const openRow = openNeed ? coverage.find((c) => c.need_id === openNeed) || null : null
+  const quickRow = quick ? coverage.find((c) => c.need_id === quick.needId) || null : null
 
   function run(action: () => Promise<{ success: boolean; error?: string }>) {
     setError(null)
@@ -122,7 +133,7 @@ export function CalendarClient(props: Props) {
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-[1fr_320px]">
         <div className="order-2 space-y-6 lg:order-1">
           {weeks.map((days, wi) => (
-            <WeekGrid key={wi} days={days} view={view} anchor={anchor} hoyYmd={hoyYmd} clients={clients} byCell={byCell} assigned={assigned} onOpen={setOpenNeed} />
+            <WeekGrid key={wi} days={days} view={view} anchor={anchor} hoyYmd={hoyYmd} clients={clients} byCell={byCell} assigned={assigned} onPick={openQuick} />
           ))}
           {clients.length === 0 && (
             <div className="rounded-2xl border border-[#E8E8E3] bg-white p-6 text-sm text-[#6B6B6B]">
@@ -149,7 +160,7 @@ export function CalendarClient(props: Props) {
                 {gaps.map((g, i) => (
                   <motion.li key={g.need_id} initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: Math.min(i * 0.03, 0.4) }}>
                     <button
-                      onClick={() => setOpenNeed(g.need_id)}
+                      onClick={(e) => openQuick(g.need_id, e.currentTarget.getBoundingClientRect())}
                       className="w-full rounded-xl border border-[#FBD5D5] bg-white p-2.5 text-left transition-all hover:-translate-y-0.5 hover:shadow-[0_8px_20px_-10px_rgba(185,28,28,0.4)]"
                       style={{ borderLeft: `4px solid ${g.client_color || '#B91C1C'}` }}
                     >
@@ -166,6 +177,25 @@ export function CalendarClient(props: Props) {
           </div>
         </aside>
       </div>
+
+      <AnimatePresence>
+        {quick && quickRow && (
+          <QuickCover
+            key={quick.needId}
+            row={quickRow}
+            x={quick.x}
+            y={quick.y}
+            assigned={assigned[quick.needId] || []}
+            staff={staff}
+            pending={pending}
+            error={error}
+            onAssign={(sid) => run(() => asignarStaff(quickRow.need_id, sid))}
+            onToggle={(aid, next) => run(() => cambiarEstadoAsignacion(aid, next))}
+            onMore={() => { setOpenNeed(quickRow.need_id); setQuick(null) }}
+            onClose={() => { setQuick(null); setError(null) }}
+          />
+        )}
+      </AnimatePresence>
 
       <AnimatePresence>
         {openRow && (
@@ -198,7 +228,7 @@ function Stat({ n, cls, label, pulse }: { n: number; cls: string; label: string;
 }
 
 function WeekGrid({
-  days, view, anchor, hoyYmd, clients, byCell, assigned, onOpen,
+  days, view, anchor, hoyYmd, clients, byCell, assigned, onPick,
 }: {
   days: Date[]
   view: 'week' | 'month'
@@ -207,7 +237,7 @@ function WeekGrid({
   clients: StaffingClient[]
   byCell: Record<string, CoverageRow[]>
   assigned: Record<string, AssignedStaff[]>
-  onOpen: (needId: string) => void
+  onPick: (needId: string, rect: DOMRect) => void
 }) {
   return (
     <div className="overflow-x-auto rounded-2xl border border-[#E8E8E3] bg-white [scrollbar-width:thin]">
@@ -251,7 +281,7 @@ function WeekGrid({
               return (
                 <div key={ymd(d)} className={`min-h-[76px] space-y-1.5 border-l border-[#F2F2EC] p-1.5 ${isToday ? 'bg-[#FCFEF4]' : ''}`}>
                   {slots.map((sl) => (
-                    <SlotChip key={sl.need_id} row={sl} color={client.color} names={assigned[sl.need_id] || []} onClick={() => onOpen(sl.need_id)} />
+                    <SlotChip key={sl.need_id} row={sl} color={client.color} names={assigned[sl.need_id] || []} onPick={(rect) => onPick(sl.need_id, rect)} />
                   ))}
                 </div>
               )
@@ -263,20 +293,21 @@ function WeekGrid({
   )
 }
 
-function SlotChip({ row, color, names, onClick }: { row: CoverageRow; color: string; names: AssignedStaff[]; onClick: () => void }) {
+function SlotChip({ row, color, names, onPick }: { row: CoverageRow; color: string; names: AssignedStaff[]; onPick: (rect: DOMRect) => void }) {
   const st = slotStatus(row)
   return (
     <motion.button
-      onClick={onClick}
+      onClick={(e) => onPick(e.currentTarget.getBoundingClientRect())}
       whileHover={{ y: -2 }}
       whileTap={{ scale: 0.97 }}
       title={`${fmtRango(row.start_time, row.end_time)} · ${row.role} · ${SLOT_STYLE[st].label(row)}`}
-      className="w-full rounded-lg border border-[#ECECE5] bg-[#FBFBF8] p-1.5 text-left transition-colors hover:bg-white hover:shadow-[0_6px_16px_-10px_rgba(13,43,13,0.4)]"
+      className="group w-full rounded-lg border border-[#ECECE5] bg-[#FBFBF8] p-1.5 text-left transition-colors hover:bg-white hover:shadow-[0_6px_16px_-10px_rgba(13,43,13,0.4)]"
       style={{ borderLeft: `3px solid ${color || '#C8FF00'}` }}
     >
       <div className="flex items-center gap-1">
         <span className={`h-2 w-2 shrink-0 rounded-full ${SLOT_DOT[st]}`} />
         <span className="text-[11px] font-bold leading-tight tabular-nums text-[#0d2b0d]">{fmtRangoCorto(row.start_time, row.end_time)}</span>
+        {st === 'missing' && <span className="ml-auto hidden rounded bg-[#C8FF00] px-1 text-[9px] font-bold text-[#2F4A00] group-hover:inline">+ cubrir</span>}
       </div>
       <div className="mt-0.5 truncate text-[10px] text-[#9A9A94]">{row.role} · {row.assigned}/{row.headcount}</div>
       {names.length > 0 && (
@@ -290,6 +321,100 @@ function SlotChip({ row, color, names, onClick }: { row: CoverageRow; color: str
         </div>
       )}
     </motion.button>
+  )
+}
+
+function QuickCover({
+  row, x, y, assigned, staff, pending, error, onAssign, onToggle, onMore, onClose,
+}: {
+  row: CoverageRow
+  x: number
+  y: number
+  assigned: AssignedStaff[]
+  staff: StaffMember[]
+  pending: boolean
+  error: string | null
+  onAssign: (staffId: string) => void
+  onToggle: (assignmentId: string, next: 'draft' | 'confirmed') => void
+  onMore: () => void
+  onClose: () => void
+}) {
+  const st = slotStatus(row)
+  const asignadosIds = new Set(assigned.map((a) => a.staff_id))
+  const disponibles = staff.filter((s) => !asignadosIds.has(s.id))
+  const vh = typeof window !== 'undefined' ? window.innerHeight : 800
+  const top = Math.min(y, vh - 340)
+
+  return (
+    <>
+      <div className="fixed inset-0 z-40" onClick={onClose} />
+      <motion.div
+        role="dialog"
+        aria-modal="true"
+        initial={{ opacity: 0, scale: 0.95, y: -6 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.95, y: -6 }}
+        transition={{ type: 'spring', stiffness: 460, damping: 32 }}
+        style={{ top, left: x }}
+        className="fixed z-50 w-[272px] overflow-hidden rounded-2xl border border-[#E4E4DE] bg-white shadow-[0_24px_60px_-20px_rgba(13,43,13,0.45)]"
+      >
+        <div className="flex items-start justify-between gap-2 border-b border-[#F2F2EC] p-3">
+          <div className="min-w-0">
+            <div className="flex items-center gap-1.5">
+              <span className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ background: row.client_color || '#C8FF00' }} />
+              <span className="truncate text-[13px] font-bold text-[#0d2b0d]">{row.client_name}</span>
+            </div>
+            <div className="mt-0.5 text-[11px] text-[#9A9A94]">{fechaCortaEs(row.shift_date)} · {fmtRango(row.start_time, row.end_time)} · {row.role}</div>
+          </div>
+          <span className={`shrink-0 rounded-full border px-1.5 py-0.5 text-[10px] font-bold ${SLOT_STYLE[st].chip}`}>{row.assigned}/{row.headcount}</span>
+        </div>
+
+        <div className="p-2.5">
+          {error && <div className="mb-2 rounded-lg border border-red-200 bg-[#FEF2F2] p-2 text-[11px] text-red-700">{error}</div>}
+
+          {assigned.length > 0 && (
+            <div className="mb-2 space-y-1">
+              {assigned.map((a) => (
+                <div key={a.assignment_id} className="flex items-center justify-between gap-2 rounded-lg bg-[#FBFBF8] px-2 py-1.5">
+                  <span className="truncate text-[12px] font-semibold text-[#0d2b0d]">{a.full_name}</span>
+                  <button
+                    disabled={pending}
+                    onClick={() => onToggle(a.assignment_id, a.status === 'confirmed' ? 'draft' : 'confirmed')}
+                    className={`shrink-0 rounded-md px-2 py-0.5 text-[10px] font-bold disabled:opacity-50 ${a.status === 'confirmed' ? 'bg-[#DCFCE7] text-[#166534]' : 'bg-[#FEF3C7] text-[#92400E]'}`}
+                  >
+                    {a.status === 'confirmed' ? 'Confirmado' : 'Borrador'}
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+
+          <p className="mb-1.5 px-1 text-[10px] font-bold uppercase tracking-wide text-[#B6B6AE]">Cubrir con</p>
+          {disponibles.length === 0 ? (
+            <p className="px-1 pb-1 text-[12px] text-[#9A9A94]">No hay más personal disponible.</p>
+          ) : (
+            <div className="max-h-[168px] space-y-1 overflow-y-auto">
+              {disponibles.map((s) => (
+                <button
+                  key={s.id}
+                  disabled={pending}
+                  onClick={() => onAssign(s.id)}
+                  className="flex w-full items-center gap-2 rounded-lg border border-transparent p-1.5 text-left transition-colors hover:border-[#D9EFB0] hover:bg-[#F7FCE9] disabled:opacity-50"
+                >
+                  <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[10px] font-bold text-white" style={{ background: avatarColor(s.full_name) }}>{initials(s.full_name)}</span>
+                  <span className="min-w-0 flex-1 truncate text-[12px] font-semibold text-[#0d2b0d]">{s.full_name}{s.status === 'trial' ? <span className="ml-1 text-[10px] font-medium text-[#92400E]">· prueba</span> : ''}</span>
+                  <Plus className="h-3.5 w-3.5 shrink-0 text-[#2F4A00]" />
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <button onClick={onMore} className="flex w-full items-center justify-center gap-1 border-t border-[#F2F2EC] py-2 text-[12px] font-bold text-[#2F4A00] hover:bg-[#F7FCE9]">
+          Más opciones (notas, quitar…)
+        </button>
+      </motion.div>
+    </>
   )
 }
 
