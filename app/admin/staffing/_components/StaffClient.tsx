@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
+import { motion } from 'framer-motion'
 import { Plus, Trash2, Check, X } from 'lucide-react'
 import { STAFF_STATUS_LABEL, initials, avatarColor, type StaffMember, type StaffStatus } from '@/lib/staffing'
 import { crearStaff, actualizarStaff, eliminarStaff } from '../_actions/actions'
@@ -30,16 +31,46 @@ export function StaffClient({ staff, turnosSemana }: { staff: StaffMember[]; tur
     })
   }
 
+  const total = staff.length
+  const nActive = staff.filter((s) => s.status === 'active').length
+  const nTrial = staff.filter((s) => s.status === 'trial').length
+  const nInactive = staff.filter((s) => s.status === 'inactive').length
+  const stats = [
+    { label: 'Total', n: total, cls: 'text-[#0d2b0d]', dot: 'bg-[#0d2b0d]' },
+    { label: 'Activos', n: nActive, cls: 'text-[#166534]', dot: 'bg-[#22C55E]' },
+    { label: 'En prueba', n: nTrial, cls: 'text-[#92400E]', dot: 'bg-[#F59E0B]' },
+    { label: 'Inactivos', n: nInactive, cls: 'text-[#6B6B6B]', dot: 'bg-[#B6B6AE]' },
+  ]
+
   return (
     <div className="space-y-5">
-      <div className="flex justify-end">
-        <button onClick={() => setAdding((v) => !v)} className="inline-flex min-h-[44px] items-center gap-2 rounded-lg bg-[#C8FF00] px-4 py-2.5 text-sm font-bold text-[#2F4A00] hover:bg-[#b8ef00]">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        {stats.map((s, i) => (
+          <motion.div
+            key={s.label}
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: i * 0.05, ease: [0.16, 1, 0.3, 1] }}
+            className="rounded-2xl border border-[#E8E8E3] bg-white p-4"
+          >
+            <div className="flex items-center gap-1.5">
+              <span className={`h-2 w-2 rounded-full ${s.dot}`} />
+              <span className="text-[11px] font-bold uppercase tracking-wide text-[#B6B6AE]">{s.label}</span>
+            </div>
+            <div className={`mt-1 text-[26px] font-bold leading-none ${s.cls}`}>{s.n}</div>
+          </motion.div>
+        ))}
+      </div>
+
+      <div className="flex items-center justify-between gap-3">
+        <p className="text-[13px] text-[#9A9A94]">Equipo de la agencia</p>
+        <button onClick={() => setAdding((v) => !v)} className="inline-flex min-h-[44px] items-center gap-2 rounded-xl bg-[#C8FF00] px-4 py-2.5 text-sm font-bold text-[#2F4A00] transition-colors hover:bg-[#bdf000]">
           <Plus className="h-4 w-4" /> Agregar persona
         </button>
       </div>
 
       {adding && (
-        <div className="rounded-2xl border border-[#E5E5E5] bg-white p-5">
+        <div className="rounded-2xl border border-[#E8E8E3] bg-white p-5">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <input value={f.full_name} onChange={(e) => setF({ ...f, full_name: e.target.value })} placeholder="Nombre completo *" className={inputCls} />
             <select value={f.status} onChange={(e) => setF({ ...f, status: e.target.value as StaffStatus })} className={inputCls}>
@@ -52,17 +83,17 @@ export function StaffClient({ staff, turnosSemana }: { staff: StaffMember[]; tur
           {err && <p className="mt-2 text-xs text-red-600">{err}</p>}
           <div className="mt-4 flex gap-2">
             <button disabled={pending} onClick={crear} className="rounded-lg bg-[#C8FF00] px-4 py-2 text-sm font-bold text-[#2F4A00] disabled:opacity-50">Guardar</button>
-            <button disabled={pending} onClick={() => setAdding(false)} className="rounded-lg border border-[#E5E5E5] px-4 py-2 text-sm font-semibold text-[#6B6B6B]">Cancelar</button>
+            <button disabled={pending} onClick={() => setAdding(false)} className="rounded-xl border border-[#E8E8E3] px-4 py-2 text-sm font-semibold text-[#6B6B6B]">Cancelar</button>
           </div>
         </div>
       )}
 
       {staff.length === 0 ? (
-        <div className="rounded-xl border border-[#E5E5E5] bg-white p-6 text-sm text-[#6B6B6B]">Aún no hay personal. Agrega la primera persona o conviértela desde Candidatos.</div>
+        <div className="rounded-2xl border border-dashed border-[#DEDED6] bg-white p-8 text-center text-sm text-[#9A9A94]">Aún no hay personal. Agrega la primera persona o conviértela desde Candidatos.</div>
       ) : (
-        <div className="overflow-x-auto rounded-2xl border border-[#E5E5E5] bg-white">
+        <div className="overflow-x-auto rounded-2xl border border-[#E8E8E3] bg-white">
           <table className="min-w-[680px] w-full text-sm">
-            <thead className="bg-[#FAFAF7] text-[11px] uppercase tracking-wide text-[#A3A3A3]">
+            <thead className="bg-[#FBFBF8] text-[11px] uppercase tracking-wide text-[#B6B6AE]">
               <tr>
                 <th className="p-3 text-left font-bold">Nombre</th>
                 <th className="p-3 text-left font-bold">Estado</th>
@@ -140,7 +171,7 @@ function StaffRow({
   }
 
   return (
-    <tr className="border-t border-[#F0F0F0]">
+    <tr className="border-t border-[#F2F2EC] transition-colors hover:bg-[#FBFBF8]">
       <td className="p-3">
         <div className="flex items-center gap-2.5">
           <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-[11px] font-bold text-white" style={{ background: avatarColor(p.full_name) }}>
@@ -168,4 +199,4 @@ function StaffRow({
   )
 }
 
-const inputCls = 'w-full rounded-lg border border-[#E5E5E5] bg-white px-3 py-2 text-sm text-[#0d2b0d] focus:border-[#2F4A00] focus:outline-none'
+const inputCls = 'w-full rounded-lg border border-[#E8E8E3] bg-white px-3 py-2 text-sm text-[#0d2b0d] focus:border-[#2F4A00] focus:outline-none'

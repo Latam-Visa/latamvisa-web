@@ -1,9 +1,10 @@
 "use client"
 
-import { useState, useTransition } from 'react'
+import { useMemo, useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
-import { Plus, Trash2, Check, X } from 'lucide-react'
-import { DIAS_ES, fechaCortaEs, fmtRango, type StaffingClient } from '@/lib/staffing'
+import { motion } from 'framer-motion'
+import { Plus, Trash2, Check, X, CalendarCheck } from 'lucide-react'
+import { DIAS_ES, fechaCortaEs, fmtRango, fromYmd, addDays, mondayIndex, type StaffingClient } from '@/lib/staffing'
 import { crearNeedsBulk, actualizarNeed, eliminarNeed } from '../_actions/actions'
 import type { NeedRow } from '../needs/page'
 
@@ -27,6 +28,19 @@ export function NeedsClient({ clients, needs }: { clients: StaffingClient[]; nee
     setDias((prev) => (prev.includes(i) ? prev.filter((x) => x !== i) : [...prev, i].sort()))
   }
 
+  // Preview en vivo: cuántos turnos se generarían con el rango y días elegidos.
+  const previewCount = useMemo(() => {
+    if (!desde || !hasta || dias.length === 0) return 0
+    const ini = fromYmd(desde)
+    const fin = fromYmd(hasta)
+    if (ini > fin || (fin.getTime() - ini.getTime()) / 86400000 > 370) return 0
+    const set = new Set(dias)
+    let n = 0
+    for (let d = new Date(ini); d <= fin; d = addDays(d, 1)) if (set.has(mondayIndex(d))) n++
+    return n
+  }, [desde, hasta, dias])
+  const clienteNombre = clients.find((c) => c.id === clientId)?.name
+
   function crear() {
     setMsg(null)
     startTransition(async () => {
@@ -42,8 +56,11 @@ export function NeedsClient({ clients, needs }: { clients: StaffingClient[]; nee
   return (
     <div className="space-y-8">
       {/* Alta masiva */}
-      <section className="rounded-2xl border border-[#E5E5E5] bg-white p-5 sm:p-6">
-        <h3 className="font-[PPMonumentExtended] text-lg text-[#0d2b0d] mb-4">Agregar turnos en bloque</h3>
+      <section className="rounded-2xl border border-[#E8E8E3] bg-white p-5 sm:p-6">
+        <div className="mb-4 flex items-center gap-2">
+          <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-[#C8FF00] text-[#2F4A00]"><Plus className="h-4 w-4" /></span>
+          <h3 className="text-[17px] font-bold text-[#0d2b0d]">Agregar turnos en bloque</h3>
+        </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           <Field label="Cliente">
             <select value={clientId} onChange={(e) => setClientId(e.target.value)} className={inputCls}>
@@ -80,7 +97,7 @@ export function NeedsClient({ clients, needs }: { clients: StaffingClient[]; nee
                 key={i}
                 type="button"
                 onClick={() => toggleDia(i)}
-                className={`rounded-lg px-3 py-1.5 text-xs font-bold transition-colors ${dias.includes(i) ? 'bg-[#C8FF00] text-[#2F4A00]' : 'bg-[#F5F5F0] text-[#6B6B6B]'}`}
+                className={`rounded-lg px-3 py-1.5 text-xs font-bold transition-colors ${dias.includes(i) ? 'bg-[#C8FF00] text-[#2F4A00]' : 'bg-[#F2F2EC] text-[#6B6B6B] hover:bg-[#EAEAE2]'}`}
               >
                 {d}
               </button>
@@ -100,24 +117,37 @@ export function NeedsClient({ clients, needs }: { clients: StaffingClient[]; nee
           </div>
         )}
 
-        <button
-          onClick={crear}
-          disabled={pending}
-          className="mt-5 inline-flex min-h-[44px] items-center gap-2 rounded-lg bg-[#C8FF00] px-4 py-2.5 text-sm font-bold text-[#2F4A00] hover:bg-[#b8ef00] disabled:opacity-50"
-        >
-          <Plus className="h-4 w-4" /> {pending ? 'Creando…' : 'Generar turnos'}
-        </button>
+        <div className="mt-5 flex flex-wrap items-center gap-3">
+          <button
+            onClick={crear}
+            disabled={pending || previewCount === 0}
+            className="inline-flex min-h-[44px] items-center gap-2 rounded-xl bg-[#C8FF00] px-4 py-2.5 text-sm font-bold text-[#2F4A00] transition-colors hover:bg-[#bdf000] disabled:opacity-50"
+          >
+            <Plus className="h-4 w-4" /> {pending ? 'Creando…' : 'Generar turnos'}
+          </button>
+          <motion.div
+            key={previewCount}
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="inline-flex items-center gap-1.5 rounded-xl border border-[#D9EFB0] bg-[#F7FCE9] px-3 py-2 text-[13px] font-semibold text-[#2F4A00]"
+          >
+            <CalendarCheck className="h-4 w-4" />
+            {previewCount > 0
+              ? <>Se generarán <strong className="tabular-nums">{previewCount}</strong> turno{previewCount === 1 ? '' : 's'}{clienteNombre ? ` para ${clienteNombre}` : ''}</>
+              : 'Completa cliente, fechas y días para ver el total'}
+          </motion.div>
+        </div>
       </section>
 
       {/* Tabla de próximos turnos */}
       <section>
-        <h3 className="font-[PPMonumentExtended] text-lg text-[#0d2b0d] mb-3">Próximos turnos ({needs.length})</h3>
+        <h3 className="mb-3 text-[17px] font-bold text-[#0d2b0d]">Próximos turnos <span className="text-[#B6B6AE]">({needs.length})</span></h3>
         {needs.length === 0 ? (
-          <div className="rounded-xl border border-[#E5E5E5] bg-white p-6 text-sm text-[#6B6B6B]">No hay turnos próximos.</div>
+          <div className="rounded-2xl border border-dashed border-[#DEDED6] bg-white p-8 text-center text-sm text-[#9A9A94]">No hay turnos próximos. Genera algunos arriba.</div>
         ) : (
-          <div className="overflow-x-auto rounded-2xl border border-[#E5E5E5] bg-white">
+          <div className="overflow-x-auto rounded-2xl border border-[#E8E8E3] bg-white">
             <table className="min-w-[640px] w-full text-sm">
-              <thead className="bg-[#FAFAF7] text-[11px] uppercase tracking-wide text-[#A3A3A3]">
+              <thead className="bg-[#FBFBF8] text-[11px] uppercase tracking-wide text-[#B6B6AE]">
                 <tr>
                   <th className="p-3 text-left font-bold">Cliente</th>
                   <th className="p-3 text-left font-bold">Fecha</th>
@@ -172,9 +202,9 @@ function NeedRowItem({
   }
 
   return (
-    <tr className="border-t border-[#F0F0F0]">
-      <td className="p-3">
-        <span className="inline-flex items-center gap-2">
+    <tr className="border-t border-[#F2F2EC] transition-colors hover:bg-[#FBFBF8]">
+      <td className="p-3" style={{ boxShadow: `inset 3px 0 0 ${need.client_color}` }}>
+        <span className="inline-flex items-center gap-2 pl-1.5">
           <span className="h-2.5 w-2.5 rounded-full" style={{ background: need.client_color }} />
           <span className="font-semibold text-[#0d2b0d]">{need.client_name}</span>
         </span>
@@ -216,7 +246,7 @@ function NeedRowItem({
   )
 }
 
-const inputCls = 'w-full rounded-lg border border-[#E5E5E5] bg-white px-3 py-2 text-sm text-[#0d2b0d] focus:border-[#2F4A00] focus:outline-none'
+const inputCls = 'w-full rounded-lg border border-[#E8E8E3] bg-white px-3 py-2 text-sm text-[#0d2b0d] focus:border-[#2F4A00] focus:outline-none'
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
