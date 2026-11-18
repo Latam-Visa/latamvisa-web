@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import dynamic from 'next/dynamic'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
-import { ClipboardList, Lightbulb, Languages, Receipt, CalendarClock, GraduationCap, ArrowRight, type LucideIcon } from 'lucide-react'
+import { ClipboardList, Lightbulb, Languages, Receipt, CalendarClock, GraduationCap, CalendarRange, ArrowRight, type LucideIcon } from 'lucide-react'
 
 const Antigravity = dynamic(() => import('@/components/Antigravity'), { ssr: false })
 
@@ -28,6 +28,7 @@ interface AdminHomeHubProps {
   traduccionesCount: number
   cotizacionesPendientesCount: number
   cotizacionesEstudioCount: number
+  staffingGapsCount: number
   // Resumen de Deadlines: solo llega si el dueño desbloqueó (cookie firmada válida).
   deadlines?: { atrasadas: number; proximoHito: string | null } | null
 }
@@ -42,7 +43,7 @@ interface HubCardData {
   countLabel?: string
 }
 
-export function AdminHomeHub({ solicitudesCount, ideasPendingCount, traduccionesCount, cotizacionesPendientesCount, cotizacionesEstudioCount, deadlines }: AdminHomeHubProps) {
+export function AdminHomeHub({ solicitudesCount, ideasPendingCount, traduccionesCount, cotizacionesPendientesCount, cotizacionesEstudioCount, staffingGapsCount, deadlines }: AdminHomeHubProps) {
   const cards: HubCardData[] = [
     {
       href: '/admin/solicitudes',
@@ -83,6 +84,14 @@ export function AdminHomeHub({ solicitudesCount, ideasPendingCount, traducciones
       subtitle: 'Visa de estudiante (Subclass 500), hechas a mano con deals de colegios',
       count: cotizacionesEstudioCount,
       countLabel: cotizacionesEstudioCount === 1 ? 'cotización' : 'cotizaciones',
+    },
+    {
+      href: '/admin/staffing',
+      icon: CalendarRange,
+      title: 'Staffing',
+      subtitle: 'Calendario de turnos, cobertura por cliente y reclutamiento',
+      count: staffingGapsCount,
+      countLabel: staffingGapsCount === 1 ? 'gap (14 días)' : 'gaps (14 días)',
     },
   ]
 
