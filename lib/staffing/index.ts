@@ -150,6 +150,23 @@ export function fmtRango(start: string, end: string): string {
   return `${fmtTime(start)}–${fmtTime(end)}`
 }
 
+/** Hora sin ':00' (09:00 → 9, 10:30 → 10:30). Para celdas densas del calendario. */
+export function fmtHoraCorta(t: string | null | undefined): string {
+  const [h, m] = fmtTime(t).split(':')
+  if (!h) return ''
+  return m === '00' ? String(Number(h)) : `${Number(h)}:${m}`
+}
+
+export function fmtRangoCorto(start: string, end: string): string {
+  return `${fmtHoraCorta(start)}–${fmtHoraCorta(end)}`
+}
+
+export const SLOT_DOT: Record<SlotStatus, string> = {
+  missing: 'bg-[#DC2626]',
+  draft: 'bg-[#F59E0B]',
+  ok: 'bg-[#22C55E]',
+}
+
 export function rangoSemanaLabel(d: Date): string {
   const [ini, , , , , , fin] = weekDates(d)
   const mi = MESES_ES[ini.getMonth()].slice(0, 3)

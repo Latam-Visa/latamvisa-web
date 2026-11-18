@@ -1,8 +1,7 @@
-import Link from 'next/link'
-import { ArrowLeft } from 'lucide-react'
 import { supabaseAdmin } from '@/lib/supabase/admin'
 import { ymd, type StaffingClient } from '@/lib/staffing'
 import { NeedsClient } from '../_components/NeedsClient'
+import { StaffingHeader } from '../_components/StaffingHeader'
 
 export const dynamic = 'force-dynamic'
 export const fetchCache = 'force-no-store'
@@ -49,15 +48,7 @@ export default async function NeedsPage() {
 
   return (
     <div className="mx-auto w-full max-w-[1100px] space-y-6 pb-12">
-      <div className="flex items-start gap-4">
-        <Link href="/admin/staffing" aria-label="Volver al calendario" className="flex shrink-0 items-center justify-center rounded-lg border border-[#E5E5E5] bg-white p-2 text-[#0A0A0A] transition-colors hover:border-[#0A0A0A]">
-          <ArrowLeft className="h-5 w-5" />
-        </Link>
-        <div>
-          <h2 className="font-[PPMonumentExtended] text-2xl font-bold text-[#0d2b0d]">Turnos (necesidades)</h2>
-          <p className="text-sm text-[#6B6B6B]">Crea turnos en bloque y gestiona los próximos</p>
-        </div>
-      </div>
+      <StaffingHeader kicker="Turnos" title="Necesidades" subtitle="Crea turnos en bloque y gestiona los próximos." />
 
       <NeedsClient clients={clients} needs={needs} />
     </div>
