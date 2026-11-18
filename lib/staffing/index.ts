@@ -240,3 +240,19 @@ export const STAFF_STATUS_LABEL: Record<StaffStatus, string> = {
 export function isUuid(v: unknown): v is string {
   return typeof v === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(v)
 }
+
+/** Iniciales (máx 2) para avatares. */
+export function initials(name: string | null | undefined): string {
+  const p = (name || '').trim().split(/\s+/).filter(Boolean)
+  const r = ((p[0]?.[0] || '') + (p[1]?.[0] || '')).toUpperCase()
+  return r || '?'
+}
+
+const AVATAR_COLORS = ['#2F4A00', '#1C7AE5', '#B45309', '#7C3AED', '#BE185D', '#0F766E', '#B91C1C', '#4338CA']
+
+/** Color estable derivado del nombre (mismo nombre → mismo color). */
+export function avatarColor(name: string | null | undefined): string {
+  let h = 0
+  for (const ch of name || '') h = (h * 31 + ch.charCodeAt(0)) >>> 0
+  return AVATAR_COLORS[h % AVATAR_COLORS.length]
+}

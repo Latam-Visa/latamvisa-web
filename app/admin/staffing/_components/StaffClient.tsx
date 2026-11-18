@@ -3,7 +3,7 @@
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { Plus, Trash2, Check, X } from 'lucide-react'
-import { STAFF_STATUS_LABEL, type StaffMember, type StaffStatus } from '@/lib/staffing'
+import { STAFF_STATUS_LABEL, initials, avatarColor, type StaffMember, type StaffStatus } from '@/lib/staffing'
 import { crearStaff, actualizarStaff, eliminarStaff } from '../_actions/actions'
 
 const STATUSES: StaffStatus[] = ['active', 'trial', 'inactive']
@@ -142,8 +142,15 @@ function StaffRow({
   return (
     <tr className="border-t border-[#F0F0F0]">
       <td className="p-3">
-        <div className="font-semibold text-[#0d2b0d]">{p.full_name}</div>
-        {p.notes && <div className="text-[11px] text-[#A3A3A3] max-w-[240px] truncate">{p.notes}</div>}
+        <div className="flex items-center gap-2.5">
+          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-[11px] font-bold text-white" style={{ background: avatarColor(p.full_name) }}>
+            {initials(p.full_name)}
+          </span>
+          <div className="min-w-0">
+            <div className="font-semibold text-[#0d2b0d]">{p.full_name}</div>
+            {p.notes && <div className="max-w-[240px] truncate text-[11px] text-[#A3A3A3]">{p.notes}</div>}
+          </div>
+        </div>
       </td>
       <td className="p-3"><span className={`rounded-full px-2 py-0.5 text-xs font-bold ${statusChip[p.status]}`}>{STAFF_STATUS_LABEL[p.status]}</span></td>
       <td className="p-3 text-[#6B6B6B]">

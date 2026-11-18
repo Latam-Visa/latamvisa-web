@@ -23,58 +23,51 @@ function useCopy() {
 
 export function KitClient() {
   const { copied, copy } = useCopy()
-  const [contacto, setContacto] = useState('wa.me/61XXXXXXXXX')
-  const [ciudad, setCiudad] = useState('Brisbane')
-
-  const mensajes = buildMensajes(contacto, ciudad)
+  const [mensaje, setMensaje] = useState(MENSAJE_LARGO)
 
   return (
     <div className="space-y-8">
-      {/* ===================== MENSAJES ===================== */}
+      {/* ===================== MENSAJE ===================== */}
       <section>
         <div className="mb-4 flex items-center gap-2">
           <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-[#C8FF00] text-[#2F4A00]"><Megaphone className="h-4 w-4" /></span>
-          <h2 className="text-[17px] font-bold text-[#0d2b0d]">Mensajes para publicar</h2>
+          <h2 className="text-[17px] font-bold text-[#0d2b0d]">Mensaje para publicar</h2>
         </div>
 
-        {/* Personalización */}
-        <div className="mb-4 grid grid-cols-1 gap-3 rounded-2xl border border-[#E8E8E3] bg-white p-4 sm:grid-cols-2">
-          <label className="block">
-            <span className="mb-1.5 block text-[11px] font-bold uppercase tracking-wide text-[#B6B6AE]">Contacto (WhatsApp o link)</span>
-            <input value={contacto} onChange={(e) => setContacto(e.target.value)} className={inputCls} placeholder="wa.me/61…" />
-          </label>
-          <label className="block">
-            <span className="mb-1.5 block text-[11px] font-bold uppercase tracking-wide text-[#B6B6AE]">Ciudad</span>
-            <input value={ciudad} onChange={(e) => setCiudad(e.target.value)} className={inputCls} placeholder="Brisbane" />
-          </label>
-          <p className="sm:col-span-2 flex items-start gap-1.5 text-[12px] text-[#9A9A94]">
-            <Info className="mt-0.5 h-3.5 w-3.5 shrink-0" /> Lo que escribas aquí se inserta automáticamente en los mensajes de abajo. Revisa el texto antes de publicar.
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-          {mensajes.map((m, i) => (
-            <motion.div
-              key={m.id}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: i * 0.06, ease: [0.16, 1, 0.3, 1] }}
-              className="flex flex-col overflow-hidden rounded-2xl border border-[#E8E8E3] bg-white"
-            >
-              <div className="flex items-center justify-between gap-2 border-b border-[#F2F2EC] px-4 py-2.5">
-                <span className="flex items-center gap-1.5 text-[13px] font-bold text-[#0d2b0d]">{m.icon} {m.titulo}</span>
-                <span className="rounded-full bg-[#F2FBDD] px-2 py-0.5 text-[10px] font-bold text-[#2F4A00]">{m.tag}</span>
-              </div>
-              <pre className="flex-1 whitespace-pre-wrap px-4 py-3 font-sans text-[12.5px] leading-relaxed text-[#3A3A34]">{m.texto}</pre>
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ ease: [0.16, 1, 0.3, 1] }}
+          className="overflow-hidden rounded-2xl border border-[#E8E8E3] bg-white"
+        >
+          <div className="flex items-center justify-between gap-2 border-b border-[#F2F2EC] bg-[#FBFBF8] px-4 py-2.5">
+            <span className="flex items-center gap-1.5 text-[13px] font-bold text-[#0d2b0d]"><Megaphone className="h-3.5 w-3.5 text-[#2F4A00]" /> Waiters &amp; Waitresses · Brisbane CBD</span>
+            <span className="rounded-full bg-[#F2FBDD] px-2 py-0.5 text-[10px] font-bold text-[#2F4A00]">Editable</span>
+          </div>
+          <textarea
+            value={mensaje}
+            onChange={(e) => setMensaje(e.target.value)}
+            rows={22}
+            spellCheck={false}
+            className="w-full resize-y border-0 px-4 py-4 text-[13.5px] leading-relaxed text-[#2A2A24] focus:outline-none focus:ring-0"
+          />
+          <div className="flex flex-wrap items-center justify-between gap-2 border-t border-[#F2F2EC] p-3">
+            <p className="flex items-center gap-1.5 text-[12px] text-[#9A9A94]"><Info className="h-3.5 w-3.5 shrink-0" /> Edítalo si cambian turnos, pagos o el número. Se copia tal cual lo ves.</p>
+            <div className="flex items-center gap-2">
+              {mensaje !== MENSAJE_LARGO && (
+                <button onClick={() => setMensaje(MENSAJE_LARGO)} className="rounded-xl border border-[#E8E8E3] px-3 py-2.5 text-sm font-bold text-[#6B6B6B] hover:bg-[#F6F6F2]">
+                  Restaurar
+                </button>
+              )}
               <button
-                onClick={() => copy(m.id, m.texto)}
-                className={`m-3 inline-flex items-center justify-center gap-1.5 rounded-xl px-3 py-2.5 text-sm font-bold transition-colors ${copied === m.id ? 'bg-[#DCFCE7] text-[#166534]' : 'bg-[#C8FF00] text-[#2F4A00] hover:bg-[#bdf000]'}`}
+                onClick={() => copy('msg', mensaje)}
+                className={`inline-flex items-center justify-center gap-1.5 rounded-xl px-4 py-2.5 text-sm font-bold transition-colors ${copied === 'msg' ? 'bg-[#DCFCE7] text-[#166534]' : 'bg-[#C8FF00] text-[#2F4A00] hover:bg-[#bdf000]'}`}
               >
-                {copied === m.id ? <><Check className="h-4 w-4" /> ¡Copiado!</> : <><Copy className="h-4 w-4" /> Copiar</>}
+                {copied === 'msg' ? <><Check className="h-4 w-4" /> ¡Copiado!</> : <><Copy className="h-4 w-4" /> Copiar mensaje</>}
               </button>
-            </motion.div>
-          ))}
-        </div>
+            </div>
+          </div>
+        </motion.div>
       </section>
 
       {/* ===================== GUÍA DE PRESENTACIÓN ===================== */}
@@ -177,55 +170,28 @@ export function KitClient() {
 // Contenido
 // ---------------------------------------------------------------------------
 
-function buildMensajes(contacto: string, ciudad: string) {
-  const c = contacto.trim() || 'wa.me/61XXXXXXXXX'
-  const city = ciudad.trim() || 'Brisbane'
-  return [
-    {
-      id: 'fb',
-      titulo: 'Facebook (grupos)',
-      tag: 'Largo',
-      icon: <Megaphone className="h-3.5 w-3.5 text-[#2F4A00]" />,
-      texto: `🌟 ¡BUSCAMOS TALENTO LATINO EN ${city.toUpperCase()}! 🌟
+const MENSAJE_LARGO = `WAITERS & WAITRESSES WANTED – BRISBANE CBD ✨
 
-Trabaja en tiendas de lujo (moda y joyería) como host / asistente de ventas.
+Hi everyone!
 
-✅ Pagos semanales
-✅ Turnos flexibles
-✅ No necesitas experiencia — sí buena actitud y presentación
-✅ Inglés básico/intermedio
-📍 ${city} CBD
+We're looking for waiters and waitresses for luxury boutiques in Brisbane CBD.
 
-📲 Escríbenos: ${c}
+Regular shifts until Christmas, maybe longer.
 
-¡Cupos limitados! Comparte con quien lo necesite 💚`,
-    },
-    {
-      id: 'wa',
-      titulo: 'WhatsApp (directo)',
-      tag: 'Corto',
-      icon: <Megaphone className="h-3.5 w-3.5 text-[#2F4A00]" />,
-      texto: `Hola! 👋 Estamos buscando personas para trabajar en tiendas de lujo en ${city} (host / ventas).
+Shifts: weekdays and weekends, 10am–5pm, and Thursday to Sunday, 11am–3pm.
 
-Pago semanal, turnos flexibles, buena presentación y actitud. Inglés básico.
+Pay:
+$33.05/hr weekdays,
+$38.86 Saturdays,
+$42.41 Sundays.
 
-¿Te interesa? Escríbeme 👉 ${c}`,
-    },
-    {
-      id: 'en',
-      titulo: 'English (optional)',
-      tag: 'Inglés',
-      icon: <Megaphone className="h-3.5 w-3.5 text-[#2F4A00]" />,
-      texto: `✨ We're hiring in ${city}! ✨
+You need good English, a professional look and to be reliable until 24 December.
 
-Luxury retail host / sales roles. Weekly pay, flexible shifts, great team.
+No experience needed, we train you.
 
-Great presentation + basic English. No experience needed, just a good attitude.
+If you're interested, send me a WhatsApp at 0426779734 with 2 photos, your English level and your availability.
 
-📲 DM us: ${c}`,
-    },
-  ]
-}
+Thanks!`
 
 const CHECKLIST = [
   'Blazer estructurado (negro o azul marino)',
@@ -264,5 +230,3 @@ Look completo: ~$300–$400 en Zara (mejor presentación) o ~$150–$200 en Fore
 
 Tip: busca cada prenda en zara.com/au o forever21.com. ¡Nos vemos pronto! 💚`
 }
-
-const inputCls = 'w-full rounded-lg border border-[#E8E8E3] bg-white px-3 py-2 text-sm text-[#0d2b0d] focus:border-[#2F4A00] focus:outline-none'
