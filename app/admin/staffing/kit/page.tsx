@@ -9,7 +9,7 @@ export default function KitPage() {
       <StaffingHeader
         kicker="Kit"
         title="Kit de reclutamiento"
-        subtitle="Mensajes listos para pegar en grupos de Facebook y WhatsApp, y la guía de presentación para tus candidatos."
+        subtitle="Mensaje listo para pegar en grupos de Facebook y WhatsApp, y la guía de presentación para tus candidatos."
       />
       <KitClient />
     </div>
