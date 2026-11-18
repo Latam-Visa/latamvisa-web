@@ -1,5 +1,3 @@
-import Link from 'next/link'
-import { ArrowLeft, Users, CalendarDays, UserPlus } from 'lucide-react'
 import { supabaseAdmin } from '@/lib/supabase/admin'
 import {
   ymd,
@@ -14,6 +12,7 @@ import {
   type AssignedStaff,
 } from '@/lib/staffing'
 import { CalendarClient } from './_components/CalendarClient'
+import { StaffingHeader } from './_components/StaffingHeader'
 
 export const dynamic = 'force-dynamic'
 export const fetchCache = 'force-no-store'
@@ -115,41 +114,7 @@ export default async function StaffingPage({
 
   return (
     <div className="mx-auto w-full max-w-[1200px] space-y-6 pb-12">
-      <div className="flex flex-wrap items-start justify-between gap-4">
-        <div className="flex min-w-0 items-start gap-4">
-          <Link
-            href="/admin"
-            aria-label="Volver al inicio del admin"
-            className="flex shrink-0 items-center justify-center rounded-lg border border-[#E5E5E5] bg-white p-2 text-[#0A0A0A] transition-colors hover:border-[#0A0A0A]"
-          >
-            <ArrowLeft className="h-5 w-5" />
-          </Link>
-          <div className="min-w-0">
-            <h2 className="font-[PPMonumentExtended] text-2xl font-bold text-[#0d2b0d]">Staffing</h2>
-            <p className="text-sm text-[#6B6B6B]">Calendario de turnos, cobertura y reclutamiento</p>
-          </div>
-        </div>
-        <div className="flex flex-wrap items-center gap-2">
-          <Link
-            href="/admin/staffing/needs"
-            className="inline-flex min-h-[44px] items-center gap-2 rounded-lg border border-[#E5E5E5] bg-white px-3.5 py-2 text-sm font-semibold text-[#0d2b0d] transition-colors hover:border-[#0A0A0A]"
-          >
-            <CalendarDays className="h-4 w-4" /> Turnos
-          </Link>
-          <Link
-            href="/admin/staffing/staff"
-            className="inline-flex min-h-[44px] items-center gap-2 rounded-lg border border-[#E5E5E5] bg-white px-3.5 py-2 text-sm font-semibold text-[#0d2b0d] transition-colors hover:border-[#0A0A0A]"
-          >
-            <Users className="h-4 w-4" /> Personal
-          </Link>
-          <Link
-            href="/admin/staffing/candidates"
-            className="inline-flex min-h-[44px] items-center gap-2 rounded-lg border border-[#E5E5E5] bg-white px-3.5 py-2 text-sm font-semibold text-[#0d2b0d] transition-colors hover:border-[#0A0A0A]"
-          >
-            <UserPlus className="h-4 w-4" /> Candidatos
-          </Link>
-        </div>
-      </div>
+      <StaffingHeader kicker="Agencia" title="Staffing" subtitle="Calendario de turnos, cobertura por cliente y reclutamiento." />
 
       <CalendarClient
         view={view}
