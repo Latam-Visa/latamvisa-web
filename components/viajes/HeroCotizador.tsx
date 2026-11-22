@@ -12,14 +12,21 @@ import { scrollToId } from '@/lib/lenis'
    (entrada, hover, pop, swap) por CSS (.hc-*), apagados bajo
    prefers-reduced-motion. Sin emojis. */
 
-const AUSTRALIA = 'Australia'
+// Ciudades de Australia con vuelos internacionales (puertas de entrada/salida).
+const AU_CITIES = [
+  'Sydney', 'Melbourne', 'Brisbane', 'Perth', 'Adelaide', 'Gold Coast', 'Cairns', 'Darwin',
+] as const
 
-// Países de Latinoamérica (origen o destino, según el otro extremo).
+// Países de Latinoamérica (el otro extremo del viaje).
 const LATAM = [
   'Argentina', 'Bolivia', 'Brasil', 'Chile', 'Colombia', 'Costa Rica', 'Cuba',
   'Ecuador', 'El Salvador', 'Guatemala', 'Honduras', 'México', 'Nicaragua',
   'Panamá', 'Paraguay', 'Perú', 'República Dominicana', 'Uruguay', 'Venezuela',
 ] as const
+
+const isAU = (x: string) => (AU_CITIES as readonly string[]).includes(x)
+
+type Group = { label?: string; opts: readonly string[] }
 
 const Chevron = ({ open }: { open: boolean }) => (
   <svg
@@ -39,17 +46,17 @@ const Arrow = ({ cls = '' }: { cls?: string }) => (
 
 export default function HeroCotizador() {
   const rootRef = useRef<HTMLDivElement>(null)
-  const [origen, setOrigen] = useState<string>(AUSTRALIA)
+  const [origen, setOrigen] = useState<string>('Brisbane')
   const [destino, setDestino] = useState<string>('Colombia')
   const [open, setOpen] = useState<null | 'origen' | 'destino'>(null)
 
   // La ruta es siempre Australia ⇄ Latinoamérica. El destino se ajusta al
   // extremo opuesto del origen (nunca ambos del mismo lado).
   useEffect(() => {
-    if (origen === AUSTRALIA) {
-      if (!LATAM.includes(destino as (typeof LATAM)[number])) setDestino('Colombia')
-    } else if (destino !== AUSTRALIA) {
-      setDestino(AUSTRALIA)
+    if (isAU(origen)) {
+      if (!(LATAM as readonly string[]).includes(destino)) setDestino('Colombia')
+    } else if (!isAU(destino)) {
+      setDestino('Sydney')
     }
   }, [origen, destino])
 
@@ -63,8 +70,13 @@ export default function HeroCotizador() {
     return () => window.removeEventListener('mousedown', onDoc)
   }, [open])
 
-  const origenOpts: string[] = [AUSTRALIA, ...LATAM]
-  const destinoOpts: string[] = origen === AUSTRALIA ? [...LATAM] : [AUSTRALIA]
+  const origenGroups: Group[] = [
+    { label: 'Australia', opts: AU_CITIES },
+    { label: 'Latinoamérica', opts: LATAM },
+  ]
+  const destinoGroups: Group[] = isAU(origen)
+    ? [{ label: 'Latinoamérica', opts: LATAM }]
+    : [{ label: 'Australia', opts: AU_CITIES }]
 
   const verPrecios = (e: React.MouseEvent) => {
     e.preventDefault()
@@ -86,7 +98,7 @@ export default function HeroCotizador() {
           onToggle={() => setOpen((o) => (o === 'origen' ? null : 'origen'))}
         />
         {open === 'origen' && (
-          <Menu opts={origenOpts} value={origen} align="left" onPick={(v) => { setOrigen(v); setOpen(null) }} />
+          <Menu groups={origenGroups} value={origen} align="left" onPick={(v) => { setOrigen(v); setOpen(null) }} />
         )}
 
         <Arrow cls="mx-1 shrink-0 text-[#1C7AE5] md:mx-1.5" />
@@ -98,7 +110,7 @@ export default function HeroCotizador() {
           onToggle={() => setOpen((o) => (o === 'destino' ? null : 'destino'))}
         />
         {open === 'destino' && (
-          <Menu opts={destinoOpts} value={destino} align="right" onPick={(v) => { setDestino(v); setOpen(null) }} />
+          <Menu groups={destinoGroups} value={destino} align="right" onPick={(v) => { setDestino(v); setOpen(null) }} />
         )}
       </div>
 
@@ -174,29 +186,38 @@ function Field({ label, value, open, onToggle }: { label: string; value: string;
   )
 }
 
-function Menu({ opts, value, align, onPick }: { opts: string[]; value: string; align: 'left' | 'right'; onPick: (v: string) => void }) {
+function Menu({ groups, value, align, onPick }: { groups: Group[]; value: string; align: 'left' | 'right'; onPick: (v: string) => void }) {
   return (
     <div
-      className={`hc-pop hc-scroll absolute bottom-[calc(100%+12px)] z-10 max-h-[244px] min-w-[190px] overflow-y-auto rounded-2xl border border-white/15 bg-[#0b1322]/92 p-1.5 shadow-[0_18px_50px_-12px_rgba(0,0,0,0.7)] backdrop-blur-xl ${
+      className={`hc-pop hc-scroll absolute bottom-[calc(100%+12px)] z-10 max-h-[260px] min-w-[200px] overflow-y-auto rounded-2xl border border-white/15 bg-[#0b1322]/92 p-1.5 shadow-[0_18px_50px_-12px_rgba(0,0,0,0.7)] backdrop-blur-xl ${
         align === 'left' ? 'left-0' : 'right-0'
       }`}
     >
-      {opts.map((o) => {
-        const on = o === value
-        return (
-          <button
-            key={o}
-            type="button"
-            onClick={() => onPick(o)}
-            className={`flex w-full items-center justify-between gap-3 rounded-xl px-3 py-2.5 text-left font-['PPMonumentExtended'] text-[12.5px] font-light transition-colors ${
-              on ? 'bg-white/10 text-white' : 'text-white/75 hover:bg-white/[0.07] hover:text-white'
-            }`}
-          >
-            {o}
-            <span className={`h-1.5 w-1.5 shrink-0 rounded-full transition-colors ${on ? 'bg-[#1C7AE5]' : 'bg-transparent'}`} aria-hidden />
-          </button>
-        )
-      })}
+      {groups.map((g, gi) => (
+        <div key={g.label ?? gi} className={gi > 0 ? 'mt-1 border-t border-white/10 pt-1' : ''}>
+          {g.label && (
+            <div className="px-3 pb-1 pt-1.5 font-['PPMonumentExtended'] text-[8px] font-light uppercase tracking-[0.24em] text-white/40">
+              {g.label}
+            </div>
+          )}
+          {g.opts.map((o) => {
+            const on = o === value
+            return (
+              <button
+                key={o}
+                type="button"
+                onClick={() => onPick(o)}
+                className={`flex w-full items-center justify-between gap-3 rounded-xl px-3 py-2.5 text-left font-['PPMonumentExtended'] text-[12.5px] font-light transition-colors ${
+                  on ? 'bg-white/10 text-white' : 'text-white/75 hover:bg-white/[0.07] hover:text-white'
+                }`}
+              >
+                {o}
+                <span className={`h-1.5 w-1.5 shrink-0 rounded-full transition-colors ${on ? 'bg-[#1C7AE5]' : 'bg-transparent'}`} aria-hidden />
+              </button>
+            )
+          })}
+        </div>
+      ))}
     </div>
   )
 }
