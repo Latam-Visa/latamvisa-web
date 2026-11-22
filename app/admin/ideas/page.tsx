@@ -1,3 +1,5 @@
+import Link from 'next/link'
+import { FlaskConical } from 'lucide-react'
 import { supabaseAdmin } from '@/lib/supabase/admin'
 import { TasksBoardClient } from './_components/TasksBoardClient'
 import type { AdminTask } from './_components/types'
@@ -16,9 +18,18 @@ export default async function AdminIdeasPage() {
 
   return (
     <div className="space-y-6 max-w-[1400px] mx-auto w-full pb-10">
-      <div className="flex flex-col gap-1">
-        <h2 className="text-2xl font-bold font-[PPMonumentExtended] text-[#0A0A0A]">Ideas &amp; Tareas</h2>
-        <p className="text-sm text-[#6B6B6B]">Board interno para organizar ideas y próximos pasos de LATAM VISA</p>
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div className="flex flex-col gap-1">
+          <h2 className="text-2xl font-bold font-[PPMonumentExtended] text-[#0A0A0A]">Ideas &amp; Tareas</h2>
+          <p className="text-sm text-[#6B6B6B]">Board interno para organizar ideas y próximos pasos de LATAM VISA</p>
+        </div>
+        <Link
+          href="/admin/ideas/lab"
+          className="inline-flex min-h-[44px] items-center gap-2 rounded-xl bg-[#C8FF00] px-4 py-2.5 text-sm font-bold text-[#2F4A00] transition-colors hover:bg-[#bdf000]"
+        >
+          <FlaskConical className="h-4 w-4" />
+          Laboratorio de Ideas
+        </Link>
       </div>
 
       <TasksBoardClient initialTasks={(data || []) as AdminTask[]} />
