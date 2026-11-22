@@ -4,6 +4,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { prefersReducedMotion, scrollToId } from '@/lib/lenis'
 import { whatsappHref } from './whatsapp'
+import HeroCotizador from './HeroCotizador'
 
 // Antes del primer paint para que el estado cerrado (.reel-intro) no parpadee.
 const useIsoLayoutEffect = typeof window !== 'undefined' ? useLayoutEffect : useEffect
@@ -268,6 +269,9 @@ export default function ReelDesintegracion() {
                       Prefiero llegar a viejo lleno de historias que contar, no solo de plata.
                     </p>
                   </div>
+
+                  {/* Cotizador minimalista: Desde → Hacia, abajo al centro */}
+                  <HeroCotizador />
 
                   {/* Micro-textos a los extremos: se ABREN desde su centro en
                      la entrada del hero (clip-path). */}

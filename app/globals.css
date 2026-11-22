@@ -1259,3 +1259,31 @@ body::before {
   font-size: 13px;
 }
 .vx-pill-neon strong { font-weight: 700; }
+
+/* ── Hero cotizador (/viajes): entrada + micro-efectos ──
+   Clases usadas por HeroCotizador.tsx. Las animaciones se apagan bajo
+   prefers-reduced-motion; el estado final (visible) queda igual. */
+@keyframes hcRise {
+  from { opacity: 0; transform: translate(-50%, 18px); }
+  to   { opacity: 1; transform: translate(-50%, 0); }
+}
+@keyframes hcPop {
+  from { opacity: 0; transform: translateY(6px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes hcFade {
+  from { opacity: 0; transform: translateY(5px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.hc-rise   { animation: hcRise 0.75s cubic-bezier(0.16, 1, 0.3, 1) both; }
+.hc-pop    { animation: hcPop 0.18s ease-out both; }
+.hc-reveal { animation: hcFade 0.4s ease-out both; }
+.hc-val    { display: inline-block; animation: hcFade 0.28s ease-out both; }
+@media (prefers-reduced-motion: reduce) {
+  .hc-rise, .hc-pop, .hc-reveal, .hc-val { animation: none; }
+}
+/* Scrollbar fino para el menú de países del cotizador del hero */
+.hc-scroll { scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.22) transparent; }
+.hc-scroll::-webkit-scrollbar { width: 6px; }
+.hc-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.22); border-radius: 999px; }
+.hc-scroll::-webkit-scrollbar-track { background: transparent; }
