@@ -7,13 +7,13 @@ const LINEAS = {
   latam_visa: {
     bg: 'bg-visa.png', zonaTop: 520, zonaHeight: 910, ctaTop: 1498,
     titulo: '#FFFFFF', resalteBg: '#C8FF00', resalteTxt: '#050505',
-    kickerBg: '#5B2BFF', kickerTxt: '#FFFFFF', sub: '#C9C9D6',
+    kickerBg: 'transparent', kickerTxt: '#C8FF00', sub: '#C9C9D6',
     ctaBg: 'transparent', ctaBorder: '3px solid #FFFFFF', ctaTxt: '#FFFFFF',
   },
   latam_travel: {
     bg: 'bg-travel.png', zonaTop: 420, zonaHeight: 830, ctaTop: 1318,
     titulo: '#FFFFFF', resalteBg: '#0B2A5B', resalteTxt: '#FFFFFF',
-    kickerBg: '#FFFFFF', kickerTxt: '#1E88E5', sub: '#F2F8FF',
+    kickerBg: 'transparent', kickerTxt: '#1E88E5', sub: '#F2F8FF',
     ctaBg: '#0B2A5B', ctaBorder: '0px solid transparent', ctaTxt: '#FFFFFF',
   },
 } as const;
@@ -52,7 +52,7 @@ export async function GET(req: NextRequest) {
 
   const words = parseWords(titulo);
   const len = titulo.replace(/\*/g, '').length;
-  const size = len <= 40 ? 84 : len <= 70 ? 72 : len <= 100 ? 62 : 54;
+  const size = len <= 40 ? 74 : len <= 70 ? 62 : len <= 100 ? 52 : 46;
   const gap = '0.28em';
 
   return new ImageResponse(
@@ -67,7 +67,7 @@ export async function GET(req: NextRequest) {
           {kicker ? (
             <div style={{
               display: 'flex', background: cfg.kickerBg, color: cfg.kickerTxt, fontFamily: 'Display',
-              fontSize: 26, padding: '10px 22px', borderRadius: 8, marginBottom: 40, letterSpacing: 1,
+              fontSize: 23, padding: 0, marginBottom: 30, letterSpacing: 5,
             }}>{kicker}</div>
           ) : null}
 
@@ -91,8 +91,8 @@ export async function GET(req: NextRequest) {
 
           {subtitulo ? (
             <div style={{
-              display: 'flex', justifyContent: 'center', textAlign: 'center', marginTop: 44,
-              fontSize: 42, lineHeight: 1.35, color: cfg.sub,
+              display: 'flex', justifyContent: 'center', textAlign: 'center', marginTop: 40,
+              fontSize: 36, lineHeight: 1.35, color: cfg.sub,
             }}>{subtitulo}</div>
           ) : null}
         </div>
