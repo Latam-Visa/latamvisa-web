@@ -3,13 +3,14 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { motion } from 'framer-motion'
-import { CalendarDays, Clock, Users, UserPlus, Megaphone } from 'lucide-react'
+import { CalendarDays, Clock, Users, UserPlus, Megaphone, Target } from 'lucide-react'
 
 const TABS = [
   { href: '/admin/staffing', label: 'Calendario', icon: CalendarDays },
   { href: '/admin/staffing/needs', label: 'Turnos', icon: Clock },
   { href: '/admin/staffing/staff', label: 'Personal', icon: Users },
   { href: '/admin/staffing/candidates', label: 'Candidatos', icon: UserPlus },
+  { href: '/admin/staffing/misiones', label: 'Misiones', icon: Target },
   { href: '/admin/staffing/kit', label: 'Kit', icon: Megaphone },
 ]
 
