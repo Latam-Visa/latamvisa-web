@@ -1,13 +1,24 @@
 "use client"
 
 import { useMemo, useState } from 'react'
-import { Plus } from 'lucide-react'
+import { Plus, X } from 'lucide-react'
 import { TaskCard } from './TaskCard'
 import { NewTaskModal } from './NewTaskModal'
-import { AdminTask, COLUMNS, PRIORITIES, TaskPriority } from './types'
+import { ReporteView } from '../lab/_components/ReporteView'
+import { analizarTarea } from '../_actions/analisis'
+import { AdminTask, AnalisisEntry, COLUMNS, PRIORITIES, TaskPriority } from './types'
 
-export function TasksBoardClient({ initialTasks }: { initialTasks: AdminTask[] }) {
+export function TasksBoardClient({
+  initialTasks,
+  initialAnalyses = {},
+}: {
+  initialTasks: AdminTask[]
+  initialAnalyses?: Record<string, AnalisisEntry>
+}) {
   const [tasks, setTasks] = useState<AdminTask[]>(initialTasks)
+  const [analyses, setAnalyses] = useState<Record<string, AnalisisEntry>>(initialAnalyses)
+  const [analyzing, setAnalyzing] = useState<Set<string>>(new Set())
+  const [modalTaskId, setModalTaskId] = useState<string | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [categoryFilter, setCategoryFilter] = useState('todas')
   const [priorityFilter, setPriorityFilter] = useState<'todas' | TaskPriority>('todas')
@@ -25,6 +36,30 @@ export function TasksBoardClient({ initialTasks }: { initialTasks: AdminTask[] }
     })
   }, [tasks, categoryFilter, priorityFilter])
 
+  const setAnalyzingFor = (id: string, on: boolean) =>
+    setAnalyzing(prev => {
+      const next = new Set(prev)
+      if (on) next.add(id); else next.delete(id)
+      return next
+    })
+
+  const runAnalysis = async (task: AdminTask, force = false) => {
+    setAnalyzingFor(task.id, true)
+    try {
+      const r = await analizarTarea({ taskId: task.id, title: task.title, description: task.description, category: task.category }, { force })
+      if (r.ok) {
+        setAnalyses(prev => ({
+          ...prev,
+          [task.id]: r.aplica
+            ? { taskId: task.id, aplica: true, reporte: r.reporte }
+            : { taskId: task.id, aplica: false, motivo: r.motivo },
+        }))
+      }
+    } finally {
+      setAnalyzingFor(task.id, false)
+    }
+  }
+
   const handleCreate = async (fields: { title: string; description?: string; category?: string; priority?: TaskPriority }) => {
     try {
       const res = await fetch('/api/admin/tasks', {
@@ -39,6 +74,8 @@ export function TasksBoardClient({ initialTasks }: { initialTasks: AdminTask[] }
       }
       setTasks(prev => [...prev, json.task])
       setIsModalOpen(false)
+      // Auto-análisis inmediato con el lab (en segundo plano, no bloquea)
+      runAnalysis(json.task as AdminTask)
     } catch {
       alert('Error de red al crear la idea')
     }
@@ -74,6 +111,7 @@ export function TasksBoardClient({ initialTasks }: { initialTasks: AdminTask[] }
   const handleDelete = async (id: string) => {
     const previous = tasks
     setTasks(prev => prev.filter(t => t.id !== id))
+    setAnalyses(prev => { const n = { ...prev }; delete n[id]; return n })
     try {
       const res = await fetch(`/api/admin/tasks/${id}`, { method: 'DELETE' })
       if (!res.ok) {
@@ -86,6 +124,9 @@ export function TasksBoardClient({ initialTasks }: { initialTasks: AdminTask[] }
       alert('Error de red al eliminar la tarea')
     }
   }
+
+  const modalAnalisis = modalTaskId ? analyses[modalTaskId] : undefined
+  const modalTask = modalTaskId ? tasks.find(t => t.id === modalTaskId) : undefined
 
   return (
     <div className="flex flex-col gap-5">
@@ -149,6 +190,10 @@ export function TasksBoardClient({ initialTasks }: { initialTasks: AdminTask[] }
                     key={task.id}
                     task={task}
                     index={index}
+                    analisis={analyses[task.id]}
+                    analyzing={analyzing.has(task.id)}
+                    onAnalizar={() => runAnalysis(task, true)}
+                    onVerAnalisis={() => setModalTaskId(task.id)}
                     onUpdate={(id, fields) =>
                       fields.status && fields.status !== task.status
                         ? handleUpdateStatus(id, fields.status)
@@ -165,6 +210,24 @@ export function TasksBoardClient({ initialTasks }: { initialTasks: AdminTask[] }
 
       {isModalOpen && (
         <NewTaskModal onCreate={handleCreate} onClose={() => setIsModalOpen(false)} />
+      )}
+
+      {/* Modal del reporte del lab */}
+      {modalTaskId && modalAnalisis?.aplica && (
+        <div className="fixed inset-0 z-[120] bg-black/50 backdrop-blur-sm p-4 overflow-y-auto" onClick={() => setModalTaskId(null)}>
+          <div className="mx-auto my-6 w-full max-w-3xl rounded-2xl bg-[#FBFBF8] p-4 md:p-5 shadow-2xl" onClick={e => e.stopPropagation()}>
+            <div className="mb-3 flex items-start justify-between gap-3">
+              <div className="min-w-0">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#9A9A94]">Análisis del lab</p>
+                <h3 className="truncate text-[15px] font-bold text-[#0A0A0A]">{modalTask?.title}</h3>
+              </div>
+              <button onClick={() => setModalTaskId(null)} aria-label="Cerrar" className="shrink-0 rounded-lg p-2 text-[#6B6B6B] hover:bg-[#F0F0EC]">
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+            <ReporteView r={modalAnalisis.reporte} />
+          </div>
+        </div>
       )}
     </div>
   )

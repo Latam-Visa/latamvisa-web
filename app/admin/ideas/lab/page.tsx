@@ -27,15 +27,15 @@ export default async function LabIdeasPage() {
   return (
     <div className="mx-auto w-full max-w-[1400px] space-y-6 pb-10">
       <LabHeaderBack />
-      <div className="flex items-start gap-3">
-        <div className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#C8FF00]">
-          <FlaskConical className="h-5 w-5 text-[#2F4A00]" />
+      <div className="flex items-start gap-2.5">
+        <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[#C8FF00]">
+          <FlaskConical className="h-4 w-4 text-[#2F4A00]" />
         </div>
         <div>
-          <h2 className="font-[PPMonumentExtended] text-2xl font-bold text-[#0A0A0A]">Laboratorio de Ideas</h2>
-          <p className="max-w-[60ch] text-sm text-[#6B6B6B]">
-            Pon a prueba una idea para LATAM VISA: la IA simula un panel de personas del público objetivo y predice
-            quién lo haría, por qué, las objeciones y los mensajes que mejor convierten.
+          <h2 className="font-[PPMonumentExtended] text-[17px] font-bold text-[#0A0A0A]">Laboratorio de Ideas</h2>
+          <p className="max-w-[60ch] text-[12px] leading-snug text-[#6B6B6B]">
+            Pon a prueba una idea: la IA simula un panel de personas del público objetivo y predice quién lo haría,
+            por qué, las objeciones y los mensajes que mejor convierten.
           </p>
         </div>
       </div>

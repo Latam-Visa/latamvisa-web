@@ -1,5 +1,12 @@
+import type { Reporte } from '../lab/_components/types'
+
 export type TaskStatus = 'idea' | 'por_hacer' | 'en_progreso' | 'hecho'
 export type TaskPriority = 'alta' | 'media' | 'baja'
+
+// Análisis del Laboratorio aplicado a una tarjeta del board.
+export type AnalisisEntry =
+  | { taskId: string; aplica: false; motivo: string }
+  | { taskId: string; aplica: true; reporte: Reporte }
 
 export interface AdminTask {
   id: string

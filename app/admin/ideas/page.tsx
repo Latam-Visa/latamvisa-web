@@ -2,7 +2,8 @@ import Link from 'next/link'
 import { FlaskConical } from 'lucide-react'
 import { supabaseAdmin } from '@/lib/supabase/admin'
 import { TasksBoardClient } from './_components/TasksBoardClient'
-import type { AdminTask } from './_components/types'
+import type { AdminTask, AnalisisEntry } from './_components/types'
+import type { Reporte } from './lab/_components/types'
 
 export const dynamic = 'force-dynamic'
 
@@ -14,6 +15,29 @@ export default async function AdminIdeasPage() {
 
   if (error) {
     return <div className="p-8 text-center text-[#DC2626]">Error cargando el board de ideas.</div>
+  }
+
+  // Análisis del lab ya guardados para las tarjetas del board (si la tabla existe)
+  const analyses: Record<string, AnalisisEntry> = {}
+  try {
+    const { data: rows } = await supabaseAdmin
+      .from('ideas_lab')
+      .select('resultado')
+      .eq('resultado->>source', 'board')
+    for (const row of (rows || []) as { resultado: any }[]) {
+      const res = row.resultado
+      if (!res?.taskId) continue
+      if (res.aplica === false) {
+        analyses[res.taskId] = { taskId: res.taskId, aplica: false, motivo: res.motivoNoAplica || 'No es una oferta a clientes.' }
+      } else {
+        const reporte = { ...res }
+        delete reporte.source
+        delete reporte.taskId
+        analyses[res.taskId] = { taskId: res.taskId, aplica: true, reporte: reporte as Reporte }
+      }
+    }
+  } catch {
+    // tabla ausente: board sin análisis
   }
 
   return (
@@ -32,7 +56,7 @@ export default async function AdminIdeasPage() {
         </Link>
       </div>
 
-      <TasksBoardClient initialTasks={(data || []) as AdminTask[]} />
+      <TasksBoardClient initialTasks={(data || []) as AdminTask[]} initialAnalyses={analyses} />
     </div>
   )
 }

@@ -2,17 +2,21 @@
 
 import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { Pencil, Trash2, Check, X } from 'lucide-react'
-import { AdminTask, COLUMNS, PRIORITIES, TaskPriority, TaskStatus, priorityConfig } from './types'
+import { Pencil, Trash2, Check, X, FlaskConical, Loader2, ChevronRight, RefreshCw } from 'lucide-react'
+import { AdminTask, AnalisisEntry, COLUMNS, PRIORITIES, TaskPriority, TaskStatus, priorityConfig } from './types'
 
 interface TaskCardProps {
   task: AdminTask
   index: number
+  analisis?: AnalisisEntry
+  analyzing?: boolean
+  onAnalizar?: () => void
+  onVerAnalisis?: () => void
   onUpdate: (id: string, fields: Partial<AdminTask>) => Promise<void>
   onDelete: (id: string) => Promise<void>
 }
 
-export function TaskCard({ task, index, onUpdate, onDelete }: TaskCardProps) {
+export function TaskCard({ task, index, analisis, analyzing, onAnalizar, onVerAnalisis, onUpdate, onDelete }: TaskCardProps) {
   const [isEditing, setIsEditing] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
@@ -163,6 +167,38 @@ export function TaskCard({ task, index, onUpdate, onDelete }: TaskCardProps) {
               <option key={col.key} value={col.key}>{col.label}</option>
             ))}
           </select>
+
+          {/* Análisis del lab */}
+          <div className="border-t border-[#F0F0EC] pt-2.5">
+            {analyzing ? (
+              <div className="flex items-center gap-1.5 text-[11px] text-[#9A9A94]">
+                <Loader2 className="h-3 w-3 animate-spin" /> Analizando con el lab…
+              </div>
+            ) : analisis?.aplica ? (
+              <button
+                onClick={onVerAnalisis}
+                className="group flex w-full items-center justify-between gap-2 rounded-lg border border-[#EFEFEA] bg-[#FBFFE9] px-2.5 py-1.5 text-left transition-colors hover:border-[#C8FF00]"
+              >
+                <span className="flex min-w-0 items-center gap-1.5">
+                  <span className="shrink-0 rounded-full bg-[#C8FF00] px-1.5 py-0.5 text-[10px] font-bold text-[#2F4A00]">{analisis.reporte.adopcionPct}%</span>
+                  <span className="truncate text-[11px] text-[#374151]">{analisis.reporte.veredicto}</span>
+                </span>
+                <ChevronRight className="h-3.5 w-3.5 shrink-0 text-[#9A9A94] group-hover:text-[#2F4A00]" />
+              </button>
+            ) : analisis && !analisis.aplica ? (
+              <div className="flex items-center justify-between gap-2">
+                <span className="truncate text-[10.5px] italic text-[#B6B6AE]">No aplica para panel · {analisis.motivo}</span>
+                <button onClick={onAnalizar} aria-label="Re-analizar" className="shrink-0 rounded-md p-1 text-[#B6B6AE] hover:text-[#2F4A00]"><RefreshCw className="h-3 w-3" /></button>
+              </div>
+            ) : (
+              <button
+                onClick={onAnalizar}
+                className="flex items-center gap-1.5 text-[11px] font-semibold text-[#6B7280] transition-colors hover:text-[#2F4A00]"
+              >
+                <FlaskConical className="h-3.5 w-3.5" /> Analizar en el lab
+              </button>
+            )}
+          </div>
         </div>
       )}
     </motion.div>
