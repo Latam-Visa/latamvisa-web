@@ -7,13 +7,13 @@ const LINEAS = {
   latam_visa: {
     bg: 'bg-visa.png', zonaTop: 520, zonaHeight: 910, ctaTop: 1498,
     titulo: '#FFFFFF', resalteBg: '#C8FF00', resalteTxt: '#050505',
-    kickerBg: 'transparent', kickerTxt: '#C8FF00', sub: '#C9C9D6',
-    ctaBg: 'transparent', ctaBorder: '3px solid #FFFFFF', ctaTxt: '#FFFFFF',
+    kickerBg: 'transparent', kickerTxt: '#C8FF00', sub: '#FFFFFF',
+    ctaBg: 'transparent', ctaBorder: '4px solid #FFFFFF', ctaTxt: '#FFFFFF',
   },
   latam_travel: {
     bg: 'bg-travel.png', zonaTop: 420, zonaHeight: 830, ctaTop: 1318,
     titulo: '#FFFFFF', resalteBg: '#0B2A5B', resalteTxt: '#FFFFFF',
-    kickerBg: 'transparent', kickerTxt: '#1E88E5', sub: '#F2F8FF',
+    kickerBg: 'transparent', kickerTxt: '#0B2A5B', sub: '#0B2A5B',
     ctaBg: '#0B2A5B', ctaBorder: '0px solid transparent', ctaTxt: '#FFFFFF',
   },
 } as const;
@@ -52,7 +52,7 @@ export async function GET(req: NextRequest) {
 
   const words = parseWords(titulo);
   const len = titulo.replace(/\*/g, '').length;
-  const size = len <= 40 ? 74 : len <= 70 ? 62 : len <= 100 ? 52 : 46;
+  const size = len <= 40 ? 84 : len <= 70 ? 70 : len <= 100 ? 58 : 50;
   const gap = '0.28em';
 
   return new ImageResponse(
@@ -67,7 +67,7 @@ export async function GET(req: NextRequest) {
           {kicker ? (
             <div style={{
               display: 'flex', background: cfg.kickerBg, color: cfg.kickerTxt, fontFamily: 'Display',
-              fontSize: 23, padding: 0, marginBottom: 30, letterSpacing: 5,
+              fontSize: 32, padding: 0, marginBottom: 36, letterSpacing: 6,
             }}>{kicker}</div>
           ) : null}
 
@@ -91,8 +91,8 @@ export async function GET(req: NextRequest) {
 
           {subtitulo ? (
             <div style={{
-              display: 'flex', justifyContent: 'center', textAlign: 'center', marginTop: 40,
-              fontSize: 36, lineHeight: 1.35, color: cfg.sub,
+              display: 'flex', justifyContent: 'center', textAlign: 'center', marginTop: 44,
+              fontSize: 46, lineHeight: 1.3, color: cfg.sub,
             }}>{subtitulo}</div>
           ) : null}
         </div>
@@ -101,10 +101,10 @@ export async function GET(req: NextRequest) {
           <div style={{ position: 'absolute', top: cfg.ctaTop, left: 0, width: 1080, display: 'flex', justifyContent: 'center' }}>
             <div style={{
               display: 'flex', alignItems: 'center', background: cfg.ctaBg, border: cfg.ctaBorder,
-              color: cfg.ctaTxt, borderRadius: 44, padding: '20px 44px', fontFamily: 'Body', fontSize: 34,
+              color: cfg.ctaTxt, borderRadius: 52, padding: '26px 54px', fontFamily: 'Body', fontSize: 42,
             }}>
               {cta}
-              <svg width="34" height="34" viewBox="0 0 24 24" style={{ marginLeft: 18 }}>
+              <svg width="42" height="42" viewBox="0 0 24 24" style={{ marginLeft: 18 }}>
                 <path d="M4 12h15M13 6l6 6-6 6" stroke={cfg.ctaTxt} strokeWidth="2.5" fill="none" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
             </div>
