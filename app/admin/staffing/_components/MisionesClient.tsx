@@ -125,8 +125,11 @@ WhatsApp: 0452 257 233`
 
 const INDEED_AVISO = 'https://employers.indeed.com/jobs/view?employerJobId=aXJpOi8vYXBpcy5pbmRlZWQuY29tL0VtcGxveWVySm9iLzA3YzQ4YWUzLWM1MDUtNGVmZS1hM2NlLTkyMWVlMGVmMGU4ZA%3D%3D'
 
+const GUMTREE_AVISO = 'https://www.gumtree.com.au/web/seller/listing/1345895915?posted=true'
+
 const DOORMAN_CANALES: { label: string; url: string }[] = [
   { label: 'Indeed · aviso publicado (en revisión)', url: INDEED_AVISO },
+  { label: 'Gumtree · aviso publicado', url: GUMTREE_AVISO },
   { label: 'SEEK · Adelaide', url: 'https://www.seek.com.au/' },
   { label: 'Indeed AU', url: 'https://au.indeed.com/' },
   { label: 'Gumtree Jobs · Adelaide', url: 'https://www.gumtree.com.au/s-jobs/adelaide/c9302l3001366' },
@@ -287,7 +290,7 @@ export function MisionesClient() {
           </div>
           <div className="flex items-center gap-1.5">
             <Badge tone="prio"><Flame className="mr-1 inline h-3 w-3" />Prioridad</Badge>
-            <Badge tone="curso">Indeed en revisión</Badge>
+            <Badge tone="curso">Indeed + Gumtree publicados</Badge>
           </div>
         </div>
 
@@ -295,6 +298,7 @@ export function MisionesClient() {
           {/* Estado */}
           <div className="rounded-xl border border-[#EFEFEA] bg-[#FBFBF8] p-4 text-[13px] leading-relaxed text-[#2A2A24]">
             <p><strong>Publicado en Indeed</strong> (en revisión). <a href={INDEED_AVISO} target="_blank" rel="noopener noreferrer" className="font-bold text-[#1C7AE5] underline underline-offset-2">Abrir el aviso</a></p>
+            <p className="mt-1.5"><strong>Publicado en Gumtree</strong> (24/11). <a href={GUMTREE_AVISO} target="_blank" rel="noopener noreferrer" className="font-bold text-[#1C7AE5] underline underline-offset-2">Abrir el aviso</a></p>
             <p className="mt-1.5">Turnos fijos 20–34 h/semana · Vie $33 · Sáb $38.80 · Dom $42.41/h. SEEK: pendiente (Basic $400 + GST); se decide si hacen falta más candidatos tras unos días.</p>
           </div>
 
@@ -347,8 +351,8 @@ export function MisionesClient() {
             <p className="mt-1">Luiza <strong>sí puede trabajar los viernes</strong>, excepto <strong>este viernes 27/11</strong>. Al armar turnos, no asignarla ese día. Revisado el 24/11: no tiene turno el 27/11; su único viernes asignado más adelante es el 11/12.</p>
           </li>
           <li className="p-5 text-[13.5px] leading-relaxed text-[#2A2A24]">
-            <p className="font-bold text-[#0d2b0d]">Gumtree</p>
-            <p className="mt-1">Publicar el aviso del doorman en Gumtree Jobs (Adelaide).</p>
+            <p className="font-bold text-[#0d2b0d]">Seguimiento del doorman</p>
+            <p className="mt-1">Revisar en unos días las respuestas de Indeed y Gumtree. Si no llegan candidatos con visa válida, decidir si se paga SEEK (Basic $400 + GST).</p>
           </li>
         </ul>
       </section>
