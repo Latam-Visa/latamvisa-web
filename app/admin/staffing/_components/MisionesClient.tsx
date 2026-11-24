@@ -75,11 +75,11 @@ const CANAPE_PROVEEDORES: Proveedor[] = [
   },
 ]
 
-const CANAPE_SUBJECT = 'Canapé order for pickup — Friday 5 December'
+const CANAPE_SUBJECT = 'Canapé order for pickup — Saturday 5 December'
 
 const CANAPE_EMAIL_DEFAULT = `Hi there,
 
-We're Colette et Louis — we provide front-of-house staff for luxury boutiques (Cartier, Fendi, Paspaley). We'd like to order canapés for pickup for a client event on Friday 5 December.
+We're Colette et Louis — we provide front-of-house staff for luxury boutiques (Cartier, Fendi, Paspaley). We'd like to order canapés for pickup for a client event on Saturday 5 December.
 
 What we're after:
 • 4 canapé options — 3 savoury + 1 sweet
@@ -88,7 +88,7 @@ What we're after:
 • Pickup / collection — no on-site chef needed
 
 Could you please let us know:
-1. Whether you can prepare this for Friday 5 December
+1. Whether you can prepare this for Saturday 5 December
 2. Which canapés you'd suggest for the 3 savoury + 1 sweet
 3. Price per piece and the total
 4. Pickup location & time, and how much notice you need
@@ -97,28 +97,31 @@ Thank you very much,
 Cristian
 Colette et Louis`
 
-const CANAPE_LLAMADA = `"Hi, I need 4 canapé options — 3 savoury + 1 sweet, 30 pieces of each flavour (120 total) — for PICKUP (not catered on site) on Friday 5 December. Can you do it, and what's the price per piece?"`
+const CANAPE_LLAMADA = `"Hi, I need 4 canapé options — 3 savoury + 1 sweet, 30 pieces of each flavour (120 total) — for PICKUP (not catered on site) on Saturday 5 December. Can you do it, and what's the price per piece?"`
 
-const DOORMAN_AD_DEFAULT = `🤵 Luxury Boutique Doorman / Butler — Adelaide
+const DOORMAN_AD_DEFAULT = `Doorman – Luxury Boutique, Adelaide
 
-Colette et Louis provides premium front-of-house staff for luxury
-fashion & jewellery boutiques. We're hiring a Doorman/Butler for a
-high-end boutique in Adelaide.
+We're looking for a reliable, well-presented Doorman for a luxury boutique in Adelaide. Ongoing position with fixed weekly shifts.
 
-You will:
-• Welcome clients at the door with warmth and discretion
-• Represent a luxury brand with impeccable presentation
-• Assist the boutique team as needed
+The role is simple: open the door, greet clients and give them a warm, professional welcome.
 
-We're looking for someone who is:
-• Well-presented and professional
-• Confident, polite, with good spoken English
-• Reliable and punctual
-• Available on weekdays (boutique hours, approx. 10am–5pm)
+Shifts & pay
+• Fixed weekly shifts, 20–34 hours per week
+• Friday $33.00/hr
+• Saturday $38.80/hr
+• Sunday $42.41/hr
 
-Pay: $[__]/hr  ·  Start: [__]  ·  [casual/part-time]
+About you
+• Polished, professional presentation
+• Calm and composed, comfortable standing for long periods
+• Good English
+• Happy to buy a full black suit
+• Looking for a long-term role
+• Visa valid for at least one year (students welcome – we can work something out)
+• No licence required
 
-Send a short intro + photo by WhatsApp to: 0452 257 233`
+To apply, send me on WhatsApp: 2 photos, your experience and your English level. Please say you are applying for Adelaide.
+WhatsApp: 0452 257 233`
 
 const DOORMAN_CANALES: { label: string; url: string }[] = [
   { label: 'SEEK · Adelaide', url: 'https://www.seek.com.au/' },
@@ -169,7 +172,7 @@ export function MisionesClient() {
             <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#C8FF00] text-[#2F4A00]"><UtensilsCrossed className="h-[18px] w-[18px]" /></span>
             <div>
               <h2 className="text-[16px] font-bold text-[#0d2b0d]">Canapés para Fendi</h2>
-              <p className="text-[12px] text-[#9A9A94]">Pedido para el viernes 5 diciembre · recoger (sin chef en sitio)</p>
+              <p className="text-[12px] text-[#9A9A94]">Pedido para el sábado 5 diciembre · recoger (sin chef en sitio)</p>
             </div>
           </div>
           <div className="flex items-center gap-1.5">

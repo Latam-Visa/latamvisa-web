@@ -57,7 +57,7 @@ export async function GET(req: NextRequest) {
 
   const words = parseWords(titulo);
   const len = titulo.replace(/\*/g, '').length;
-  const size = len <= 40 ? 84 : len <= 70 ? 70 : len <= 100 ? 58 : 50;
+  const size = len <= 40 ? 62 : len <= 70 ? 54 : len <= 100 ? 46 : 40;
   const gap = '0.28em';
 
   return new ImageResponse(
@@ -72,7 +72,7 @@ export async function GET(req: NextRequest) {
           {kicker ? (
             <div style={{
               display: 'flex', background: cfg.kickerBg, color: cfg.kickerTxt, fontFamily: 'Display',
-              fontSize: 32, padding: 0, marginBottom: 36, letterSpacing: 6,
+              fontSize: 24, padding: 0, marginBottom: 32, letterSpacing: 7,
             }}>{kicker}</div>
           ) : null}
 
@@ -96,17 +96,17 @@ export async function GET(req: NextRequest) {
 
           {subtitulo ? (
             <div style={{
-              display: 'flex', justifyContent: 'center', textAlign: 'center', marginTop: 44,
-              fontSize: 46, lineHeight: 1.3, color: cfg.sub,
+              display: 'flex', justifyContent: 'center', textAlign: 'center', marginTop: 36,
+              fontSize: 32, lineHeight: 1.4, color: cfg.sub,
             }}>{subtitulo}</div>
           ) : null}
         </div>
 
         {cta ? (
           <div style={{ position: 'absolute', top: cfg.ctaTop, left: 0, width: 1080, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-            <div style={{ display: 'flex', color: cfg.ctaTxt, fontFamily: 'Body', fontSize: 44 }}>{cta}</div>
-            <div style={{ display: 'flex', alignItems: 'center', marginTop: 20, color: cfg.waTxt, fontFamily: 'Display', fontSize: 44, letterSpacing: 1 }}>
-              <svg width="52" height="52" viewBox="0 0 24 24" style={{ marginRight: 18 }}>
+            <div style={{ display: 'flex', color: cfg.ctaTxt, fontFamily: 'Body', fontSize: 32 }}>{cta}</div>
+            <div style={{ display: 'flex', alignItems: 'center', marginTop: 14, color: cfg.waTxt, fontFamily: 'Display', fontSize: 30, letterSpacing: 1 }}>
+              <svg width="36" height="36" viewBox="0 0 24 24" style={{ marginRight: 14 }}>
                 <path d={WA_ICON} fill={cfg.waTxt} />
               </svg>
               {WA_NUMBER}
