@@ -123,7 +123,10 @@ About you
 To apply, send me on WhatsApp: 2 photos, your experience and your English level. Please say you are applying for Adelaide.
 WhatsApp: 0452 257 233`
 
+const INDEED_AVISO = 'https://employers.indeed.com/jobs/view?employerJobId=aXJpOi8vYXBpcy5pbmRlZWQuY29tL0VtcGxveWVySm9iLzA3YzQ4YWUzLWM1MDUtNGVmZS1hM2NlLTkyMWVlMGVmMGU4ZA%3D%3D'
+
 const DOORMAN_CANALES: { label: string; url: string }[] = [
+  { label: 'Indeed · aviso publicado (en revisión)', url: INDEED_AVISO },
   { label: 'SEEK · Adelaide', url: 'https://www.seek.com.au/' },
   { label: 'Indeed AU', url: 'https://au.indeed.com/' },
   { label: 'Gumtree Jobs · Adelaide', url: 'https://www.gumtree.com.au/s-jobs/adelaide/c9302l3001366' },
@@ -177,7 +180,7 @@ export function MisionesClient() {
           </div>
           <div className="flex items-center gap-1.5">
             <Badge tone="prio"><Flame className="mr-1 inline h-3 w-3" />Prioridad</Badge>
-            <Badge tone="curso">Llamar mañana</Badge>
+            <Badge tone="curso">Correo enviado · esperar respuesta</Badge>
           </div>
         </div>
 
@@ -190,6 +193,8 @@ export function MisionesClient() {
               <li>• <strong>30 piezas de cada sabor</strong> (120 en total)</li>
               <li>• Presentación elegante, estilo nuestro menú (salmón/blini, tartaletas…)</li>
               <li>• Que <strong>vendan para recoger</strong> (NO mandar chef) y puedan para el <strong>5/12</strong></li>
+              <li>• <strong>Elegido por la clienta: Wine &amp; Dine&apos;m</strong> (Canape Shop, Woolloongabba) con mezcla 3x1: 25 jamón + 25 whipped ricotta · 25 smoked chicken + 25 yuzu lemon</li>
+              <li>• Correo enviado a Emma Rushby el 24/11. <strong>Si no responden, llamar el miércoles 25/11 al (07) 3844 7810.</strong> Cerrar antes del 2/12; retiro el <strong>sábado 5/12, 9:30–11:00</strong></li>
               <li className="text-[#9A9A94]">• Descartados: Cuisine on Cue (ya probado) · FoodByWayne (es de Sídney)</li>
             </ul>
           </div>
@@ -282,18 +287,15 @@ export function MisionesClient() {
           </div>
           <div className="flex items-center gap-1.5">
             <Badge tone="prio"><Flame className="mr-1 inline h-3 w-3" />Prioridad</Badge>
-            <Badge tone="falta">Falta info</Badge>
+            <Badge tone="curso">Indeed en revisión</Badge>
           </div>
         </div>
 
         <div className="space-y-5 p-5">
-          {/* Falta definir */}
-          <div className="flex items-start gap-2 rounded-xl border border-[#FCD34D] bg-[#FFFBEB] p-4">
-            <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-[#B45309]" />
-            <div className="text-[13px] text-[#78350F]">
-              <p className="font-bold">Antes de publicar, definir 3 cosas:</p>
-              <p className="mt-1">1. Pago por hora · 2. Días/horas (casual o part-time) · 3. Fecha de inicio (y qué boutique en Adelaide).</p>
-            </div>
+          {/* Estado */}
+          <div className="rounded-xl border border-[#EFEFEA] bg-[#FBFBF8] p-4 text-[13px] leading-relaxed text-[#2A2A24]">
+            <p><strong>Publicado en Indeed</strong> (en revisión). <a href={INDEED_AVISO} target="_blank" rel="noopener noreferrer" className="font-bold text-[#1C7AE5] underline underline-offset-2">Abrir el aviso</a></p>
+            <p className="mt-1.5">Turnos fijos 20–34 h/semana · Vie $33 · Sáb $38.80 · Dom $42.41/h. SEEK: pendiente (Basic $400 + GST); se decide si hacen falta más candidatos tras unos días.</p>
           </div>
 
           {/* Aviso editable */}
@@ -332,6 +334,23 @@ export function MisionesClient() {
             </div>
           </div>
         </div>
+      </section>
+
+      {/* ===================== PENDIENTES ===================== */}
+      <section className="overflow-hidden rounded-2xl border border-[#E8E8E3] bg-white">
+        <div className="border-b border-[#F2F2EC] bg-[#FBFBF8] px-5 py-4">
+          <h2 className="text-[16px] font-bold text-[#0d2b0d]">Pendientes</h2>
+        </div>
+        <ul className="divide-y divide-[#F2F2EC]">
+          <li className="p-5 text-[13.5px] leading-relaxed text-[#2A2A24]">
+            <p className="font-bold text-[#0d2b0d]">Luiza y los viernes</p>
+            <p className="mt-1">Luiza <strong>sí puede trabajar los viernes</strong>, excepto <strong>este viernes 27/11</strong>. Al armar turnos, no asignarla ese día. Revisado el 24/11: no tiene turno el 27/11; su único viernes asignado más adelante es el 11/12.</p>
+          </li>
+          <li className="p-5 text-[13.5px] leading-relaxed text-[#2A2A24]">
+            <p className="font-bold text-[#0d2b0d]">Gumtree</p>
+            <p className="mt-1">Publicar el aviso del doorman en Gumtree Jobs (Adelaide).</p>
+          </li>
+        </ul>
       </section>
 
       <p className="flex items-center gap-1.5 px-1 text-[12px] text-[#B6B6AE]">

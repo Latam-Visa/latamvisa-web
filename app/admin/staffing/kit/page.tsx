@@ -5,7 +5,7 @@ export const dynamic = 'force-dynamic'
 
 export default function KitPage() {
   return (
-    <div className="mx-auto w-full max-w-[1100px] space-y-6 pb-16">
+    <div className="mx-auto w-full max-w-[1100px] space-y-14 pb-24">
       <StaffingHeader
         kicker="Kit"
         title="Kit de reclutamiento"

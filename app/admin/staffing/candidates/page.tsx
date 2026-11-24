@@ -16,7 +16,7 @@ export default async function CandidatesPage() {
   const candidates = (data || []) as StaffingCandidate[]
 
   return (
-    <div className="mx-auto w-full max-w-[1200px] space-y-6 pb-12">
+    <div className="mx-auto w-full max-w-[1200px] space-y-14 pb-24">
       <StaffingHeader kicker="Reclutamiento" title="Candidatos" subtitle="Pipeline de reclutamiento, de aplicación a contratación." />
 
       <CandidatesClient candidates={candidates} />

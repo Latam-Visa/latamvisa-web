@@ -26,7 +26,7 @@ export default async function StaffPage() {
   }
 
   return (
-    <div className="mx-auto w-full max-w-[1000px] space-y-6 pb-12">
+    <div className="mx-auto w-full max-w-[1000px] space-y-14 pb-24">
       <StaffingHeader kicker="Equipo" title="Personal" subtitle={`${staff.length} persona(s) · turnos contados de esta semana.`} />
 
       <StaffClient staff={staff} turnosSemana={turnosSemana} />

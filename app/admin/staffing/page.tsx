@@ -113,7 +113,7 @@ export default async function StaffingPage({
   const next = ymd(view === 'month' ? new Date(anchor.getFullYear(), anchor.getMonth() + 1, 1) : addDays(startOfWeek(anchor), 7))
 
   return (
-    <div className="mx-auto w-full max-w-[1200px] space-y-6 pb-12">
+    <div className="mx-auto w-full max-w-[1200px] space-y-14 pb-24">
       <StaffingHeader kicker="Agencia" title="Staffing" subtitle="Calendario de turnos, cobertura por cliente y reclutamiento." />
 
       <CalendarClient

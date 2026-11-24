@@ -47,7 +47,7 @@ export default async function NeedsPage() {
   }))
 
   return (
-    <div className="mx-auto w-full max-w-[1100px] space-y-6 pb-12">
+    <div className="mx-auto w-full max-w-[1100px] space-y-14 pb-24">
       <StaffingHeader kicker="Turnos" title="Necesidades" subtitle="Crea turnos en bloque y gestiona los próximos." />
 
       <NeedsClient clients={clients} needs={needs} />
