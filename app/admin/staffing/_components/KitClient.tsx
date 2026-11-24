@@ -189,7 +189,7 @@ You need good English, a professional look and to be reliable until 24 December.
 
 No experience needed, we train you.
 
-If you're interested, send me a WhatsApp at 0426779734 with 2 photos, your English level and your availability.
+If you're interested, send me a WhatsApp at 0452257233 with 2 photos, your English level and your availability.
 
 Thanks!`
 

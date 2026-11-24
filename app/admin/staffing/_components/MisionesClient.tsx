@@ -118,7 +118,7 @@ We're looking for someone who is:
 
 Pay: $[__]/hr  ·  Start: [__]  ·  [casual/part-time]
 
-Send a short intro + photo to: [tu WhatsApp / email]`
+Send a short intro + photo by WhatsApp to: 0452 257 233`
 
 const DOORMAN_CANALES: { label: string; url: string }[] = [
   { label: 'SEEK · Adelaide', url: 'https://www.seek.com.au/' },
