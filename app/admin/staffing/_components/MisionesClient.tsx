@@ -183,11 +183,22 @@ export function MisionesClient() {
           </div>
           <div className="flex items-center gap-1.5">
             <Badge tone="prio"><Flame className="mr-1 inline h-3 w-3" />Prioridad</Badge>
-            <Badge tone="curso">Correo enviado · esperar respuesta</Badge>
+            <Badge tone="falta">Confirmado · 2 pedidos (5 y 12/12)</Badge>
           </div>
         </div>
 
         <div className="space-y-5 p-5">
+          {/* Logística de recogida */}
+          <div className="rounded-xl border border-[#C8FF00] bg-[#FBFFE9] p-4">
+            <h3 className="mb-2 text-[11px] font-bold uppercase tracking-wide text-[#2F4A00]">Cómo los recogemos</h3>
+            <ul className="space-y-1.5 text-[13.5px] text-[#2A2A24]">
+              <li>• <strong>2 pedidos idénticos de $517 (GST incl.)</strong>: sábado <strong>5/12</strong> y sábado <strong>12/12</strong>. Retiro en el depósito de <strong>Woolloongabba desde las 9:30</strong> (Emma Rushby, (07) 3844 7810).</li>
+              <li>• <strong>Quién recoge: Cristian los dos sábados.</strong> Esos días él está en Fendi (12:00), así que pasa por Woolloongabba a las 9:30, deja las cajas en la boutique y sigue su día. El 5/12 le da tiempo: retiro 9:30 → Fendi ~10:15 → Paspaley 11:00 (presenta a Ibai) → Fendi 12:00.</li>
+              <li>• <strong>Transporte:</strong> 120 piezas en cajas frías y dulces → mejor auto; si no, Uber (ida directa, sin paradas) y se reembolsa. Llevar los correos de confirmación por si piden el número de pedido.</li>
+              <li>• <strong>Pago:</strong> la factura de cada pedido ya fue enviada a accounts@coletteetlouis.com. Emma pide que los fondos estén <strong>acreditados antes del viernes</strong> (4/12 y 11/12) o no libera el pedido. Confirmar con contabilidad que paguen ambos.</li>
+              <li>• <strong>Preguntar a Breno:</strong> hora de inicio del evento en Fendi y si la boutique tiene heladera para las piezas frías hasta el evento. Si el evento es antes de las 12:00, mover la entrada de Cristian.</li>
+            </ul>
+          </div>
           {/* El encargo */}
           <div className="rounded-xl border border-[#EFEFEA] bg-[#FBFBF8] p-4">
             <h3 className="mb-2 text-[11px] font-bold uppercase tracking-wide text-[#B6B6AE]">El encargo (de Breno)</h3>
@@ -197,7 +208,7 @@ export function MisionesClient() {
               <li>• Presentación elegante, estilo nuestro menú (salmón/blini, tartaletas…)</li>
               <li>• Que <strong>vendan para recoger</strong> (NO mandar chef) y puedan para el <strong>5/12</strong></li>
               <li>• <strong>Elegido por la clienta: Wine &amp; Dine&apos;m</strong> (Canape Shop, Woolloongabba) con mezcla 3x1: 25 jamón + 25 whipped ricotta · 25 smoked chicken + 25 yuzu lemon</li>
-              <li>• Correo enviado a Emma Rushby el 24/11. <strong>Si no responden, llamar el miércoles 25/11 al (07) 3844 7810.</strong> Cerrar antes del 2/12; retiro el <strong>sábado 5/12, 9:30–11:00</strong></li>
+              <li>• <strong>Confirmado el 25/11</strong> con Emma Rushby: segundo pedido igual al primero para el sábado 12/12 (retiro 9:30). Ambas facturas enviadas a contabilidad.</li>
               <li className="text-[#9A9A94]">• Descartados: Cuisine on Cue (ya probado) · FoodByWayne (es de Sídney)</li>
             </ul>
           </div>
