@@ -1,10 +1,10 @@
 "use client"
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import {
   Copy, Check, ExternalLink, Phone, Mail, MapPin, Info,
-  UtensilsCrossed, DoorOpen, Flame, AlertTriangle, ClipboardList,
+  UtensilsCrossed, DoorOpen, Flame, AlertTriangle, ClipboardList, CheckCircle2, RotateCcw, ChevronDown, Archive, Star,
 } from 'lucide-react'
 
 // ---------------------------------------------------------------------------
@@ -99,6 +99,22 @@ Colette et Louis`
 
 const CANAPE_LLAMADA = `"Hi, I need 4 canapé options — 3 savoury + 1 sweet, 30 pieces of each flavour (120 total) — for PICKUP (not catered on site) on Saturday 5 December. Can you do it, and what's the price per piece?"`
 
+const REORDER_SUBJECT = "Canapé order for pickup — Saturday [DATE]"
+
+const REORDER_EMAIL = `Hi Emma,
+
+Hope you're well! We'd love to place another canapé order for pickup, same as our previous ones.
+
+• Date: Saturday [DATE], collection from 9:30 am at the Woolloongabba depot
+• Mix: [e.g. 3 savoury + 1 sweet], [30] pieces of each flavour
+• Please send the invoice to accounts@coletteetlouis.com so our team can arrange payment before the Friday cut-off
+
+Could you confirm availability and the total including GST?
+
+Thank you so much,
+Cristian
+Colette et Louis`
+
 const DOORMAN_AD_DEFAULT = `Doorman – Luxury Boutique, Adelaide
 
 We're looking for a reliable, well-presented Doorman for a luxury boutique in Adelaide. Ongoing position with fixed weekly shifts.
@@ -168,10 +184,34 @@ export function MisionesClient() {
   const { copied, copy } = useCopy()
   const [email, setEmail] = useState(CANAPE_EMAIL_DEFAULT)
   const [ad, setAd] = useState(DOORMAN_AD_DEFAULT)
+  const [reorder, setReorder] = useState(REORDER_EMAIL)
+  // Misiones terminadas: por defecto los canapés ya están cerrados. El cambio se guarda en este navegador.
+  const [hechas, setHechas] = useState<Record<string, boolean>>({ canapes: true })
+  const [abierta, setAbierta] = useState<string | null>(null)
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem('misiones-hechas')
+      if (raw) setHechas((h) => ({ ...h, ...JSON.parse(raw) }))
+    } catch { /* ignore */ }
+  }, [])
+  function marcar(id: string, v: boolean) {
+    setHechas((h) => {
+      const n = { ...h, [id]: v }
+      try { localStorage.setItem('misiones-hechas', JSON.stringify(n)) } catch { /* ignore */ }
+      return n
+    })
+    if (v) setAbierta(id)
+  }
+  const TerminarBtn = ({ id }: { id: string }) => (
+    <button onClick={() => marcar(id, true)} className="inline-flex items-center gap-1 rounded-full border border-[#BBF7D0] bg-[#F0FDF4] px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-[#166534] hover:bg-[#DCFCE7]">
+      <CheckCircle2 className="h-3 w-3" /> Terminada
+    </button>
+  )
 
   return (
     <div className="space-y-8">
       {/* ===================== MISIÓN 1 · CANAPÉS ===================== */}
+      {!hechas.canapes && (
       <section className="overflow-hidden rounded-2xl border border-[#E8E8E3] bg-white">
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#F2F2EC] bg-[#FBFBF8] px-5 py-4">
           <div className="flex items-center gap-3">
@@ -184,6 +224,7 @@ export function MisionesClient() {
           <div className="flex items-center gap-1.5">
             <Badge tone="prio"><Flame className="mr-1 inline h-3 w-3" />Prioridad</Badge>
             <Badge tone="falta">Confirmado · 2 pedidos (5 y 12/12)</Badge>
+            <TerminarBtn id="canapes" />
           </div>
         </div>
 
@@ -288,8 +329,10 @@ export function MisionesClient() {
           </div>
         </div>
       </section>
+      )}
 
       {/* ===================== MISIÓN 2 · DOORMAN ADELAIDE ===================== */}
+      {!hechas.doorman && (
       <section className="overflow-hidden rounded-2xl border border-[#E8E8E3] bg-white">
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#F2F2EC] bg-[#FBFBF8] px-5 py-4">
           <div className="flex items-center gap-3">
@@ -302,6 +345,7 @@ export function MisionesClient() {
           <div className="flex items-center gap-1.5">
             <Badge tone="prio"><Flame className="mr-1 inline h-3 w-3" />Prioridad</Badge>
             <Badge tone="curso">Indeed + Gumtree publicados</Badge>
+            <TerminarBtn id="doorman" />
           </div>
         </div>
 
@@ -350,6 +394,118 @@ export function MisionesClient() {
           </div>
         </div>
       </section>
+      )}
+
+      {/* ===================== TERMINADAS ===================== */}
+      {(hechas.canapes || hechas.doorman) && (
+        <section className="space-y-3">
+          <h2 className="flex items-center gap-2 px-1 text-[11px] font-bold uppercase tracking-wide text-[#B6B6AE]"><Archive className="h-3.5 w-3.5" /> Terminadas</h2>
+
+          {hechas.canapes && (
+            <div className="overflow-hidden rounded-2xl border border-[#BBF7D0] bg-white">
+              <button onClick={() => setAbierta(abierta === 'canapes' ? null : 'canapes')} className="flex w-full items-center justify-between gap-3 bg-[#F0FDF4] px-5 py-4 text-left">
+                <div className="flex items-center gap-3">
+                  <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#DCFCE7] text-[#166534]"><CheckCircle2 className="h-[18px] w-[18px]" /></span>
+                  <div>
+                    <h3 className="text-[15px] font-bold text-[#0d2b0d]">Canapés para Fendi · resuelto con Wine &amp; Dine&apos;m</h3>
+                    <p className="text-[12px] text-[#4D7C5A]">2 pedidos de $517 · sáb 5/12 y sáb 12/12 · retiro 9:30 en Woolloongabba</p>
+                  </div>
+                </div>
+                <ChevronDown className={`h-4 w-4 shrink-0 text-[#4D7C5A] transition-transform ${abierta === 'canapes' ? 'rotate-180' : ''}`} />
+              </button>
+
+              {abierta === 'canapes' && (
+                <div className="space-y-5 p-5">
+                  {/* Ficha del proveedor */}
+                  <div className="rounded-xl border border-[#C8FF00] bg-[#FBFFE9] p-4">
+                    <div className="mb-3 flex items-start justify-between gap-2">
+                      <div>
+                        <div className="flex items-center gap-1.5 text-[15px] font-bold text-[#0d2b0d]">
+                          Wine &amp; Dine&apos;m · The Canapé Shop
+                          <span className="inline-flex items-center gap-0.5 rounded-full bg-[#C8FF00] px-1.5 py-0.5 text-[9px] font-bold text-[#2F4A00]"><Star className="h-2.5 w-2.5" /> NUESTRO PROVEEDOR</span>
+                        </div>
+                        <p className="flex items-center gap-1 text-[12px] text-[#6B6B6B]"><MapPin className="h-3 w-3" /> Depósito de Woolloongabba, Brisbane</p>
+                      </div>
+                    </div>
+                    <div className="grid gap-x-6 gap-y-1.5 text-[13px] text-[#2A2A24] sm:grid-cols-2">
+                      <p><strong>Contacto:</strong> Emma Rushby, Express Catering &amp; Events Assistant</p>
+                      <p><strong>Tel:</strong> <a href="tel:0738447810" className="font-bold text-[#2F4A00] underline underline-offset-2">(07) 3844 7810</a></p>
+                      <p><strong>Correo:</strong> <a href="mailto:express@winendinem.com" className="font-bold text-[#1C7AE5] underline underline-offset-2">express@winendinem.com</a></p>
+                      <p><strong>Web:</strong> <a href="https://express.winendinem.com/canape-shop" target="_blank" rel="noopener noreferrer" className="font-bold text-[#1C7AE5] underline underline-offset-2">express.winendinem.com/canape-shop</a></p>
+                    </div>
+                  </div>
+
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    <div className="rounded-xl border border-[#EFEFEA] bg-[#FBFBF8] p-4">
+                      <h4 className="mb-2 text-[11px] font-bold uppercase tracking-wide text-[#B6B6AE]">Cómo funciona con ellos</h4>
+                      <ul className="space-y-1 text-[13px] text-[#2A2A24]">
+                        <li>• <strong>Pedir antes del jueves a mediodía</strong> para retiro del sábado</li>
+                        <li>• Retiro <strong>sábado desde las 9:30</strong> (no antes)</li>
+                        <li>• <strong>Pago antes del retiro</strong>: tarjeta (llamando a la oficina) o EFT; fondos acreditados antes del viernes</li>
+                        <li>• La factura va con copia a <strong>accounts@coletteetlouis.com</strong></li>
+                        <li>• Normalmente no mezclan cajas frías y dulces, pero lo aceptaron por esta vez: <strong>recordárselo al pedir</strong></li>
+                      </ul>
+                    </div>
+                    <div className="rounded-xl border border-[#EFEFEA] bg-[#FBFBF8] p-4">
+                      <h4 className="mb-2 text-[11px] font-bold uppercase tracking-wide text-[#B6B6AE]">Lo que se pidió</h4>
+                      <ul className="space-y-1 text-[13px] text-[#2A2A24]">
+                        <li>• 4 opciones: <strong>25 jamón · 25 whipped ricotta · 25 smoked chicken · 25 yuzu lemon</strong> (mezcla 3x1)</li>
+                        <li>• Total <strong>$517 con GST</strong> por pedido</li>
+                        <li>• Pedido 1: sáb 5/12 · Pedido 2: sáb 12/12 (idéntico)</li>
+                        <li>• Clienta: Fendi · lo coordinó Breno</li>
+                      </ul>
+                    </div>
+                  </div>
+
+                  {/* Pedir otra vez */}
+                  <div className="overflow-hidden rounded-xl border border-[#E8E8E3]">
+                    <div className="flex items-center justify-between gap-2 border-b border-[#F2F2EC] bg-[#FBFBF8] px-4 py-2.5">
+                      <span className="flex items-center gap-1.5 text-[13px] font-bold text-[#0d2b0d]"><Mail className="h-3.5 w-3.5 text-[#1C7AE5]" /> Pedir otra vez (correo listo)</span>
+                      <span className="rounded-full bg-[#F2FBDD] px-2 py-0.5 text-[10px] font-bold text-[#2F4A00]">Editable · cambiá [DATE] y cantidades</span>
+                    </div>
+                    <textarea value={reorder} onChange={(e) => setReorder(e.target.value)} rows={13} spellCheck={false} className="w-full resize-y border-0 px-4 py-3 text-[13px] leading-relaxed text-[#2A2A24] focus:outline-none focus:ring-0" />
+                    <div className="flex flex-wrap items-center justify-end gap-2 border-t border-[#F2F2EC] p-3">
+                      <a href={`mailto:express@winendinem.com?subject=${enc(REORDER_SUBJECT)}&body=${enc(reorder)}`} className="inline-flex items-center gap-1.5 rounded-xl border border-[#E8E8E3] px-4 py-2.5 text-sm font-bold text-[#1C7AE5] hover:bg-[#EAF3FF]"><Mail className="h-4 w-4" /> Abrir en mi correo</a>
+                      <CopyBtn id="reorder" text={`Asunto: ${REORDER_SUBJECT}\n\n${reorder}`} label="Copiar" copied={copied} copy={copy} />
+                    </div>
+                  </div>
+
+                  {/* Plan B */}
+                  <div className="rounded-xl border border-[#EFEFEA] bg-[#FBFBF8] p-4">
+                    <h4 className="mb-2 text-[11px] font-bold uppercase tracking-wide text-[#B6B6AE]">Plan B (si no pueden)</h4>
+                    <div className="flex flex-wrap gap-2">
+                      {CANAPE_PROVEEDORES.filter((p) => !p.nombre.startsWith('The Canap')).map((p) => (
+                        <span key={p.nombre} className="inline-flex flex-wrap items-center gap-1.5 rounded-lg border border-[#E8E8E3] bg-white px-2.5 py-1.5 text-[12px]">
+                          <strong className="text-[#0d2b0d]">{p.nombre}</strong>
+                          <span className="text-[#9A9A94]">{p.zona}</span>
+                          {p.tel && <a href={`tel:${p.tel}`} className="font-bold text-[#2F4A00] underline underline-offset-2">{p.tel.replace(/(\d{4})(\d{3})(\d{3})/, '$1 $2 $3')}</a>}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="flex justify-end">
+                    <button onClick={() => marcar('canapes', false)} className="inline-flex items-center gap-1.5 rounded-xl border border-[#E8E8E3] px-3 py-2 text-[12px] font-bold text-[#6B6B6B] hover:bg-[#F6F6F2]"><RotateCcw className="h-3.5 w-3.5" /> Reabrir misión</button>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {hechas.doorman && (
+            <div className="flex items-center justify-between gap-3 rounded-2xl border border-[#BBF7D0] bg-[#F0FDF4] px-5 py-4">
+              <div className="flex items-center gap-3">
+                <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#DCFCE7] text-[#166534]"><CheckCircle2 className="h-[18px] w-[18px]" /></span>
+                <div>
+                  <h3 className="text-[15px] font-bold text-[#0d2b0d]">Doorman nuevo · Adelaide</h3>
+                  <p className="text-[12px] text-[#4D7C5A]">Terminada · avisos de Indeed y Gumtree siguen en el historial</p>
+                </div>
+              </div>
+              <button onClick={() => marcar('doorman', false)} className="inline-flex items-center gap-1.5 rounded-xl border border-[#BBF7D0] bg-white px-3 py-2 text-[12px] font-bold text-[#166534] hover:bg-[#DCFCE7]"><RotateCcw className="h-3.5 w-3.5" /> Reabrir</button>
+            </div>
+          )}
+        </section>
+      )}
 
       {/* ===================== PENDIENTES ===================== */}
       <section className="overflow-hidden rounded-2xl border border-[#E8E8E3] bg-white">
@@ -357,6 +513,10 @@ export function MisionesClient() {
           <h2 className="text-[16px] font-bold text-[#0d2b0d]">Pendientes</h2>
         </div>
         <ul className="divide-y divide-[#F2F2EC]">
+          <li className="p-5 text-[13.5px] leading-relaxed text-[#2A2A24]">
+            <p className="font-bold text-[#0d2b0d]">Recoger los canapés (Cristian)</p>
+            <p className="mt-1"><strong>Sáb 5/12 y sáb 12/12, 9:30</strong> en Woolloongabba → llevar a Fendi. Antes: confirmar que contabilidad pagó cada factura (antes del viernes 4/12 y 11/12) y preguntar a Breno la hora del evento y si hay heladera.</p>
+          </li>
           <li className="p-5 text-[13.5px] leading-relaxed text-[#2A2A24]">
             <p className="font-bold text-[#0d2b0d]">Luiza y los viernes</p>
             <p className="mt-1">Luiza <strong>sí puede trabajar los viernes</strong>, excepto <strong>este viernes 27/11</strong>. Al armar turnos, no asignarla ese día. Revisado el 24/11: no tiene turno el 27/11; su único viernes asignado más adelante es el 11/12.</p>
@@ -369,7 +529,7 @@ export function MisionesClient() {
       </section>
 
       <p className="flex items-center gap-1.5 px-1 text-[12px] text-[#B6B6AE]">
-        <ClipboardList className="h-3.5 w-3.5 shrink-0" /> Estas misiones están escritas en el código (se actualizan con un cambio). Si querés poder agregarlas/marcarlas como hechas desde acá, lo conecto a la base de datos.
+        <ClipboardList className="h-3.5 w-3.5 shrink-0" /> El contenido de las misiones está en el código. «Terminada» / «Reabrir» se guarda solo en este navegador; si quieres que se sincronice entre dispositivos, lo conecto a la base de datos.
       </p>
     </div>
   )
