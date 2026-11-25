@@ -96,7 +96,9 @@ export function CalendarClient(props: Props) {
     const toH = (t: string) => { const [h, m] = t.split(':').map(Number); return h + (m || 0) / 60 }
     const rows: Record<string, { name: string; total: number; shifts: number; byClient: Record<string, number>; byWeek: number[] }> = {}
     for (const c of coverage) {
-      const dur = Math.max(0, toH(c.end_time) - toH(c.start_time))
+      const bruto = Math.max(0, toH(c.end_time) - toH(c.start_time))
+      // El sistema del cliente descuenta 30 min de descanso no pagado en turnos largos
+      const dur = bruto > 5 ? bruto - 0.5 : bruto
       const wi = weekOf[c.shift_date]
       for (const a of assigned[c.need_id] || []) {
         const r = (rows[a.staff_id] ||= { name: a.full_name.split(' ')[0], total: 0, shifts: 0, byClient: {}, byWeek: weeks.map(() => 0) })
@@ -162,7 +164,7 @@ export function CalendarClient(props: Props) {
             <div className="overflow-hidden rounded-2xl border border-[#E8E8E3] bg-white">
               <div className="flex items-center justify-between border-b border-[#F2F2EC] px-4 py-3">
                 <h3 className="text-[13px] font-bold text-[#0d2b0d]">Horas por persona</h3>
-                <span className="text-[11px] text-[#9A9A94]">{view === 'month' ? 'mes visible' : 'esta semana'} · incluye borradores</span>
+                <span className="text-[11px] text-[#9A9A94]">{view === 'month' ? 'mes visible' : 'esta semana'} · incluye borradores · descuenta 30 min de descanso en turnos de más de 5 h</span>
               </div>
               <ul className="divide-y divide-[#F2F2EC]">
                 {hours.map((h) => (
