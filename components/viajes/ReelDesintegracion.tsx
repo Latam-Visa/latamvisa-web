@@ -37,7 +37,7 @@ type Panel = {
 }
 
 const PANELES: Panel[] = [
-  { src: '/viajes/panels/espana.mp4', poster: '/viajes/panels/espana-poster.jpg', ciudad: 'España', hero: true },
+  { src: '/viajes/clouds-hero-loop.mp4', poster: '/viajes/clouds-hero-poster.jpg', ciudad: 'España', hero: true },
   { src: '/viajes/panels/barcelona.mp4', poster: '/viajes/panels/barcelona-poster.jpg', ciudad: 'Barcelona', pais: 'España', indice: '01', linea: 'donde el viaje empieza a sentirse', esquina: 'Gaudí · Mediterráneo', semana: '1.100' },
   { src: '/viajes/panels/paris.mp4', poster: '/viajes/panels/paris-poster.jpg', ciudad: 'París', pais: 'Francia', indice: '02', linea: 'una escala que vale un viaje', esquina: 'Sena · Luz', semana: '1.450' },
   { src: '/viajes/panels/niza.mp4', poster: '/viajes/panels/niza-poster.jpg', ciudad: 'Niza', pais: 'Côte d’Azur', indice: '03', linea: 'el Mediterráneo antes de volver a casa', esquina: 'Riviera · Atardecer', semana: '1.250' },
@@ -139,7 +139,7 @@ export default function ReelDesintegracion() {
       const cards = Array.from(reel.querySelectorAll<HTMLElement>('.reel-card'))
       if (!cards.length) return
 
-      // Reproducir solo los videos visibles (el hero es imagen, no tiene video)
+      // Reproducir solo los videos visibles (incluye el video de nubes del hero)
       io = new IntersectionObserver(
         (entries) => {
           entries.forEach((e) => {
@@ -151,13 +151,14 @@ export default function ReelDesintegracion() {
         { threshold: 0.1 },
       )
 
-      // Parallax: cada video se desplaza suave dentro de su marco con el scroll.
-      // El hero (imagen) se salta: queda fijo.
+      // Parallax: cada video de ciudad se desplaza suave dentro de su marco con
+      // el scroll. El hero (nubes en loop) se salta: queda fijo y anclado abajo.
       gsapCtx = gsap.context(() => {
         cards.forEach((card) => {
           const video = card.querySelector<HTMLVideoElement>('video')
           if (!video) return
           io!.observe(video)
+          if (card.classList.contains('reel-card--hero')) return
           gsap.fromTo(
             video,
             { yPercent: 8 },
@@ -207,18 +208,20 @@ export default function ReelDesintegracion() {
               }
             >
               {v.hero ? (
-                // El hero usa una imagen fija (cielo con nubes), no video. Se
-                // encuadra con object-bottom para que las nubes (abajo) siempre
-                // se vean bien en vertical. Queda estático (sin parallax).
-                <Image
-                  src="/viajes/cielo-nubes.jpg"
-                  alt=""
-                  fill
-                  sizes="100vw"
-                  priority
-                  className="object-cover object-bottom"
+                // Video de nubes en bucle continuo (sin audio, sin B-frames y
+                // con empalme suavizado entre ciclo y ciclo). Queda fijo con
+                // object-position: bottom para que las nubes siempre se vean.
+                <video
+                  autoPlay
+                  muted
+                  loop
+                  playsInline
+                  preload="auto"
+                  poster={v.poster}
                   aria-hidden
-                />
+                >
+                  <source src={v.src} type="video/mp4" />
+                </video>
               ) : (
                 <video
                   autoPlay
@@ -233,10 +236,9 @@ export default function ReelDesintegracion() {
                 </video>
               )}
 
-              {/* El hero (imagen de cielo) mantiene su velo para que el logo y
-                 la frase blanca se lean. Los VIDEOS van SIN velo: nada de
-                 bandas oscuras arriba/abajo ("bordes negros"). La legibilidad
-                 del texto sobre el video la dan sombras de texto fuertes. */}
+              {/* El hero mantiene su velo para que el logo y la frase blanca se
+                 lean sobre el cielo. Los VIDEOS de ciudades van SIN velo: nada
+                 de bandas oscuras arriba/abajo ("bordes negros"). */}
               {v.hero && (
                 <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/45 via-black/15 to-black/55" />
               )}

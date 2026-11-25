@@ -1062,6 +1062,15 @@ body::before {
   will-change: transform;
 }
 
+/* En el hero el video de nubes va fijo (sin parallax) y anclado abajo para que
+   las nubes se vean siempre bien incluso en móvil vertical. */
+.reel-card--hero .reel-visual > video {
+  top: 0;
+  height: 100%;
+  object-position: bottom;
+  will-change: auto;
+}
+
 @media (min-width: 768px) {
   .reel-stage { gap: 24px; padding: 24px; }
   .reel-card { height: calc(50svh - 24px); }
