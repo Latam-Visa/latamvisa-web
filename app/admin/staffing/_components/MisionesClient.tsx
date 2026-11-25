@@ -525,7 +525,7 @@ export function MisionesClient() {
           </li>
           <li className="p-5 text-[13.5px] leading-relaxed text-[#2A2A24]">
             <p className="font-bold text-[#0d2b0d]">Roster dic: Max y Breno (26/11)</p>
-            <p className="mt-1">Max pide <strong>consistencia</strong>: Fendi y Paspaley idealmente siempre la misma persona (Ibai). Dom 20/12: Ibai a Paspaley, Luiza a Cartier (cambiado aquí como borrador; falta que lo cambien en el sistema del cliente). Jue 10/12: entrenamiento de Luiza en Paspaley 11:00-13:00 con Ibai (mín. 2 h), pendiente de aprobación de Breno. Breno publica la semana del 14/12 y pidió confirmar que Ibai y Luiza están contentos con los turnos: <strong>hablar con ambos</strong>. Si salen más eventos: dar a Ibai y luego extra a Luiza.</p>
+            <p className="mt-1">Max pide <strong>consistencia</strong>: Fendi y Paspaley idealmente siempre la misma persona (Ibai). Dom 20/12: Ibai a Paspaley, Luiza a Cartier (cambiado aquí como borrador; falta que lo cambien en el sistema del cliente). Sáb 5/12: Cristian entrena a Ibai en Paspaley 11:00-11:45 y salta a Fendi para el evento de las 12:00 (nota en el turno, sin tocar los turnos que Breno ya cuadró a Cristian). Vie 4/12: Cartier pasa de Ibai a Luiza (borrador; falta cambiarlo en el sistema del cliente). Se quitó el entrenamiento de Luiza del 10/12: Paspaley queda solo con Ibai. Breno publica la semana del 14/12 y pidió confirmar que Ibai y Luiza están contentos con los turnos: <strong>hablar con ambos</strong>. Si salen más eventos: dar a Ibai y luego extra a Luiza.</p>
           </li>
           <li className="p-5 text-[13.5px] leading-relaxed text-[#2A2A24]">
             <p className="font-bold text-[#0d2b0d]">Luiza y los viernes</p>
