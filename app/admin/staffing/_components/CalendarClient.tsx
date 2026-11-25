@@ -89,6 +89,29 @@ export function CalendarClient(props: Props) {
 
   const weeks = view === 'month' ? monthWeeks(anchor) : [weekDates(anchor)]
 
+  // Horas por persona: total del período, por cliente y por semana visible.
+  const hours = useMemo(() => {
+    const weekOf: Record<string, number> = {}
+    weeks.forEach((days, wi) => days.forEach((d) => { weekOf[ymd(d)] = wi }))
+    const toH = (t: string) => { const [h, m] = t.split(':').map(Number); return h + (m || 0) / 60 }
+    const rows: Record<string, { name: string; total: number; shifts: number; byClient: Record<string, number>; byWeek: number[] }> = {}
+    for (const c of coverage) {
+      const dur = Math.max(0, toH(c.end_time) - toH(c.start_time))
+      const wi = weekOf[c.shift_date]
+      for (const a of assigned[c.need_id] || []) {
+        const r = (rows[a.staff_id] ||= { name: a.full_name.split(' ')[0], total: 0, shifts: 0, byClient: {}, byWeek: weeks.map(() => 0) })
+        r.total += dur
+        r.shifts += 1
+        r.byClient[c.client_name] = (r.byClient[c.client_name] || 0) + dur
+        if (wi !== undefined) r.byWeek[wi] += dur
+      }
+    }
+    return Object.values(rows).sort((a, b) => b.total - a.total)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [coverage, assigned, view, anchorYmd])
+  const fmtH = (n: number) => `${Number.isInteger(n) ? n : n.toFixed(1)} h`
+  const maxH = Math.max(1, ...hours.map((h) => h.total))
+
   return (
     <div className="space-y-5">
       {/* Barra de control + resumen */}
@@ -135,6 +158,35 @@ export function CalendarClient(props: Props) {
           {weeks.map((days, wi) => (
             <WeekGrid key={wi} days={days} view={view} anchor={anchor} hoyYmd={hoyYmd} clients={clients} byCell={byCell} assigned={assigned} onPick={openQuick} />
           ))}
+          {hours.length > 0 && (
+            <div className="overflow-hidden rounded-2xl border border-[#E8E8E3] bg-white">
+              <div className="flex items-center justify-between border-b border-[#F2F2EC] px-4 py-3">
+                <h3 className="text-[13px] font-bold text-[#0d2b0d]">Horas por persona</h3>
+                <span className="text-[11px] text-[#9A9A94]">{view === 'month' ? 'mes visible' : 'esta semana'} · incluye borradores</span>
+              </div>
+              <ul className="divide-y divide-[#F2F2EC]">
+                {hours.map((h) => (
+                  <li key={h.name} className="px-4 py-3">
+                    <div className="flex items-baseline justify-between gap-3">
+                      <span className="text-[14px] font-bold text-[#0d2b0d]">{h.name}</span>
+                      <span className="text-[14px] font-bold text-[#0d2b0d]">{fmtH(h.total)} <span className="text-[11px] font-medium text-[#9A9A94]">· {h.shifts} turnos</span></span>
+                    </div>
+                    <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-[#F2F2EC]">
+                      <div className="h-full rounded-full bg-[#C8FF00]" style={{ width: `${(h.total / maxH) * 100}%` }} />
+                    </div>
+                    <div className="mt-1.5 flex flex-wrap gap-x-3 gap-y-0.5 text-[11.5px] text-[#6B6B6B]">
+                      {Object.entries(h.byClient).sort((a, b) => b[1] - a[1]).map(([cn, v]) => (
+                        <span key={cn}>{cn} {fmtH(v)}</span>
+                      ))}
+                      {view === 'month' && h.byWeek.map((v, i) => (
+                        <span key={i} className="text-[#9A9A94]">S{i + 1}: {fmtH(v)}</span>
+                      ))}
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
           {clients.length === 0 && (
             <div className="rounded-2xl border border-[#E8E8E3] bg-white p-6 text-sm text-[#6B6B6B]">
               No hay clientes todavía. Agrega turnos en <Link href="/admin/staffing/needs" className="font-semibold text-[#2F4A00] underline">Turnos</Link>.
