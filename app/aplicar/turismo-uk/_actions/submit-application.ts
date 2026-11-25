@@ -26,7 +26,7 @@ export async function submitUkApplication(
   }
 }
 
-async function executeSubmit(formData: any) {
+export async function executeSubmit(formData: any, opts?: { solicitudId?: string }) {
   const t0 = Date.now()
   console.log('[SUBMIT_UK] Start', new Date().toISOString())
 
@@ -76,6 +76,8 @@ async function executeSubmit(formData: any) {
   const insertData = {
     id: applicationId,
     status: 'pending',
+    // Modo cuenta: amarra la aplicación a la solicitud del portal.
+    ...(opts?.solicitudId ? { solicitud_id: opts.solicitudId } : {}),
     
     // Paso 1
     purpose_of_visit: nullify(step1.purpose_of_visit),

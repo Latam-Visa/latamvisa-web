@@ -3,7 +3,8 @@ import { useController, useFormContext } from 'react-hook-form'
 import imageCompression from 'browser-image-compression'
 import { UploadCloud, File as FileIcon, Trash2, RefreshCw, ChevronDown, ChevronUp } from 'lucide-react'
 import { FormField } from '../../turismo-usa/_components/FormField' // Reuse USA form field
-import { getUploadUrl } from '../_actions/get-upload-url'
+import { getUploadUrl as getUploadUrlPublico } from '../_actions/get-upload-url'
+import { useSubidaCuenta } from '@/lib/portal/subida-contexto'
 import { sanitizePdfFile } from '@/lib/pdf-sanitize'
 
 interface DocumentUploaderProps {
@@ -24,6 +25,8 @@ const ALLOWED_TYPES = [
 
 export function DocumentUploader({ name, label, hint, required, specsList, multiple = false }: DocumentUploaderProps) {
   const { control } = useFormContext()
+  const subidaCuenta = useSubidaCuenta()
+  const getUploadUrl = subidaCuenta ?? getUploadUrlPublico
   const { field, fieldState } = useController({ name, control })
   
   const [isDragging, setIsDragging] = useState(false)

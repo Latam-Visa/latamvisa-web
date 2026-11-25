@@ -194,6 +194,7 @@ export async function guardarCanada(envio: EnvioCanada, fila: ReturnType<typeof 
   console.error('[CANADA] Insert rechazado por datos, guardado de emergencia:', error)
   const emergencia = {
     id: fila.id,
+    ...((fila as { solicitud_id?: string }).solicitud_id ? { solicitud_id: (fila as { solicitud_id?: string }).solicitud_id } : {}),
     status: 'pending',
     given_name: fila.given_name,
     surname: fila.surname,

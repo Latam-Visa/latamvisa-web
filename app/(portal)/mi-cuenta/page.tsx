@@ -27,6 +27,9 @@ interface Solicitud {
 const FORMULARIOS_MODO_CUENTA: Record<string, string> = {
   australia: '/aplicar/turismo-australia',
   usa: '/aplicar/turismo-usa',
+  canada: '/aplicar/turismo-canada',
+  japon: '/aplicar/turismo-japon',
+  uk: '/aplicar/turismo-uk',
 }
 
 function linkFormulario(s: Solicitud): string | null {

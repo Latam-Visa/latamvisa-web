@@ -15,6 +15,8 @@ import { ProgressBar } from '../turismo-usa/_components/ProgressBar'
 import { StepNavigation } from '../turismo-usa/_components/StepNavigation'
 
 import { ErrorEnvioModal } from './_components/ErrorEnvioModal'
+import { cargarBorrador, guardarBorrador, urlDeSubida } from '@/lib/portal/acciones-formulario'
+import { SubidaCuentaProvider } from '@/lib/portal/subida-contexto'
 import { convertirHeicAJpeg, esHeic, mensajeArchivoGrande } from '@/lib/aplicaciones/archivos-cliente'
 
 import { 
@@ -119,6 +121,13 @@ export default function TurismoJaponApplication() {
   const [showSuccess, setShowSuccess] = useState(false)
   const [errorEnvio, setErrorEnvio] = useState<{ data: any } | null>(null)
 
+  /* Modo cuenta: el cliente llega desde /mi-cuenta con ?solicitud=<id>. Es el
+     mismo formulario; solo cambia dónde se guarda el borrador (servidor, no
+     localStorage), dónde se suben los documentos y qué pasa al enviar.
+     'cargando' evita escribir nada antes de saber en qué modo estamos. */
+  const [modo, setModo] = useState<'cargando' | 'publico' | 'cuenta'>('cargando')
+  const [solicitudId, setSolicitudId] = useState<string | null>(null)
+
   const methods = useForm<FormData>({
     resolver: zodResolver(formSchema),
     mode: 'onTouched',
@@ -136,6 +145,33 @@ export default function TurismoJaponApplication() {
 
   // Load from local storage on mount
   useEffect(() => {
+    const id = new URLSearchParams(window.location.search).get('solicitud')
+    if (id) {
+      cargarBorrador(id, 'japon').then((res) => {
+        if (res.estado === 'sin_acceso') {
+          window.location.href = '/entrar'
+          return
+        }
+        if (res.estado === 'enviada' || res.estado === 'otro_pais') {
+          window.location.href = '/mi-cuenta'
+          return
+        }
+        if (res.borrador) {
+          setDraftData({ step: res.borrador.step ?? 1, data: res.borrador.data })
+          setShowDraftModal(true)
+        } else if (res.prefill.email) {
+          // Sin borrador: prellenamos el correo del pago.
+          methods.setValue('step10.email' as any, res.prefill.email)
+        }
+        setSolicitudId(id)
+        setModo('cuenta')
+      }).catch(() => {
+        window.location.href = '/mi-cuenta'
+      })
+      return
+    }
+
+    setModo('publico')
     const saved = localStorage.getItem(STORAGE_KEY)
     if (saved) {
       try {
@@ -156,6 +192,16 @@ export default function TurismoJaponApplication() {
   // Autosave
   const formValues = useWatch({ control: methods.control })
   useEffect(() => {
+    // En modo cuenta esperamos la decisión del borrador para no pisar lo
+    // guardado con los valores por defecto vacíos.
+    if (modo === 'cargando') return
+    if (modo === 'cuenta') {
+      if (!solicitudId || showDraftModal) return
+      const timeout = setTimeout(() => {
+        guardarBorrador(solicitudId, 'japon', formValues, currentStep).catch(() => {})
+      }, 800)
+      return () => clearTimeout(timeout)
+    }
     const timeout = setTimeout(() => {
       if (Object.keys(formValues).length > 0) {
         localStorage.setItem(STORAGE_KEY, JSON.stringify({
@@ -165,7 +211,7 @@ export default function TurismoJaponApplication() {
       }
     }, 500)
     return () => clearTimeout(timeout)
-  }, [formValues, currentStep])
+  }, [formValues, currentStep, modo, solicitudId, showDraftModal])
 
   const handleLoadDraft = () => {
     if (draftData && draftData.data) {
@@ -176,8 +222,10 @@ export default function TurismoJaponApplication() {
   }
 
   const handleClearDraft = () => {
-    localStorage.removeItem(STORAGE_KEY)
-    escribirLocal(SUBMISSION_KEY, null)
+    if (modo !== 'cuenta') {
+      localStorage.removeItem(STORAGE_KEY)
+      escribirLocal(SUBMISSION_KEY, null)
+    }
     setShowDraftModal(false)
   }
 
@@ -249,7 +297,8 @@ export default function TurismoJaponApplication() {
     if (isSubmitting) return
     setIsSubmitting(true)
     setErrorEnvio(null)
-    const submissionId = idDeEnvio()
+    // En modo cuenta el id del envío es el de la solicitud: único por aplicante y estable ante reintentos.
+    const submissionId = modo === 'cuenta' && solicitudId ? solicitudId : idDeEnvio()
     const contacto = { nombre: [data?.step2?.given_name, data?.step2?.surname].filter(Boolean).join(' '), email: data?.step10?.email }
     const controller = new AbortController()
     const timer = setTimeout(() => controller.abort(), TIMEOUT_ENVIO_MS)
@@ -260,6 +309,7 @@ export default function TurismoJaponApplication() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           submissionId,
+          ...(modo === 'cuenta' && solicitudId ? { solicitudId } : {}),
           paso: currentStep,
           data,
           passportScanPath: passportFileUrl ?? methods.getValues('step0_passport_url' as any) ?? null,
@@ -276,11 +326,14 @@ export default function TurismoJaponApplication() {
         return
       }
 
-      localStorage.removeItem(STORAGE_KEY)
-      escribirLocal(SUBMISSION_KEY, null)
+      const enCuenta = modo === 'cuenta'
+      if (!enCuenta) {
+        localStorage.removeItem(STORAGE_KEY)
+        escribirLocal(SUBMISSION_KEY, null)
+      }
       setShowSuccess(true)
       setTimeout(() => {
-        window.location.href = 'https://latamvisatravel.com'
+        window.location.href = enCuenta ? '/mi-cuenta' : 'https://latamvisatravel.com'
       }, 2500)
     } catch (error: any) {
       console.error(error)
@@ -339,16 +392,28 @@ export default function TurismoJaponApplication() {
         setPassportData(result)
         setPassportStatus('success')
         
-        const supabase = createClient()
-        const fileExt = file.name.split('.').pop()
-        const fileName = `japon/passport_scan_${Date.now()}.${fileExt}`
         const fileToUpload = file.type === 'application/pdf' ? await sanitizePdfFile(file) : file
-        const { data: uploadData } = await supabase.storage
-          .from('visa-applications')
-          .upload(fileName, fileToUpload, { upsert: true, contentType: fileToUpload.type })
-        if (uploadData) {
-          setValue('step0_passport_url' as any, uploadData.path)
-          setPassportFileUrl(uploadData.path)
+        if (modo === 'cuenta' && solicitudId) {
+          // Modo cuenta: URL firmada en la carpeta de la solicitud.
+          const firmada = await urlDeSubida(solicitudId, 'japon', fileToUpload.type)
+          if (firmada.success && firmada.url && firmada.path) {
+            const put = await fetch(firmada.url, { method: 'PUT', body: fileToUpload, headers: { 'Content-Type': fileToUpload.type } })
+            if (put.ok) {
+              setValue('step0_passport_url' as any, firmada.path)
+              setPassportFileUrl(firmada.path)
+            }
+          }
+        } else {
+          const supabase = createClient()
+          const fileExt = file.name.split('.').pop()
+          const fileName = `japon/passport_scan_${Date.now()}.${fileExt}`
+          const { data: uploadData } = await supabase.storage
+            .from('visa-applications')
+            .upload(fileName, fileToUpload, { upsert: true, contentType: fileToUpload.type })
+          if (uploadData) {
+            setValue('step0_passport_url' as any, uploadData.path)
+            setPassportFileUrl(uploadData.path)
+          }
         }
       } else {
         setPassportStatus('error')
@@ -681,6 +746,7 @@ export default function TurismoJaponApplication() {
         )}
 
         <FormProvider {...methods}>
+          <SubidaCuentaProvider getUploadUrl={modo === 'cuenta' && solicitudId ? (t) => urlDeSubida(solicitudId, 'japon', t) : null}>
           <form onSubmit={(e) => { e.preventDefault(); handleNext(); }} className="space-y-8">
             <ProgressBar 
               currentStep={Math.max(1, currentStep)} 
@@ -702,6 +768,7 @@ export default function TurismoJaponApplication() {
               />
             )}
           </form>
+          </SubidaCuentaProvider>
         </FormProvider>
       </div>
     </div>

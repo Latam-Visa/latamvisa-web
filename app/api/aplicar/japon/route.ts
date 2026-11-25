@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { waitUntil } from '@vercel/functions'
 import { isUuid } from '@/lib/cotizaciones'
+import { solicitudPropia, yaEnviada, marcarEnviada } from '@/lib/portal/solicitud-propia'
 import { alertarErrorFormulario } from '@/lib/aplicaciones/alertas'
 import { construirFila, contactoDe, guardarJapon, programarTareasJapon, type EnvioJapon } from '@/lib/aplicaciones/japon'
 
@@ -37,7 +38,16 @@ export async function POST(req: Request) {
       return respuesta(400, { success: false, errorCode: 'INVALID_PAYLOAD' })
     }
 
-    const { fila, ajustes } = construirFila(envio)
+    // Modo cuenta: el cliente llega desde /mi-cuenta. Se verifica en el servidor
+    // que la solicitud es suya, es de este destino y no se ha enviado ya.
+    const solicitudId = typeof body?.solicitudId === 'string' ? body.solicitudId : null
+    const solicitud = solicitudId ? await solicitudPropia(solicitudId) : null
+    if (solicitudId && (!solicitud || solicitud.pais !== 'japon' || yaEnviada(solicitud.estado))) {
+      return respuesta(403, { success: false, errorCode: 'SOLICITUD_NO_AUTORIZADA' })
+    }
+
+    const { fila: filaBase, ajustes } = construirFila(envio)
+    const fila = solicitud ? { ...filaBase, solicitud_id: solicitud.id } : filaBase
     const guardado = await guardarJapon(envio, fila)
 
     if (!guardado.ok) {
@@ -57,6 +67,7 @@ export async function POST(req: Request) {
     }
 
     guardada = true
+    if (solicitud) await marcarEnviada(solicitud)
     // Reintento o doble clic: ya estaba guardada, no se repiten emails.
     if (guardado.nueva) {
       if (guardado.emergencia || ajustes.length) {
