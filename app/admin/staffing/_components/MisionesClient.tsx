@@ -515,7 +515,17 @@ export function MisionesClient() {
         <ul className="divide-y divide-[#F2F2EC]">
           <li className="p-5 text-[13.5px] leading-relaxed text-[#2A2A24]">
             <p className="font-bold text-[#0d2b0d]">Recoger los canapés (Cristian)</p>
-            <p className="mt-1"><strong>Sáb 5/12 y sáb 12/12, 9:30</strong> en Woolloongabba → llevar a Fendi. Antes: confirmar que contabilidad pagó cada factura (antes del viernes 4/12 y 11/12) y preguntar a Breno la hora del evento y si hay heladera.</p>
+            <p className="mt-1"><strong>Sáb 5/12 y sáb 12/12, 9:30</strong> en <strong>108 Norman St, Woolloongabba</strong> (Emma). Bus de ida y Uber (UberXL, pagado por la empresa) a Fendi: llegar ~10:00-10:15, estar a las 10:30. El 5/12: Paspaley 11:00 con Ibai y evento 12:00. Antes: confirmar que contabilidad pagó cada factura (antes del viernes 4/12 y 11/12) y preguntar a Breno la hora del evento y si hay heladera.</p>
+          </li>
+          <li className="p-5 text-[13.5px] leading-relaxed text-[#2A2A24]">
+            <p className="font-bold text-[#0d2b0d]">Vasos / glassware (Matheus, con la van)</p>
+            <p className="mt-1">Proveedor: <strong>Excel Event Hire, 229 Orchard Rd, Richlands</strong>. Horario: lun, mar, mié y jue 9:00-16:00 · <strong>vie 9:00-15:30</strong> · sáb y dom cerrado. Cristian no puede el viernes (Cartier 10:00-17:00).</p>
+            <p className="mt-1">Plan: <strong>vie 4/12 y vie 11/12</strong> Matheus recoge en Richlands y deja en Fendi · <strong>lun 7/12 y lun 14/12</strong> Matheus recoge en la ciudad y devuelve a Richlands antes de las 16:00 (los lunes Cristian no trabaja).</p>
+            <p className="mt-1">Por confirmar con Breno: reparto de los $150 por fecha (sugerido ~$50-60 Cristian canapés, ~$90-100 Matheus vidrio), uso de la van (dónde se guarda, combustible, seguro), dónde se guardan los vasos del viernes al sábado y que los Uber se reembolsan. Decirle que el 4/12 no necesita a Cristian.</p>
+          </li>
+          <li className="p-5 text-[13.5px] leading-relaxed text-[#2A2A24]">
+            <p className="font-bold text-[#0d2b0d]">Roster dic: Max y Breno (26/11)</p>
+            <p className="mt-1">Max pide <strong>consistencia</strong>: Fendi y Paspaley idealmente siempre la misma persona (Ibai). Dom 20/12: Ibai a Paspaley, Luiza a Cartier (cambiado aquí como borrador; falta que lo cambien en el sistema del cliente). Jue 10/12: entrenamiento de Luiza en Paspaley 11:00-13:00 con Ibai (mín. 2 h), pendiente de aprobación de Breno. Breno publica la semana del 14/12 y pidió confirmar que Ibai y Luiza están contentos con los turnos: <strong>hablar con ambos</strong>. Si salen más eventos: dar a Ibai y luego extra a Luiza.</p>
           </li>
           <li className="p-5 text-[13.5px] leading-relaxed text-[#2A2A24]">
             <p className="font-bold text-[#0d2b0d]">Luiza y los viernes</p>
