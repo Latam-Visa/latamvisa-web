@@ -9,24 +9,24 @@ import { CHECKOUT_CONFIG } from '@/lib/checkout-config'
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!)
 const config = CHECKOUT_CONFIG.usa
 
-function StripeEmbeddedCheckout({ aplicantes, email }: { aplicantes: number, email: string }) {
+function StripeEmbeddedCheckout({ aplicantes, emails }: { aplicantes: number, emails: string[] }) {
   const fetchClientSecret = useCallback(() => {
     return fetch('/api/checkout/turismo-usa', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ aplicantes, email }),
+      body: JSON.stringify({ aplicantes, emails }),
     })
       .then(res => res.json())
       .then(data => {
         if (data.error) throw new Error(data.error)
         return data.clientSecret
       })
-  }, [aplicantes, email])
+  }, [aplicantes, emails])
 
   return (
     <div id="checkout" className="w-full">
       <EmbeddedCheckoutProvider
-        key={`${aplicantes}-${email}`}
+        key={`${aplicantes}-${emails.join('|')}`}
         stripe={stripePromise}
         options={{ fetchClientSecret }}
       >
@@ -52,7 +52,7 @@ function calcularPrecio(precioBase: number, aplicantes: number) {
 
 export default function TurismoUsaCheckoutPage() {
   const [aplicantes, setAplicantes] = useState(1)
-  const [email, setEmail] = useState('')
+  const [emails, setEmails] = useState<string[]>([''])
   const [precioBase, setPrecioBase] = useState(config.precioSin)
   const [showCheckout, setShowCheckout] = useState(false)
   const [loadingPrices, setLoadingPrices] = useState(true)
@@ -70,12 +70,20 @@ export default function TurismoUsaCheckoutPage() {
   const { subtotal, descuento, total, porcentajeDescuento } = calcularPrecio(precioBase, aplicantes)
 
   const updateAplicantes = (delta: number) => {
-    setAplicantes(prev => Math.max(1, Math.min(10, prev + delta)))
+    const n = Math.max(1, Math.min(10, aplicantes + delta))
+    setAplicantes(n)
+    // Un correo por aplicante: se conservan los ya escritos.
+    setEmails(prev => Array.from({ length: n }, (_, i) => prev[i] ?? ''))
     setShowCheckout(false)
   }
 
+  const emailsLimpios = emails.slice(0, aplicantes).map(e => e.trim().toLowerCase())
+  const emailValido = (e: string) => /^[^\s@,]+@[^\s@,]+\.[^\s@,]+$/.test(e)
+  const repetidos = new Set(emailsLimpios).size !== emailsLimpios.length
+  const emailsOk = emailsLimpios.length === aplicantes && emailsLimpios.every(emailValido) && !repetidos
+
   const handlePay = () => {
-    if (total > 0 && email.trim()) {
+    if (total > 0 && emailsOk) {
       setShowCheckout(true)
     }
   }
@@ -168,20 +176,30 @@ export default function TurismoUsaCheckoutPage() {
               </div>
 
               <div className="mt-6 space-y-4">
-                <div>
-                  <label className="block font-iceland text-xs text-[#5B6A00] tracking-[0.2em] uppercase font-bold mb-2">Correo electrónico del pagador</label>
-                  <input
-                    type="email"
-                    value={email}
-                    onChange={(e) => { setEmail(e.target.value); setShowCheckout(false); }}
-                    placeholder="tu@email.com"
-                    className="w-full p-4 rounded-xl border border-gray-200 bg-white font-funnel text-sm outline-none focus:border-[#C8FF00]"
-                  />
-                </div>
+                {Array.from({ length: aplicantes }, (_, i) => (
+                  <div key={i}>
+                    <label className="block font-iceland text-xs text-[#5B6A00] tracking-[0.2em] uppercase font-bold mb-2">
+                      {aplicantes === 1 ? 'Correo electrónico del pagador' : i === 0 ? 'Aplicante 1 · correo del pagador' : `Aplicante ${i + 1} · correo`}
+                    </label>
+                    <input
+                      type="email"
+                      value={emails[i] ?? ''}
+                      onChange={(e) => { const v = e.target.value; setEmails(prev => prev.map((x, j) => (j === i ? v : x))); setShowCheckout(false) }}
+                      placeholder={i === 0 ? 'tu@email.com' : `aplicante${i + 1}@email.com`}
+                      className="w-full p-4 rounded-xl border border-gray-200 bg-white font-funnel text-sm outline-none focus:border-[#C8FF00]"
+                    />
+                  </div>
+                ))}
+                {aplicantes >= 2 && (
+                  <p className="font-funnel text-xs text-[#555555]">
+                    Cada persona recibirá <strong>su propio link</strong> para crear su perfil y llenar su formulario.
+                    {repetidos && <span className="block text-red-600 mt-1">Cada aplicante necesita un correo distinto.</span>}
+                  </p>
+                )}
 
                 <button
                   onClick={handlePay}
-                  disabled={total === 0 || !email.trim() || showCheckout}
+                  disabled={total === 0 || !emailsOk || showCheckout}
                   className="w-full p-4 rounded-xl font-monument uppercase tracking-wide text-sm transition-all disabled:opacity-50 bg-[#C8FF00] text-[#111111] hover:bg-[#b3e600]"
                 >
                   Pagar A${total}
@@ -198,7 +216,7 @@ export default function TurismoUsaCheckoutPage() {
                   </span>
                 </div>
                 <div className="relative z-10 w-full min-h-[500px]">
-                  <StripeEmbeddedCheckout aplicantes={aplicantes} email={email} />
+                  <StripeEmbeddedCheckout aplicantes={aplicantes} emails={emailsLimpios} />
                 </div>
               </div>
             )}

@@ -6,6 +6,7 @@ import { supabaseAdmin } from '@/lib/supabase/admin'
 import { construirCorreoPagoAdmin } from '@/lib/emails/pago-admin'
 import { construirCorreoActivacion } from '@/lib/emails/portal'
 import { crearSolicitud } from '@/lib/portal/solicitudes'
+import { emailsDelPago } from '@/lib/portal/aplicantes'
 import { nombrePaisPortal } from '@/lib/portal/textos'
 import { SITIO } from '@/lib/portal/supabase'
 
@@ -119,27 +120,37 @@ async function abrirPortal(session: Stripe.Checkout.Session) {
   }
 
   const pais = await paisDelPago(session)
-  const solicitud = await crearSolicitud({
-    email_pago: email,
-    nombre_cliente: session.customer_details?.name || null,
-    pais,
-    servicio: await servicioDelPago(session),
-    stripe_session_id: session.id,
-  })
-  // Reenvío de un evento viejo: la cuenta ya existe, no se manda otro link.
-  if (solicitud.activada_at) return
+  const servicio = await servicioDelPago(session)
+  // Pago para 2+ personas: una solicitud (y un link) por aplicante. El primero
+  // conserva stripe_session_id tal cual (compatible con pagos de una persona);
+  // los demás usan `<session>#n`, que sigue siendo único y estable ante reintentos.
+  const emails = emailsDelPago(session.metadata, email)
+  for (let i = 0; i < emails.length; i++) {
+    const destinatario = emails[i]
+    const claveSesion = i === 0 ? session.id : `${session.id}#${i + 1}`
+    const solicitud = await crearSolicitud({
+      email_pago: destinatario,
+      nombre_cliente: i === 0 ? session.customer_details?.name || null : null,
+      pais,
+      servicio,
+      stripe_session_id: claveSesion,
+    })
+    // Reenvío de un evento viejo: la cuenta ya existe, no se manda otro link.
+    if (solicitud.activada_at) continue
 
-  const { asunto, html } = construirCorreoActivacion({
-    nombre: session.customer_details?.name,
-    pais: nombrePaisPortal(pais),
-    link: `${SITIO}/activar/${solicitud.token}`,
-  })
-  const { error } = await resend.emails.send(
-    { from: 'LATAM VISA <noreply@latamvisatravel.com>', to: email, subject: asunto, html },
-    { idempotencyKey: `activacion/${session.id}` },
-  )
-  if (error) throw new Error(`Resend: ${error.message}`)
-  console.log(`[PORTAL] Solicitud ${solicitud.nueva ? 'creada' : 'ya existía'} y correo de activación enviado: ${session.id}`)
+    const { asunto, html } = construirCorreoActivacion({
+      nombre: i === 0 ? session.customer_details?.name : null,
+      pais: nombrePaisPortal(pais),
+      link: `${SITIO}/activar/${solicitud.token}`,
+      pagador: i === 0 ? null : session.customer_details?.name || email,
+    })
+    const { error } = await resend.emails.send(
+      { from: 'LATAM VISA <noreply@latamvisatravel.com>', to: destinatario, subject: asunto, html },
+      { idempotencyKey: i === 0 ? `activacion/${session.id}` : `activacion/${claveSesion}` },
+    )
+    if (error) throw new Error(`Resend: ${error.message}`)
+    console.log(`[PORTAL] Solicitud ${solicitud.nueva ? 'creada' : 'ya existía'} y correo de activación enviado: ${claveSesion}`)
+  }
 }
 
 export async function POST(req: Request) {

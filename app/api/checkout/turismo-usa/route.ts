@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import Stripe from 'stripe'
 import { CHECKOUT_CONFIG } from '@/lib/checkout-config'
+import { normalizarEmails, validarEmails } from '@/lib/portal/aplicantes'
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!)
 
@@ -29,15 +30,21 @@ export async function GET() {
 // POST → crea la sesión de Stripe con precio calculado en el servidor
 export async function POST(req: Request) {
   try {
-    const { aplicantes, email } = await req.json()
+    const body = await req.json()
+    const { aplicantes } = body
 
     // Validaciones
     if (!aplicantes || aplicantes < 1 || aplicantes > 10) {
       return NextResponse.json({ error: 'Número de aplicantes inválido' }, { status: 400 })
     }
-    if (!email || !email.includes('@')) {
-      return NextResponse.json({ error: 'Email inválido' }, { status: 400 })
+    // Un correo por aplicante (el primero es el del pagador). Compatibilidad:
+    // con 1 aplicante todavía se acepta `email` suelto.
+    const emails = normalizarEmails(body.emails ?? (body.email ? [body.email] : []))
+    const errorEmails = validarEmails(emails, aplicantes)
+    if (errorEmails) {
+      return NextResponse.json({ error: errorEmails }, { status: 400 })
     }
+    const email = emails[0]
 
     // Cálculo de precios (en el servidor — nunca confiar en el cliente)
     const { subtotal, descuento, total, porcentajeDescuento } = calcularPrecio(aplicantes)
@@ -76,6 +83,8 @@ export async function POST(req: Request) {
         descuento_aplicado: String(descuento),
         porcentaje_descuento: String(Math.round(porcentajeDescuento * 100)),
         total_pagado: String(total),
+        // Cada aplicante recibe su propio link para crear cuenta y llenar el formulario.
+        emails_aplicantes: emails.join(','),
       },
       return_url: `${process.env.NEXT_PUBLIC_APP_URL || process.env.NEXT_PUBLIC_SITE_URL}/gracias?session_id={CHECKOUT_SESSION_ID}`,
     })

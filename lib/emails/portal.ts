@@ -28,14 +28,16 @@ function plantilla({ saludo, parrafos, boton, link, nota }: { saludo: string; pa
 </div>`
 }
 
-export function construirCorreoActivacion(datos: { nombre: string | null | undefined; pais: string; link: string }) {
+export function construirCorreoActivacion(datos: { nombre: string | null | undefined; pais: string; link: string; pagador?: string | null }) {
   const nombre = primerNombre(datos.nombre)
   return {
     asunto: 'Recibimos tu pago: crea tu cuenta en LATAM VISA',
     html: plantilla({
       saludo: nombre ? `Hola, ${escaparHtml(nombre)}` : 'Hola',
       parrafos: [
-        `Recibimos tu pago para tu visa de <strong>${escaparHtml(datos.pais)}</strong>. Gracias por confiar en nosotros.`,
+        datos.pagador
+          ? `<strong>${escaparHtml(datos.pagador)}</strong> pagó la asesoría de visa de <strong>${escaparHtml(datos.pais)}</strong> para ti. Este es tu link personal: tu solicitud es independiente de la suya.`
+          : `Recibimos tu pago para tu visa de <strong>${escaparHtml(datos.pais)}</strong>. Gracias por confiar en nosotros.`,
         'El siguiente paso es crear tu cuenta. Desde ahí vas a llenar tu solicitud y subir tus documentos, y siempre vas a poder ver en qué va tu trámite.',
         'Te toma un minuto: puedes usar este mismo correo u otro que prefieras.',
       ],
