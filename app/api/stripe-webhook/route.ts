@@ -9,6 +9,7 @@ import { crearSolicitud } from '@/lib/portal/solicitudes'
 import { emailsDelPago } from '@/lib/portal/aplicantes'
 import { nombrePaisPortal } from '@/lib/portal/textos'
 import { SITIO } from '@/lib/portal/supabase'
+import { registrarOrdenBandana } from '@/lib/bandanas/orden'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
@@ -174,6 +175,21 @@ export async function POST(req: Request) {
     } catch (err: any) {
       console.error(`Webhook signature verification failed: ${err.message}`)
       return NextResponse.json({ error: `Webhook Error: ${err.message}` }, { status: 400 })
+    }
+
+    // Tienda de bandanas: va primero y sale aquí. Los flujos de visas de abajo
+    // le abrirían una solicitud de Canadá a cualquier producto desconocido.
+    if (
+      (event.type === 'checkout.session.completed' || event.type === 'checkout.session.async_payment_succeeded') &&
+      (event.data.object as Stripe.Checkout.Session).metadata?.tipo === 'bandana'
+    ) {
+      try {
+        await registrarOrdenBandana(event.data.object as Stripe.Checkout.Session, resend)
+      } catch (e) {
+        console.error('[BANDANAS] Error registrando la orden:', e)
+        return NextResponse.json({ error: 'No se pudo registrar la orden' }, { status: 500 })
+      }
+      return NextResponse.json({ received: true }, { status: 200 })
     }
 
     // Cotizaciones de /pagar/[token]. Van antes del flujo de /agendar y salen
