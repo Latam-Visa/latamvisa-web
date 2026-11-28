@@ -1,5 +1,5 @@
 import { logoutAdmin } from './login/actions'
-import { LogOut, Lightbulb, ClipboardList } from 'lucide-react'
+import { LogOut, Lightbulb, ClipboardList, CalendarRange, Handshake } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 
@@ -22,7 +22,21 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 | Admin
               </span>
             </Link>
-            <div className="flex items-center gap-5">
+            <div className="flex items-center gap-4 sm:gap-5">
+              <Link
+                href="/admin/staffing"
+                className="flex items-center gap-2 text-[#525252] hover:text-[#0A0A0A] text-sm font-medium transition-colors"
+              >
+                <CalendarRange className="w-4 h-4" />
+                <span className="hidden sm:inline">Staffing</span>
+              </Link>
+              <Link
+                href="/admin/sales"
+                className="flex items-center gap-2 text-[#525252] hover:text-[#0A0A0A] text-sm font-medium transition-colors"
+              >
+                <Handshake className="w-4 h-4" />
+                <span className="hidden sm:inline">Sales</span>
+              </Link>
               <Link
                 href="/admin/registro"
                 className="flex items-center gap-2 text-[#525252] hover:text-[#0A0A0A] text-sm font-medium transition-colors"

@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import dynamic from 'next/dynamic'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
-import { ClipboardList, Lightbulb, Languages, Receipt, CalendarClock, GraduationCap, CalendarRange, ArrowRight, type LucideIcon } from 'lucide-react'
+import { ClipboardList, Lightbulb, Languages, Receipt, CalendarClock, GraduationCap, CalendarRange, Handshake, ArrowRight, type LucideIcon } from 'lucide-react'
 
 const Antigravity = dynamic(() => import('@/components/Antigravity'), { ssr: false })
 
@@ -92,6 +92,12 @@ export function AdminHomeHub({ solicitudesCount, ideasPendingCount, traducciones
       subtitle: 'Calendario de turnos, cobertura por cliente y reclutamiento',
       count: staffingGapsCount,
       countLabel: staffingGapsCount === 1 ? 'gap (14 días)' : 'gaps (14 días)',
+    },
+    {
+      href: '/admin/sales',
+      icon: Handshake,
+      title: 'Sales',
+      subtitle: 'Prospectos de Colette & Louis y Savoy Cleaning: pipeline y reporte semanal',
     },
   ]
 
