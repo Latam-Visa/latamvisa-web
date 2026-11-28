@@ -20,3 +20,8 @@ export interface Bandana {
 }
 
 export const precio = (n: number) => `$${Number.isInteger(Number(n)) ? Number(n) : Number(n).toFixed(2)} AUD`
+
+/* Imágenes del anillo de la portada: 7 diseños (cada uno sale dos veces).
+   `null` = cuadro de color sin imagen. Para poner una foto, guardarla en
+   public/bandanas/rueda/ y escribir aquí su ruta, p. ej. '/bandanas/rueda/1.jpg'. */
+export const RUEDA: (string | null)[] = [null, null, null, null, null, null, null]

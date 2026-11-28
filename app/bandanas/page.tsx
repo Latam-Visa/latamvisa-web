@@ -3,6 +3,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { LEMA, precio } from '@/lib/bandanas/config'
 import { listarBandanas } from '@/lib/bandanas/datos'
+import { Rueda } from './_components/Rueda'
 
 // Los productos nuevos aparecen en un minuto como máximo.
 export const revalidate = 60
@@ -17,13 +18,15 @@ export default async function BandanasPage() {
   const productos = await listarBandanas()
   return (
     <>
-      <section className="px-5 pb-12 pt-8 text-center sm:pb-20 sm:pt-14">
-        <h1 className="font-monument font-black text-[44px] uppercase leading-[0.95] sm:text-[88px]">Noche Latina</h1>
-        <p className="mt-5 text-[11px] font-bold uppercase tracking-[0.3em] sm:text-[13px]">Latam Visa × Noctive</p>
-        <p className="mx-auto mt-5 max-w-[420px] text-[15px] text-white/70">{LEMA}</p>
+      <section className="overflow-hidden px-1 pb-8 pt-2 sm:px-4 sm:pb-12">
+        <h1 className="sr-only">Bandanas — Noche Latina, LATAM VISA × NOCTIVE</h1>
+        <p className="text-center text-[11px] font-bold uppercase tracking-[0.22em] text-[#F5F1E6] sm:text-[13px]">
+          Noche Latina <span aria-hidden="true" className="mx-2 text-white/40">|</span> Latam Visa × Noctive
+        </p>
+        <Rueda lema={LEMA} />
       </section>
 
-      <section aria-label="Diseños" className="bg-[#F3F1EC] px-3 py-6 text-black sm:px-10 sm:py-12">
+      <section id="disenos" aria-label="Diseños" className="scroll-mt-12 bg-[#F3F1EC] px-3 py-6 text-black sm:px-10 sm:py-12">
         {productos.length === 0 ? (
           <p className="py-20 text-center text-sm font-bold uppercase tracking-[0.2em]">Los diseños llegan pronto</p>
         ) : (
