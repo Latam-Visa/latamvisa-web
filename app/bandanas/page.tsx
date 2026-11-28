@@ -20,9 +20,7 @@ export default async function BandanasPage() {
     <>
       <section className="overflow-hidden px-1 pb-8 pt-2 sm:px-4 sm:pb-12">
         <h1 className="sr-only">Bandanas — Noche Latina, LATAM VISA × NOCTIVE</h1>
-        <p className="text-center text-[11px] font-bold uppercase tracking-[0.22em] text-[#F5F1E6] sm:text-[13px]">
-          Noche Latina <span aria-hidden="true" className="mx-2 text-white/40">|</span> Latam Visa × Noctive
-        </p>
+        <p className="text-center text-[11px] font-bold uppercase tracking-[0.3em] text-[#F5F1E6] sm:text-[13px]">Noche Latina</p>
         <Rueda lema={LEMA} />
       </section>
 
