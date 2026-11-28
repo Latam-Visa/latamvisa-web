@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from 'react'
 import { RUEDA } from '@/lib/bandanas/config'
+import { PALABRA, PALABRA_ALTO } from './palabra'
 
 /* Portada: anillo de cuadros que "rodea" la palabra BANDANAS.
    Capas: 1) anillo completo detrás · 2) la palabra · 3) el mismo anillo
@@ -68,7 +69,7 @@ function Cuadros({ id }: { id: string }) {
 }
 
 // Un mismo dibujo con dos encuadres: ancho (escritorio) y cuadrado (celular).
-function Escena({ id, ancho, anchoPalabra, tamano, escala = 1, className }: { id: string; ancho: number; anchoPalabra: number; tamano: number; escala?: number; className: string }) {
+function Escena({ id, ancho, anchoPalabra, escala = 1, className }: { id: string; ancho: number; anchoPalabra: number; escala?: number; className: string }) {
   const cx = ancho / 2
   const cy = 390
   const caja = `0 0 ${ancho} 780`
@@ -77,10 +78,10 @@ function Escena({ id, ancho, anchoPalabra, tamano, escala = 1, className }: { id
       <svg viewBox={caja} className="block w-full" aria-hidden="true">
         <defs><clipPath id={`${id}-forma`}><path d={FORMA} /></clipPath></defs>
         <g transform={`translate(${cx} ${cy}) scale(${escala})`}><g data-giro><Cuadros id={id} /></g></g>
-        <text x={cx} y={cy + 10} textAnchor="middle" textLength={anchoPalabra} lengthAdjust="spacingAndGlyphs"
-          fill="#D5F89A" fontSize={tamano} fontWeight={900} style={{ fontFamily: 'var(--font-monument-black)' }}>
-          BANDANAS
-        </text>
+      </svg>
+      <svg viewBox={caja} className="pointer-events-none absolute inset-0 block w-full" aria-hidden="true">
+        <path d={PALABRA} fill="#D5F89A"
+          transform={`translate(${cx - anchoPalabra / 2} ${cy - 40 - (PALABRA_ALTO * anchoPalabra) / 2000}) scale(${anchoPalabra / 1000})`} />
       </svg>
       <svg viewBox={caja} className="pointer-events-none absolute inset-0 block w-full" aria-hidden="true">
         <defs><clipPath id={`${id}-frente`}><rect x="0" y="0" width={cx} height="780" /></clipPath></defs>
@@ -168,8 +169,8 @@ export function Rueda({ lema }: { lema: string }) {
 
   return (
     <div ref={raiz} className="relative mx-auto w-full max-w-[1120px] cursor-grab touch-pan-y select-none active:cursor-grabbing">
-      <Escena id="ancha" ancho={1180} anchoPalabra={1110} tamano={190} className="relative hidden sm:block" />
-      <Escena id="movil" ancho={730} anchoPalabra={714} tamano={122} escala={0.8} className="relative sm:hidden" />
+      <Escena id="ancha" ancho={1180} anchoPalabra={1110} className="relative hidden sm:block" />
+      <Escena id="movil" ancho={730} anchoPalabra={714} escala={0.8} className="relative sm:hidden" />
       <div className="pointer-events-none absolute inset-x-0 top-[55%] flex flex-col items-center px-[22%] text-center sm:top-[57%] sm:px-0">
         <p className="max-w-[300px] text-[13px] font-bold leading-tight text-[#F5F1E6] sm:text-[clamp(14px,1.9vw,22px)]">{lema}</p>
         <a href="#disenos" className="pointer-events-auto mt-3 rounded-full bg-[#2C4A35] px-5 py-2.5 text-[12px] font-bold text-[#D5F89A] transition-colors hover:bg-[#D5F89A] hover:text-[#13261B] sm:mt-5 sm:text-[14px]">
